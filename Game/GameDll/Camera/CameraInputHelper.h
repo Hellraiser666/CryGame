@@ -42,29 +42,50 @@ public:
 	void Reset();
 
 	//time of the last user yaw/pitch change
-	float GetLastUserInputTime() const { return m_fLastUserInput; }
+	float GetLastUserInputTime() const
+	{
+		return m_fLastUserInput;
+	}
 
 	//is the camera interpolating to a target ?
-	bool HasInterpolationTarget() const { return m_bInterpolationTargetActive; }
+	bool HasInterpolationTarget() const
+	{
+		return m_bInterpolationTargetActive;
+	}
 	//snap camera direction (in nav mode) to player direction
 	void SnapToPlayerDir();
 	//interpolate camera dir to target yaw and pitch with speedInRad/second
 	void SetInterpolationTarget(float yaw, float pitch, float speedInRad = gf_PI*2.0f, float timeOut = 5.0f, float maxError = 0.2f);
 
 	//return current camera pitch in rad
-	float GetPitch() const { return m_fPitch; }
+	float GetPitch() const
+	{
+		return m_fPitch;
+	}
 	//there is a delta-pitch (in follow mode)
-	bool HasPitchChanged() const { return m_bPitchModified; }
+	bool HasPitchChanged() const
+	{
+		return m_bPitchModified;
+	}
 	//overwrite pitch
-	void SetPitch(const float pitch) { m_fPitch = pitch; }
+	void SetPitch(const float pitch)
+	{
+		m_fPitch = pitch;
+	}
 	//overwrite pitch delta, causing turn
 	void SetPitchDelta(const float pitch);
 
 	//return current camera yaw in rad
-	float GetYaw() const { return m_fYaw; }
+	float GetYaw() const
+	{
+		return m_fYaw;
+	}
 	//there is a delta-yaw (in follow mode)
-	bool HasYawChanged() const { return m_bYawModified; }
-	//set current yaw 
+	bool HasYawChanged() const
+	{
+		return m_bYawModified;
+	}
+	//set current yaw
 	void SetYaw(const float yaw);
 	//overwrite yaw delta, causing turn
 	void SetYawDelta(const float yaw);
@@ -74,7 +95,10 @@ public:
 	//get forced camera direction
 	bool GetForcedDirection(float &fYaw, float &fPitch);
 	//force overwrite direction active
-	bool HasForceDirection() const { return m_fForceSettings > 0.0f; }
+	bool HasForceDirection() const
+	{
+		return m_fForceSettings > 0.0f;
+	}
 
 	//set tracking delta for non-follow cam
 	void SetTrackingDelta(const float deltaYaw, const float deltaPitch);
@@ -135,19 +159,19 @@ private:
 // INLINES
 
 inline float CCameraInputHelper::RetrievePitchDelta()
-{ 
+{
 	m_bPitchModified = false;
 	float fDelta = m_fInputPitchDelta;
 	m_fInputPitchDelta = 0.0f;
-	return fDelta; 
+	return fDelta;
 }
 
 inline float CCameraInputHelper::RetrieveYawDelta()
-{ 
+{
 	m_bYawModified = false;
 	float fDelta = m_fInputYawDelta;
 	m_fInputYawDelta = 0.0f;
-	return fDelta; 
+	return fDelta;
 }
 
 inline void CCameraInputHelper::SetPitchDelta(const float pitch)
@@ -191,6 +215,7 @@ inline bool CCameraInputHelper::GetForcedDirection(float &fYaw, float &fPitch)
 		fPitch = m_fForcePitch;
 		return true;
 	}
+
 	return false;
 }
 

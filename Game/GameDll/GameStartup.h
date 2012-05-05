@@ -4,7 +4,7 @@ Copyright (C), Crytek Studios, 2001-2004.
 -------------------------------------------------------------------------
 $Id$
 $DateTime$
-Description: 
+Description:
 
 -------------------------------------------------------------------------
 History:
@@ -32,11 +32,11 @@ History:
 #define GAME_FRAMEWORK_FILENAME	"CryAction.so"
 #else
 #define GAME_FRAMEWORK_FILENAME	"cryaction.dll"
-#endif 
+#endif
 #define GAME_WINDOW_CLASSNAME		"CryENGINE"
 
 // implemented in GameDll.cpp
-extern HMODULE GetFrameworkDLL(const char* dllLocalDir);
+extern HMODULE GetFrameworkDLL(const char *dllLocalDir);
 
 class CGameStartup :
 	public IGameStartup
@@ -49,12 +49,12 @@ public:
 	virtual IGameRef Reset(const char *modName);
 	VIRTUAL void Shutdown();
 	VIRTUAL int Update(bool haveFocus, unsigned int updateFlags);
-	VIRTUAL bool GetRestartLevel(char** levelName);
-	VIRTUAL const char* GetPatch() const;
-	VIRTUAL bool GetRestartMod(char* pModName, int nameLenMax);
-	VIRTUAL int Run( const char * autoStartLevelName );
+	VIRTUAL bool GetRestartLevel(char **levelName);
+	VIRTUAL const char *GetPatch() const;
+	VIRTUAL bool GetRestartMod(char *pModName, int nameLenMax);
+	VIRTUAL int Run(const char *autoStartLevelName);
 
-	static void RequestLoadMod(IConsoleCmdArgs* pCmdArgs);
+	static void RequestLoadMod(IConsoleCmdArgs *pCmdArgs);
 
 	static void ForceCursorUpdate();
 
@@ -62,10 +62,10 @@ public:
 
 private:
 
-	static bool IsModAvailable(const string& modName);
+	static bool IsModAvailable(const string &modName);
 	static string GetModPath(const string modName);
 
-	static bool InitMod(const char* pName);
+	static bool InitMod(const char *pName);
 	static void ShutdownMod();
 
 	static bool InitWindow(SSystemInitParams &startupParams);

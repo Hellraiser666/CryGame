@@ -4,7 +4,7 @@ Copyright (C), Crytek Studios, 2001-2005.
 -------------------------------------------------------------------------
 $Id$
 $DateTime$
-Description: 	
+Description:
 	Sound moods (from game side)
 
 -------------------------------------------------------------------------
@@ -42,7 +42,7 @@ class CSoundMoods
 {
 public:
 
-		CSoundMoods();
+	CSoundMoods();
 	~	CSoundMoods();
 
 	void AddSoundMood(ESOUNDMOOD eSoundMood,float fPercent=0.0f);

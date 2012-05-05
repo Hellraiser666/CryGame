@@ -56,7 +56,7 @@ protected:
 	typedef std::vector<IFireMode *>						TFireModeVector;
 	typedef std::map<string, int>								TZoomModeIdMap;
 	typedef std::vector<IZoomMode *>						TZoomModeVector;
-	typedef std::map<IEntityClass*, int>				TAmmoMap;
+	typedef std::map<IEntityClass *, int>				TAmmoMap;
 
 	struct SListenerInfo
 	{
@@ -93,7 +93,7 @@ protected:
 		float fadetime;
 		float fadetimer;
 		float opacity;
-	}SWeaponCrosshairStats;
+	} SWeaponCrosshairStats;
 
 	typedef VectorMap<EStance, Vec3>	TStanceWeaponOffset;
 
@@ -101,7 +101,7 @@ public:
 
 	struct SAIWeaponOffset
 	{
-		SAIWeaponOffset(): useEyeOffset(false){};
+		SAIWeaponOffset(): useEyeOffset(false) {};
 
 		bool								useEyeOffset;
 
@@ -115,47 +115,59 @@ public:
 	virtual ~CWeapon();
 
 	// IItem, IGameObjectExtension
-	virtual bool Init(IGameObject * pGameObject);
-	virtual void InitClient(int channelId) { CItem::InitClient(channelId); };
+	virtual bool Init(IGameObject *pGameObject);
+	virtual void InitClient(int channelId)
+	{
+		CItem::InitClient(channelId);
+	};
 	virtual void Release();
-	virtual void FullSerialize( TSerialize ser );
-	virtual bool NetSerialize( TSerialize ser, EEntityAspects aspect, uint8 profile, int flags );
+	virtual void FullSerialize(TSerialize ser);
+	virtual bool NetSerialize(TSerialize ser, EEntityAspects aspect, uint8 profile, int flags);
 	virtual void PostSerialize();
 	virtual void SerializeLTL(TSerialize ser);
-	virtual void Update(SEntityUpdateContext& ctx, int);
-	virtual void PostUpdate( float frameTime );
-	virtual void HandleEvent(const SGameObjectEvent&);
-	virtual void ProcessEvent(SEntityEvent& event);
+	virtual void Update(SEntityUpdateContext &ctx, int);
+	virtual void PostUpdate(float frameTime);
+	virtual void HandleEvent(const SGameObjectEvent &);
+	virtual void ProcessEvent(SEntityEvent &event);
 	virtual void SetChannelId(uint16 id) {};
 	virtual void SetAuthority(bool auth);
-	virtual void GetMemoryUsage(ICrySizer * s) const;
+	virtual void GetMemoryUsage(ICrySizer *s) const;
 
 	virtual void Reset();
 
-	virtual void OnAction(EntityId actorId, const ActionId& actionId, int activationMode, float value);
+	virtual void OnAction(EntityId actorId, const ActionId &actionId, int activationMode, float value);
 	virtual void UpdateFPView(float frameTime);
 
-	virtual IWeapon *GetIWeapon() { return this; };
-	virtual const IWeapon *GetIWeapon() const { return this; };
+	virtual IWeapon *GetIWeapon()
+	{
+		return this;
+	};
+	virtual const IWeapon *GetIWeapon() const
+	{
+		return this;
+	};
 
 	virtual void MeleeAttack(bool bShort = false);
 	virtual bool CanMeleeAttack() const;
-	virtual IFireMode *GetMeleeFireMode() const { return m_melee; };
+	virtual IFireMode *GetMeleeFireMode() const
+	{
+		return m_melee;
+	};
 
-  virtual void Select(bool select);
+	virtual void Select(bool select);
 	virtual void Drop(float impulseScale, bool selectNext=true, bool byDeath=false);
 	virtual void Freeze(bool freeze);
 
 	virtual void OnPickedUp(EntityId actorId, bool destroyed);
 	virtual void OnDropped(EntityId actorId);
 
-  virtual void OnHit(float damage, const char* damageType);
-  virtual void OnDestroyed();
+	virtual void OnHit(float damage, const char *damageType);
+	virtual void OnDestroyed();
 	virtual void EnterWater(bool enter) {};
 
 	//Needed for the mounted weapon
-	virtual void StartUse(EntityId userId); 
-	virtual void StopUse(EntityId userId); 
+	virtual void StartUse(EntityId userId);
+	virtual void StopUse(EntityId userId);
 
 	virtual bool CheckAmmoRestrictions(EntityId pickerId);
 
@@ -166,13 +178,13 @@ public:
 	virtual bool HasAttachmentAtHelper(const char *helper);
 	virtual void GetAttachmentsAtHelper(const char *helper, CCryFixedStringListT<5, 30> &attachments);
 	// Events
-	virtual void OnShoot(EntityId shooterId, EntityId ammoId, IEntityClass* pAmmoType, 
-		const Vec3 &pos, const Vec3 &dir, const Vec3 &vel);
+	virtual void OnShoot(EntityId shooterId, EntityId ammoId, IEntityClass *pAmmoType,
+						 const Vec3 &pos, const Vec3 &dir, const Vec3 &vel);
 	virtual void OnStartFire(EntityId shooterId);
 	virtual void OnStopFire(EntityId shooterId);
-	virtual void OnStartReload(EntityId shooterId, IEntityClass* pAmmoType);
-	virtual void OnEndReload(EntityId shooterId, IEntityClass* pAmmoType);
-	virtual void OnOutOfAmmo(IEntityClass* pAmmoType);
+	virtual void OnStartReload(EntityId shooterId, IEntityClass *pAmmoType);
+	virtual void OnEndReload(EntityId shooterId, IEntityClass *pAmmoType);
+	virtual void OnOutOfAmmo(IEntityClass *pAmmoType);
 	virtual void OnReadyToFire();
 	virtual void OnMelee(EntityId shooterId);
 	virtual void OnStartTargetting(IWeapon *pWeapon);
@@ -188,18 +200,27 @@ public:
 	virtual void AddEventListener(IWeaponEventListener *pListener, const char *who);
 	virtual void RemoveEventListener(IWeaponEventListener *pListener);
 
-  virtual void SetDestinationEntity(EntityId targetId);
-  virtual void SetDestination(const Vec3& pos){ m_destination = pos; }
-	virtual const Vec3& GetDestination(){ return m_destination; }
+	virtual void SetDestinationEntity(EntityId targetId);
+	virtual void SetDestination(const Vec3 &pos)
+	{
+		m_destination = pos;
+	}
+	virtual const Vec3 &GetDestination()
+	{
+		return m_destination;
+	}
 
 	virtual Vec3 GetFiringPos(const Vec3 &probableHit) const;
-	virtual Vec3 GetFiringDir(const Vec3 &probableHit, const Vec3& firingPos) const;
-	
+	virtual Vec3 GetFiringDir(const Vec3 &probableHit, const Vec3 &firingPos) const;
+
 	virtual void StartFire();
-	virtual void StartFire(const SProjectileLaunchParams& launchParams);
+	virtual void StartFire(const SProjectileLaunchParams &launchParams);
 	virtual void StopFire();
 	virtual bool CanFire() const;
-	virtual bool CanStopFire() const { return true; }
+	virtual bool CanStopFire() const
+	{
+		return true;
+	}
 
 	virtual void StartZoom(EntityId shooterId, int zoomed = 0);
 	virtual void StopZoom(EntityId shooterId);
@@ -210,7 +231,7 @@ public:
 	virtual EZoomState GetZoomState() const;
 
 	virtual bool IsReloading(bool includePending=true) const;
-	
+
 	virtual void MountAt(const Vec3 &pos);
 	virtual void MountAtEntity(EntityId entityId, const Vec3 &pos, const Ang3 &angles);
 
@@ -218,19 +239,25 @@ public:
 	virtual bool CanReload() const;
 
 	virtual bool OutOfAmmo(bool allFireModes) const;
-	virtual bool LowAmmo(float) const { return false; }; // TODO: Implement properly if required. This is for Crysis2 compatibility.
+	virtual bool LowAmmo(float) const
+	{
+		return false;
+	}; // TODO: Implement properly if required. This is for Crysis2 compatibility.
 
-	virtual int GetAmmoCount(IEntityClass* pAmmoType) const;
-	virtual void SetAmmoCount(IEntityClass* pAmmoType, int count);
+	virtual int GetAmmoCount(IEntityClass *pAmmoType) const;
+	virtual void SetAmmoCount(IEntityClass *pAmmoType, int count);
 
-	virtual int GetInventoryAmmoCount(IEntityClass* pAmmoType) const;
-	virtual void SetInventoryAmmoCount(IEntityClass* pAmmoType, int count);
+	virtual int GetInventoryAmmoCount(IEntityClass *pAmmoType) const;
+	virtual void SetInventoryAmmoCount(IEntityClass *pAmmoType, int count);
 
-	virtual int GetNumOfFireModes() const { return m_firemodes.size(); }
+	virtual int GetNumOfFireModes() const
+	{
+		return m_firemodes.size();
+	}
 	virtual IFireMode *GetFireMode(int idx) const;
 	virtual IFireMode *GetFireMode(const char *name) const;
 	virtual int GetFireModeIdx(const char *name) const;
-	virtual int GetFireModeIdxWithAmmo(const IEntityClass* pAmmoClass) const;
+	virtual int GetFireModeIdxWithAmmo(const IEntityClass *pAmmoClass) const;
 	virtual int GetCurrentFireMode() const;
 	virtual int GetPreviousFireMode() const;
 	virtual void SetCurrentFireMode(int idx);
@@ -257,7 +284,7 @@ public:
 	virtual float GetCrosshairOpacity() const;
 	virtual void FadeCrosshair(float from, float to, float time);
 	virtual void UpdateCrosshair(float frameTime);
-  
+
 	virtual void AccessoriesChanged();
 	virtual bool PatchFireModeWithAccessory(IFireMode *pFireMode, const char *firemodeName);
 	virtual bool PatchZoomModeWithAccessory(IZoomMode *pZoomMode, const char *zoommodeName);
@@ -269,12 +296,12 @@ public:
 	virtual EntityId GetHostId() const;
 
 	virtual bool	PredictProjectileHit(IPhysicalEntity *pShooter, const Vec3 &pos, const Vec3 &dir,
-		const Vec3 &velocity, float speed, Vec3& predictedPosOut, float& projectileSpeedOut,
-		Vec3* pTrajectory = 0, unsigned int* trajectorySizeInOut = 0, float timeStep = 0.24f) const;
+										 const Vec3 &velocity, float speed, Vec3 &predictedPosOut, float &projectileSpeedOut,
+										 Vec3 *pTrajectory = 0, unsigned int *trajectorySizeInOut = 0, float timeStep = 0.24f) const;
 
-	virtual const AIWeaponDescriptor& GetAIWeaponDescriptor( ) const;
+	virtual const AIWeaponDescriptor &GetAIWeaponDescriptor() const;
 
-	virtual bool Query(EWeaponQuery query, const void* param = NULL);
+	virtual bool Query(EWeaponQuery query, const void *param = NULL);
 
 	//Activate/Deactivate Laser and Light for the AI (also player if neccessary)
 	virtual bool		IsLamAttached();
@@ -284,8 +311,14 @@ public:
 	virtual bool	  IsLamLaserActivated();
 	virtual bool		IsLamLightActivated();
 	virtual	void		RaiseWeapon(bool raise, bool faster = false);
-	ILINE virtual uint8 GetRaisePose() { return m_raisePose; }
-	virtual bool IsRippedOff() const { return false; }
+	ILINE virtual uint8 GetRaisePose()
+	{
+		return m_raisePose;
+	}
+	virtual bool IsRippedOff() const
+	{
+		return false;
+	}
 
 	// ~IWeapon
 
@@ -293,37 +326,82 @@ public:
 	void AssistAiming(float magnification=1.0f, bool accurate=false);
 	bool IsValidAssistTarget(IEntity *pEntity, IEntity *pSelf, bool includeVehicles=false);
 
-	void AdvancedAssistAiming(float range, const Vec3& pos, Vec3 &dir);
+	void AdvancedAssistAiming(float range, const Vec3 &pos, Vec3 &dir);
 
-	bool		IsSilencerAttached() { return m_silencerAttached; }
+	bool		IsSilencerAttached()
+	{
+		return m_silencerAttached;
+	}
 
 	void		StartChangeFireMode();
 	void		EndChangeFireMode();
-	bool    IsSwitchingFireMode() { return m_switchingFireMode; };
+	bool    IsSwitchingFireMode()
+	{
+		return m_switchingFireMode;
+	};
 
 	//Targeting stuff
-	bool		IsTargetOn() { return m_targetOn; }
-	void		ActivateTarget(bool activate) { m_targetOn = activate; }
-	void		SetAimLocation(Vec3 &location) { m_aimPosition = location; }
-	void		SetTargetLocation(Vec3 &location) { m_targetPosition = location; }
-	Vec3&   GetAimLocation(){ return m_aimPosition; }
-	Vec3&		GetTargetLocation() { return m_targetPosition; }
+	bool		IsTargetOn()
+	{
+		return m_targetOn;
+	}
+	void		ActivateTarget(bool activate)
+	{
+		m_targetOn = activate;
+	}
+	void		SetAimLocation(Vec3 &location)
+	{
+		m_aimPosition = location;
+	}
+	void		SetTargetLocation(Vec3 &location)
+	{
+		m_targetPosition = location;
+	}
+	Vec3   &GetAimLocation()
+	{
+		return m_aimPosition;
+	}
+	Vec3		&GetTargetLocation()
+	{
+		return m_targetPosition;
+	}
 
 	//Raise weapon
-	ILINE virtual	bool		IsWeaponRaised() const { return (m_weaponRaised); }
+	ILINE virtual	bool		IsWeaponRaised() const
+	{
+		return (m_weaponRaised);
+	}
 	virtual	float		GetRaiseDistance();
-	ILINE virtual void    SetWeaponRaised(bool raise) {m_weaponRaised = raise;}
+	ILINE virtual void    SetWeaponRaised(bool raise)
+	{
+		m_weaponRaised = raise;
+	}
 
 	virtual bool		CanBeRaised();
 	virtual void    UpdateWeaponRaising(float frameTime);
 	virtual void    UpdateWeaponLowering(float frameTime);
 
-	ILINE virtual void		LowerWeapon(bool lower) { m_weaponLowered = lower; }
-	ILINE virtual bool		IsWeaponLowered() { return m_weaponLowered; }
-	ILINE virtual bool    IsPendingFireRequest() { return m_requestedFire; }
+	ILINE virtual void		LowerWeapon(bool lower)
+	{
+		m_weaponLowered = lower;
+	}
+	ILINE virtual bool		IsWeaponLowered()
+	{
+		return m_weaponLowered;
+	}
+	ILINE virtual bool    IsPendingFireRequest()
+	{
+		return m_requestedFire;
+	}
 
-	bool		GetFireAlternation() { return m_fire_alternation;}
-	void		SetFireAlternation(bool fireAlt) { m_fire_alternation = fireAlt;}
+	bool		GetFireAlternation()
+	{
+		return m_fire_alternation;
+	}
+	void		SetFireAlternation(bool fireAlt)
+	{
+		m_fire_alternation = fireAlt;
+	}
 
 	//LAW special stuff
 	virtual	void		AutoDrop() {};
@@ -333,16 +411,22 @@ public:
 	bool    FireSlave(EntityId actorId, bool fire);
 	void    ReloadSlave();
 
-	virtual EntityId	GetHeldEntityId() const { return 0; }
+	virtual EntityId	GetHeldEntityId() const
+	{
+		return 0;
+	}
 
 	virtual void SendMusicLogicEvent(EMusicLogicEvents event);
 
 	//Scopes
 	void    OnZoomIn();
 	void    OnZoomOut();
-	bool    GetScopePosition(Vec3& pos);
+	bool    GetScopePosition(Vec3 &pos);
 
-	virtual CWeaponSharedParams*  GetWeaponSharedParams() { return m_weaponsharedparams; }
+	virtual CWeaponSharedParams  *GetWeaponSharedParams()
+	{
+		return m_weaponsharedparams;
+	}
 
 	// network
 	enum ENetReloadState
@@ -412,7 +496,7 @@ public:
 	{
 		SvRequestShootExParams() {};
 		SvRequestShootExParams(const Vec3 &_pos, const Vec3 &_dir, const Vec3 &_vel, const Vec3 &_hit, float _extra, int ph)
-		: pos(_pos), dir(_dir), vel(_vel), hit(_hit), extra(_extra), predictionHandle(ph) {};
+			: pos(_pos), dir(_dir), vel(_vel), hit(_hit), extra(_extra), predictionHandle(ph) {};
 
 		Vec3 pos;
 		Vec3 dir;
@@ -510,7 +594,7 @@ public:
 
 	struct DefaultParams
 	{
-		void SerializeWith(const TSerialize& ser) {};
+		void SerializeWith(const TSerialize &ser) {};
 	};
 
 	static const EEntityAspects ASPECT_STREAM	= eEA_GameServerDynamic;
@@ -528,7 +612,7 @@ public:
 	DECLARE_SERVER_RMI_NOATTACH(SvRequestReload, DefaultParams, eNRT_ReliableUnordered);
 	DECLARE_SERVER_RMI_NOATTACH(SvRequestCancelReload, DefaultParams, eNRT_ReliableOrdered);
 	//~RELOADING
-	
+
 	DECLARE_CLIENT_RMI_NOATTACH(ClLock, LockParams, eNRT_ReliableOrdered);
 	DECLARE_CLIENT_RMI_NOATTACH(ClUnlock, EmptyParams, eNRT_ReliableOrdered);
 	DECLARE_CLIENT_RMI_NOATTACH(ClZoom, ZoomParams, eNRT_UnreliableOrdered);
@@ -544,7 +628,7 @@ public:
 	virtual void NetSetWeaponRaised(bool raise);
 	virtual void NetSetIsFiring(bool isFiring);
 	virtual void NetStateSent();
-	virtual void NetUpdateFireMode(SEntityUpdateContext& ctx);
+	virtual void NetUpdateFireMode(SEntityUpdateContext &ctx);
 	virtual bool NetAllowUpdate(bool requireActor);
 	virtual void NetShoot(const Vec3 &hit, int predictionHandle);
 	virtual void NetShootEx(const Vec3 &pos, const Vec3 &dir, const Vec3 &vel, const Vec3 &hit, float extra, int predictionHandle);
@@ -563,26 +647,29 @@ public:
 	void RequestReload();
 	void RequestCancelReload();
 	//~RELOADING
-	
-	void RequestShoot(IEntityClass* pAmmoType, const Vec3 &pos, const Vec3 &dir, const Vec3 &vel, const Vec3 &hit, float extra, int predictionHandle, bool forceExtended);
+
+	void RequestShoot(IEntityClass *pAmmoType, const Vec3 &pos, const Vec3 &dir, const Vec3 &vel, const Vec3 &hit, float extra, int predictionHandle, bool forceExtended);
 	void RequestStartFire();
 	void RequestStopFire();
 	void RequestFireMode(int fmId);
 	void RequestWeaponRaised(bool raise);
 	void RequestSetZoomState(bool zoomed);
 	void RequestStartMeleeAttack(bool weaponMelee, bool boostedAttack);
-	void RequestMeleeAttack(bool weaponMelee, const Vec3 &pos, const Vec3 &dir){};
+	void RequestMeleeAttack(bool weaponMelee, const Vec3 &pos, const Vec3 &dir) {};
 	void RequestZoom(float fov);
 	void RequestLock(EntityId id, int partId = 0);
 	void RequestUnlock();
-	
-	bool IsServerSpawn(IEntityClass* pAmmoType) const;
-	CProjectile *SpawnAmmo(IEntityClass* pAmmoType, bool remote=false);
+
+	bool IsServerSpawn(IEntityClass *pAmmoType) const;
+	CProjectile *SpawnAmmo(IEntityClass *pAmmoType, bool remote=false);
 
 	bool	AIUseEyeOffset() const;
-  bool	AIUseOverrideOffset(EStance stance, float lean, float peekOver, Vec3& offset) const;
+	bool	AIUseOverrideOffset(EStance stance, float lean, float peekOver, Vec3 &offset) const;
 
-  virtual bool ApplyActorRecoil() const { return true; }
+	virtual bool ApplyActorRecoil() const
+	{
+		return true;
+	}
 
 	virtual void ForcePendingActions(uint8 blockedActions = 0);
 
@@ -599,7 +686,7 @@ protected:
 	void InitAIData(const IItemParamsNode *aiDescriptor);
 	void InitAIOffsets(const IItemParamsNode *aiOffsetData);
 
-	bool SetInventoryAmmoCountInternal(IInventory* pInventory, IEntityClass* pAmmoType, int count);
+	bool SetInventoryAmmoCountInternal(IInventory *pInventory, IEntityClass *pAmmoType, int count);
 
 	EntityId	GetLAMAttachment();
 	EntityId  GetFlashlightAttachment();
@@ -635,20 +722,20 @@ protected:
 	const IItemParamsNode	*m_xmlparams;
 
 	TEventListenerVector	m_listeners;
-	static TEventListenerVector * m_listenerCache;
+	static TEventListenerVector *m_listenerCache;
 	static bool m_listenerCacheInUse;
 	IWeaponFiringLocator	*m_pFiringLocator;
 
 	_smart_ptr<class CWeaponSharedParams> m_weaponsharedparams;
 
 	//Just needed for the current weapon of the client
-	static SWeaponCrosshairStats	s_crosshairstats; 
+	static SWeaponCrosshairStats	s_crosshairstats;
 
 	static float	s_dofValue;
 	static float	s_dofSpeed;
 	static float	s_focusValue;
 
-  Vec3 m_destination;
+	Vec3 m_destination;
 
 	bool					m_silencerAttached;
 
@@ -689,15 +776,15 @@ private:
 
 	void  RegisterActions();
 
-	bool OnActionAttack(EntityId actorId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionReload(EntityId actorId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionSpecial(EntityId actorId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionModify(EntityId actorId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionFiremode(EntityId actorId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionZoomIn(EntityId actorId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionZoomOut(EntityId actorId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionZoom(EntityId actorId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionZoomXI(EntityId actorId, const ActionId& actionId, int activationMode, float value);
+	bool OnActionAttack(EntityId actorId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionReload(EntityId actorId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionSpecial(EntityId actorId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionModify(EntityId actorId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionFiremode(EntityId actorId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionZoomIn(EntityId actorId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionZoomOut(EntityId actorId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionZoom(EntityId actorId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionZoomXI(EntityId actorId, const ActionId &actionId, int activationMode, float value);
 
 	bool PreActionAttack(bool startFire);
 	void RestorePlayerSprintingStats();
@@ -706,7 +793,10 @@ private:
 	//Flags for force input states (make weapon more responsive)
 	bool m_requestedFire;
 
-	ILINE void ClearInputFlags() {m_requestedFire=false;}
+	ILINE void ClearInputFlags()
+	{
+		m_requestedFire=false;
+	}
 };
 
 

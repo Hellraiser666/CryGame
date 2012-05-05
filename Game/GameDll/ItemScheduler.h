@@ -36,39 +36,45 @@ UNIQUE_IFACE struct ISchedulerAction
 	virtual ~ISchedulerAction() {}
 	virtual void execute(CItem *_this) = 0;
 	virtual void destroy() = 0;
-	virtual void GetMemoryUsage(ICrySizer * s) const = 0;
+	virtual void GetMemoryUsage(ICrySizer *s) const = 0;
 };
 
 template <class T>
 class CSchedulerAction : public ISchedulerAction
 {
 	// second sizeof(void*) is just for safety!
-	typedef stl::PoolAllocator<sizeof(T) + sizeof(void*) + sizeof(void*), stl::PoolAllocatorSynchronizationSinglethreaded> Alloc;
+	typedef stl::PoolAllocator<sizeof(T) + sizeof(void *) + sizeof(void *), stl::PoolAllocatorSynchronizationSinglethreaded> Alloc;
 	static Alloc m_alloc;
 
 public:
-	static CSchedulerAction * Create()
+	static CSchedulerAction *Create()
 	{
-		return new (m_alloc.Allocate()) CSchedulerAction();
+		return new(m_alloc.Allocate()) CSchedulerAction();
 	}
-	static CSchedulerAction * Create( const T& from )
+	static CSchedulerAction *Create(const T &from)
 	{
-		return new (m_alloc.Allocate()) CSchedulerAction(from);
+		return new(m_alloc.Allocate()) CSchedulerAction(from);
 	}
 
-	void execute(CItem * _this) { m_impl.execute(_this); }
-	void destroy() 
-	{ 
+	void execute(CItem *_this)
+	{
+		m_impl.execute(_this);
+	}
+	void destroy()
+	{
 		this->~CSchedulerAction();
 		m_alloc.Deallocate(this);
 	}
-	void GetMemoryUsage(ICrySizer * s) const { s->Add(*this); }
+	void GetMemoryUsage(ICrySizer *s) const
+	{
+		s->Add(*this);
+	}
 
 private:
 	T m_impl;
 
 	CSchedulerAction() {}
-	CSchedulerAction( const T& from ) : m_impl(from) {}
+	CSchedulerAction(const T &from) : m_impl(from) {}
 	~CSchedulerAction() {}
 };
 
@@ -82,20 +88,20 @@ class CItemScheduler
 	{
 		ISchedulerAction	*action;
 		bool							persist;
-	}SScheduledAction;
+	} SScheduledAction;
 	typedef struct STimerAction
 	{
 		ISchedulerAction	*action;
 		float							time;
 		bool							persist;
-	}STimerAction;
+	} STimerAction;
 
 	typedef std::vector<STimerAction>									TTimerActionVector;
 	typedef std::vector<SScheduledAction>							TScheduledActionVector;
 
 	struct compare_timers
 	{
-		bool operator() (const STimerAction &lhs, const STimerAction &rhs ) const
+		bool operator()(const STimerAction &lhs, const STimerAction &rhs) const
 		{
 			return lhs.time < rhs.time;
 		}
@@ -108,9 +114,12 @@ public:
 	void Update(float frameTime);
 	void TimerAction(uint32 time, ISchedulerAction *action, bool persistent=false);
 	void ScheduleAction(ISchedulerAction *action, bool persistent=false);
-	void GetMemoryUsage(ICrySizer * s) const;
+	void GetMemoryUsage(ICrySizer *s) const;
 
-	bool ILINE IsBusy() const { return m_busy; };
+	bool ILINE IsBusy() const
+	{
+		return m_busy;
+	};
 	void SetBusy(bool busy);
 
 	void Lock(bool lock);

@@ -27,11 +27,14 @@ class CThrow : public CSingle
 {
 	struct StartThrowAction;
 	struct ThrowAction;
-		
+
 public:
 	struct SThrowActions
 	{
-		SThrowActions() { Reset(); };
+		SThrowActions()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
@@ -48,7 +51,7 @@ public:
 		ItemString pull;
 		ItemString next;
 
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
 			s->Add(throwit);
 			s->Add(dropit);
@@ -60,7 +63,10 @@ public:
 
 	struct SThrowParams
 	{
-		SThrowParams() { Reset(); };
+		SThrowParams()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
@@ -74,7 +80,7 @@ public:
 			ResetValue(strenght_scale, 1.5f);
 		}
 
-		void GetMemoryUsage(ICrySizer * s) const {};
+		void GetMemoryUsage(ICrySizer *s) const {};
 
 		float hold_duration;
 		float hold_min_scale;
@@ -92,7 +98,7 @@ public:
 	virtual ~CThrow();
 
 	virtual void Update(float frameTime, uint32 frameId);
-	virtual void GetMemoryUsage(ICrySizer * s) const;
+	virtual void GetMemoryUsage(ICrySizer *s) const;
 
 	virtual void ResetParams(const struct IItemParamsNode *params);
 	virtual void PatchParams(const struct IItemParamsNode *patch);
@@ -105,7 +111,7 @@ public:
 	virtual bool CanFire(bool considerAmmo) const;
 	virtual bool CanReload() const;
 
-	virtual const char* GetType() const
+	virtual const char *GetType() const
 	{
 		return "Thrown";
 	}
@@ -120,11 +126,17 @@ public:
 	virtual void SetThrowable(EntityId entityId, bool forceThrow, ISchedulerAction *action);
 	virtual EntityId GetThrowable() const;
 
-	virtual void SetProjectileLaunchParams(const SProjectileLaunchParams& launchParams);
+	virtual void SetProjectileLaunchParams(const SProjectileLaunchParams &launchParams);
 	virtual Vec3 GetFireTarget() const;
 
-	void SetSpeedScale(float speedScale) { m_speed_scale = speedScale; }
-	void ThrowingGrenade(bool throwing) { m_usingGrenade = throwing; }
+	void SetSpeedScale(float speedScale)
+	{
+		m_speed_scale = speedScale;
+	}
+	void ThrowingGrenade(bool throwing)
+	{
+		m_usingGrenade = throwing;
+	}
 
 protected:
 	virtual void CheckNearMisses(const Vec3 &probableHit, const Vec3 &pos, const Vec3 &dir, float range, float radius);
@@ -136,10 +148,10 @@ protected:
 private:
 
 	void   ThrowGrenade();
-	void   ThrowObject(IEntity* pEntity, IPhysicalEntity* pPE);
-	void   ThrowLivingEntity(IEntity* pEntity, IPhysicalEntity* pPE);
+	void   ThrowObject(IEntity *pEntity, IPhysicalEntity *pPE);
+	void   ThrowLivingEntity(IEntity *pEntity, IPhysicalEntity *pPE);
 
-	bool   CheckForIntersections(IPhysicalEntity* heldEntity, Vec3 &dir);
+	bool   CheckForIntersections(IPhysicalEntity *heldEntity, Vec3 &dir);
 
 	bool  m_usingGrenade;
 	bool	m_thrown;
@@ -148,7 +160,7 @@ private:
 	bool	m_netfiring;
 	float	m_throw_time;
 	bool  m_forceNextThrow;
-	
+
 	float	m_hold_timer;
 	Vec3	m_vFireTarget;
 
@@ -156,18 +168,21 @@ private:
 	ISchedulerAction	*m_throwableAction;
 
 private:
-	CThrowSharedData*	m_pShared;
+	CThrowSharedData	*m_pShared;
 };
 
 
 class CThrowSharedData: public CSingleSharedData
 {
 public:
-	CThrowSharedData(){};
-	virtual ~CThrowSharedData(){};
+	CThrowSharedData() {};
+	virtual ~CThrowSharedData() {};
 
-	virtual const char* GetDataType() const { return "ThrowData"; }
-	virtual void GetMemoryUsage(ICrySizer* s) const
+	virtual const char *GetDataType() const
+	{
+		return "ThrowData";
+	}
+	virtual void GetMemoryUsage(ICrySizer *s) const
 	{
 		s->Add(*this);
 		throwactions.GetMemoryUsage(s);
@@ -178,4 +193,4 @@ public:
 	CThrow::SThrowActions		throwactions;
 	CThrow::SThrowParams		throwparams;
 };
-#endif 
+#endif

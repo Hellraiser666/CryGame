@@ -29,22 +29,28 @@ class CBeam :
 public:
 	struct SBeamEffectParams
 	{
-		SBeamEffectParams() { Reset(); };
+		SBeamEffectParams()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
-		
-			if (defaultInit)
+
+			if(defaultInit)
 			{
-				effect[0].clear(); effect[1].clear();
-				helper[0].clear(); helper[1].clear();
+				effect[0].clear();
+				effect[1].clear();
+				helper[0].clear();
+				helper[1].clear();
 				scale[0]=scale[1]=1.0f;
 			}
 
-			if (params)
+			if(params)
 			{
 				const IItemParamsNode *fp=params->GetChild("firstperson");
-				if (fp)
+
+				if(fp)
 				{
 					effect[0] = fp->GetAttribute("effect");
 					helper[0] = fp->GetAttribute("helper");
@@ -52,7 +58,8 @@ public:
 				}
 
 				const IItemParamsNode *tp=params->GetChild("thirdperson");
-				if (tp)
+
+				if(tp)
 				{
 					effect[1] = tp->GetAttribute("effect");
 					helper[1] = tp->GetAttribute("helper");
@@ -65,13 +72,13 @@ public:
 
 		void PreLoadAssets()
 		{
-			for (int i = 0; i < 2; i++)
+			for(int i = 0; i < 2; i++)
 				gEnv->pParticleManager->FindEffect(effect[i]);
 		}
 
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
-			for (int i=0; i<2; i++)
+			for(int i=0; i<2; i++)
 			{
 				s->Add(effect[i]);
 				s->Add(helper[i]);
@@ -86,7 +93,10 @@ public:
 
 	struct SBeamParams
 	{
-		SBeamParams() { Reset(); };
+		SBeamParams()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
@@ -95,7 +105,7 @@ public:
 			ResetValue(hit_effect_scale, 1.0f);
 			ResetValue(hit_decal, "");
 			ResetValue(hit_decal_size, 0.45f);
-      ResetValue(hit_decal_size_min, 0.f);
+			ResetValue(hit_decal_size_min, 0.f);
 			ResetValue(hit_decal_lifetime, 60.0f);
 			ResetValue(range,			75.0f);
 			ResetValue(tick,			0.25f);
@@ -109,16 +119,16 @@ public:
 		{
 			gEnv->pParticleManager->FindEffect(hit_effect);
 		}
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
 			s->Add(hit_effect);
 			s->Add(hit_decal);
 		}
 
-		
+
 		float		hit_effect_scale;
 		float		hit_decal_size;
-    float		hit_decal_size_min;
+		float		hit_decal_size_min;
 		float		hit_decal_lifetime;
 
 		float		range;
@@ -132,7 +142,10 @@ public:
 	};
 	struct SBeamActions
 	{
-		SBeamActions() { Reset(); };
+		SBeamActions()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
@@ -144,7 +157,7 @@ public:
 		ItemString	blast;
 		ItemString	hit;
 
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
 			s->Add(blast);
 			s->Add(hit);
@@ -156,7 +169,7 @@ public:
 
 	// IFireMode
 	virtual void Update(float frameTime, uint32 frameId);
-	virtual void GetMemoryUsage(ICrySizer * s) const;
+	virtual void GetMemoryUsage(ICrySizer *s) const;
 
 	virtual void ResetParams(const struct IItemParamsNode *params);
 	virtual void PatchParams(const struct IItemParamsNode *patch);
@@ -172,7 +185,10 @@ public:
 
 	virtual void NetStartFire();
 	virtual void NetStopFire();
-	virtual const char *GetType() const { return "Beam"; };
+	virtual const char *GetType() const
+	{
+		return "Beam";
+	};
 
 	//~IFireMode
 
@@ -183,7 +199,7 @@ public:
 
 	virtual void DecalLine(const Vec3 &org0, const Vec3 &org1, const Vec3 &hit0, const Vec3 &hit1, float step);
 	virtual void Decal(const ray_hit &rayhit, const Vec3 &dir);
-  virtual void Hit(ray_hit &hit, const Vec3 &dir);
+	virtual void Hit(ray_hit &hit, const Vec3 &dir);
 	virtual void Tick(ray_hit &hit, const Vec3 &dir);
 	virtual void TickDamage(ray_hit &hit, const Vec3 &dir);
 protected:
@@ -204,7 +220,7 @@ protected:
 	bool              m_viewFP;
 
 private:
-	CBeamSharedData*	m_pShared;
+	CBeamSharedData	*m_pShared;
 
 };
 
@@ -212,11 +228,14 @@ private:
 class CBeamSharedData: public CSingleSharedData
 {
 public:
-	CBeamSharedData(){};
-	virtual ~CBeamSharedData(){};
+	CBeamSharedData() {};
+	virtual ~CBeamSharedData() {};
 
-	virtual const char* GetDataType() const { return "BeamData"; }
-	virtual void GetMemoryUsage(ICrySizer* s) const
+	virtual const char *GetDataType() const
+	{
+		return "BeamData";
+	}
+	virtual void GetMemoryUsage(ICrySizer *s) const
 	{
 		s->Add(*this);
 		beamparams.GetMemoryUsage(s);

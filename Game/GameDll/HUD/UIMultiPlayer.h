@@ -6,7 +6,7 @@
 //  File name:   UIMultiPlayer.h
 //  Version:     v1.00
 //  Created:     26/8/2011 by Paul Reindell.
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -17,7 +17,7 @@
 #include "IUIGameEventSystem.h"
 #include <IFlashUI.h>
 
-class CUIMultiPlayer 
+class CUIMultiPlayer
 	: public IUIGameEventSystem
 	, public IUIModule
 {
@@ -25,11 +25,11 @@ public:
 	CUIMultiPlayer();
 
 	// IUIGameEventSystem
-	UIEVENTSYSTEM( "UIMultiPlayer" );
+	UIEVENTSYSTEM("UIMultiPlayer");
 	virtual void InitEventSystem();
 	virtual void UnloadEventSystem();
-	virtual void LoadProfile( IPlayerProfile* pProfile );
-	virtual void SaveProfile( IPlayerProfile* pProfile ) const;
+	virtual void LoadProfile(IPlayerProfile *pProfile);
+	virtual void SaveProfile(IPlayerProfile *pProfile) const;
 
 	// IUIModule
 	virtual void Reset();
@@ -37,22 +37,22 @@ public:
 
 	// UI functions
 	void EnteredGame();
-	void PlayerJoined(EntityId playerid, const string& name);
-	void PlayerLeft(EntityId playerid, const string& name);
+	void PlayerJoined(EntityId playerid, const string &name);
+	void PlayerLeft(EntityId playerid, const string &name);
 	void PlayerKilled(EntityId playerid, EntityId shooterid);
-	void PlayerRenamed(EntityId playerid, const string& newName);
+	void PlayerRenamed(EntityId playerid, const string &newName);
 
 private:
 	// UI events
 	void RequestPlayers();
 	void GetPlayerName();
-	void SetPlayerName( const string& newname );
-	void ConnectToServer( const string& server );
+	void SetPlayerName(const string &newname);
+	void ConnectToServer(const string &server);
 	void GetServerName();
 
 
 	void SubmitNewName();
-	string GetPlayerNameById( EntityId playerid );
+	string GetPlayerNameById(EntityId playerid);
 
 private:
 	enum EUIEvent
@@ -68,8 +68,8 @@ private:
 
 	SUIEventReceiverDispatcher<CUIMultiPlayer> m_eventDispatcher;
 	SUIEventSenderDispatcher<EUIEvent> m_eventSender;
-	IUIEventSystem* m_pUIEvents;
-	IUIEventSystem* m_pUIFunctions;
+	IUIEventSystem *m_pUIEvents;
+	IUIEventSystem *m_pUIFunctions;
 
 	struct SPlayerInfo
 	{

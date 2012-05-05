@@ -33,10 +33,10 @@ public:
 	CNetworkMovementStdBoat();
 	CNetworkMovementStdBoat(CVehicleMovementStdBoat *pMovement);
 
-	typedef CVehicleMovementStdBoat * UpdateObjectSink;
+	typedef CVehicleMovementStdBoat *UpdateObjectSink;
 
 	bool operator == (const CNetworkMovementStdBoat &rhs)
-	{ 
+	{
 		return false;
 	};
 
@@ -45,15 +45,15 @@ public:
 		return !this->operator==(rhs);
 	};
 
-	void UpdateObject( CVehicleMovementStdBoat *pMovement );
+	void UpdateObject(CVehicleMovementStdBoat *pMovement);
 	void Serialize(TSerialize ser, EEntityAspects aspects);
 
 	static const NetworkAspectType CONTROLLED_ASPECT = eEA_GameClientDynamic;
 
 private:
 	float m_steer;
-	float m_pedal;  
-	bool  m_boost;      
+	float m_pedal;
+	bool  m_boost;
 };
 
 
@@ -66,26 +66,32 @@ public:
 	virtual ~CVehicleMovementStdBoat();
 
 	// IVehicleMovement
-	virtual bool Init(IVehicle* pVehicle, const CVehicleParams& table);
+	virtual bool Init(IVehicle *pVehicle, const CVehicleParams &table);
 	virtual void Reset();
 	virtual void Release();
 	virtual void PostPhysicalize();
 
-	virtual EVehicleMovementType GetMovementType() { return eVMT_Sea; }
+	virtual EVehicleMovementType GetMovementType()
+	{
+		return eVMT_Sea;
+	}
 
 	virtual void Update(const float deltaTime);
 
 	virtual void ProcessAI(const float deltaTime);
 	virtual void ProcessMovement(const float deltaTime);
-	virtual bool RequestMovement(CMovementRequest& movementRequest);
+	virtual bool RequestMovement(CMovementRequest &movementRequest);
 
-	virtual void OnEvent(EVehicleMovementEvent event, const SVehicleMovementEventParams& params);
+	virtual void OnEvent(EVehicleMovementEvent event, const SVehicleMovementEventParams &params);
 	virtual void OnAction(const TVehicleActionId actionId, int activationMode, float value);
 
 	virtual void Serialize(TSerialize ser, EEntityAspects aspects);
-	virtual void SetAuthority( bool auth ) { m_netActionSync.CancelReceived(); }
+	virtual void SetAuthority(bool auth)
+	{
+		m_netActionSync.CancelReceived();
+	}
 
-	virtual void GetMemoryUsage(ICrySizer * pSizer) const;
+	virtual void GetMemoryUsage(ICrySizer *pSizer) const;
 	// ~IVehicleMovement
 
 	friend class CNetworkMovementStdBoat;
@@ -94,14 +100,17 @@ public:
 
 protected:
 
-	virtual bool GenerateWind() { return false; }
+	virtual bool GenerateWind()
+	{
+		return false;
+	}
 	virtual void UpdateRunSound(const float deltaTime);
-	virtual void UpdateSurfaceEffects(const float deltaTime);  
+	virtual void UpdateSurfaceEffects(const float deltaTime);
 	void Lift(bool lift);
 	bool IsLifted();
 
 #if ENABLE_VEHICLE_DEBUG
-	void DrawImpulse(const pe_action_impulse& action, const Vec3& offset=Vec3(ZERO), float scale=1, const ColorB& col=ColorB(255,0,0,255));
+	void DrawImpulse(const pe_action_impulse &action, const Vec3 &offset=Vec3(ZERO), float scale=1, const ColorB &col=ColorB(255,0,0,255));
 #endif
 
 	// driving
@@ -112,8 +121,8 @@ protected:
 	float m_accelCoeff;
 	Vec3  m_pushOffset;
 	float m_pushTilt;
-	float m_pedalLimitReverse;  
-	float m_velLift;   
+	float m_pedalLimitReverse;
+	float m_velLift;
 	float m_waterDensity;
 	bool  m_lifted;
 
@@ -121,7 +130,7 @@ protected:
 	float m_turnRateMax;
 	float m_turnAccel;
 	float m_turnVelocityMult;
-	float m_turnAccelCoeff;  
+	float m_turnAccelCoeff;
 	float m_cornerForceCoeff;
 	Vec3  m_cornerOffset;
 	float m_cornerTilt;
@@ -134,7 +143,7 @@ protected:
 	Vec3 m_massOffset;
 
 	// waves
-	float m_waveTimer;  
+	float m_waveTimer;
 	Vec3 m_lastWakePos;
 	bool m_diving;
 	int m_wakeSlot;
@@ -142,19 +151,19 @@ protected:
 	float m_waveSpeedMult;
 	float m_waveRandomMult;
 	bool m_inWater;
-	IVehicleHelper* m_pSplashPos;
-	IParticleEffect* m_pWaveEffect;
+	IVehicleHelper *m_pSplashPos;
+	IParticleEffect *m_pWaveEffect;
 
 	float m_waveSoundPitch;
-	float m_waveSoundAmount;  
+	float m_waveSoundAmount;
 	int m_rpmPitchDir;
 
 	CNetActionSync<CNetworkMovementStdBoat> m_netActionSync;
-	bool m_bNetSync; 
+	bool m_bNetSync;
 
 	//------------------------------------------------------------------------------
 	// AI related
-	// PID controller for speed control.	
+	// PID controller for speed control.
 
 	float	m_prevAngle;
 

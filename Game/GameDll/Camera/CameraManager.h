@@ -71,10 +71,14 @@ public:
 	}
 
 	CYawPitchDampState()
-	{ Reset(); }
+	{
+		Reset();
+	}
 
-	CYawPitchDampState(const SSpherical& sph)
-	{ Reset(sph); }
+	CYawPitchDampState(const SSpherical &sph)
+	{
+		Reset(sph);
+	}
 };
 
 struct SCamRetainedState	// One instance of this for camera system
@@ -91,7 +95,9 @@ struct SCamRetainedState	// One instance of this for camera system
 
 	SCamRetainedState() : camIdLast(0),cutHoldValue(0.0f),cutHoldDist(2.0f),bNeedReset(false),
 		driverP4HoldValue(0),driverP6HoldValue(0)
-	{ ; }
+	{
+		;
+	}
 };
 
 // Settings for follow cam modes.
@@ -161,12 +167,21 @@ public:
 	//can and set state of active camera
 	void GetCameraState(SCamRetainedState &state) const;
 	void SetCameraState(SCamRetainedState &state);
-	void ResetCameraState() {m_camState.bNeedReset=true;}
+	void ResetCameraState()
+	{
+		m_camState.bNeedReset=true;
+	}
 
 	//choose active camera
 	bool SetActiveCameraId(CameraID idCamera);
-	CameraID GetActiveCameraId() const { return m_idActive; }
-	CameraID GetLastCameraId() const { return m_idPrev; }
+	CameraID GetActiveCameraId() const
+	{
+		return m_idActive;
+	}
+	CameraID GetLastCameraId() const
+	{
+		return m_idPrev;
+	}
 	CameraID FindCameraByType(ECamTypes eType) const;
 
 	//camera id handling
@@ -183,13 +198,22 @@ public:
 	bool SetCameraSettings(CameraID idCamera,const SCamModeSettings &settings);
 
 	//get actual camera view
-	CCameraView *GetCamView() { return m_pCameraView; }
+	CCameraView *GetCamView()
+	{
+		return m_pCameraView;
+	}
 
 	//camera override functions
-	CCameraOverrides *GetCamOverrides() { return m_pCamOverrides; }
+	CCameraOverrides *GetCamOverrides()
+	{
+		return m_pCamOverrides;
+	}
 
 	//returns true when camera changed and wasn't updated yet
-	static bool ChangedCamera() { return g_bChangedCamera; }
+	static bool ChangedCamera()
+	{
+		return g_bChangedCamera;
+	}
 
 	//"resets" camera
 	void Reset();
@@ -202,7 +226,7 @@ protected:
 		SCamModeSettings settings;
 		string sName;
 	};
-	typedef std::vector< SCamNode* > TCamNodeTable;
+	typedef std::vector< SCamNode * > TCamNodeTable;
 
 	TCamNodeTable m_camNodes;
 	SCamRetainedState m_camState;
@@ -226,6 +250,7 @@ inline ECamTypes CCameraManager::GetCameraType(CameraID idCamera)
 {
 	if(IsValidCameraId(idCamera))
 		return m_camNodes[idCamera]->settings.camType;
+
 	return ECT_CamUndefined;
 }
 

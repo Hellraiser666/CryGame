@@ -7,7 +7,7 @@ Description:  Item/weapon accessories
 
 -------------------------------------------------------------------------
 History:
-- 28:1:2008   Created by Benito G.R. 
+- 28:1:2008   Created by Benito G.R.
 
 *************************************************************************/
 
@@ -22,10 +22,13 @@ public:
 
 	CAccessory() {};
 	virtual			~CAccessory() {};
-	
+
 	void PickUp(EntityId pickerId, bool sound, bool select/* =true */, bool keepHistory/* =true */, const char *setup = NULL);
 
-	virtual bool IsAccessory() { return true; };
+	virtual bool IsAccessory()
+	{
+		return true;
+	};
 
 };
 

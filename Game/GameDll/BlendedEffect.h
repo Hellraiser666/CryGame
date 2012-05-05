@@ -22,22 +22,22 @@ History:
 
 //-BlendedEffects-----------------------
 // BlendedEffect interface
-struct IBlendedEffect 
+struct IBlendedEffect
 {
 public:
-	
+
 	//Summary
 	// - called when the effect actually starts rather than when it is created.
-	virtual void Init() {}; 
+	virtual void Init() {};
 
 	//Summary
 	//- t is from 0 to 1 and is the "amount" of effect to use.
-	virtual void Update(float t) = 0; 
+	virtual void Update(float t) = 0;
 
 	virtual void Release() = 0;
 
 protected:
-  virtual ~IBlendedEffect() {}
+	virtual ~IBlendedEffect() {}
 };
 
 // Use this template to create new blends when needed
@@ -46,34 +46,43 @@ protected:
 template <class T>
 class CBlendedEffect : public IBlendedEffect
 {
-	typedef stl::PoolAllocator<sizeof(T) + sizeof(void*), stl::PoolAllocatorSynchronizationSinglethreaded> Alloc;
+	typedef stl::PoolAllocator<sizeof(T) + sizeof(void *), stl::PoolAllocatorSynchronizationSinglethreaded> Alloc;
 	static Alloc m_alloc;
 
 public:
-	static CBlendedEffect * Create()
+	static CBlendedEffect *Create()
 	{
-		return new (m_alloc.Allocate()) CBlendedEffect();
+		return new(m_alloc.Allocate()) CBlendedEffect();
 	}
-	static CBlendedEffect * Create( const T& from )
+	static CBlendedEffect *Create(const T &from)
 	{
-		return new (m_alloc.Allocate()) CBlendedEffect(from);
+		return new(m_alloc.Allocate()) CBlendedEffect(from);
 	}
 
-	void Init() { m_impl.Init(); }
-	void Update(float t) { m_impl.Update(t); }
+	void Init()
+	{
+		m_impl.Init();
+	}
+	void Update(float t)
+	{
+		m_impl.Update(t);
+	}
 
-	void Release() 
-	{ 
+	void Release()
+	{
 		this->~CBlendedEffect();
 		m_alloc.Deallocate(this);
 	}
-	void GetMemoryUsage(ICrySizer * s) const { s->Add(*this); }
+	void GetMemoryUsage(ICrySizer *s) const
+	{
+		s->Add(*this);
+	}
 
 private:
 	T m_impl;
 
 	CBlendedEffect() {}
-	CBlendedEffect( const T& from ) : m_impl(from) {}
+	CBlendedEffect(const T &from) : m_impl(from) {}
 	~CBlendedEffect() {}
 
 };
@@ -84,38 +93,38 @@ typename CBlendedEffect<T>::Alloc CBlendedEffect<T>::m_alloc;
 //-------------------BLENDED EFFECTS (add here new ones)--------------------------
 class CFOVEffect
 {
-	public:
-		CFOVEffect(EntityId ownerID, float goalFOV);
-		virtual ~CFOVEffect() {};
+public:
+	CFOVEffect(EntityId ownerID, float goalFOV);
+	virtual ~CFOVEffect() {};
 
-		virtual void Init();
-		virtual void Update(float point);
+	virtual void Init();
+	virtual void Update(float point);
 
-	private:
-	
-		float m_currentFOV;
-		float m_goalFOV;
-		float m_startFOV;
-		EntityId m_ownerID;
+private:
+
+	float m_currentFOV;
+	float m_goalFOV;
+	float m_startFOV;
+	EntityId m_ownerID;
 };
 
 // Post process effect
 class CPostProcessEffect
 {
 
- public:
-		CPostProcessEffect(EntityId ownerID, string paramName, float goalVal);
-		virtual ~CPostProcessEffect() {};
-	
-		virtual void Init();
-		virtual void Update(float point);
+public:
+	CPostProcessEffect(EntityId ownerID, string paramName, float goalVal);
+	virtual ~CPostProcessEffect() {};
+
+	virtual void Init();
+	virtual void Update(float point);
 
 private:
-	
-		float m_startVal;
-		float m_currentVal;
-		float m_goalVal;
-		string m_paramName;
-		EntityId m_ownerID;
+
+	float m_startVal;
+	float m_currentVal;
+	float m_goalVal;
+	string m_paramName;
+	EntityId m_ownerID;
 };
 #endif

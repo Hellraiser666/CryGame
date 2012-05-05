@@ -18,7 +18,10 @@ class CShotgun :
 public:
 	typedef struct SShotgunParams
 	{
-		SShotgunParams() { Reset(); };
+		SShotgunParams()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
@@ -28,7 +31,10 @@ public:
 			ResetValue(partial_reload, true);
 		}
 
-		void GetMemoryUsage(ICrySizer * s) const { s->Add(*this); }
+		void GetMemoryUsage(ICrySizer *s) const
+		{
+			s->Add(*this);
+		}
 
 		short pellets;
 		short	pelletdamage;
@@ -38,7 +44,7 @@ public:
 	} SShotgunParams;
 
 public:
-	virtual void GetMemoryUsage(ICrySizer * s) const;
+	virtual void GetMemoryUsage(ICrySizer *s) const;
 	virtual void Activate(bool activate);
 	virtual void Reload(int zoomed);
 	virtual void StartReload(int zoomed);
@@ -46,17 +52,20 @@ public:
 	virtual void EndReload(int zoomed);
 	using CSingle::EndReload;
 	virtual void CancelReload();
-	virtual bool CanCancelReload() { return false; };
+	virtual bool CanCancelReload()
+	{
+		return false;
+	};
 
 	virtual bool CanFire(bool considerAmmo) const;
 
-	virtual bool Shoot(bool resetAnimation, bool autoreload = true , bool noSound = false );
+	virtual bool Shoot(bool resetAnimation, bool autoreload = true , bool noSound = false);
 	virtual void NetShootEx(const Vec3 &pos, const Vec3 &dir, const Vec3 &vel, const Vec3 &hit, float extra, int ph);
 
 	virtual void ResetParams(const struct IItemParamsNode *params);
 	virtual void PatchParams(const struct IItemParamsNode *patch);
 
-	virtual const char* GetType() const;
+	virtual const char *GetType() const;
 
 	void InitSharedParams();
 	void CacheSharedParamsPtr();
@@ -70,14 +79,17 @@ protected:
 	int            m_max_shells;
 
 private:
-	CShotgunSharedData*		m_pShared;
+	CShotgunSharedData		*m_pShared;
 };
 
 class CShotgunSharedData: public CSingleSharedData
 {
 public:
-	virtual const char* GetDataType() const { return "ShotgunData"; }
-	virtual void GetMemoryUsage(ICrySizer* s) const
+	virtual const char *GetDataType() const
+	{
+		return "ShotgunData";
+	}
+	virtual void GetMemoryUsage(ICrySizer *s) const
 	{
 		s->Add(*this);
 		shotgunparams.GetMemoryUsage(s);

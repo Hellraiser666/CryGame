@@ -26,7 +26,7 @@ const static float g_fCameraPolarMinPitch = g_fCamError;
 // yaw/theta is the rotation around the height axis in 360 degrees/2PI
 // pitch/phi is the rotation around the "forward" axis in 180 degrees/PI
 // a CameraPolar represents any single 3d point on a unified sphere around (0,0,0)
-class CCameraPolar 
+class CCameraPolar
 {
 public:
 
@@ -45,8 +45,14 @@ public:
 	}
 
 	//get polar coordinates
-	float GetYaw() const { return m_fYaw; }
-	float GetPitch() const { return m_fPitch; }
+	float GetYaw() const
+	{
+		return m_fYaw;
+	}
+	float GetPitch() const
+	{
+		return m_fPitch;
+	}
 	//get a direction vector (normalized) in the direction of the polar
 	Vec3 GetDir() const;
 

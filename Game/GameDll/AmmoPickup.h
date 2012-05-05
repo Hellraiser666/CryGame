@@ -30,31 +30,37 @@ public:
 	CAmmoPickup();
 	~CAmmoPickup();
 
-	virtual void PostInit( IGameObject * pGameObject );
+	virtual void PostInit(IGameObject *pGameObject);
 	virtual bool CanUse(EntityId userId) const;
 	virtual bool CanPickUp(EntityId pickerId) const;
 
 	virtual void Reset();
 
-	virtual void SerializeSpawnInfo( TSerialize ser );
+	virtual void SerializeSpawnInfo(TSerialize ser);
 	virtual ISerializableInfoPtr GetSpawnInfo();
 
 	virtual void PickUp(EntityId pickerId, bool sound, bool select, bool keepHistory, const char *setup = NULL);
 	virtual bool CheckAmmoRestrictions(EntityId pickerId);
-	virtual void GetMemoryUsage(ICrySizer * s) const { s->Add(*this); 
-																										s->Add(m_pickup_sound);
-																										s->Add(m_modelName);
-																										CWeapon::GetMemoryUsage(s); }
+	virtual void GetMemoryUsage(ICrySizer *s) const
+	{
+		s->Add(*this);
+		s->Add(m_pickup_sound);
+		s->Add(m_modelName);
+		CWeapon::GetMemoryUsage(s);
+	}
 
-	const char* GetAmmoName() const {return m_ammoName.c_str();}
+	const char *GetAmmoName() const
+	{
+		return m_ammoName.c_str();
+	}
 
 protected:
 	virtual bool ReadItemParams(const IItemParamsNode *root);
 
 private:
-	
+
 	//Special case for grenades (might need to switch firemode)
-	void    ShouldSwitchGrenade(IEntityClass* pClass);
+	void    ShouldSwitchGrenade(IEntityClass *pClass);
 	void    OnIncendiaryAmmoPickedUp(IEntityClass *pClass, int count);
 
 	ItemString	m_modelName;

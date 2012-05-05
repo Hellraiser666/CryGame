@@ -27,19 +27,20 @@ class CHomingMissile : public CRocket
 public:
 	CHomingMissile();
 	virtual ~CHomingMissile();
-  
-	// CRocket	
+
+	// CRocket
 	virtual bool Init(IGameObject *pGameObject);
-  virtual void Update(SEntityUpdateContext &ctx, int updateSlot);
-  virtual void Launch(const Vec3 &pos, const Vec3 &dir, const Vec3 &velocity, float speedScale);
-  virtual void SetDestination(const Vec3& pos)
+	virtual void Update(SEntityUpdateContext &ctx, int updateSlot);
+	virtual void Launch(const Vec3 &pos, const Vec3 &dir, const Vec3 &velocity, float speedScale);
+	virtual void SetDestination(const Vec3 &pos)
 	{
 		m_destination = pos;
-		if (!m_destination.IsEquivalent(pos, 0.01f))
+
+		if(!m_destination.IsEquivalent(pos, 0.01f))
 			GetGameObject()->ChangedNetworkState(eEA_GameServerDynamic);
 	};
 
-  virtual void SetDestination(EntityId targetId)
+	virtual void SetDestination(EntityId targetId)
 	{
 		m_targetId = targetId;
 	}
@@ -67,10 +68,10 @@ protected:
 	virtual void UpdateControlledMissile(float frameTime);   //LAW missiles
 	virtual void UpdateCruiseMissile(float frameTime);       //Vehicle missiles
 
-private:  
-	void SerializeDestination( TSerialize ser );
+private:
+	void SerializeDestination(TSerialize ser);
 
-  bool			m_controlled;
+	bool			m_controlled;
 	bool      m_autoControlled;
 	bool			m_cruise;
 	Vec3			m_destination;
@@ -78,22 +79,22 @@ private:
 	float			m_controlledTimer;
 	float			m_lockedTimer;
 	float     m_detonationRadius;
-  
+
 	EntityId	m_targetId;
 
-  // params
-  float m_accel;
-  float m_turnSpeed;
-  float m_maxSpeed;
-  float m_cruiseAltitude;
-  float m_alignAltitude;
-  float m_descendDistance;
+	// params
+	float m_accel;
+	float m_turnSpeed;
+	float m_maxSpeed;
+	float m_cruiseAltitude;
+	float m_alignAltitude;
+	float m_descendDistance;
 	float	m_lazyness;
 	float m_initialDelay;
 
-  // status
-  bool m_isCruising;
-  bool m_isDescending;
+	// status
+	bool m_isCruising;
+	bool m_isDescending;
 };
 
 

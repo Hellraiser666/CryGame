@@ -28,7 +28,10 @@ class CRapid : public CSingle
 public:
 	typedef struct SRapidParams
 	{
-		SRapidParams() { Reset(); };
+		SRapidParams()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
@@ -37,33 +40,36 @@ public:
 			ResetValue(acceleration,	3.0f);
 			ResetValue(deceleration,	-3.0f);
 			ResetValue(barrel_attachment,	"");
-			ResetValue(engine_attachment,	"");      
+			ResetValue(engine_attachment,	"");
 			ResetValue(camshake_rotate,	Vec3(0));
-      ResetValue(camshake_shift,	Vec3(0));
+			ResetValue(camshake_shift,	Vec3(0));
 			ResetValue(camshake_perShot,	0.0f);
 		}
 
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
 			s->Add(barrel_attachment);
 			s->Add(engine_attachment);
 		}
 
-    Vec3 camshake_rotate;
-    Vec3 camshake_shift;
-    float camshake_perShot;
+		Vec3 camshake_rotate;
+		Vec3 camshake_shift;
+		float camshake_perShot;
 		float min_speed;
 		float max_speed;
 		float acceleration;
 		float	deceleration;
 		ItemString barrel_attachment;
-		ItemString engine_attachment;		
+		ItemString engine_attachment;
 
 	} SRapidParams;
 
 	typedef struct SRapidActions
 	{
-		SRapidActions() { Reset(); };
+		SRapidActions()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
@@ -71,7 +77,7 @@ public:
 			ResetValue(blast,			"blast");
 		}
 
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
 			s->Add(rapid_fire);
 			s->Add(blast);
@@ -92,7 +98,7 @@ public:
 	virtual void ResetParams(const struct IItemParamsNode *params);
 	virtual void PatchParams(const struct IItemParamsNode *patch);
 
-	virtual void GetMemoryUsage(ICrySizer * s) const;
+	virtual void GetMemoryUsage(ICrySizer *s) const;
 
 	virtual void Activate(bool activate);
 
@@ -100,8 +106,14 @@ public:
 
 	virtual void StartFire();
 	virtual void StopFire();
-  virtual bool IsFiring() const { return m_firing || m_accelerating; };
-	virtual bool IsSilenced() const { return false; } // compile fix, no guarantee of functionality
+	virtual bool IsFiring() const
+	{
+		return m_firing || m_accelerating;
+	};
+	virtual bool IsSilenced() const
+	{
+		return false;    // compile fix, no guarantee of functionality
+	}
 
 	virtual void NetStartFire();
 	virtual void NetStopFire();
@@ -112,7 +124,10 @@ public:
 	virtual bool AllowZoom() const;
 
 	virtual const char *GetType() const;
-	virtual int PlayActionSAFlags(int flags) { return (flags | CItem::eIPAF_Animation) & ~CItem::eIPAF_Sound; };
+	virtual int PlayActionSAFlags(int flags)
+	{
+		return (flags | CItem::eIPAF_Animation) & ~CItem::eIPAF_Sound;
+	};
 
 	virtual void InitSharedParams();
 	virtual void CacheSharedParamsPtr();
@@ -123,12 +138,12 @@ protected:
 	virtual void Firing(bool firing);
 	virtual void UpdateRotation(float frameTime);
 	virtual void UpdateSound(float frameTime);
-  virtual void FinishDeceleration();
+	virtual void FinishDeceleration();
 
 	float	m_speed;
 	float	m_acceleration;
 	float m_rotation_angle;
-	
+
 	bool	m_netshooting;
 
 	bool	m_accelerating;
@@ -140,18 +155,21 @@ protected:
 	bool  m_startedToFire;
 
 private:
-	CRapidSharedData*	m_pShared;
+	CRapidSharedData	*m_pShared;
 
 };
 
 class CRapidSharedData: public CSingleSharedData
 {
 public:
-	CRapidSharedData(){};
-	virtual ~CRapidSharedData(){};
+	CRapidSharedData() {};
+	virtual ~CRapidSharedData() {};
 
-	virtual const char* GetDataType() const { return "RapidData"; }
-	virtual void GetMemoryUsage(ICrySizer* s) const
+	virtual const char *GetDataType() const
+	{
+		return "RapidData";
+	}
+	virtual void GetMemoryUsage(ICrySizer *s) const
 	{
 		s->Add(*this);
 		rapidactions.GetMemoryUsage(s);

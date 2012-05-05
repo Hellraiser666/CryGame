@@ -16,7 +16,7 @@ class CAutoTester;
 class IFeatureTest
 {
 public:
-	virtual ~IFeatureTest(){}
+	virtual ~IFeatureTest() {}
 	/// Indicates all dependencies are met and this test is ready to run
 	virtual bool ReadyToRun() const = 0;
 
@@ -30,7 +30,7 @@ public:
 	virtual void Cleanup() = 0;
 
 	/// Returns the name of the test
-	virtual const char* Name() = 0;
+	virtual const char *Name() = 0;
 };
 
 
@@ -52,30 +52,33 @@ public:
 	~CFeatureTestMgr();
 
 	/// Registers a feature test (does not take ownership of test)
-	void RegisterFeatureTest(IFeatureTest* pFeatureTest);
+	void RegisterFeatureTest(IFeatureTest *pFeatureTest);
 
 	/// Unregisters a feature test
-	void UnregisterFeatureTest(IFeatureTest* pFeatureTest);
+	void UnregisterFeatureTest(IFeatureTest *pFeatureTest);
 
 	/// Runs all registered tests (if they meet their dependencies)
 	void RunAll();
 
 	/// Force running of the defined test case (ignores dependencies)
-	void ForceRun(const char* testName);
+	void ForceRun(const char *testName);
 
 	/// Updates testing state
 	void Update(float deltaTime);
 
-	bool IsRunning() const { return m_running || m_pendingRunAll || m_waiting; }
+	bool IsRunning() const
+	{
+		return m_running || m_pendingRunAll || m_waiting;
+	}
 
 	/// Called when a test run is done with its results.
-	void OnTestResults(const char* testName, const char* testDesc, const char* failureMsg, float duration, const char* owners = NULL);
+	void OnTestResults(const char *testName, const char *testDesc, const char *failureMsg, float duration, const char *owners = NULL);
 
 	/// Called on completion of a feature test.
-	void OnTestFinished(IFeatureTest* pFeatureTest);
+	void OnTestFinished(IFeatureTest *pFeatureTest);
 
 	/// Used to set the output for tests
-	void SetAutoTester(CAutoTester* pAutoTester)
+	void SetAutoTester(CAutoTester *pAutoTester)
 	{
 		m_pAutoTester = pAutoTester;
 	}
@@ -97,7 +100,7 @@ protected:
 	bool StartNextTest();
 
 	/// Returns the index of the first test found with the given name or ~0
-	size_t FindTest(const char* name) const;
+	size_t FindTest(const char *name) const;
 
 	/// Resets all tests to the given state and performs a cleanup
 	void ResetAllTests(EFTState resetState);
@@ -112,14 +115,17 @@ protected:
 private:
 	struct FeatureTestState
 	{
-		FeatureTestState(IFeatureTest* pFT = NULL)
+		FeatureTestState(IFeatureTest *pFT = NULL)
 			: m_pTest(pFT),
-				m_state(eFTS_Disabled)
+			  m_state(eFTS_Disabled)
 		{}
 
-		bool operator==(const FeatureTestState& other) const { return m_pTest == other.m_pTest; }
+		bool operator==(const FeatureTestState &other) const
+		{
+			return m_pTest == other.m_pTest;
+		}
 
-		IFeatureTest* m_pTest;
+		IFeatureTest *m_pTest;
 		EFTState m_state;
 	};
 
@@ -130,10 +136,10 @@ private:
 
 	TFeatureTestVec		m_featureTests;				/// All registered tests (elements not owned by this)
 	size_t						m_runningTestIndex;		/// Current index into m_featureTests for the running test
-	IFeatureTest*			m_pRunningTest;				/// Current test case in progress
+	IFeatureTest			*m_pRunningTest;				/// Current test case in progress
 	float					m_timeoutScheduled;			/// Timeout to wait for on scheduled tests
 	float					m_timeWaitedForScheduled;	/// Time waited for scheduled tests that have not yet met start criteria
-	CAutoTester*			m_pAutoTester;				/// Auto-test used to output results
+	CAutoTester			*m_pAutoTester;				/// Auto-test used to output results
 	bool							m_running;
 	bool							m_waiting;			/// Tracks if scheduled tests are still waiting for start conditions
 	bool							m_pendingRunAll;			/// Workaround: Indicates a ft_map_runAll is pending (allows waiting for level load to complete)

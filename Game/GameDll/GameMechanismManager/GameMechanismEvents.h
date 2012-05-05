@@ -12,13 +12,19 @@
 	f(kGMEvent_LocalPlayerDeinit)     \
 	f(kGMEvent_LoadGame)              \
 	f(kGMEvent_SaveGame)              \
-
+ 
 struct SGameMechanismEventData
 {
 	union
 	{
-		struct { ILoadGame * m_interface; } m_data_LoadGame;
-		struct { ISaveGame * m_interface; } m_data_SaveGame;
+		struct
+		{
+			ILoadGame *m_interface;
+		} m_data_LoadGame;
+		struct
+		{
+			ISaveGame *m_interface;
+		} m_data_SaveGame;
 	};
 };
 

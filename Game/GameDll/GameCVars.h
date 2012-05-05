@@ -12,7 +12,7 @@ struct SAIPerceptionCVars
 };
 
 struct SCVars
-{	
+{
 	static const float v_altitudeLimitDefault()
 	{
 		return 600.0f;
@@ -34,7 +34,7 @@ struct SCVars
 	int		cl_invertMouse;
 	int		cl_invertController;
 	int		cl_crouchToggle;
-	int		cl_fpBody;	
+	int		cl_fpBody;
 	int		cl_debugSwimming;
 	int		cl_sprintToggle;
 	float	cl_sprintTime;
@@ -133,7 +133,7 @@ struct SCVars
 	//////////////////////////////////////////////////////////////////////////
 
 
-	ICVar* 	ca_GameControlledStrafingPtr;
+	ICVar 	*ca_GameControlledStrafingPtr;
 	float pl_curvingSlowdownSpeedScale;
 	float ac_enableProceduralLeaning;
 
@@ -151,7 +151,7 @@ struct SCVars
 	float cl_frozenMouseMult;
 	float cl_frozenKeyMult;
 	float cl_frozenSoundDelta;
-	int		goc_enable;	
+	int		goc_enable;
 	float goc_targetx;
 	float goc_targety;
 	float goc_targetz;
@@ -294,10 +294,10 @@ struct SCVars
 	int		g_suddendeathtime;
 	int		g_roundlimit;
 	int		g_fraglimit;
-  int		g_fraglead;
-  float g_friendlyfireratio;
-  int   g_revivetime; 
-  int   g_autoteambalance;
+	int		g_fraglead;
+	float g_friendlyfireratio;
+	int   g_revivetime;
+	int   g_autoteambalance;
 	int   g_minplayerlimit;
 	int   g_minteamlimit;
 	int		g_mpSpeedRechargeDelay;
@@ -323,7 +323,7 @@ struct SCVars
 	float	g_ragdollMinTime;
 	float	g_ragdollUnseenTime;
 	float	g_ragdollPollTime;
-	float	g_ragdollDistance;	
+	float	g_ragdollDistance;
 
 	int		pl_debug_ladders;
 	float	pl_ladder_animOffset;
@@ -332,7 +332,7 @@ struct SCVars
 
 	int		pl_debug_movement;
 	int		pl_debug_jumping;
-	ICVar*pl_debug_filter;
+	ICVar *pl_debug_filter;
 
 	// PLAYERPREDICTION
 	float pl_velocityInterpAirControlScale;
@@ -351,7 +351,7 @@ struct SCVars
 	// ~PLAYERPREDICTION
 
 	int		aln_debug_movement;
-	ICVar*aln_debug_filter;
+	ICVar *aln_debug_filter;
 	int pl_DebugFootstepSounds;
 
 #if !defined(_RELEASE)
@@ -363,25 +363,25 @@ struct SCVars
 	float v_debugMovementSensitivity;
 #endif
 
-	int   v_profileMovement;  
+	int   v_profileMovement;
 	int   v_draw_suspension;
 	int   v_draw_slip;
-	int   v_pa_surface;    
-	int   v_invertPitchControl;  
-	float v_wind_minspeed; 
+	int   v_pa_surface;
+	int   v_invertPitchControl;
+	float v_wind_minspeed;
 	float v_sprintSpeed;
 	int   v_dumpFriction;
 	int   v_rockBoats;
-  int   v_debugSounds;
+	int   v_debugSounds;
 	float v_altitudeLimit;
-	ICVar* pAltitudeLimitCVar;
+	ICVar *pAltitudeLimitCVar;
 	float v_altitudeLimitLowerOffset;
-	ICVar* pAltitudeLimitLowerOffsetCVar;
+	ICVar *pAltitudeLimitLowerOffsetCVar;
 	float v_airControlSensivity;
 	float v_stabilizeVTOL;
 	int   v_help_tank_steering;
-  int   v_debugMountedWeapon;
-	ICVar* pVehicleQuality;
+	int   v_debugMountedWeapon;
+	ICVar *pVehicleQuality;
 
 	float pl_swimBaseSpeed;
 	float pl_swimBackSpeedMul;
@@ -403,8 +403,8 @@ struct SCVars
 	float pl_fallDamage_Strength_SpeedFatal;
 	float pl_fallDamage_SpeedBias;
 	int pl_debugFallDamage;
-	
-  float pl_zeroGSpeedMultSpeed;
+
+	float pl_zeroGSpeedMultSpeed;
 	float pl_zeroGSpeedMultSpeedSprint;
 	float pl_zeroGSpeedMultNormal;
 	float pl_zeroGSpeedMultNormalSprint;
@@ -446,19 +446,19 @@ struct SCVars
 	int hit_assistSingleplayerEnabled;
 	int hit_assistMultiplayerEnabled;
 
-  int aim_assistCrosshairSize;
-  int aim_assistCrosshairDebug;
-		
-  float g_stereoIronsightWeaponDistance;
-  float g_stereoIronsightEyeDistance;
-  int   g_stereoFrameworkEnable;
+	int aim_assistCrosshairSize;
+	int aim_assistCrosshairDebug;
 
-  float g_combatFadeTime;
+	float g_stereoIronsightWeaponDistance;
+	float g_stereoIronsightEyeDistance;
+	int   g_stereoFrameworkEnable;
+
+	float g_combatFadeTime;
 	float g_combatFadeTimeDelay;
 	float g_battleRange;
 
-	ICVar*i_debuggun_1;
-	ICVar*i_debuggun_2;
+	ICVar *i_debuggun_1;
+	ICVar *i_debuggun_2;
 
 	float	tracer_min_distance;
 	float	tracer_max_distance;
@@ -470,29 +470,29 @@ struct SCVars
 	int		i_auto_turret_target;
 	int		i_auto_turret_target_tacshells;
 	int		i_debug_zoom_mods;
-  int   i_debug_turrets;
-  int   i_debug_sounds;
+	int   i_debug_turrets;
+	int   i_debug_sounds;
 	int		i_debug_mp_flowgraph;
-  
-  ICVar*  g_quickGame_map;
-  ICVar*  g_quickGame_mode;
-  int     g_quickGame_min_players;
-  int     g_quickGame_prefer_lan;
-  int     g_quickGame_prefer_favorites;
-  int     g_quickGame_prefer_my_country;
-  int     g_quickGame_ping1_level;
-  int     g_quickGame_ping2_level;
-  int     g_quickGame_debug;
+
+	ICVar  *g_quickGame_map;
+	ICVar  *g_quickGame_mode;
+	int     g_quickGame_min_players;
+	int     g_quickGame_prefer_lan;
+	int     g_quickGame_prefer_favorites;
+	int     g_quickGame_prefer_my_country;
+	int     g_quickGame_ping1_level;
+	int     g_quickGame_ping2_level;
+	int     g_quickGame_debug;
 	int			g_skip_tutorial;
 
-  int     g_displayIgnoreList;
-  int     g_buddyMessagesIngame;
+	int     g_displayIgnoreList;
+	int     g_buddyMessagesIngame;
 
 	int     g_showPlayerState;
 
-  int			g_battleDust_enable;
+	int			g_battleDust_enable;
 	int			g_battleDust_debug;
-	ICVar*  g_battleDust_effect;
+	ICVar  *g_battleDust_effect;
 
 	int			g_proneNotUsableWeapon_FixType;
 	int			g_proneAimAngleRestrict_Enable;
@@ -503,16 +503,16 @@ struct SCVars
 	int			g_avmine_limit;
 	int			g_debugMines;
 	int			g_deathCam;
-	
+
 
 	float		ctrl_input_smoothing;
-	
+
 	int			g_disable_throw;
 	int			g_disable_pickup;
 	int			g_disable_grab;
 
 	int			g_tpview_control;
-	int			g_tpview_enable;	
+	int			g_tpview_enable;
 	int			g_tpview_force_goc;
 
 	int			cl_player_landing_forcefeedback;	// switch between the old and the new camera
@@ -525,7 +525,7 @@ struct SCVars
 	float watch_text_render_fxscale;
 
 	int autotest_enabled;
-	ICVar* autotest_state_setup;
+	ICVar *autotest_state_setup;
 	int autotest_quit_when_done;
 	int designer_warning_enabled;
 	int designer_warning_level_resources;
@@ -549,17 +549,17 @@ struct SCVars
 
 	enum EHitDeathReactionsLogReactionAnimsType
 	{
-			eHDRLRAT_DontLog = 0,
-			eHDRLRAT_LogAnimNames,
-			eHDRLRAT_LogFilePaths,
+		eHDRLRAT_DontLog = 0,
+		eHDRLRAT_LogAnimNames,
+		eHDRLRAT_LogFilePaths,
 	};
 	int			g_hitDeathReactions_logReactionAnimsOnLoading;
 
 	enum EHitDeathReactionsStreamingPolicy
 	{
-			eHDRSP_Disabled = 0,
-			eHDRSP_ActorsAliveAndNotInPool,		// the assets are locked if at least one of the actors using the profile is alive and not in the pool
-			eHDRSP_EntityLifespanBased,				// the assets are requested/released whenever the entities using them are spawned/removed
+		eHDRSP_Disabled = 0,
+		eHDRSP_ActorsAliveAndNotInPool,		// the assets are locked if at least one of the actors using the profile is alive and not in the pool
+		eHDRSP_EntityLifespanBased,				// the assets are requested/released whenever the entities using them are spawned/removed
 	};
 	int			g_hitDeathReactions_streaming;
 	// ~Hit Death Reactions CVars
@@ -569,13 +569,16 @@ struct SCVars
 		memset(this,0,sizeof(SCVars));
 	}
 
-	~SCVars() { ReleaseCVars(); }
+	~SCVars()
+	{
+		ReleaseCVars();
+	}
 
 	void InitCVars(IConsole *pConsole);
 	void ReleaseCVars();
 
 	void InitAIPerceptionCVars(IConsole *pConsole);
-	void ReleaseAIPerceptionCVars(IConsole* pConsole);
+	void ReleaseAIPerceptionCVars(IConsole *pConsole);
 };
 
 #endif //__GAMECVARS_H__

@@ -29,10 +29,12 @@ public:
 	void Read(const char *name, T &value)
 	{
 		const IItemParamsNode *node = FindNode(name);
-		if (node)
+
+		if(node)
 		{
 			int v;
-			if (node->GetAttribute("value", v))
+
+			if(node->GetAttribute("value", v))
 				value=(T)v;
 		}
 	}
@@ -40,10 +42,12 @@ public:
 	void Read(const char *name, bool &value)
 	{
 		const IItemParamsNode *node = FindNode(name);
-		if (node)
+
+		if(node)
 		{
 			int v;
-			if (node->GetAttribute("value", v))
+
+			if(node->GetAttribute("value", v))
 				value=v!=0;
 		}
 	}
@@ -51,24 +55,28 @@ public:
 	void Read(const char *name, float &value)
 	{
 		const IItemParamsNode *node = FindNode(name);
-		if (node)
+
+		if(node)
 			node->GetAttribute("value", value);
 	}
 
 	void Read(const char *name, Vec3 &value)
 	{
 		const IItemParamsNode *node = FindNode(name);
-		if (node)
+
+		if(node)
 			node->GetAttribute("value", value);
 	}
 
 	void Read(const char *name, string &value)
 	{
 		const IItemParamsNode *node = FindNode(name);
-		if (node)
+
+		if(node)
 		{
 			const char *v;
-			if (v=node->GetAttribute("value"))
+
+			if(v=node->GetAttribute("value"))
 				value=v;
 		}
 	}
@@ -77,10 +85,12 @@ public:
 	void Read(const char *name, ItemString &value)
 	{
 		const IItemParamsNode *node = FindNode(name);
-		if (node)
+
+		if(node)
 		{
 			const char *v;
-			if (v=node->GetAttribute("value"))
+
+			if(v=node->GetAttribute("value"))
 				value=v;
 		}
 	}
@@ -89,7 +99,8 @@ public:
 	void Read(const char *name, const char *&value)
 	{
 		const IItemParamsNode *node = FindNode(name);
-		if (node)
+
+		if(node)
 			value=node->GetAttribute("value");
 	}
 
@@ -97,21 +108,26 @@ private:
 	const IItemParamsNode *FindNode(const char *name)
 	{
 		assert(name != 0);
-		if (m_node && name)
+
+		if(m_node && name)
 		{
 			int n=m_node->GetChildCount();
-			for (int i=0; i<n; i++)
+
+			for(int i=0; i<n; i++)
 			{
 				const IItemParamsNode *node=m_node->GetChild(i);
-				if (node)
+
+				if(node)
 				{
 					const char *nodeName = node->GetNameAttribute();
 					assert(nodeName != 0);
-					if (nodeName && nodeName[0] && !strcmpi(nodeName, name))
+
+					if(nodeName && nodeName[0] && !strcmpi(nodeName, name))
 						return node;
 				}
 			}
 		}
+
 		return 0;
 	}
 

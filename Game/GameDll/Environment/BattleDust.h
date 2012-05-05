@@ -43,23 +43,32 @@ public:
 	virtual void InitClient(int channelId) {};
 	virtual void PostInit(IGameObject *pGameObject);
 	virtual void PostInitClient(int channelId) {};
-	virtual bool ReloadExtension( IGameObject * pGameObject, const SEntitySpawnParams &params ) { return false; }
-	virtual void PostReloadExtension( IGameObject * pGameObject, const SEntitySpawnParams &params ) {}
-	virtual bool GetEntityPoolSignature( TSerialize signature ) { return false; }
+	virtual bool ReloadExtension(IGameObject *pGameObject, const SEntitySpawnParams &params)
+	{
+		return false;
+	}
+	virtual void PostReloadExtension(IGameObject *pGameObject, const SEntitySpawnParams &params) {}
+	virtual bool GetEntityPoolSignature(TSerialize signature)
+	{
+		return false;
+	}
 	virtual void Release();
-	virtual void FullSerialize( TSerialize ser );
-	virtual bool NetSerialize( TSerialize ser, EEntityAspects aspect, uint8 profile, int flags );
+	virtual void FullSerialize(TSerialize ser);
+	virtual bool NetSerialize(TSerialize ser, EEntityAspects aspect, uint8 profile, int flags);
 	virtual void PostSerialize() {}
-	virtual void SerializeSpawnInfo( TSerialize ser ) {}
-	virtual ISerializableInfoPtr GetSpawnInfo() {return 0;}
-	virtual void Update( SEntityUpdateContext &ctx, int updateSlot);
-	virtual void PostUpdate(float frameTime ) {};
+	virtual void SerializeSpawnInfo(TSerialize ser) {}
+	virtual ISerializableInfoPtr GetSpawnInfo()
+	{
+		return 0;
+	}
+	virtual void Update(SEntityUpdateContext &ctx, int updateSlot);
+	virtual void PostUpdate(float frameTime) {};
 	virtual void PostRemoteSpawn() {};
-	virtual void HandleEvent( const SGameObjectEvent &) {};
+	virtual void HandleEvent(const SGameObjectEvent &) {};
 	virtual void ProcessEvent(SEntityEvent &) {};
 	virtual void SetChannelId(uint16 id) {};
 	virtual void SetAuthority(bool auth) {};
-	virtual void GetMemoryUsage(ICrySizer * s) const;
+	virtual void GetMemoryUsage(ICrySizer *s) const;
 	//~IGameObjectExtension
 
 protected:
@@ -72,7 +81,7 @@ protected:
 	float m_lifetime;					// how long we will live (total)
 	float m_lifeRemaining;		// how long before we are removed
 	float m_numParticles;
-	IParticleEffect* m_pParticleEffect;
+	IParticleEffect *m_pParticleEffect;
 	EntityId m_entityId;			// needed so we can find this event in the list after adding it.
 };
 
@@ -83,7 +92,7 @@ struct SBattleEventParameter
 	string m_name;
 	float m_power;
 	float m_lifetime;
-	IEntityClass* m_pClass;		// to save strcmp all the time
+	IEntityClass *m_pClass;		// to save strcmp all the time
 };
 
 // main class to manage where battle dust appears in the world
@@ -94,26 +103,26 @@ public:
 	~CBattleDust();
 
 	void ReloadXml();
-	void RecordEvent(EBattleDustEventType event, Vec3 worldPos, const IEntityClass* pClass);
+	void RecordEvent(EBattleDustEventType event, Vec3 worldPos, const IEntityClass *pClass);
 	void Update();
-	void NewBattleArea(CBattleEvent* pEvent);
-	void RemoveBattleArea(CBattleEvent* pEvent);
+	void NewBattleArea(CBattleEvent *pEvent);
+	void RemoveBattleArea(CBattleEvent *pEvent);
 
 	void Serialize(TSerialize ser);
 
 protected:
-	bool GetEventParams(EBattleDustEventType event, const IEntityClass* pClass, SBattleEventParameter& out);
-	
-	// if two areas overlap, make a big one instead
-	bool CheckForMerging(CBattleEvent* pEvent);								
-	bool CheckIntersection(CBattleEvent* pEventOne, Vec3& pos, float radius);
-	bool MergeAreas(CBattleEvent* pExisting, Vec3& pos, float radius);
+	bool GetEventParams(EBattleDustEventType event, const IEntityClass *pClass, SBattleEventParameter &out);
 
-	void UpdateParticlesForArea(CBattleEvent* pEvent);
+	// if two areas overlap, make a big one instead
+	bool CheckForMerging(CBattleEvent *pEvent);
+	bool CheckIntersection(CBattleEvent *pEventOne, Vec3 &pos, float radius);
+	bool MergeAreas(CBattleEvent *pExisting, Vec3 &pos, float radius);
+
+	void UpdateParticlesForArea(CBattleEvent *pEvent);
 
 	void RemoveAllEvents();
 
-	CBattleEvent* FindEvent(EntityId id);
+	CBattleEvent *FindEvent(EntityId id);
 
 	float m_entitySpawnPower;																	// how many events lead to an entity
 	float m_defaultLifetime;																	// how long each event lasts (unless overridden)
@@ -134,7 +143,7 @@ protected:
 	std::vector<SBattleEventParameter> m_vehicleExplosionPower;// similar for vehicle explosions
 	std::vector<SBattleEventParameter> m_bulletImpactPower;		// and for bullet impacts
 
-	IEntityClass* m_pBattleEventClass;
+	IEntityClass *m_pBattleEventClass;
 
 	// for debugging: this is output to server's log file on exit.
 	int m_maxBattleEvents;

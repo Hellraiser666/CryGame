@@ -12,8 +12,8 @@ DesignerWarning.h
 #ifndef __DESIGNER_WARNING_H__
 #define __DESIGNER_WARNING_H__
 
-//#define DESIGNER_WARNING_ENABLED (1 && (defined(WIN32) || defined(WIN64)))		
-#if defined(WIN32) 
+//#define DESIGNER_WARNING_ENABLED (1 && (defined(WIN32) || defined(WIN64)))
+#if defined(WIN32)
 #define DESIGNER_WARNING_ENABLED 1  // needs a release build define to hook in here 
 #elif defined(WIN64)
 #define DESIGNER_WARNING_ENABLED 1  // needs a release build define to hook in here 
@@ -25,7 +25,7 @@ DesignerWarning.h
 
 #define DesignerWarning(cond, ...) ((!(cond)) && DesignerWarningFail(#cond, string().Format(__VA_ARGS__).c_str()))
 #define DesignerWarningFail(condText, messageText) DesignerWarningFunc(string().Format("CONDITION:\n%s\n\nMESSAGE:\n%s", condText, messageText))
-int DesignerWarningFunc(const char * message);
+int DesignerWarningFunc(const char *message);
 int GetNumDesignerWarningsHit();
 
 #else // DESIGNER_WARNING_ENABLED

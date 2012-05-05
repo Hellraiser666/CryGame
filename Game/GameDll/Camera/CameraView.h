@@ -43,9 +43,15 @@ public:
 	void Update(SViewParams &viewParams);
 
 	//get mode settings of last view update
-	SCamModeSettings *GetLastMode() { return &m_curSettings; }
+	SCamModeSettings *GetLastMode()
+	{
+		return &m_curSettings;
+	}
 
-	CCameraRayScan* GetCamRayScan() const { return m_pCamRayScan; }
+	CCameraRayScan *GetCamRayScan() const
+	{
+		return m_pCamRayScan;
+	}
 
 private:
 	//get settings from camera manager
@@ -105,5 +111,5 @@ private:
 	SViewParams m_lastViewParams;
 };
 
-#endif 
+#endif
 

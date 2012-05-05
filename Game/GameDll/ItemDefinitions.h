@@ -33,12 +33,12 @@ typedef CryFixedStringT<256>										TempResourceName;
 typedef std::vector<SAttachmentHelper>					THelperVector;
 typedef std::vector<ItemString>									TInitialSetup;
 typedef std::map<ItemString, bool>							TDualWieldSupportMap;
-typedef std::map<IEntityClass*, int>						TAccessoryAmmoMap;
+typedef std::map<IEntityClass *, int>						TAccessoryAmmoMap;
 typedef std::map<ItemString, SAccessoryParams>	TAccessoryParamsMap;
 typedef std::map<ItemString, SItemAction>				TActionMap;
 typedef	std::vector<SCachedItemResourceString>	TResourceStringCache;
 typedef std::map<ItemString, SLayer>						TLayerMap;
-typedef std::map<IEntityClass*, int>						TAmmoMap;
+typedef std::map<IEntityClass *, int>						TAmmoMap;
 typedef std::vector<SParentFireModeParams>			TParentFireModeParamsVector;
 typedef std::vector<SParentZoomModeParams>			TParentZoomModeParamsVector;
 
@@ -73,16 +73,16 @@ struct SWeaponAmmo
 
 	}
 
-	SWeaponAmmo(IEntityClass* pClass, int ammoCount)
+	SWeaponAmmo(IEntityClass *pClass, int ammoCount)
 		: pAmmoClass(pClass)
 		, count(ammoCount)
 	{
 
 	}
 
-	void GetMemoryUsage(ICrySizer * s) const {}
+	void GetMemoryUsage(ICrySizer *s) const {}
 
-	IEntityClass* pAmmoClass;
+	IEntityClass *pAmmoClass;
 	int						count;
 };
 
@@ -90,28 +90,30 @@ typedef std::vector<SWeaponAmmo>						TAmmoVector;
 
 struct SWeaponAmmoUtils
 {
-	static const SWeaponAmmo* FindAmmoConst(const TAmmoVector& ammoVector, IEntityClass* pAmmoType)
+	static const SWeaponAmmo *FindAmmoConst(const TAmmoVector &ammoVector, IEntityClass *pAmmoType)
 	{
 		const int ammoCount = ammoVector.size();
-		for (int i = 0; i < ammoCount; ++i)
+
+		for(int i = 0; i < ammoCount; ++i)
 		{
-			if (pAmmoType == ammoVector[i].pAmmoClass)
+			if(pAmmoType == ammoVector[i].pAmmoClass)
 			{
-				return &(ammoVector[i]); 
+				return &(ammoVector[i]);
 			}
 		}
 
 		return NULL;
 	}
 
-	static SWeaponAmmo* FindAmmo(TAmmoVector& ammoVector, IEntityClass* pAmmoType)
+	static SWeaponAmmo *FindAmmo(TAmmoVector &ammoVector, IEntityClass *pAmmoType)
 	{
 		const int ammoCount = ammoVector.size();
-		for (int i = 0; i < ammoCount; ++i)
+
+		for(int i = 0; i < ammoCount; ++i)
 		{
-			if (pAmmoType == ammoVector[i].pAmmoClass)
+			if(pAmmoType == ammoVector[i].pAmmoClass)
 			{
-				return &(ammoVector[i]); 
+				return &(ammoVector[i]);
 			}
 		}
 
@@ -119,10 +121,11 @@ struct SWeaponAmmoUtils
 	}
 
 	// returns true if the the ammo type was already found in the ammoVector
-	static bool SetAmmo(TAmmoVector& ammoVector, IEntityClass* pClass, int count)
+	static bool SetAmmo(TAmmoVector &ammoVector, IEntityClass *pClass, int count)
 	{
-		SWeaponAmmo* pAmmo = SWeaponAmmoUtils::FindAmmo(ammoVector, pClass);
-		if (pAmmo != NULL)
+		SWeaponAmmo *pAmmo = SWeaponAmmoUtils::FindAmmo(ammoVector, pClass);
+
+		if(pAmmo != NULL)
 		{
 			pAmmo->count = count;
 			return true;
@@ -134,9 +137,9 @@ struct SWeaponAmmoUtils
 		}
 	}
 
-	static int GetAmmoCount(const TAmmoVector& ammoVector, IEntityClass* pClass)
+	static int GetAmmoCount(const TAmmoVector &ammoVector, IEntityClass *pClass)
 	{
-		const SWeaponAmmo* pAmmo = SWeaponAmmoUtils::FindAmmoConst(ammoVector, pClass);
+		const SWeaponAmmo *pAmmo = SWeaponAmmoUtils::FindAmmoConst(ammoVector, pClass);
 
 		return pAmmo ? pAmmo->count : 0;
 	}
@@ -194,7 +197,7 @@ struct SItemStrings
 	ItemString swim_backward;			// "swim_backward";
 	ItemString speed_swim;					// "speed_swim";
 	ItemString turret;							// "turret";
-	ItemString enable_light;        
+	ItemString enable_light;
 	ItemString disable_light;
 	ItemString use_light;
 	ItemString LAM;
@@ -212,6 +215,6 @@ struct SItemStrings
 	ItemString lever_layer_2;
 };
 
-extern struct SItemStrings* g_pItemStrings;
+extern struct SItemStrings *g_pItemStrings;
 
 #endif //__ITEMDEFINITIONS_H__

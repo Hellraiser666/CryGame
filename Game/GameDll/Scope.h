@@ -25,11 +25,14 @@ class CScopeSharedData;
 
 class CScope : public CIronSight
 {
-	public:
+public:
 
 	typedef struct SScopeParams
 	{
-		SScopeParams() { Reset(); };
+		SScopeParams()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
@@ -39,7 +42,7 @@ class CScope : public CIronSight
 			ResetValue(dark_in_time, 0.15f);
 		};
 
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
 			s->Add(scope);
 		}
@@ -59,7 +62,7 @@ class CScope : public CIronSight
 
 	virtual void Activate(bool activate);
 
-	virtual void GetMemoryUsage(ICrySizer * s) const;
+	virtual void GetMemoryUsage(ICrySizer *s) const;
 
 	virtual void UpdateFPView(float frameTime) {};
 	// ~IZoomMode
@@ -69,9 +72,12 @@ class CScope : public CIronSight
 	virtual void OnEnterZoom();
 	virtual void OnLeaveZoom();
 	virtual void OnZoomStep(bool zoomingIn, float t);
-	virtual bool IsScope() const { return true; }
+	virtual bool IsScope() const
+	{
+		return true;
+	}
 
-	virtual void InitSharedParams ();
+	virtual void InitSharedParams();
 	virtual void CacheSharedParamsPtr();
 	// ~CIronSight
 
@@ -81,18 +87,21 @@ protected:
 
 private:
 
-	CScopeSharedData *	m_pShared;
+	CScopeSharedData 	*m_pShared;
 
 };
 
 class CScopeSharedData: public CIronSightSharedData
 {
 public:
-	CScopeSharedData(){};
-	virtual ~CScopeSharedData(){};
+	CScopeSharedData() {};
+	virtual ~CScopeSharedData() {};
 
-	virtual const char* GetDataType() const { return "ScopeData"; }
-	virtual void GetMemoryUsage(ICrySizer* s) const
+	virtual const char *GetDataType() const
+	{
+		return "ScopeData";
+	}
+	virtual void GetMemoryUsage(ICrySizer *s) const
 	{
 		s->Add(*this);
 		scopeParams.GetMemoryUsage(s);

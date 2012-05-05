@@ -18,14 +18,14 @@ History:
 class CFlowNode_FeatureTest : public CFlowBaseNode<eNCT_Instanced>, public IFeatureTest
 {
 public:
-	CFlowNode_FeatureTest(SActivationInfo* pActInfo);
+	CFlowNode_FeatureTest(SActivationInfo *pActInfo);
 	virtual ~CFlowNode_FeatureTest();
 
-	virtual IFlowNodePtr Clone(SActivationInfo* pActInfo);
+	virtual IFlowNodePtr Clone(SActivationInfo *pActInfo);
 
-	virtual void GetConfiguration(SFlowNodeConfig& config);
-	virtual void ProcessEvent(EFlowEvent event, SActivationInfo* pActInfo);
-	virtual void GetMemoryUsage(ICrySizer* sizer) const;
+	virtual void GetConfiguration(SFlowNodeConfig &config);
+	virtual void ProcessEvent(EFlowEvent event, SActivationInfo *pActInfo);
+	virtual void GetMemoryUsage(ICrySizer *sizer) const;
 
 	enum EInputPorts
 	{
@@ -78,17 +78,17 @@ public:
 	/// Called to cleanup test state once the test is complete
 	virtual void Cleanup();
 	/// Returns the name of the test
-	virtual const char* Name();
+	virtual const char *Name();
 
 	// Serialize call for internal state
-	virtual void Serialize(SActivationInfo* pActivationInfo, TSerialize ser);
+	virtual void Serialize(SActivationInfo *pActivationInfo, TSerialize ser);
 
 protected:
 	/// Attempts to start the next test. Returns true if successful.
 	bool StartNextTestRun();
 
 	/// Used to return results and schedule next run in sequence
-	void OnTestResult(bool result, const char* reason);
+	void OnTestResult(bool result, const char *reason);
 
 	/// Returns the number of attached entities
 	int GetTestEntityCount();
@@ -97,19 +97,22 @@ protected:
 	/// outEntity contains the entity if one could be found at the given index, otherwise NULL
 	/// bPrepareFromPool is used to specify if the entity at the given index should be prepared from the pool if needed
 	/// Returns: True if there was an entityId specified at this index. Note you can still have a NULL outEntity even if true, indicating error.
-	bool GetEntityAtIndex(int index, IEntity* &outEntity, bool bPrepareFromPool = false);
+	bool GetEntityAtIndex(int index, IEntity *&outEntity, bool bPrepareFromPool = false);
 
 	/// Utility function for returning a test result to the manager and updating any associated entity passed trigger
-	void SetResult(bool result, const char* reason);
+	void SetResult(bool result, const char *reason);
 
 	/// Utility function for activating/deactivating all associated entities
 	void ActivateAllEntities(bool activate);
 
 	/// True when test has not run (only time start time can be exactly 0.0f)
-	bool TestHasRun() const { return m_hasBeenStarted; }
+	bool TestHasRun() const
+	{
+		return m_hasBeenStarted;
+	}
 
 	/// Adds a label to the profile data.
-	void AddUserMarker( const char* label ) const;
+	void AddUserMarker(const char *label) const;
 
 private:
 	SActivationInfo	m_actInfo;
@@ -132,14 +135,14 @@ class CCodeCheckpoint;
 class CFlowNode_WatchCodeCheckpoint : public CFlowBaseNode<eNCT_Instanced>
 {
 public:
-	CFlowNode_WatchCodeCheckpoint(SActivationInfo* pActInfo);
+	CFlowNode_WatchCodeCheckpoint(SActivationInfo *pActInfo);
 	virtual ~CFlowNode_WatchCodeCheckpoint();
 
-	virtual IFlowNodePtr Clone(SActivationInfo* pActInfo);
+	virtual IFlowNodePtr Clone(SActivationInfo *pActInfo);
 
-	virtual void GetConfiguration(SFlowNodeConfig& config);
-	virtual void ProcessEvent(EFlowEvent event, SActivationInfo* pActInfo);
-	virtual void GetMemoryUsage(ICrySizer* sizer) const;
+	virtual void GetConfiguration(SFlowNodeConfig &config);
+	virtual void ProcessEvent(EFlowEvent event, SActivationInfo *pActInfo);
+	virtual void GetMemoryUsage(ICrySizer *sizer) const;
 
 	enum EInputPorts
 	{
@@ -157,8 +160,8 @@ public:
 	};
 
 private:
-	void StartWatching(SActivationInfo* pActInfo);
-	void StopWatching(SActivationInfo* pActInfo);
+	void StartWatching(SActivationInfo *pActInfo);
+	void StopWatching(SActivationInfo *pActInfo);
 
 	void ResolveCheckpointStatus();
 	void RemoveAsWatcher();
@@ -168,7 +171,7 @@ private:
 
 	size_t m_checkPointIdx;						/// The index for the checkpoint (~0 for invalid)
 	string m_checkpointName;						/// The checkpoint name
-	const CCodeCheckpoint* m_pCheckPoint;			/// The checkpoint in use (if it has been registered)
+	const CCodeCheckpoint *m_pCheckPoint;			/// The checkpoint in use (if it has been registered)
 	int m_prevHitCount;								/// The hit count of the associated CCCPOINT at the last sync
 
 	bool	m_watchRequested;
@@ -247,12 +250,12 @@ class CFlowNode_SimulateInput : public CFlowBaseNode<eNCT_Instanced>
 	};
 
 public:
-	CFlowNode_SimulateInput(SActivationInfo* pActInfo);
+	CFlowNode_SimulateInput(SActivationInfo *pActInfo);
 
-	virtual void GetConfiguration(SFlowNodeConfig& config);
-	virtual void ProcessEvent(EFlowEvent event, SActivationInfo* pActInfo);
-	virtual void GetMemoryUsage(ICrySizer* sizer) const;
-	virtual IFlowNodePtr Clone(SActivationInfo* pActInfo);
+	virtual void GetConfiguration(SFlowNodeConfig &config);
+	virtual void ProcessEvent(EFlowEvent event, SActivationInfo *pActInfo);
+	virtual void GetMemoryUsage(ICrySizer *sizer) const;
+	virtual IFlowNodePtr Clone(SActivationInfo *pActInfo);
 };
 
-#endif 
+#endif

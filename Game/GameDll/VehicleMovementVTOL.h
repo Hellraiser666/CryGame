@@ -27,11 +27,11 @@ public:
 	virtual ~CVehicleMovementVTOL() {}
 
 	// IVehicleMovement
-	virtual bool Init(IVehicle* pVehicle, const CVehicleParams& table);
+	virtual bool Init(IVehicle *pVehicle, const CVehicleParams &table);
 	virtual void PostInit();
 	virtual void Reset();
 
-	virtual void OnEvent(EVehicleMovementEvent event, const SVehicleMovementEventParams& params);
+	virtual void OnEvent(EVehicleMovementEvent event, const SVehicleMovementEventParams &params);
 	virtual void ProcessActions(const float deltaTime);
 	virtual void ProcessAI(const float deltaTime);
 	virtual void Update(const float deltaTime);
@@ -45,7 +45,7 @@ public:
 	virtual void StopEngine();
 	virtual void PreProcessMovement(const float deltaTime);
 	virtual void UpdateEngine(float deltaTime);
-	virtual void GetMemoryUsage(ICrySizer * s) const;
+	virtual void GetMemoryUsage(ICrySizer *s) const;
 	// ~CVehicleMovementHelicopter
 
 protected:
@@ -55,14 +55,14 @@ protected:
 
 	bool m_isOveridingImpulse;
 
-	IVehicleAnimation* m_pWingsAnimation;
+	IVehicleAnimation *m_pWingsAnimation;
 	TVehicleAnimStateId m_wingHorizontalStateId;
 	TVehicleAnimStateId m_wingVerticalStateId;
 
-	IVehicleComponent* pWingComponentLeft;
-	IVehicleComponent* pWingComponentRight;
+	IVehicleComponent *pWingComponentLeft;
+	IVehicleComponent *pWingComponentRight;
 
-	ICVar* m_pStabilizeVTOL;
+	ICVar *m_pStabilizeVTOL;
 
 	// settings (only changed during init)
 	float m_horizontal;
@@ -93,7 +93,7 @@ protected:
 	float m_relaxTimer;
 	float m_soundParamTurn;
 	float m_liftPitchAngle;
-	
+
 	// variables updated in ProcessMovement/Update
 	float m_wingsTimer;
 	bool m_isVTOLMovement; // used sometime by ai to force the vtol to behave like an helicopter

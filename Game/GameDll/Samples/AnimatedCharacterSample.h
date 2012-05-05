@@ -28,31 +28,49 @@ public:
 	virtual ~CAnimatedCharacterSample();
 
 	// IGameObjectExtension
-	virtual bool Init( IGameObject* pGameObject );
-	virtual void InitClient( int channelId ) {}
-	virtual void PostInit( IGameObject* pGameObject );
-	virtual void PostInitClient( int channelId ) {}
-	virtual bool ReloadExtension( IGameObject* pGameObject, const SEntitySpawnParams& params ) { return false; }
-	virtual void PostReloadExtension( IGameObject* pGameObject, const SEntitySpawnParams& params ) {}
-	virtual bool GetEntityPoolSignature( TSerialize signature ) { return false; }
-	virtual void Release() { delete this; }
-	virtual void FullSerialize( TSerialize ser ) {}
-	virtual bool NetSerialize( TSerialize ser, EEntityAspects aspect, uint8 profile, int flags ) { return true; }
+	virtual bool Init(IGameObject *pGameObject);
+	virtual void InitClient(int channelId) {}
+	virtual void PostInit(IGameObject *pGameObject);
+	virtual void PostInitClient(int channelId) {}
+	virtual bool ReloadExtension(IGameObject *pGameObject, const SEntitySpawnParams &params)
+	{
+		return false;
+	}
+	virtual void PostReloadExtension(IGameObject *pGameObject, const SEntitySpawnParams &params) {}
+	virtual bool GetEntityPoolSignature(TSerialize signature)
+	{
+		return false;
+	}
+	virtual void Release()
+	{
+		delete this;
+	}
+	virtual void FullSerialize(TSerialize ser) {}
+	virtual bool NetSerialize(TSerialize ser, EEntityAspects aspect, uint8 profile, int flags)
+	{
+		return true;
+	}
 	virtual void PostSerialize() {}
-	virtual void SerializeSpawnInfo( TSerialize ser ) {}
-	virtual ISerializableInfoPtr GetSpawnInfo() { return 0; }
-	virtual void Update( SEntityUpdateContext& ctx, int updateSlot ) {}
-	virtual void PostUpdate( float frameTime ) {}
+	virtual void SerializeSpawnInfo(TSerialize ser) {}
+	virtual ISerializableInfoPtr GetSpawnInfo()
+	{
+		return 0;
+	}
+	virtual void Update(SEntityUpdateContext &ctx, int updateSlot) {}
+	virtual void PostUpdate(float frameTime) {}
 	virtual void PostRemoteSpawn() {}
-	virtual void HandleEvent( const SGameObjectEvent& event ) {}
-	virtual void ProcessEvent( SEntityEvent& event );
-	virtual void SetChannelId( uint16 id ) {}
-	virtual void SetAuthority( bool auth ) {}
-	virtual void GetMemoryUsage( ICrySizer* s ) const { s->Add( *this ); }
+	virtual void HandleEvent(const SGameObjectEvent &event) {}
+	virtual void ProcessEvent(SEntityEvent &event);
+	virtual void SetChannelId(uint16 id) {}
+	virtual void SetAuthority(bool auth) {}
+	virtual void GetMemoryUsage(ICrySizer *s) const
+	{
+		s->Add(*this);
+	}
 	// ~IGameObjectExtension
 
 protected:
-	void Reset( const bool enteringGameMode );
+	void Reset(const bool enteringGameMode);
 	void ResetCharacterModel();
 	void ResetAnimatedCharacter();
 	void BindAnimationGraphInputs();
@@ -61,21 +79,21 @@ protected:
 	void UnPhysicalize();
 
 	void OnPrePhysicsUpdate();
-	
+
 	void UpdateMovement();
 
 	void UpdateAnimationGraphState();
-	void UpdateAnimationGraphPseudoSpeed( IAnimationGraphState* pAnimationGraphState );
-	void UpdateAnimationGraphHealth( IAnimationGraphState* pAnimationGraphState );
+	void UpdateAnimationGraphPseudoSpeed(IAnimationGraphState *pAnimationGraphState);
+	void UpdateAnimationGraphHealth(IAnimationGraphState *pAnimationGraphState);
 
-	const char* GetCharacterModelName() const;
-	const char* GetCharacterModelNameFromScriptTable() const;
+	const char *GetCharacterModelName() const;
+	const char *GetCharacterModelNameFromScriptTable() const;
 	int GetColliderSurfaceTypeId() const;
 
-	void OnScriptEvent( const char* eventName );
+	void OnScriptEvent(const char *eventName);
 
 private:
-	IAnimatedCharacter* m_pAnimatedCharacter;
+	IAnimatedCharacter *m_pAnimatedCharacter;
 	IAnimationGraph::InputID m_healthInputId;
 	IAnimationGraph::InputID m_pseudoSpeedInputId;
 	IAnimationGraph::InputID m_actualMoveSpeedInputId;

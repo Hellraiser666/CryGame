@@ -6,7 +6,7 @@
 //  File name:   UIGameEvents.h
 //  Version:     v1.00
 //  Created:     19/03/2012 by Paul Reindell.
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -18,34 +18,34 @@
 #include <IFlashUI.h>
 #include <ILevelSystem.h>
 
-class CUIGameEvents 
+class CUIGameEvents
 	: public IUIGameEventSystem
 {
 public:
 	CUIGameEvents();
 
 	// IUIGameEventSystem
-	UIEVENTSYSTEM( "UIGameEvents" );
+	UIEVENTSYSTEM("UIGameEvents");
 	virtual void InitEventSystem();
 	virtual void UnloadEventSystem();
 
 private:
 	// UI events
-	void OnLoadLevel( const char* mapname, bool isServer, const char* gamerules );
+	void OnLoadLevel(const char *mapname, bool isServer, const char *gamerules);
 	void OnReloadLevel();
-	void OnSaveGame( bool shouldResume );
-	void OnLoadGame( bool shouldResume );
+	void OnSaveGame(bool shouldResume);
+	void OnLoadGame(bool shouldResume);
 	void OnPauseGame();
 	void OnResumeGame();
 	void OnExitGame();
 	void OnStartGame();
 
 private:
-	IUIEventSystem* m_pUIEvents;
+	IUIEventSystem *m_pUIEvents;
 	SUIEventReceiverDispatcher<CUIGameEvents> m_eventDispatcher;
 
-	IGameFramework* m_pGameFramework;
-	ILevelSystem* m_pLevelSystem;
+	IGameFramework *m_pGameFramework;
+	ILevelSystem *m_pLevelSystem;
 };
 
 

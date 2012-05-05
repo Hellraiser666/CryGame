@@ -4,7 +4,7 @@ Copyright (C), Crytek Studios, 2001-2006.
 -------------------------------------------------------------------------
 $Id$
 $DateTime$
-Description: 
+Description:
 
 -------------------------------------------------------------------------
 History:
@@ -25,12 +25,12 @@ History:
 
 
 typedef NTypelist::CConstruct<
-	bool,
-	float,
-	int,
-	EntityId,
-	string,
-	const char *
+bool,
+float,
+int,
+EntityId,
+string,
+const char *
 >::TType TSynchedValueTypes;
 
 
@@ -64,19 +64,21 @@ public:
 	template<typename ValueType>
 	void SetGlobalValue(TSynchedKey key, const ValueType &value)
 	{
-		TSynchedValue _value; _value.Set(value);
+		TSynchedValue _value;
+		_value.Set(value);
 
 		bool changed=true;
 		std::pair<TStorage::iterator, bool> result=m_globalStorage.insert(TStorage::value_type(key, _value));
-		if (!result.second)
+
+		if(!result.second)
 		{
-			if ((result.first->second.GetType()==_value.GetType()) && (*result.first->second.GetPtr<ValueType>()==value))
+			if((result.first->second.GetType()==_value.GetType()) && (*result.first->second.GetPtr<ValueType>()==value))
 				changed=false;
 			else
 				result.first->second=_value;
 		}
 
-		if (changed)
+		if(changed)
 			OnGlobalChanged(key, _value);
 	}
 
@@ -84,69 +86,77 @@ public:
 	{
 		bool changed=true; // always true since we can't compare two TSynchedValue
 		std::pair<TStorage::iterator, bool> result=m_globalStorage.insert(TStorage::value_type(key, value));
-		if (!result.second)
+
+		if(!result.second)
 			result.first->second=value;
 
-		if (changed)
+		if(changed)
 			OnGlobalChanged(key, value);
 	}
 
 	template<typename ValueType>
 	void SetChannelValue(int channelId, TSynchedKey key, const ValueType &value)
 	{
-		TSynchedValue _value; _value.Set(value);
+		TSynchedValue _value;
+		_value.Set(value);
 
 		TStorage *pStorage=GetChannelStorage(channelId, true);
-		if (!pStorage)
+
+		if(!pStorage)
 			return;
 
 		bool changed=true;
 		std::pair<TStorage::iterator, bool> result=pStorage->insert(TStorage::value_type(key, _value));
-		if (!result.second)
+
+		if(!result.second)
 		{
-			if ((result.first->second.GetType()==_value.GetType()) && (*result.first->second.GetPtr<ValueType>()==value))
+			if((result.first->second.GetType()==_value.GetType()) && (*result.first->second.GetPtr<ValueType>()==value))
 				changed=false;
 			else
 				result.first->second=_value;
 		}
 
-		if (changed)
+		if(changed)
 			OnChannelChanged(channelId, key, _value);
 	}
 
 	void SetChannelValue(int channelId, TSynchedKey key, const TSynchedValue &value)
 	{
 		TStorage *pStorage=GetChannelStorage(channelId, true);
-		if (!pStorage)
+
+		if(!pStorage)
 			return;
 
 		bool changed=true; // always true since we can't compare two TSynchedValue
 		std::pair<TStorage::iterator, bool> result=pStorage->insert(TStorage::value_type(key, value));
-		if (!result.second)
+
+		if(!result.second)
 			result.first->second=value;
 
-		if (changed)
+		if(changed)
 			OnChannelChanged(channelId, key, value);
 	}
 
 	template<typename ValueType>
 	void SetEntityValue(EntityId id, TSynchedKey key, const ValueType &value)
 	{
-		TSynchedValue _value; _value.Set(value);
+		TSynchedValue _value;
+		_value.Set(value);
 
 		TStorage *pStorage=GetEntityStorage(id, true);
 
 		bool changed=true;
 		std::pair<TStorage::iterator, bool> result=pStorage->insert(TStorage::value_type(key, _value));
-		if (!result.second)
+
+		if(!result.second)
 		{
-			if ((result.first->second.GetType()==_value.GetType()) && (*result.first->second.GetPtr<ValueType>()==value))
+			if((result.first->second.GetType()==_value.GetType()) && (*result.first->second.GetPtr<ValueType>()==value))
 				changed=false;
 			else
 				result.first->second=_value;
 		}
 
-		if (changed)
+		if(changed)
 			OnEntityChanged(id, key, _value);
 	}
 
@@ -156,10 +166,11 @@ public:
 
 		bool changed=true; // always true since we can't compare two TSynchedValue
 		std::pair<TStorage::iterator, bool> result=pStorage->insert(TStorage::value_type(key, value));
-		if (!result.second)
+
+		if(!result.second)
 			result.first->second=value;
 
-		if (changed)
+		if(changed)
 			OnEntityChanged(id, key, value);
 	}
 
@@ -167,7 +178,8 @@ public:
 	bool GetGlobalValue(TSynchedKey key, ValueType &value) const
 	{
 		TStorage::const_iterator it=m_globalStorage.find(key);
-		if (it==m_globalStorage.end())
+
+		if(it==m_globalStorage.end())
 			return false;
 
 		value=*it->second.GetPtr<ValueType>();
@@ -178,7 +190,8 @@ public:
 	bool GetGlobalValue(TSynchedKey key, TSynchedValue &value) const
 	{
 		TStorage::const_iterator it=m_globalStorage.find(key);
-		if (it==m_globalStorage.end())
+
+		if(it==m_globalStorage.end())
 			return false;
 
 		value=it->second;
@@ -189,25 +202,28 @@ public:
 	template<typename ValueType>
 	bool GetChannelValue(int channelId, TSynchedKey key, ValueType &value) const
 	{
-		if (!gEnv->bServer)
+		if(!gEnv->bServer)
 			return false;
 
 		const TStorage *pStorage=0;
 		TChannelStorageMap::const_iterator cit=m_channelStorageMap.find(channelId);
-		if (cit!=m_channelStorageMap.end())
+
+		if(cit!=m_channelStorageMap.end())
 			pStorage=&cit->second;
 		else
 		{
 			INetChannel *pNetChannel=m_pGameFramework->GetNetChannel(channelId);
-			if (pNetChannel && pNetChannel->IsLocal())
+
+			if(pNetChannel && pNetChannel->IsLocal())
 				pStorage=&m_channelStorage;
 		}
-		
-		if (!pStorage)
+
+		if(!pStorage)
 			return false;
 
 		TStorage::const_iterator it=pStorage->find(key);
-		if (it==pStorage->end())
+
+		if(it==pStorage->end())
 			return false;
 
 		value=*it->second.GetPtr<ValueType>();
@@ -219,20 +235,23 @@ public:
 	{
 		const TStorage *pStorage=0;
 		TChannelStorageMap::const_iterator cit=m_channelStorageMap.find(channelId);
-		if (cit!=m_channelStorageMap.end())
+
+		if(cit!=m_channelStorageMap.end())
 			pStorage=&cit->second;
 		else
 		{
 			INetChannel *pNetChannel=m_pGameFramework->GetNetChannel(channelId);
-			if (pNetChannel && pNetChannel->IsLocal())
+
+			if(pNetChannel && pNetChannel->IsLocal())
 				pStorage=&m_channelStorage;
 		}
 
-		if (!pStorage)
+		if(!pStorage)
 			return false;
 
 		TStorage::const_iterator it=pStorage->find(key);
-		if (it==pStorage->end())
+
+		if(it==pStorage->end())
 			return false;
 
 		value=it->second;
@@ -244,7 +263,8 @@ public:
 	bool GetChannelValue(TSynchedKey key, ValueType &value) const
 	{
 		TStorage::const_iterator it=m_channelStorage.find(key);
-		if (it==m_channelStorage.end())
+
+		if(it==m_channelStorage.end())
 			return false;
 
 		value=*it->second.GetPtr<ValueType>();
@@ -255,7 +275,8 @@ public:
 	bool GetChannelValue(TSynchedKey key, TSynchedValue &value) const
 	{
 		TStorage::const_iterator it=m_channelStorage.find(key);
-		if (it==m_channelStorage.end())
+
+		if(it==m_channelStorage.end())
 			return false;
 
 		value=it->second;
@@ -267,11 +288,13 @@ public:
 	bool GetEntityValue(EntityId entityId, TSynchedKey key, ValueType &value) const
 	{
 		TEntityStorageMap::const_iterator eit=m_entityStorage.find(entityId);
-		if (eit==m_entityStorage.end())
+
+		if(eit==m_entityStorage.end())
 			return false;
 
 		TStorage::const_iterator it=eit->second.find(key);
-		if (it==eit->second.end())
+
+		if(it==eit->second.end())
 			return false;
 
 		value=*it->second.GetPtr<ValueType>();
@@ -282,11 +305,13 @@ public:
 	bool GetEntityValue(EntityId entityId, TSynchedKey key, TSynchedValue &value) const
 	{
 		TEntityStorageMap::const_iterator eit=m_entityStorage.find(entityId);
-		if (eit==m_entityStorage.end())
+
+		if(eit==m_entityStorage.end())
 			return false;
 
 		TStorage::const_iterator it=eit->second.find(key);
-		if (it==eit->second.end())
+
+		if(it==eit->second.end())
 			return false;
 
 		value=it->second;
@@ -297,7 +322,8 @@ public:
 	int GetGlobalValueType(TSynchedKey key) const
 	{
 		TStorage::const_iterator it=m_globalStorage.find(key);
-		if (it==m_globalStorage.end())
+
+		if(it==m_globalStorage.end())
 			return eSVT_None;
 
 		return it->second.GetType();
@@ -306,11 +332,13 @@ public:
 	int GetEntityValueType(EntityId id, TSynchedKey key) const
 	{
 		TEntityStorageMap::const_iterator eit=m_entityStorage.find(id);
-		if (eit==m_entityStorage.end())
+
+		if(eit==m_entityStorage.end())
 			return eSVT_None;
 
 		TStorage::const_iterator it=eit->second.find(key);
-		if (it==eit->second.end())
+
+		if(it==eit->second.end())
 			return eSVT_None;
 
 		return it->second.GetType();
@@ -330,7 +358,7 @@ public:
 	virtual void OnChannelChanged(int channelId, TSynchedKey key, const TSynchedValue &value) {};
 	virtual void OnEntityChanged(EntityId id, TSynchedKey key, const TSynchedValue &value) {};
 
-	void GetStorageMemoryStatistics(ICrySizer * s) const;
+	void GetStorageMemoryStatistics(ICrySizer *s) const;
 
 	TStorage						m_globalStorage;
 	TStorage						m_channelStorage;

@@ -25,33 +25,45 @@ public:
 	virtual ~CVehicleActionEntityAttachment();
 
 	// IVehicleAction
-	virtual bool Init(IVehicle* pVehicle, const CVehicleParams& table);
+	virtual bool Init(IVehicle *pVehicle, const CVehicleParams &table);
 	virtual void Reset();
-	virtual void Release() { delete this; }
+	virtual void Release()
+	{
+		delete this;
+	}
 
-	virtual int OnEvent(int eventType, SVehicleEventParams& eventParams);
-	void GetMemoryUsage(ICrySizer * s) const { s->Add(*this); }
+	virtual int OnEvent(int eventType, SVehicleEventParams &eventParams);
+	void GetMemoryUsage(ICrySizer *s) const
+	{
+		s->Add(*this);
+	}
 	// ~IVehicleAction
 
 	// IVehicleObject
 	virtual void Serialize(TSerialize ser, EEntityAspects aspects) {}
 	virtual void Update(const float deltaTime);
-	virtual void OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams& params){}
+	virtual void OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams &params) {}
 	// ~IVehicleObject
 
 	bool DetachEntity();
-	bool IsEntityAttached() { return m_isAttached; }
+	bool IsEntityAttached()
+	{
+		return m_isAttached;
+	}
 
-	EntityId GetAttachmentId() { return m_entityId; }
+	EntityId GetAttachmentId()
+	{
+		return m_entityId;
+	}
 
 protected:
 
 	void SpawnEntity();
 
-	IVehicle* m_pVehicle;
+	IVehicle *m_pVehicle;
 
 	string m_entityClassName;
-	IVehicleHelper* m_pHelper;
+	IVehicleHelper *m_pHelper;
 
 	EntityId m_entityId;
 	bool m_isAttached;

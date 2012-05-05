@@ -20,7 +20,7 @@ const static float g_fCamError = 0.0001f;
 const static float gf_PIHalf = gf_PI * 0.5f;
 
 // Spherical coordinate system.
-struct SSpherical 
+struct SSpherical
 {
 	float m_fYaw;
 	float m_fPitch;

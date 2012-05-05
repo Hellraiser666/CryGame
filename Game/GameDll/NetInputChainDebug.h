@@ -15,14 +15,14 @@ History:
 #define __NETINPUTCHAINDEBUG_H__
 
 #if !defined(LINUX) && !defined(PS3)
-	#define ENABLE_NETINPUTCHAINDEBUG 1
+#define ENABLE_NETINPUTCHAINDEBUG 1
 #endif
 
 void NetInputChainInitCVars();
 
 #if ENABLE_NETINPUTCHAINDEBUG
-void NetInputChainPrint( const char * name, float val );
-void NetInputChainPrint( const char * name, Vec3 val );
+void NetInputChainPrint(const char *name, float val);
+void NetInputChainPrint(const char *name, Vec3 val);
 
 extern EntityId _netinputchain_debugentity;
 

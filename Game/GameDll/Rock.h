@@ -35,7 +35,7 @@ public:
 	// ~CProjectile
 
 private:
-	static VectorSet<CRock*> s_rocks;
+	static VectorSet<CRock *> s_rocks;
 };
 
 

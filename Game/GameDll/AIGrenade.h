@@ -37,8 +37,11 @@ public:
 
 	//IWeapon
 	virtual void StartFire();
-	virtual void StartFire(const SProjectileLaunchParams& launchParams);
-	virtual int  GetAmmoCount(IEntityClass* pAmmoType) const { return 1; } //Always has ammo
+	virtual void StartFire(const SProjectileLaunchParams &launchParams);
+	virtual int  GetAmmoCount(IEntityClass *pAmmoType) const
+	{
+		return 1;    //Always has ammo
+	}
 
 };
 

@@ -12,5 +12,5 @@ public:
 
 private:
 
-	void SleepTargetInVehicle(EntityId shooterId, CActor* pActor);
+	void SleepTargetInVehicle(EntityId shooterId, CActor *pActor);
 };

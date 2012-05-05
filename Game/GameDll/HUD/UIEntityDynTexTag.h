@@ -6,7 +6,7 @@
 //  File name:   UIEntityDynTexTag.h
 //  Version:     v1.00
 //  Created:     07/12/2011 by Paul Reindell.
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -18,7 +18,7 @@
 #include <IFlashUI.h>
 #include <IEntitySystem.h>
 
-class CUIEntityDynTexTag 
+class CUIEntityDynTexTag
 	: public IUIGameEventSystem
 	, public IUIModule
 	, public IUIElementEventListener
@@ -26,7 +26,7 @@ class CUIEntityDynTexTag
 {
 public:
 	// IUIGameEventSystem
-	UIEVENTSYSTEM( "UIEntityDynTexTag" );
+	UIEVENTSYSTEM("UIEntityDynTexTag");
 	virtual void InitEventSystem();
 	virtual void UnloadEventSystem();
 
@@ -38,37 +38,37 @@ public:
 	// ~IUIModule
 
 	// IUIElementEventListener
-	virtual void OnInstanceDestroyed( IUIElement* pSender, IUIElement* pDeletedInstance );
+	virtual void OnInstanceDestroyed(IUIElement *pSender, IUIElement *pDeletedInstance);
 	// ~IUIElementEventListener
 
 	// IEntityEventListener
-	virtual void OnEntityEvent( IEntity *pEntity,SEntityEvent &event );
+	virtual void OnEntityEvent(IEntity *pEntity,SEntityEvent &event);
 	// ~IEntityEventListener
 
 private:
-	void OnAddTaggedEntity( EntityId entityId, const char* uiElementName, const char* entityClass, const char* materialTemplate, const Vec3& offset, const char* idx);
-	void OnUpdateTaggedEntity( EntityId entityId, const string& idx, const Vec3& offset, float speed );
-	void OnRemoveTaggedEntity( EntityId entityId, const string& idx );
-	void OnRemoveAllTaggedEntity( EntityId entityId );
+	void OnAddTaggedEntity(EntityId entityId, const char *uiElementName, const char *entityClass, const char *materialTemplate, const Vec3 &offset, const char *idx);
+	void OnUpdateTaggedEntity(EntityId entityId, const string &idx, const Vec3 &offset, float speed);
+	void OnRemoveTaggedEntity(EntityId entityId, const string &idx);
+	void OnRemoveAllTaggedEntity(EntityId entityId);
 
-	void RemoveAllEntityTags( EntityId entityId, bool bUnregisterListener = true );
+	void RemoveAllEntityTags(EntityId entityId, bool bUnregisterListener = true);
 	void ClearAllTags();
-	inline bool HasEntityTag( EntityId entityId ) const;
+	inline bool HasEntityTag(EntityId entityId) const;
 
 private:
 	SUIEventReceiverDispatcher<CUIEntityDynTexTag> s_EventDispatcher;
-	IUIEventSystem* m_pUIOFct;
+	IUIEventSystem *m_pUIOFct;
 
 	struct STagInfo
 	{
-		STagInfo(EntityId ownerId, EntityId tagEntityId, const string& idx, const Vec3& offset, IUIElement* pInst) : OwnerId(ownerId), TagEntityId(tagEntityId), Idx(idx), vOffset(offset), vNewOffset(offset), pInstance(pInst), fLerp(2), fSpeed(0) {}
+		STagInfo(EntityId ownerId, EntityId tagEntityId, const string &idx, const Vec3 &offset, IUIElement *pInst) : OwnerId(ownerId), TagEntityId(tagEntityId), Idx(idx), vOffset(offset), vNewOffset(offset), pInstance(pInst), fLerp(2), fSpeed(0) {}
 
 		EntityId OwnerId;
 		EntityId TagEntityId;
 		string Idx;
 		Vec3 vOffset;
 		Vec3 vNewOffset;
-		IUIElement* pInstance;
+		IUIElement *pInstance;
 		float fLerp;
 		float fSpeed;
 	};

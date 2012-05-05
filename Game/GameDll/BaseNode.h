@@ -18,7 +18,7 @@ protected:
 	{
 		return IsPortActive(m_pActInfo, portId);
 	}
-	
+
 	// Activates a void output port
 	void Activate(int portId)
 	{
@@ -67,23 +67,23 @@ public:
 
 		switch(event)
 		{
-			case eFE_Initialize:
-				{
-					OnInit();
-				}
-				break;
+		case eFE_Initialize:
+		{
+			OnInit();
+		}
+		break;
 
-			case eFE_Activate:
-				{
-					OnActivate();
-				}
-				break;
+		case eFE_Activate:
+		{
+			OnActivate();
+		}
+		break;
 
-			case eFE_Update:
-				{
-					OnUpdate();
-				}
-				break;
+		case eFE_Update:
+		{
+			OnUpdate();
+		}
+		break;
 		}
 	}
 

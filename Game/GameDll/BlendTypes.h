@@ -30,7 +30,7 @@ struct IBlendType
 
 	virtual void Release() = 0;
 protected:
-  virtual ~IBlendType() {}
+	virtual ~IBlendType() {}
 };
 
 // Use this template to create new blends when needed
@@ -39,32 +39,38 @@ protected:
 template <class T>
 class CBlendType : public IBlendType
 {
-	typedef stl::PoolAllocator<sizeof(T) + sizeof(void*), stl::PoolAllocatorSynchronizationSinglethreaded> Alloc;
+	typedef stl::PoolAllocator<sizeof(T) + sizeof(void *), stl::PoolAllocatorSynchronizationSinglethreaded> Alloc;
 	static Alloc m_alloc;
 
 public:
-	static CBlendType * Create()
+	static CBlendType *Create()
 	{
-		return new (m_alloc.Allocate()) CBlendType();
+		return new(m_alloc.Allocate()) CBlendType();
 	}
-	static CBlendType * Create( const T& from )
+	static CBlendType *Create(const T &from)
 	{
-		return new (m_alloc.Allocate()) CBlendType(from);
+		return new(m_alloc.Allocate()) CBlendType(from);
 	}
 
-	float Blend(float progress) { return m_impl.Blend(progress); }
-	void Release() 
-	{ 
+	float Blend(float progress)
+	{
+		return m_impl.Blend(progress);
+	}
+	void Release()
+	{
 		this->~CBlendType();
 		m_alloc.Deallocate(this);
 	}
-	void GetMemoryUsage(ICrySizer * s) const { s->Add(*this); }
+	void GetMemoryUsage(ICrySizer *s) const
+	{
+		s->Add(*this);
+	}
 
 private:
 	T m_impl;
 
 	CBlendType() {}
-	CBlendType( const T& from ) : m_impl(from) {}
+	CBlendType(const T &from) : m_impl(from) {}
 	~CBlendType() {}
 
 };
@@ -78,18 +84,24 @@ typename CBlendType<T>::Alloc CBlendType<T>::m_alloc;
 class CLinearBlend
 {
 public:
-	
-	CLinearBlend(float slope) { m_slope = slope; };
-	CLinearBlend()						{ m_slope = 1.0f; };
+
+	CLinearBlend(float slope)
+	{
+		m_slope = slope;
+	};
+	CLinearBlend()
+	{
+		m_slope = 1.0f;
+	};
 	virtual ~CLinearBlend()		{};
 
-	virtual float Blend(float progress) 
+	virtual float Blend(float progress)
 	{
 		return (m_slope * progress);
 	}
 
 private:
-	
+
 	float m_slope;
 };
 
@@ -98,11 +110,11 @@ class CWaveBlend
 {
 
 public:
-	
+
 	CWaveBlend() {};
 	virtual ~CWaveBlend() {};
 
-	virtual float Blend(float progress) 
+	virtual float Blend(float progress)
 	{
 		return ((cosf((progress * gf_PI) - gf_PI) + 1.0f)/2.0f);
 	}

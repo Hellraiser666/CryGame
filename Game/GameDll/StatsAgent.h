@@ -22,9 +22,9 @@ class ICmdLineArg;
 class CStatsAgent
 {
 public:
-	static void CreatePipe( const ICmdLineArg* pPipeName );
-	static void ClosePipe( void );
-	static void Update( void );
+	static void CreatePipe(const ICmdLineArg *pPipeName);
+	static void ClosePipe(void);
+	static void Update(void);
 
 protected:
 	static bool s_pipeOpen;
@@ -38,7 +38,7 @@ protected:
 
 
 private:
-	CStatsAgent( void ) {} // Prevent instantiation
+	CStatsAgent(void) {}   // Prevent instantiation
 
 };
 

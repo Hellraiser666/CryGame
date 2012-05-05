@@ -27,7 +27,7 @@ struct SWeaponAmmoParams
 {
 	SWeaponAmmoParams() : extraItems(0) {};
 
-	void GetMemoryUsage(ICrySizer* s) const
+	void GetMemoryUsage(ICrySizer *s) const
 	{
 		s->AddObject(ammo);
 		s->AddObject(bonusAmmo);
@@ -56,25 +56,38 @@ public:
 	CWeaponSharedParams(): m_refs(0), m_valid(false) {};
 	virtual ~CWeaponSharedParams();
 
-	virtual void AddRef() const { ++m_refs; };
-	virtual uint32 GetRefCount() const { return m_refs; };
-	virtual void Release() const { 
-		if (--m_refs <= 0)
+	virtual void AddRef() const
+	{
+		++m_refs;
+	};
+	virtual uint32 GetRefCount() const
+	{
+		return m_refs;
+	};
+	virtual void Release() const
+	{
+		if(--m_refs <= 0)
 			delete this;
 	};
 
-	virtual bool Valid() const { return m_valid; };
-	virtual void SetValid(bool valid) { m_valid=valid; };
+	virtual bool Valid() const
+	{
+		return m_valid;
+	};
+	virtual void SetValid(bool valid)
+	{
+		m_valid=valid;
+	};
 
-	virtual IWeaponSharedData *GetZoomSharedParams(const char* name, int zoomIdx);
-	virtual IWeaponSharedData *CreateZoomParams(const char* name);
-	virtual IWeaponSharedData *GetFireSharedParams(const char* name, int fireIdx);
-	virtual IWeaponSharedData *CreateFireParams(const char* name);
+	virtual IWeaponSharedData *GetZoomSharedParams(const char *name, int zoomIdx);
+	virtual IWeaponSharedData *CreateZoomParams(const char *name);
+	virtual IWeaponSharedData *GetFireSharedParams(const char *name, int fireIdx);
+	virtual IWeaponSharedData *CreateFireParams(const char *name);
 
 	void GetMemoryUsage(ICrySizer *s) const;
 
 	AIWeaponDescriptor				aiWeaponDescriptor;
-	CWeapon::SAIWeaponOffset		aiWeaponOffsets;	
+	CWeapon::SAIWeaponOffset		aiWeaponOffsets;
 	SWeaponAmmoParams				ammoParams;
 	TSharedMap						m_zoomParams;
 	TSharedMap						m_fireParams;
@@ -92,7 +105,10 @@ public:
 	CWeaponSharedParamsList() {};
 	virtual ~CWeaponSharedParamsList() {};
 
-	void Reset() { m_params.clear(); };
+	void Reset()
+	{
+		m_params.clear();
+	};
 	CWeaponSharedParams *GetSharedParams(const char *className, bool create);
 
 	void GetMemoryUsage(ICrySizer *s) const;

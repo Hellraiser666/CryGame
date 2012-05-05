@@ -27,7 +27,7 @@ class CPlayerFeature: public CItem
 public:
 	CPlayerFeature();
 
-	virtual void PostInit(IGameObject * pGameObject );
+	virtual void PostInit(IGameObject *pGameObject);
 	virtual bool ReadItemParams(const IItemParamsNode *root);
 
 	virtual void OnReset();
@@ -37,7 +37,7 @@ public:
 	virtual void ActivateFeature(CActor *pActor, const char *feature);
 	virtual void Parachute(CActor *pActor);
 	virtual void DualSOCOM(CActor *pActor); //Dual socoms for AI
-	
+
 private:
 	std::vector<string> m_features;
 	bool                m_notPickUp;

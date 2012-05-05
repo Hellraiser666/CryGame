@@ -7,7 +7,7 @@
 //  Version:     v1.00
 //  Created:     7/2010 by Luciano Morpurgo (refactored from flock.h).
 //  Compilers:   Visual C++ 7.0
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -30,26 +30,39 @@
 class CBoidBird : public CBoidObject
 {
 public:
-	CBoidBird( SBoidContext &bc );
+	CBoidBird(SBoidContext &bc);
 	virtual ~CBoidBird();
 
-	virtual void Update( float dt,SBoidContext &bc );
-	virtual void UpdatePhysics( float dt,SBoidContext &bc );
-	virtual void Kill( const Vec3 &hitPoint,const Vec3 &force );
-	virtual void OnFlockMove( SBoidContext &bc );
-	virtual void Physicalize( SBoidContext &bc );
+	virtual void Update(float dt,SBoidContext &bc);
+	virtual void UpdatePhysics(float dt,SBoidContext &bc);
+	virtual void Kill(const Vec3 &hitPoint,const Vec3 &force);
+	virtual void OnFlockMove(SBoidContext &bc);
+	virtual void Physicalize(SBoidContext &bc);
 	//void Render( CCamera &cam,SBoidContext &bc );
-	virtual void Think( float dt,SBoidContext &bc );
-	virtual bool ShouldUpdateCollisionInfo(const CTimeValue& t);
+	virtual void Think(float dt,SBoidContext &bc);
+	virtual bool ShouldUpdateCollisionInfo(const CTimeValue &t);
 //	virtual void OnGrab();
 //	virtual void OnThrow();
 
 	void Land();
-	void TakeOff( SBoidContext &bc );
-	void SetAttracted(bool bAttracted = true) { m_attractedToPt = bAttracted; m_fAttractionFactor = 0; }
-	void SetSpawnFromPt(bool bSpawnFromPt = true) { m_spawnFromPt = bSpawnFromPt; }
-	bool IsLanding() {return m_status == Bird::LANDING || m_status == Bird::ON_GROUND;}
-	static void SetTakeOffAnimLength(float l) {m_TakeOffAnimLength = l;}
+	void TakeOff(SBoidContext &bc);
+	void SetAttracted(bool bAttracted = true)
+	{
+		m_attractedToPt = bAttracted;
+		m_fAttractionFactor = 0;
+	}
+	void SetSpawnFromPt(bool bSpawnFromPt = true)
+	{
+		m_spawnFromPt = bSpawnFromPt;
+	}
+	bool IsLanding()
+	{
+		return m_status == Bird::LANDING || m_status == Bird::ON_GROUND;
+	}
+	static void SetTakeOffAnimLength(float l)
+	{
+		m_TakeOffAnimLength = l;
+	}
 
 	// Parameters for birds spawned from a point
 	float m_fNoCenterAttract;		// Compensates for attraction to center point
@@ -57,14 +70,14 @@ public:
 	float m_fAttractionFactor;
 
 protected:
-	void Landed(SBoidContext& bc);
+	void Landed(SBoidContext &bc);
 	void SetStatus(Bird::EStatus status);
-	virtual void UpdateAnimationSpeed(SBoidContext& bc);
-	void UpdatePitch(float dt,SBoidContext& bc);
-	void CalcMovementBird(float dt,SBoidContext& bc, bool banking); // avoiding virtual functions (calcmovement is called only from CBoidBird)
-	void ThinkWalk( float dt,SBoidContext &bc );
-	void UpdateOnGroundAction(SBoidContext& bc);
-	virtual void ClampSpeed(SBoidContext& bc,float dt);
+	virtual void UpdateAnimationSpeed(SBoidContext &bc);
+	void UpdatePitch(float dt,SBoidContext &bc);
+	void CalcMovementBird(float dt,SBoidContext &bc, bool banking); // avoiding virtual functions (calcmovement is called only from CBoidBird)
+	void ThinkWalk(float dt,SBoidContext &bc);
+	void UpdateOnGroundAction(SBoidContext &bc);
+	virtual void ClampSpeed(SBoidContext &bc,float dt);
 
 protected:
 	static float m_TakeOffAnimLength;
@@ -80,7 +93,7 @@ protected:
 	Vec3 m_orientation;
 	CTimeValue m_takeOffStartTime;
 	float m_walkSpeed;
-	
+
 	CBoidCollision m_floorCollisionInfo;
 
 	Bird::EStatus m_status;

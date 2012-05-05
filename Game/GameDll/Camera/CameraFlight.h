@@ -103,13 +103,16 @@ class CCameraFlight
 {
 public:
 	//get cam flight instance
-	static CCameraFlight* GetInstance();
+	static CCameraFlight *GetInstance();
 
 	//reset, stop current flight
 	void Reset();
 
 	//camera flight ongoing
-	bool IsCameraFlightActive() const { return (m_fFlightProgress > 0.0f && m_fFlightProgress < 1.0f); }
+	bool IsCameraFlightActive() const
+	{
+		return (m_fFlightProgress > 0.0f && m_fFlightProgress < 1.0f);
+	}
 
 	//setup a camera course
 	//if vRefPos is set, the positions are treated relative to it
@@ -131,9 +134,15 @@ public:
 	void SetMoveSpeed(float fMpS = 4.0f);
 
 	//change the movement type
-	void SetMode(ECameraFlightMode eMode) { m_eMovementMode = eMode; }
+	void SetMode(ECameraFlightMode eMode)
+	{
+		m_eMovementMode = eMode;
+	}
 	//get the movement type
-	ECameraFlightMode GetMode() { return m_eMovementMode; }
+	ECameraFlightMode GetMode()
+	{
+		return m_eMovementMode;
+	}
 
 	//controls fading in and out of camera flights
 	//fFadeTime is the time in seconds the fade takes to finish, it's interrupted if the fade progress is finished before that
@@ -143,28 +152,58 @@ public:
 	void SetFadeMode(ECameraFlightFadeMode eMode, float fFadeTime = 0.1f, float fFadeInEnd = 0.2f, float fFadeOutStart = 0.8f, float fFadeDistanceOverride = 0.0f);
 
 	//(re)set fade progress (for example forward fade to start/end)
-	void SetFadeProgress(float fFade) { m_fFadeProgress = clamp(fFade, 0.0f, 1.0f); }
-	float GetFadeProgress() const { return m_fFadeProgress; }
+	void SetFadeProgress(float fFade)
+	{
+		m_fFadeProgress = clamp(fFade, 0.0f, 1.0f);
+	}
+	float GetFadeProgress() const
+	{
+		return m_fFadeProgress;
+	}
 
 	//set position and direction for free fly
-	void SetFreeFlyPos(const SCameraFlightPoint &pos) { m_freeFlyPoint = pos; }
+	void SetFreeFlyPos(const SCameraFlightPoint &pos)
+	{
+		m_freeFlyPoint = pos;
+	}
 	//get position and lookAt for free fly
-	const SCameraFlightPoint& GetFreeFlyPos() { return m_freeFlyPoint; }
+	const SCameraFlightPoint &GetFreeFlyPos()
+	{
+		return m_freeFlyPoint;
+	}
 
 	//pause flight
-	void SetPaused(bool bPaused) { m_bPaused = bPaused; }
-	bool GetPaused() const { return m_bPaused; }
+	void SetPaused(bool bPaused)
+	{
+		m_bPaused = bPaused;
+	}
+	bool GetPaused() const
+	{
+		return m_bPaused;
+	}
 
 	//get current ECameraFlightState
-	ECameraFlightState GetState() const { return m_eState; }
+	ECameraFlightState GetState() const
+	{
+		return m_eState;
+	}
 
 	//get current dir of camera during a fligth
-	Vec3 GetLookingDirection() { return m_vLookingDirection; }
+	Vec3 GetLookingDirection()
+	{
+		return m_vLookingDirection;
+	}
 
 	//flight progress between 0 and 1.0f (in percent)
-	float GetProgress() const { return m_fFlightProgress; }
+	float GetProgress() const
+	{
+		return m_fFlightProgress;
+	}
 	//setting the progress means jumping to a certain position of a running flight
-	void SetProgress(float fProgress) { m_fFlightProgress = clamp(fProgress, 0.0f, 1.0f); }
+	void SetProgress(float fProgress)
+	{
+		m_fFlightProgress = clamp(fProgress, 0.0f, 1.0f);
+	}
 
 	//update the current track flight and overwrite the given viewParams
 	void UpdateFlight(SViewParams &viewParams);

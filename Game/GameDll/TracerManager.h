@@ -34,7 +34,7 @@ public:
 	bool Update(float frameTime, const Vec3 &campos);
 	void UpdateVisual(const Vec3 &pos, const Vec3 &dir, float scale, float length);
 	float GetAge() const;
-	void GetMemoryUsage(ICrySizer * s) const;
+	void GetMemoryUsage(ICrySizer *s) const;
 
 private:
 	float				m_speed;
@@ -66,7 +66,7 @@ public:
 		Vec3				destination;
 		float				speed;
 		float				lifetime;
-	}STracerParams;
+	} STracerParams;
 
 	void EmitTracer(const STracerParams &params);
 	void Update(float frameTime);

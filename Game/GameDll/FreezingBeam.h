@@ -28,52 +28,58 @@ class CFreezingBeam :
 {
 public:
 
-  typedef struct SFreezingBeamParams
-  {
-    SFreezingBeamParams() { Reset(); };
-    void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
-    {
-      CItemParamReader reader(params);      
-      ResetValue(freeze_speed, 0.f);
-    };
+	typedef struct SFreezingBeamParams
+	{
+		SFreezingBeamParams()
+		{
+			Reset();
+		};
+		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
+		{
+			CItemParamReader reader(params);
+			ResetValue(freeze_speed, 0.f);
+		};
 
-    void GetMemoryUsage(ICrySizer * s) const
-    {
-      s->Add(freeze_speed);      
-    }
-    
-    float		freeze_speed;    
-  } SFreezingBeamParams;
+		void GetMemoryUsage(ICrySizer *s) const
+		{
+			s->Add(freeze_speed);
+		}
+
+		float		freeze_speed;
+	} SFreezingBeamParams;
 
 	CFreezingBeam();
 	virtual ~CFreezingBeam();
 
-  virtual void ResetParams(const struct IItemParamsNode *params);
-  virtual void PatchParams(const struct IItemParamsNode *patch);
+	virtual void ResetParams(const struct IItemParamsNode *params);
+	virtual void PatchParams(const struct IItemParamsNode *patch);
 
 	virtual void Hit(ray_hit &hit, const Vec3 &dir);
 	virtual void Tick(ray_hit &hit, const Vec3 &dir);
 
-	virtual void GetMemoryUsage(ICrySizer * s) const;
+	virtual void GetMemoryUsage(ICrySizer *s) const;
 
 	virtual void InitSharedParams();
 	virtual void CacheSharedParamsPtr();
 
 private:
-	CFreezingBeamSharedData*	m_pShared;
-  
+	CFreezingBeamSharedData	*m_pShared;
+
 };
 
 class CFreezingBeamSharedData: public CBeamSharedData
 {
 public:
 
-	CFreezingBeamSharedData(){};
-	virtual ~CFreezingBeamSharedData(){};
+	CFreezingBeamSharedData() {};
+	virtual ~CFreezingBeamSharedData() {};
 
-	virtual const char* GetDataType() const { return "FreezingBeamData"; }
+	virtual const char *GetDataType() const
+	{
+		return "FreezingBeamData";
+	}
 
-	virtual void GetMemoryUsage(ICrySizer* s) const
+	virtual void GetMemoryUsage(ICrySizer *s) const
 	{
 		s->Add(*this);
 		freezeparams.GetMemoryUsage(s);

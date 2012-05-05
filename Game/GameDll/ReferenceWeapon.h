@@ -10,6 +10,10 @@ class CReferenceWeapon :
 public:
 	CReferenceWeapon(void);
 	~CReferenceWeapon(void);
-	virtual void OnAction(EntityId actorId, const ActionId& actionId, int activationMode, float value);
-	virtual void GetMemoryUsage(ICrySizer * s) const { s->Add(*this); CWeapon::GetMemoryUsage(s); }
+	virtual void OnAction(EntityId actorId, const ActionId &actionId, int activationMode, float value);
+	virtual void GetMemoryUsage(ICrySizer *s) const
+	{
+		s->Add(*this);
+		CWeapon::GetMemoryUsage(s);
+	}
 };

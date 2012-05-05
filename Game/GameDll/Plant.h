@@ -29,15 +29,20 @@ class CPlant : public IFireMode
 protected:
 	typedef struct SPlantParams
 	{
-		SPlantParams() { Reset(); };
+		SPlantParams()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
 			string	ammo_type;
 
 			ResetValue(ammo_type,			"c4explosive");
-			if (defaultInit || !ammo_type.empty())
+
+			if(defaultInit || !ammo_type.empty())
 				ammo_type_class = gEnv->pEntitySystem->GetClassRegistry()->FindClass(ammo_type.c_str());
+
 			ResetValue(clip_size,			3);
 			ResetValue(damage,				100);
 
@@ -55,7 +60,7 @@ protected:
 			ResetValue(need_to_crouch, false);
 		};
 
-		IEntityClass*	ammo_type_class;
+		IEntityClass	*ammo_type_class;
 		int			damage;
 		int			clip_size;
 		bool		simple;
@@ -72,7 +77,7 @@ protected:
 		bool		led_minutes;
 		ItemString	led_layers;
 
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
 			s->Add(helper);
 			s->Add(led_layers);
@@ -81,7 +86,10 @@ protected:
 
 	typedef struct SPlantActions
 	{
-		SPlantActions() { Reset(); };
+		SPlantActions()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
@@ -100,7 +108,7 @@ protected:
 		ItemString plant;
 		ItemString refill;
 
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
 			s->Add(press_button);
 			s->Add(hold_button);
@@ -121,7 +129,7 @@ public:
 	virtual void PostUpdate(float frameTime) {};
 	virtual void UpdateFPView(float frameTime);
 	virtual void Release();
-	virtual void GetMemoryUsage(ICrySizer * s) const;
+	virtual void GetMemoryUsage(ICrySizer *s) const;
 
 	virtual void ResetParams(const struct IItemParamsNode *params);
 	virtual void PatchParams(const struct IItemParamsNode *patch);
@@ -129,34 +137,85 @@ public:
 
 	virtual void Activate(bool activate);
 
-	virtual int GetAmmoCount() const { return m_pWeapon->GetAmmoCount(m_plantparams.ammo_type_class); };
-	virtual int GetClipSize() const { return m_plantparams.clip_size; };
+	virtual int GetAmmoCount() const
+	{
+		return m_pWeapon->GetAmmoCount(m_plantparams.ammo_type_class);
+	};
+	virtual int GetClipSize() const
+	{
+		return m_plantparams.clip_size;
+	};
 
 	virtual bool OutOfAmmo() const;
-	virtual bool LowAmmo(float) const { return false; }; // TODO: Implement properly if required. This is for Crysis2 compatibility.
-	virtual bool CanReload() const { return false; };
+	virtual bool LowAmmo(float) const
+	{
+		return false;
+	}; // TODO: Implement properly if required. This is for Crysis2 compatibility.
+	virtual bool CanReload() const
+	{
+		return false;
+	};
 	virtual void Reload(int zoomed) {};
-	virtual bool IsReloading(bool includePending=true) { return false; };
+	virtual bool IsReloading(bool includePending=true)
+	{
+		return false;
+	};
 	virtual void CancelReload() {};
-	virtual bool CanCancelReload() { return false; };
+	virtual bool CanCancelReload()
+	{
+		return false;
+	};
 
-	virtual bool AllowZoom() const { return true; };
+	virtual bool AllowZoom() const
+	{
+		return true;
+	};
 	virtual void Cancel() {};
 
-	virtual float GetRecoil() const { return 0.0f; };
-	virtual float GetSpread() const { return 0.0f; };
-	virtual float GetSpreadForHUD() const { return 0.0f; };
-	virtual float GetMinSpread() const { return 0.0f; };
-	virtual float GetMaxSpread() const { return 0.0f; };
-	virtual const char *GetCrosshair() const { return ""; };
-	virtual float GetHeat() const { return 0.0f; };
-	virtual bool	CanOverheat() const {return false;};
+	virtual float GetRecoil() const
+	{
+		return 0.0f;
+	};
+	virtual float GetSpread() const
+	{
+		return 0.0f;
+	};
+	virtual float GetSpreadForHUD() const
+	{
+		return 0.0f;
+	};
+	virtual float GetMinSpread() const
+	{
+		return 0.0f;
+	};
+	virtual float GetMaxSpread() const
+	{
+		return 0.0f;
+	};
+	virtual const char *GetCrosshair() const
+	{
+		return "";
+	};
+	virtual float GetHeat() const
+	{
+		return 0.0f;
+	};
+	virtual bool	CanOverheat() const
+	{
+		return false;
+	};
 
 	virtual bool CanFire(bool considerAmmo=true) const;
 	virtual void StartFire();
 	virtual void StopFire();
-	virtual bool IsFiring() const { return m_planting; };
-	virtual bool IsSilenced() const { return false; } // compile fix, no guarantee of functionality
+	virtual bool IsFiring() const
+	{
+		return m_planting;
+	};
+	virtual bool IsSilenced() const
+	{
+		return false;    // compile fix, no guarantee of functionality
+	}
 
 	virtual void NetShoot(const Vec3 &hit, int ph);
 	virtual void NetShootEx(const Vec3 &pos, const Vec3 &dir, const Vec3 &vel, const Vec3 &hit, float extra, int ph);
@@ -170,46 +229,106 @@ public:
 	virtual EntityId RemoveProjectileId();
 
 	virtual const char *GetType() const;
-	virtual IEntityClass* GetAmmoType() const;
+	virtual IEntityClass *GetAmmoType() const;
 	virtual int GetDamage() const;
 
-	virtual float GetSpinUpTime() const { return 0.0f; };
-	virtual float GetSpinDownTime() const { return 0.0f; };
-	virtual float GetNextShotTime() const { return 0.0f; };
+	virtual float GetSpinUpTime() const
+	{
+		return 0.0f;
+	};
+	virtual float GetSpinDownTime() const
+	{
+		return 0.0f;
+	};
+	virtual float GetNextShotTime() const
+	{
+		return 0.0f;
+	};
 	virtual void SetNextShotTime(float time) {};
-	virtual float GetFireRate() const { return 0.0f; };
+	virtual float GetFireRate() const
+	{
+		return 0.0f;
+	};
 
-	virtual void Enable(bool enable) { m_enabled = enable; };
-	virtual bool IsEnabled() const { return m_enabled; };
+	virtual void Enable(bool enable)
+	{
+		m_enabled = enable;
+	};
+	virtual bool IsEnabled() const
+	{
+		return m_enabled;
+	};
 
-	virtual void SetSecondary(bool secondary) { m_secondary = secondary; }
-	virtual bool IsSecondary() const { return m_secondary; }
+	virtual void SetSecondary(bool secondary)
+	{
+		m_secondary = secondary;
+	}
+	virtual bool IsSecondary() const
+	{
+		return m_secondary;
+	}
 
-	virtual Vec3 GetFiringPos(const Vec3 &probableHit) const { return ZERO;}
-	virtual Vec3 GetFiringDir(const Vec3 &probableHit, const Vec3& firingPos) const { return ZERO;}
-	virtual void SetName(const char *name) {  m_name = name; };
-	virtual const char *GetName()const { return m_name.empty()?0:m_name.c_str();};
+	virtual Vec3 GetFiringPos(const Vec3 &probableHit) const
+	{
+		return ZERO;
+	}
+	virtual Vec3 GetFiringDir(const Vec3 &probableHit, const Vec3 &firingPos) const
+	{
+		return ZERO;
+	}
+	virtual void SetName(const char *name)
+	{
+		m_name = name;
+	};
+	virtual const char *GetName()const
+	{
+		return m_name.empty()?0:m_name.c_str();
+	};
 
-	virtual bool HasFireHelper() const { return false; }
-	virtual Vec3 GetFireHelperPos() const { return Vec3(ZERO); }
-	virtual Vec3 GetFireHelperDir() const { return FORWARD_DIRECTION; }
+	virtual bool HasFireHelper() const
+	{
+		return false;
+	}
+	virtual Vec3 GetFireHelperPos() const
+	{
+		return Vec3(ZERO);
+	}
+	virtual Vec3 GetFireHelperDir() const
+	{
+		return FORWARD_DIRECTION;
+	}
 
-	virtual int GetCurrentBarrel() const { return 0; }
+	virtual int GetCurrentBarrel() const
+	{
+		return 0;
+	}
 	virtual void Serialize(TSerialize ser);
 	virtual void PostSerialize() {};
 
 	virtual void SetRecoilMultiplier(float recoilMult) { }
-	virtual float GetRecoilMultiplier() const { return 1.0f; }
+	virtual float GetRecoilMultiplier() const
+	{
+		return 1.0f;
+	}
 
-	virtual void Time() { m_timing=true; };
-	virtual void SetTime(float time) { m_time=time; };
-	virtual float GetTime() const { return m_time; };
+	virtual void Time()
+	{
+		m_timing=true;
+	};
+	virtual void SetTime(float time)
+	{
+		m_time=time;
+	};
+	virtual float GetTime() const
+	{
+		return m_time;
+	};
 
-	virtual void PatchSpreadMod(const SSpreadModParams &sSMP){};
-	virtual void ResetSpreadMod(){};
+	virtual void PatchSpreadMod(const SSpreadModParams &sSMP) {};
+	virtual void ResetSpreadMod() {};
 
-	virtual void PatchRecoilMod(const SRecoilModParams &sRMP){};
-	virtual void ResetRecoilMod(){};
+	virtual void PatchRecoilMod(const SRecoilModParams &sRMP) {};
+	virtual void ResetRecoilMod() {};
 	virtual void ResetLock() {};
 	virtual void StartLocking(EntityId targetId, int partId) {};
 	virtual void Lock(EntityId targetId, int partId) {};
@@ -222,7 +341,7 @@ protected:
 	virtual void SelectDetonator();
 	virtual void CheckAmmo();
 	virtual bool PlayerStanceOK() const;
-	virtual bool GetPlantingParameters(Vec3& pos, Vec3& dir, Vec3& vel) const;
+	virtual bool GetPlantingParameters(Vec3 &pos, Vec3 &dir, Vec3 &vel) const;
 
 	void CacheAmmoGeometry();
 
@@ -241,7 +360,7 @@ protected:
 	bool		m_pressing;
 	bool		m_holding;
 	bool		m_timing;
-	
+
 	float		m_time;
 
 	float		m_plantTimer;
@@ -255,4 +374,4 @@ protected:
 	static IEntityClass *m_pClaymoreClass, *m_pAVMineClass;
 };
 
-#endif 
+#endif

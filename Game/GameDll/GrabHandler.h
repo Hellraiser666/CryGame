@@ -5,7 +5,7 @@
   $Id$
   $DateTime$
   Description: Simple Actor implementation
-  
+
  -------------------------------------------------------------------------
   History:
   - 19:6:2006 : Created by Filippo De Luca
@@ -44,11 +44,11 @@
 
 struct SGrabStats
 {
-	#define GRAB_MAXLIMBS 4
+#define GRAB_MAXLIMBS 4
 
 	EntityId grabId;
 	EntityId dropId;
-	
+
 	Vec3 lHoldPos;//holding position relative to the entity matrix
 
 	Vec3 throwVector;
@@ -106,7 +106,7 @@ struct SGrabStats
 	char grabAnimGraphSignal[s_maxAGInputNameLen];
 	char dropAnimGraphSignal[s_maxAGInputNameLen];
 
-	bool IKActive;	
+	bool IKActive;
 	float releaseIKTime;
 
 	int followBoneID;
@@ -154,7 +154,7 @@ struct SGrabStats
 		lHoldPos.Set(0,0.5f,0.25f);
 		additionalRotation.SetIdentity();
 		IKActive = false;
-		ikInaccuracyCorrection.Set (0.0f, 0.0f, 0.0f);
+		ikInaccuracyCorrection.Set(0.0f, 0.0f, 0.0f);
 		readIkInaccuracyCorrection = true;
 	}
 
@@ -164,7 +164,7 @@ struct SGrabStats
 		grabId = 0;
 		followBoneWPos.Set(0,0,0);
 		IKActive = false;
-		ikInaccuracyCorrection.Set (0.0f, 0.0f, 0.0f);
+		ikInaccuracyCorrection.Set(0.0f, 0.0f, 0.0f);
 		readIkInaccuracyCorrection = true;
 		origRotationsValid = false;
 	}
@@ -236,21 +236,24 @@ struct SAnimGrabParams : public SGrabParams
 		memcpy(this,&baseGrabParams,sizeof(SGrabParams));
 
 		SmartScriptTable animationTable;
-		if (rParams->GetValue("animation",animationTable))
+
+		if(rParams->GetValue("animation",animationTable))
 		{
 			const char *pAnimGraphSignal = NULL;
-			if (animationTable->GetValue("animGraphSignal",pAnimGraphSignal))
+
+			if(animationTable->GetValue("animGraphSignal",pAnimGraphSignal))
 			{
 				strncpy(animGraphSignal,pAnimGraphSignal,64);
 				animGraphSignal[63] = 0;
 			}
 
-			animationTable->GetValue("forceThrow",throwDelay);					
+			animationTable->GetValue("forceThrow",throwDelay);
 			animationTable->GetValue("releaseIKTime",releaseIKTime);
 		}
 
 		const char *pStr;
-		if (rParams->GetValue("followBone",pStr))
+
+		if(rParams->GetValue("followBone",pStr))
 		{
 			strncpy(followBone,pStr,64);
 			followBone[63] = 0;
@@ -263,7 +266,7 @@ struct ICharacterInstance;
 
 struct IGrabHandler
 {
-	virtual ~IGrabHandler(){};
+	virtual ~IGrabHandler() {};
 
 	virtual bool Grab(SmartScriptTable &rParams) = 0;
 	virtual bool Drop(SmartScriptTable &rParams) = 0;
@@ -293,7 +296,7 @@ struct IGrabHandler
 	 * a single IK limb which was broken by CMultipleGrabHandler.
 	 */
 	// TODO Mrz 21, 2007: <pvl> deprecate GetStats() if possible
-	virtual void ProcessIKLimbs (ICharacterInstance * ) = 0;
+	virtual void ProcessIKLimbs(ICharacterInstance *) = 0;
 
 	virtual void Serialize(TSerialize ser) = 0;
 };
@@ -301,7 +304,7 @@ struct IGrabHandler
 class CBaseGrabHandler : public IGrabHandler
 {
 public:
-	
+
 	CBaseGrabHandler(CActor *pActor) : m_pActor(pActor)
 	{}
 
@@ -331,7 +334,7 @@ public:
 		return &m_grabStats;
 	}
 	//
-	virtual void ProcessIKLimbs (ICharacterInstance * ) { }
+	virtual void ProcessIKLimbs(ICharacterInstance *) { }
 
 	virtual void Serialize(TSerialize ser);
 
@@ -341,8 +344,8 @@ protected:
 
 	virtual Vec3 GetGrabWPos();
 	void IgnoreCollision(EntityId eID,unsigned int flags,bool ignore);
-	void DisableGrabbedAnimatedCharacter (bool enable) const;
-	
+	void DisableGrabbedAnimatedCharacter(bool enable) const;
+
 	CActor *m_pActor;
 
 	SGrabStats m_grabStats;
@@ -351,7 +354,7 @@ protected:
 class CAnimatedGrabHandler : public CBaseGrabHandler
 {
 public:
-	
+
 	CAnimatedGrabHandler(CActor *pActor) : CBaseGrabHandler(pActor)
 	{}
 
@@ -363,12 +366,12 @@ public:
 	virtual bool StartGrab();
 	virtual bool SetDrop(SmartScriptTable &rParams);
 	virtual bool StartDrop();
-	virtual void ProcessIKLimbs (ICharacterInstance * pCharacter);
+	virtual void ProcessIKLimbs(ICharacterInstance *pCharacter);
 	//
 	/// @brief Tells the handler that IK should be used from now on to
 	/// retarget the grabbing limb to reach the object to be grabbed.
-	void ActivateIK ();
-		
+	void ActivateIK();
+
 protected:
 
 	virtual void UpdatePosVelRot(float frameTime);
@@ -403,8 +406,8 @@ protected:
 class CMultipleGrabHandler : public CBaseGrabHandler
 {
 public:
-	CMultipleGrabHandler (CActor *pActor) : CBaseGrabHandler(pActor){}
-	virtual ~CMultipleGrabHandler(){}
+	CMultipleGrabHandler(CActor *pActor) : CBaseGrabHandler(pActor) {}
+	virtual ~CMultipleGrabHandler() {}
 
 	virtual bool SetGrab(SmartScriptTable &rParams);
 	virtual bool StartGrab();
@@ -414,11 +417,11 @@ public:
 	virtual void Update(float frameTime);
 	virtual void Reset();
 
-	virtual void ProcessIKLimbs (ICharacterInstance * );
+	virtual void ProcessIKLimbs(ICharacterInstance *);
 
 	virtual void Serialize(TSerialize ser);
 private:
-	std::vector <CAnimatedGrabHandler*> m_handlers;
+	std::vector <CAnimatedGrabHandler *> m_handlers;
 };
 
 

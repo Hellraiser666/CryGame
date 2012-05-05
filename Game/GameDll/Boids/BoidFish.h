@@ -7,7 +7,7 @@
 //  Version:     v1.00
 //  Created:     8/2010 by Luciano Morpurgo (refactored from flock.h)
 //  Compilers:   Visual C++ 7.0
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -31,20 +31,21 @@
 class CBoidFish : public CBoidObject
 {
 public:
-	CBoidFish( SBoidContext &bc );
+	CBoidFish(SBoidContext &bc);
 	~CBoidFish();
 
-	virtual void Update( float dt,SBoidContext &bc );
-	virtual void Kill( const Vec3 &hitPoint,const Vec3 &force );
-	virtual void Physicalize( SBoidContext &bc );
+	virtual void Update(float dt,SBoidContext &bc);
+	virtual void Kill(const Vec3 &hitPoint,const Vec3 &force);
+	virtual void Physicalize(SBoidContext &bc);
 
 protected:
-	void SpawnParticleEffect( const Vec3 &pos,SBoidContext &bc,int nEffect );
+	void SpawnParticleEffect(const Vec3 &pos,SBoidContext &bc,int nEffect);
 
 	float m_dyingTime; // Deisred height this birds want to fly at.
 	SmartScriptTable vec_Bubble;
 
-	enum EScriptFunc {
+	enum EScriptFunc
+	{
 		SPAWN_BUBBLE,
 		SPAWN_SPLASH,
 	};

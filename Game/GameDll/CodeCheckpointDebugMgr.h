@@ -38,9 +38,9 @@ public:
 
 	struct CheckpointDebugRecord
 	{
-		CheckpointDebugRecord(const CCodeCheckpoint* checkPoint, const char* name, int checkpointIdx)
+		CheckpointDebugRecord(const CCodeCheckpoint *checkPoint, const char *name, int checkpointIdx)
 			: m_pCheckpoint(checkPoint),m_name(name), m_queried(false),m_lastHitTime(0.0f),
-			m_currHitcount(0), m_prevHitcount(0), m_refCount(0), m_checkPointIdx(checkpointIdx)
+			  m_currHitcount(0), m_prevHitcount(0), m_refCount(0), m_checkPointIdx(checkpointIdx)
 		{
 			if(m_pCheckpoint)
 			{
@@ -52,11 +52,15 @@ public:
 				m_queried = true;
 			}
 		}
-		
-		/// Function to update the reference count, defaults to an increment of 1.
-		void UpdateWatched(int count = 1){m_refCount += count; m_queried = (m_refCount != 0);}
 
-		const CCodeCheckpoint*	m_pCheckpoint;	/// The checkpoint if registered otherwise NULL
+		/// Function to update the reference count, defaults to an increment of 1.
+		void UpdateWatched(int count = 1)
+		{
+			m_refCount += count;
+			m_queried = (m_refCount != 0);
+		}
+
+		const CCodeCheckpoint	*m_pCheckpoint;	/// The checkpoint if registered otherwise NULL
 		string			m_name;		/// The name of the checkpoint (owned if m_pCheckpoint is NULL)
 
 		float	 m_lastHitTime;				/// Last clock time this checkpoint was hit as determined by the snapshots
@@ -70,7 +74,10 @@ public:
 	};
 
 	///Predicate functions on records
-	static bool RecordHasHits(CheckpointDebugRecord& rec){return rec.m_currHitcount > 0;}
+	static bool RecordHasHits(CheckpointDebugRecord &rec)
+	{
+		return rec.m_currHitcount > 0;
+	}
 
 	///Predicate functors on records
 
@@ -78,17 +85,18 @@ public:
 	class RecordMatchAndUpdate
 	{
 	public:
-		RecordMatchAndUpdate(const string& name, int count = 1)
+		RecordMatchAndUpdate(const string &name, int count = 1)
 			: m_name(name), m_count(count)
 		{}
 
-		bool operator() (CheckpointDebugRecord& record) const
+		bool operator()(CheckpointDebugRecord &record) const
 		{
 			if(record.m_name == m_name)
 			{
 				record.UpdateWatched(m_count);
 				return true;
 			}
+
 			return false;
 		}
 
@@ -97,15 +105,16 @@ public:
 		int m_count;
 	};
 
-	class SearchRecordForString {
+	class SearchRecordForString
+	{
 
 	public:
 
-		SearchRecordForString(RecordNameCountPairs& namePairs, const string& substr = ""): m_namePairs(namePairs), m_searchStr(substr){}
-		void operator() (const CheckpointDebugRecord& rec) 
+		SearchRecordForString(RecordNameCountPairs &namePairs, const string &substr = ""): m_namePairs(namePairs), m_searchStr(substr) {}
+		void operator()(const CheckpointDebugRecord &rec)
 		{
 			// Is there a registered checkpoint for this record?
-			if (rec.m_pCheckpoint)
+			if(rec.m_pCheckpoint)
 			{
 				//If the search string is empty, or the checkpoint contains the substring anywhere inside of it
 				if(m_searchStr == "" || rec.m_name.find(m_searchStr) != string::npos)
@@ -114,30 +123,33 @@ public:
 		}
 
 	private:
-		RecordNameCountPairs& m_namePairs;
+		RecordNameCountPairs &m_namePairs;
 		string m_searchStr;
 	};
 
 	CCodeCheckpointDebugMgr();
-	virtual ~CCodeCheckpointDebugMgr(){s_pCodeCheckPointDebugManager=NULL;}
+	virtual ~CCodeCheckpointDebugMgr()
+	{
+		s_pCodeCheckPointDebugManager=NULL;
+	}
 
 	//Static function to retrieve singleton code checkpoint debug manager
-	static CCodeCheckpointDebugMgr* RetrieveCodeCheckpointDebugMgr();
+	static CCodeCheckpointDebugMgr *RetrieveCodeCheckpointDebugMgr();
 
 	///Update function will update the internal snapshot and do any debug drawing required
 	virtual void Update(float dt);
 
 	///Register name to be marked as a watch point
-	void RegisterWatchPoint(const string& name);
+	void RegisterWatchPoint(const string &name);
 
 	///Unregister name to be marked as a watch point
-	void UnregisterWatchPoint(const string& name);
+	void UnregisterWatchPoint(const string &name);
 
-	void SearchCheckpoints(RecordNameCountPairs& outputList, string& searchStr) const;
+	void SearchCheckpoints(RecordNameCountPairs &outputList, string &searchStr) const;
 
-	void ReadFile(const char* fileName);
+	void ReadFile(const char *fileName);
 
-	int GetLine( char * pBuff, FILE * fp );
+	int GetLine(char *pBuff, FILE *fp);
 
 	static int ft_debug_ccoverage;
 	static float ft_debug_ccoverage_rate;
@@ -149,7 +161,7 @@ public:
 
 private:
 
-	static CCodeCheckpointDebugMgr* s_pCodeCheckPointDebugManager;
+	static CCodeCheckpointDebugMgr *s_pCodeCheckPointDebugManager;
 
 	///CVar variables
 	int m_debug_ccoverage;
@@ -158,7 +170,7 @@ private:
 	int m_debug_ccoverage_filter_maxcount;
 	int m_debug_ccoverage_filter_mincount;
 
-	void UpdateRecord(const CCodeCheckpoint* pCheckpoint,CheckpointDebugRecord& record );
+	void UpdateRecord(const CCodeCheckpoint *pCheckpoint,CheckpointDebugRecord &record);
 	void UpdateRecords();
 
 	void DrawDebugInfo();

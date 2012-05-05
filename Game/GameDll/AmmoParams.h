@@ -8,7 +8,7 @@
 
 struct SScaledEffectParams
 {
-	const char* ppname;
+	const char *ppname;
 	float radius;
 	float delay;
 	float fadeInTime;
@@ -16,16 +16,16 @@ struct SScaledEffectParams
 	float maxValue;
 	float aiObstructionRadius;
 
-	SScaledEffectParams(const IItemParamsNode* scaledEffect);
+	SScaledEffectParams(const IItemParamsNode *scaledEffect);
 };
 
 struct SCollisionParams
 {
-	IParticleEffect*	pParticleEffect;
-	const char*				sound;
+	IParticleEffect	*pParticleEffect;
+	const char				*sound;
 	float							scale;
 
-	SCollisionParams(const IItemParamsNode* collision);
+	SCollisionParams(const IItemParamsNode *collision);
 	~SCollisionParams();
 };
 
@@ -38,14 +38,14 @@ struct SExplosionParams
 	float pressure;
 	float holeSize;
 	float terrainHoleSize;
-	IParticleEffect* pParticleEffect;
+	IParticleEffect *pParticleEffect;
 	const char *effectName;
 	float effectScale;
 	string type;
 	uint8	hitTypeId;
 	float maxblurdist;
 
-	SExplosionParams(const IItemParamsNode* explosion);
+	SExplosionParams(const IItemParamsNode *explosion);
 	~SExplosionParams();
 };
 
@@ -55,26 +55,26 @@ struct SFlashbangParams
 	float blindAmount;
 	float flashbangBaseTime;
 
-	SFlashbangParams(const IItemParamsNode* flashbang);
+	SFlashbangParams(const IItemParamsNode *flashbang);
 };
 
 struct STrailParams
 {
-	const char* sound;
-	const char*	effect;
-	const char* effect_fp;
+	const char *sound;
+	const char	*effect;
+	const char *effect_fp;
 	float				scale;
 	bool				prime;
 
-	STrailParams(const IItemParamsNode* trail);
+	STrailParams(const IItemParamsNode *trail);
 };
 
 struct SWhizParams
 {
-	const char* sound;
+	const char *sound;
 	float				speed;
 
-	SWhizParams(const IItemParamsNode* whiz);
+	SWhizParams(const IItemParamsNode *whiz);
 };
 
 
@@ -107,33 +107,36 @@ struct SAmmoParams
 	Vec3	spin;
 	Vec3	spinRandom;
 
-	ISurfaceType*							pSurfaceType;
-	pe_params_particle*				pParticleParams;
+	ISurfaceType							*pSurfaceType;
+	pe_params_particle				*pParticleParams;
 
 	// firstperson geometry
 	string		fpGeometryName;
 	mutable	bool			fpGeometryIsCached; //Need to modify in a const function ;/
 	Matrix34	fpLocalTM;
 
-	SScaledEffectParams*	pScaledEffect;
-	SCollisionParams*			pCollision;
-	SExplosionParams*			pExplosion;
-	SFlashbangParams*			pFlashbang;
-	SWhizParams*					pWhiz;
-	SWhizParams*					pRicochet;
-	STrailParams*					pTrail;
-	STrailParams*					pTrailUnderWater;
+	SScaledEffectParams	*pScaledEffect;
+	SCollisionParams			*pCollision;
+	SExplosionParams			*pExplosion;
+	SFlashbangParams			*pFlashbang;
+	SWhizParams					*pWhiz;
+	SWhizParams					*pRicochet;
+	STrailParams					*pTrail;
+	STrailParams					*pTrailUnderWater;
 
-	const IEntityClass*			pEntityClass;
-	const IItemParamsNode*	pItemParams;
+	const IEntityClass			*pEntityClass;
+	const IItemParamsNode	*pItemParams;
 
-	SAmmoParams(const IItemParamsNode* pItemParams_ = 0, const IEntityClass* pEntityClass_=0);
+	SAmmoParams(const IItemParamsNode *pItemParams_ = 0, const IEntityClass *pEntityClass_=0);
 	~SAmmoParams();
 
-	void Init(const IItemParamsNode* pItemParams_, const IEntityClass* pEntityClass_);
+	void Init(const IItemParamsNode *pItemParams_, const IEntityClass *pEntityClass_);
 
 	void CacheGeometry() const;
-	void ResetCacheGeometry() const { fpGeometryIsCached = false; };
+	void ResetCacheGeometry() const
+	{
+		fpGeometryIsCached = false;
+	};
 
 	int GetMemorySize() const;
 

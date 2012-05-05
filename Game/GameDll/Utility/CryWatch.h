@@ -4,7 +4,7 @@ Copyright (C), Crytek Studios, 2001-2004.
 -------------------------------------------------------------------------
 CryWatch.cpp
 
-Description: 
+Description:
 - basic onscreen watch
 - in game.dll till it matures and can be moved into the engine
 
@@ -23,8 +23,8 @@ History:
 
 #if CRY_WATCH_ENABLED
 
-int CryWatchFunc(const char * message);
-void CryWatch3DAdd(const char * text, const Vec3 & posIn, float lifetime = 2.f, const Vec3 * velocity = NULL, float gravity = 3.f);
+int CryWatchFunc(const char *message);
+void CryWatch3DAdd(const char *text, const Vec3 &posIn, float lifetime = 2.f, const Vec3 *velocity = NULL, float gravity = 3.f);
 void CryWatch3DReset();
 void CryWatch3DTick(float dt);
 

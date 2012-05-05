@@ -5,7 +5,7 @@
   $Id$
   $DateTime$
   Description: Simple Actor implementation
-  
+
  -------------------------------------------------------------------------
   History:
   - 7:10:2004   14:46 : Created by Marcio Martins
@@ -41,14 +41,14 @@ struct HitInfo;
 
 struct SActorFrameMovementParams
 {
-	SActorFrameMovementParams() : 
-		desiredVelocity(ZERO), 
+	SActorFrameMovementParams() :
+		desiredVelocity(ZERO),
 		desiredLean(0.0f),
 		deltaAngles(ZERO),
 		lookTarget(ZERO),
 		aimTarget(ZERO),
-		lookIK(false), 
-		aimIK(false), 
+		lookIK(false),
+		aimIK(false),
 		jump(false),
 		strengthJump(false),
 		sprint(0.0f),
@@ -89,11 +89,11 @@ struct IActorMovementController : public IMovementController
 
 	virtual void Reset() = 0;
 	// return true if params was filled out, false if not
-	virtual bool Update( float frameTime, SActorFrameMovementParams& params ) = 0;
-	virtual bool GetStats(SStats& stats) = 0;
-	virtual void PostUpdate( float frameTime ) = 0;
+	virtual bool Update(float frameTime, SActorFrameMovementParams &params) = 0;
+	virtual bool GetStats(SStats &stats) = 0;
+	virtual void PostUpdate(float frameTime) = 0;
 	virtual void Release() = 0;
-	virtual void BindInputs( IAnimationGraphState * ) {}
+	virtual void BindInputs(IAnimationGraphState *) {}
 	virtual void Serialize(TSerialize &ser) = 0;
 };
 
@@ -117,8 +117,8 @@ struct IActorMovementController : public IMovementController
 	f(BONE_ARM_R)    \
 	f(BONE_ARM_L)    \
 	f(BONE_CALF_R)   \
-	f(BONE_CALF_L)  
-	
+	f(BONE_CALF_L)
+
 AUTOENUM_BUILDENUMWITHTYPE_WITHNUM(EBonesID, ActorBoneList, BONE_ID_NUM);
 extern const char *s_BONE_ID_NAME[BONE_ID_NUM];
 
@@ -296,7 +296,7 @@ struct SActorStats
 	CCoherentValue<int8> inFreefall;//1 == freefalling, 2 == parachute open
 	CCoherentValue<bool> isHidden;
 	CCoherentValue<bool> isShattered;
-  CCoherentValue<bool> isFrozen;
+	CCoherentValue<bool> isFrozen;
 
 	EntityId mountedWeaponID;
 
@@ -304,7 +304,7 @@ struct SActorStats
 
 	SActorStats()
 	{
-		memset( this,0,sizeof(SActorStats) );
+		memset(this,0,sizeof(SActorStats));
 	}
 
 };
@@ -357,16 +357,17 @@ struct SStanceInfo
 		float peek = clamp(peekOver, 0.0f, 1.0f);
 		Vec3 peekOffset = peek * (peekOverViewOffset - viewOffset);
 
-		if (lean < -0.01f)
+		if(lean < -0.01f)
 		{
 			float a = clamp(-lean, 0.0f, 1.0f);
 			return viewOffset + a * (leanLeftViewOffset - viewOffset) + peekOffset;
 		}
-		else if (lean > 0.01f)
+		else if(lean > 0.01f)
 		{
 			float a = clamp(lean, 0.0f, 1.0f);
 			return viewOffset + a * (leanRightViewOffset - viewOffset) + peekOffset;
 		}
+
 		return viewOffset + peekOffset;
 	}
 
@@ -375,34 +376,36 @@ struct SStanceInfo
 		float peek = clamp(peekOver, 0.0f, 1.0f);
 		Vec3 peekOffset = peek * (peekOverWeaponOffset - weaponOffset);
 
-		if (lean < -0.01f)
+		if(lean < -0.01f)
 		{
 			float a = clamp(-lean, 0.0f, 1.0f);
 			return weaponOffset + a * (leanLeftWeaponOffset - weaponOffset) + peekOffset;
 		}
-		else if (lean > 0.01f)
+		else if(lean > 0.01f)
 		{
 			float a = clamp(lean, 0.0f, 1.0f);
 			return weaponOffset + a * (leanRightWeaponOffset - weaponOffset) + peekOffset;
 		}
+
 		return weaponOffset + peekOffset;
 	}
 
-	static inline Vec3 GetOffsetWithLean(float lean, float peekOver, const Vec3& sOffset, const Vec3& sLeftLean, const Vec3& sRightLean, const Vec3& sPeekOffset)
+	static inline Vec3 GetOffsetWithLean(float lean, float peekOver, const Vec3 &sOffset, const Vec3 &sLeftLean, const Vec3 &sRightLean, const Vec3 &sPeekOffset)
 	{
 		float peek = clamp(peekOver, 0.0f, 1.0f);
 		Vec3 peekOffset = peek * (sPeekOffset - sOffset);
 
-		if (lean < -0.01f)
+		if(lean < -0.01f)
 		{
 			float a = clamp(-lean, 0.0f, 1.0f);
 			return sOffset + a * (sLeftLean - sOffset) + peekOffset;
 		}
-		else if (lean > 0.01f)
+		else if(lean > 0.01f)
 		{
 			float a = clamp(lean, 0.0f, 1.0f);
 			return sOffset + a * (sRightLean - sOffset) + peekOffset;
 		}
+
 		return sOffset + peekOffset;
 	}
 
@@ -411,12 +414,14 @@ struct SStanceInfo
 	ILINE AABB	GetStanceBounds() const
 	{
 		AABB	aabb(-size, size);
+
 		// Compensate for capsules.
 		if(useCapsule)
 		{
 			aabb.min.z -= max(size.x, size.y);
 			aabb.max.z += max(size.x, size.y);
 		}
+
 		// Lift from ground.
 		aabb.min.z += heightCollider;
 		aabb.max.z += heightCollider;
@@ -433,12 +438,14 @@ struct SStanceInfo
 	inline AABB	GetColliderBounds() const
 	{
 		AABB	aabb(-size, size);
+
 		// Compensate for capsules.
 		if(useCapsule)
 		{
 			aabb.min.z -= max(size.x, size.y);
 			aabb.max.z += max(size.x, size.y);
 		}
+
 		// Lift from ground.
 		aabb.min.z += heightCollider;
 		aabb.max.z += heightCollider;
@@ -537,8 +544,8 @@ struct SIKLimb
 
 struct SLinkStats
 {
-	#define LINKED_FREELOOK (1<<0)
-	#define LINKED_VEHICLE (1<<1)
+#define LINKED_FREELOOK (1<<0)
+#define LINKED_VEHICLE (1<<1)
 
 	//which entity are we linked to?
 	EntityId linkID;
@@ -585,13 +592,14 @@ struct SLinkStats
 
 	ILINE IEntity *GetLinked()
 	{
-		if (!linkID)
+		if(!linkID)
 			return NULL;
 		else
 		{
 			IEntity *pEnt = gEnv->pEntitySystem->GetEntity(linkID);
+
 			//if the entity doesnt exist anymore forget about it.
-			if (!pEnt)
+			if(!pEnt)
 				UnLink();
 
 			return pEnt;
@@ -600,7 +608,7 @@ struct SLinkStats
 
 	IVehicle *GetLinkedVehicle();
 
-	void Serialize( TSerialize ser );
+	void Serialize(TSerialize ser);
 };
 
 class CItem;
@@ -639,7 +647,7 @@ public:
 	{
 		DropItemParams(): itemId(0), impulseScale(1.0f), selectNext(true), byDeath(false) {};
 		DropItemParams(EntityId item, float scale, bool next=true, bool death=false): itemId(item), impulseScale(scale), selectNext(next), byDeath(death) {};
-		
+
 		void SerializeWith(TSerialize ser)
 		{
 			ser.Value("itemId", itemId, 'eid');
@@ -661,13 +669,13 @@ public:
 		ReviveParams(const Vec3 &p, const Ang3 &a, int tId, uint8 counter): pos(p), rot(Quat::CreateRotationXYZ(a)), teamId(tId), physCounter(counter) {};
 		ReviveParams(const Vec3 &p, const Quat &q, int tId, uint8 counter): pos(p), rot(q), teamId(tId), physCounter(counter) {};
 		// ~PLAYERPREDICTION
-		
+
 		void SerializeWith(TSerialize ser)
 		{
 			// PLAYERPREDICTION
 			ser.Value("physCounter", physCounter, 'ui4');
 			// ~PLAYERPREDICTION
-			
+
 			ser.Value("teamId", teamId, 'team');
 			ser.Value("pos", pos, 'wrld');
 			ser.Value("rot", rot, 'ori1');
@@ -702,76 +710,76 @@ public:
 
 	struct KillParams
 	{
-			KillParams()
-					: shooterId(0),
-					targetId(0),
-					weaponId(0),
-					projectileId(0),
-					itemIdToDrop(0),
-					weaponClassId(0),
-					damage(0.0f),
-					material(0),
-					hit_type(0),
-					hit_joint(0),
-					projectileClassId(~uint16(0)),
-					penetration(0),
-					impulseScale(0),
-					dir(ZERO),
-					ragdoll(false),
-					winningKill(false),
-					firstKill(false),
-					bulletTimeReplay(false),
-					fromSerialize(false),
-					killViaProxy(false),
-					forceLocalKill(false)
-			{};
+		KillParams()
+			: shooterId(0),
+			  targetId(0),
+			  weaponId(0),
+			  projectileId(0),
+			  itemIdToDrop(0),
+			  weaponClassId(0),
+			  damage(0.0f),
+			  material(0),
+			  hit_type(0),
+			  hit_joint(0),
+			  projectileClassId(~uint16(0)),
+			  penetration(0),
+			  impulseScale(0),
+			  dir(ZERO),
+			  ragdoll(false),
+			  winningKill(false),
+			  firstKill(false),
+			  bulletTimeReplay(false),
+			  fromSerialize(false),
+			  killViaProxy(false),
+			  forceLocalKill(false)
+		{};
 
-			EntityId shooterId;
-			EntityId targetId;
-			EntityId weaponId;
-			EntityId projectileId;
-			EntityId itemIdToDrop;
-			int weaponClassId;
-			float damage;
-			float impulseScale;
-			Vec3 dir;
-			int material;
-			int hit_type;
-			uint16 hit_joint;
-			uint16 projectileClassId;
-			uint8 penetration;
-			bool ragdoll;
-			bool winningKill;
-			bool firstKill;
-			bool bulletTimeReplay;
-			bool killViaProxy;
-			bool forceLocalKill; // Not serialised. skips prohibit death reaction checks. 
+		EntityId shooterId;
+		EntityId targetId;
+		EntityId weaponId;
+		EntityId projectileId;
+		EntityId itemIdToDrop;
+		int weaponClassId;
+		float damage;
+		float impulseScale;
+		Vec3 dir;
+		int material;
+		int hit_type;
+		uint16 hit_joint;
+		uint16 projectileClassId;
+		uint8 penetration;
+		bool ragdoll;
+		bool winningKill;
+		bool firstKill;
+		bool bulletTimeReplay;
+		bool killViaProxy;
+		bool forceLocalKill; // Not serialised. skips prohibit death reaction checks.
 
-			// Special case - used when actor is killed from FullSerialize to supress certain logic from running
-			bool fromSerialize;
+		// Special case - used when actor is killed from FullSerialize to supress certain logic from running
+		bool fromSerialize;
 
-			void SerializeWith(TSerialize ser)
-			{
-					ser.Value("shooterId", shooterId, 'eid');
-					ser.Value("targetId", targetId, 'eid');
-					ser.Value("weaponId", weaponId, 'eid');
-					ser.Value("projectileId", projectileId, 'eid');
-					ser.Value("itemIdToDrop", itemIdToDrop , 'eid');
-					ser.Value("weaponClassId", weaponClassId, 'clas');
-					ser.Value("damage", damage, 'dmg');
-					ser.Value("material", material, 'mat');
-					ser.Value("hit_type", hit_type, 'hTyp');
-					ser.Value("hit_joint", hit_joint, 'ui16');
-					ser.Value("projectileClassId", projectileClassId, 'ui16');
-					ser.Value("penetration", penetration, 'ui8');
-					ser.Value("dir", dir, 'dir3');
-					ser.Value("impulseScale", impulseScale, 'iii');
-					ser.Value("ragdoll", ragdoll, 'bool');
-					ser.Value("winningKill", winningKill, 'bool');
-					ser.Value("firstKill", firstKill, 'bool');
-					ser.Value("bulletTimeReplay", bulletTimeReplay, 'bool');
-					ser.Value("proxyKill", killViaProxy, 'bool');
-			};
+		void SerializeWith(TSerialize ser)
+		{
+			ser.Value("shooterId", shooterId, 'eid');
+			ser.Value("targetId", targetId, 'eid');
+			ser.Value("weaponId", weaponId, 'eid');
+			ser.Value("projectileId", projectileId, 'eid');
+			ser.Value("itemIdToDrop", itemIdToDrop , 'eid');
+			ser.Value("weaponClassId", weaponClassId, 'clas');
+			ser.Value("damage", damage, 'dmg');
+			ser.Value("material", material, 'mat');
+			ser.Value("hit_type", hit_type, 'hTyp');
+			ser.Value("hit_joint", hit_joint, 'ui16');
+			ser.Value("projectileClassId", projectileClassId, 'ui16');
+			ser.Value("penetration", penetration, 'ui8');
+			ser.Value("dir", dir, 'dir3');
+			ser.Value("impulseScale", impulseScale, 'iii');
+			ser.Value("ragdoll", ragdoll, 'bool');
+			ser.Value("winningKill", winningKill, 'bool');
+			ser.Value("firstKill", firstKill, 'bool');
+			ser.Value("bulletTimeReplay", bulletTimeReplay, 'bool');
+			ser.Value("proxyKill", killViaProxy, 'bool');
+		};
 	};
 
 	struct MoveParams
@@ -880,9 +888,9 @@ public:
 	DECLARE_CLIENT_RMI_NOATTACH(ClAddAmmo, AmmoParams, eNRT_ReliableOrdered);
 
 	CItem *GetItem(EntityId itemId) const;
-	CItem *GetItemByClass(IEntityClass* pClass) const;
+	CItem *GetItemByClass(IEntityClass *pClass) const;
 	CWeapon *GetWeapon(EntityId itemId) const;
-	CWeapon *GetWeaponByClass(IEntityClass* pClass) const;
+	CWeapon *GetWeaponByClass(IEntityClass *pClass) const;
 
 	virtual void SelectNextItem(int direction, bool keepHistory, const char *category=0);
 	virtual void HolsterItem(bool holster, bool playSelect = true);
@@ -901,45 +909,51 @@ public:
 	virtual void NetKill(EntityId shooterId, uint16 weaponClassId, int damage, int material, int hit_type);
 
 	virtual void SetSleepTimer(float timer);
-	Vec3 GetWeaponOffsetWithLean(EStance stance, float lean, float peekOver, const Vec3& eyeOffset);
+	Vec3 GetWeaponOffsetWithLean(EStance stance, float lean, float peekOver, const Vec3 &eyeOffset);
 
 	virtual bool CanRagDollize() const;
-		
+
 public:
 	CActor();
 	virtual ~CActor();
 
 	// IActor
-	virtual void ProcessEvent(SEntityEvent& event);
-	virtual void Release() { delete this; };
+	virtual void ProcessEvent(SEntityEvent &event);
+	virtual void Release()
+	{
+		delete this;
+	};
 	virtual void ResetAnimGraph();
-	virtual void NotifyAnimGraphTransition(const char *anim0){};
+	virtual void NotifyAnimGraphTransition(const char *anim0) {};
 	virtual void NotifyAnimGraphInput(int id, const char *value) {};
 	virtual void NotifyAnimGraphInput(int id, int value) {};
-	virtual void FullSerialize( TSerialize ser );
-	virtual bool NetSerialize( TSerialize ser, EEntityAspects aspect, uint8 profile, int flags );
+	virtual void FullSerialize(TSerialize ser);
+	virtual bool NetSerialize(TSerialize ser, EEntityAspects aspect, uint8 profile, int flags);
 	virtual void PostSerialize();
-	virtual void SerializeSpawnInfo( TSerialize ser );
+	virtual void SerializeSpawnInfo(TSerialize ser);
 	virtual ISerializableInfoPtr GetSpawnInfo();
 	virtual void SetChannelId(uint16 id);
-	virtual void  SerializeLevelToLevel( TSerialize &ser );
+	virtual void  SerializeLevelToLevel(TSerialize &ser);
 	virtual IInventory *GetInventory() const;
-	virtual void NotifyCurrentItemChanged(IItem* newItem) {};
+	virtual void NotifyCurrentItemChanged(IItem *newItem) {};
 
 	virtual bool IsPlayer() const;
 	virtual bool IsClient() const;
 	virtual bool IsMigrating() const;
 	virtual void SetMigrating(bool ismigrating);
-	virtual IMaterial *GetReplacementMaterial() { return m_pReplacementMaterial; };
+	virtual IMaterial *GetReplacementMaterial()
+	{
+		return m_pReplacementMaterial;
+	};
 
-	virtual bool Init( IGameObject * pGameObject );
-	virtual void InitClient( int channelId );
-	virtual void PostInit( IGameObject * pGameObject );
+	virtual bool Init(IGameObject *pGameObject);
+	virtual void InitClient(int channelId);
+	virtual void PostInit(IGameObject *pGameObject);
 	virtual void PostInitClient(int channelId) {};
-	virtual bool ReloadExtension( IGameObject * pGameObject, const SEntitySpawnParams &params );
-	virtual void PostReloadExtension( IGameObject * pGameObject, const SEntitySpawnParams &params );
-	virtual bool GetEntityPoolSignature( TSerialize signature );
-	virtual void Update(SEntityUpdateContext& ctx, int updateSlot);
+	virtual bool ReloadExtension(IGameObject *pGameObject, const SEntitySpawnParams &params);
+	virtual void PostReloadExtension(IGameObject *pGameObject, const SEntitySpawnParams &params);
+	virtual bool GetEntityPoolSignature(TSerialize signature);
+	virtual void Update(SEntityUpdateContext &ctx, int updateSlot);
 	virtual void UpdateView(SViewParams &viewParams) {};
 	virtual void PostUpdateView(SViewParams &viewParams) {};
 
@@ -948,22 +962,31 @@ public:
 	virtual void InitiateCombat();
 	virtual void ExtendCombat();
 
-	virtual void SetIKPos(const char *pLimbName, const Vec3& goalPos, int priority);
+	virtual void SetIKPos(const char *pLimbName, const Vec3 &goalPos, int priority);
 
-	virtual void HandleEvent( const SGameObjectEvent& event );
+	virtual void HandleEvent(const SGameObjectEvent &event);
 	virtual void PostUpdate(float frameTime);
 	virtual void PostRemoteSpawn() {};
 
-	virtual bool IsThirdPerson() const { return true; };
-	virtual void ToggleThirdPerson(){}
+	virtual bool IsThirdPerson() const
+	{
+		return true;
+	};
+	virtual void ToggleThirdPerson() {}
 
-	virtual ICachedAIValues* GetCachedAIValues() { return &m_cachedAIValues; }
+	virtual ICachedAIValues *GetCachedAIValues()
+	{
+		return &m_cachedAIValues;
+	}
 
-	virtual void RequestFacialExpression(const char* pExpressionName /* = NULL */, f32* sequenceLength /*= NULL*/);
-	virtual void PrecacheFacialExpression(const char* pExpressionName);
+	virtual void RequestFacialExpression(const char *pExpressionName /* = NULL */, f32 *sequenceLength /*= NULL*/);
+	virtual void PrecacheFacialExpression(const char *pExpressionName);
 
-	virtual void NotifyInventoryAmmoChange(IEntityClass* pAmmoClass, int amount);
-	virtual EntityId	GetGrabbedEntityId() const { return 0; }
+	virtual void NotifyInventoryAmmoChange(IEntityClass *pAmmoClass, int amount);
+	virtual EntityId	GetGrabbedEntityId() const
+	{
+		return 0;
+	}
 
 	virtual void HideAllAttachments(bool isHiding);
 
@@ -973,61 +996,106 @@ public:
 	// ~IActor
 
 	// IGameObjectProfileManager
-	virtual bool SetAspectProfile( EEntityAspects aspect, uint8 profile );
-	virtual uint8 GetDefaultProfile( EEntityAspects aspect ) { return aspect == eEA_Physics? eAP_NotPhysicalized : 0; }
+	virtual bool SetAspectProfile(EEntityAspects aspect, uint8 profile);
+	virtual uint8 GetDefaultProfile(EEntityAspects aspect)
+	{
+		return aspect == eEA_Physics? eAP_NotPhysicalized : 0;
+	}
 	// ~IGameObjectProfileManager
 
 	// IActionListener
-	virtual void OnAction(const ActionId& actionId, int activationMode, float value);
+	virtual void OnAction(const ActionId &actionId, int activationMode, float value);
 	// ~IActionListener
 
 	// ISoundEventListener
 	virtual void OnSoundEvent(ESoundCallbackEvent event, ISound *pSound);
 	// ~ISoundEventListener
 
-	virtual void ProfileChanged( uint8 newProfile );
+	virtual void ProfileChanged(uint8 newProfile);
 
 	//------------------------------------------------------------------------
-	float GetAirControl() const { return m_airControl; };
-	float GetAirResistance() const { return m_airResistance; };
-	float GetTimeImpulseRecover() const { return m_timeImpulseRecover; };
+	float GetAirControl() const
+	{
+		return m_airControl;
+	};
+	float GetAirResistance() const
+	{
+		return m_airResistance;
+	};
+	float GetTimeImpulseRecover() const
+	{
+		return m_timeImpulseRecover;
+	};
 
-	virtual void SetViewRotation( const Quat &rotation ) {};
-	virtual Quat GetViewRotation() const { return GetEntity()->GetRotation(); };
-	virtual void EnableTimeDemo( bool bTimeDemo ) {};
+	virtual void SetViewRotation(const Quat &rotation) {};
+	virtual Quat GetViewRotation() const
+	{
+		return GetEntity()->GetRotation();
+	};
+	virtual void EnableTimeDemo(bool bTimeDemo) {};
 
 	// offset to add to the computed camera angles every frame
 	virtual void SetViewAngleOffset(const Vec3 &offset) {};
-	virtual Vec3 GetViewAngleOffset() { return Vec3(0, 0, 0); };
+	virtual Vec3 GetViewAngleOffset()
+	{
+		return Vec3(0, 0, 0);
+	};
 
 	//------------------------------------------------------------------------
-	virtual void Revive( bool fromInit = false );
-  virtual void Reset(bool toGame) {};
+	virtual void Revive(bool fromInit = false);
+	virtual void Reset(bool toGame) {};
 	//physicalization
 	virtual void Physicalize(EStance stance=STANCE_NULL);
 	virtual void PostPhysicalize();
-	virtual void RagDollize( bool fallAndPlay );
+	virtual void RagDollize(bool fallAndPlay);
 	//
-  virtual int IsGod(){ return 0; }
+	virtual int IsGod()
+	{
+		return 0;
+	}
 
 	virtual void SetSpectatorMode(uint8 mode, EntityId targetId) {};
-	virtual uint8 GetSpectatorMode() const { return 0; };
+	virtual uint8 GetSpectatorMode() const
+	{
+		return 0;
+	};
 	virtual void SetSpectatorTarget(EntityId targetId) {};
-	virtual EntityId GetSpectatorTarget() const { return 0; };
+	virtual EntityId GetSpectatorTarget() const
+	{
+		return 0;
+	};
 	virtual void SetSpectatorHealth(float health) {};
-	virtual float GetSpectatorHealth() const { return 0; };
-	
+	virtual float GetSpectatorHealth() const
+	{
+		return 0;
+	};
+
 	//get actor status
-	virtual SActorStats *GetActorStats() { return 0; };
-	virtual const SActorStats *GetActorStats() const { return 0; };
-	virtual SActorParams *GetActorParams() { return 0; };
+	virtual SActorStats *GetActorStats()
+	{
+		return 0;
+	};
+	virtual const SActorStats *GetActorStats() const
+	{
+		return 0;
+	};
+	virtual SActorParams *GetActorParams()
+	{
+		return 0;
+	};
 
 	virtual void SetStats(SmartScriptTable &rTable);
 	virtual void UpdateScriptStats(SmartScriptTable &rTable);
-	virtual ICharacterInstance *GetFPArms(int i) const { return GetEntity()->GetCharacter(3+i); };
+	virtual ICharacterInstance *GetFPArms(int i) const
+	{
+		return GetEntity()->GetCharacter(3+i);
+	};
 	//set/get actor params
 	virtual void SetParams(SmartScriptTable &rTable,bool resetFirst = false);
-	virtual bool GetParams(SmartScriptTable &rTable) { return false; };
+	virtual bool GetParams(SmartScriptTable &rTable)
+	{
+		return false;
+	};
 	//
 	virtual void Freeze(bool freeze) {};
 	virtual void Fall(Vec3 hitPos = Vec3(0,0,0), float time = 0.0f);
@@ -1041,8 +1109,11 @@ public:
 	virtual IEntity *LinkToVehicleRemotely(EntityId vehicleId);
 	virtual void LinkToMountedWeapon(EntityId weaponId) {};
 	virtual IEntity *LinkToEntity(EntityId entityId, bool bKeepTransformOnDetach=true);
-	
-	virtual bool AllowLandingBob() { return true; }
+
+	virtual bool AllowLandingBob()
+	{
+		return true;
+	}
 
 	virtual IEntity *GetLinkedEntity() const
 	{
@@ -1093,86 +1164,132 @@ public:
 	virtual bool CreateCodeEvent(SmartScriptTable &rTable);
 	virtual void AnimationEvent(ICharacterInstance *pCharacter, const AnimEventInstance &event);
 	//
-	virtual void CameraShake(float angle,float shift,float duration,float frequency,Vec3 pos,int ID,const char* source="") {};
+	virtual void CameraShake(float angle,float shift,float duration,float frequency,Vec3 pos,int ID,const char *source="") {};
 	//
 	virtual void VectorToLocal(Vec3 &v) {};
 	//
 	virtual void SetAngles(const Ang3 &angles) {};
-	virtual Ang3 GetAngles() {return Ang3(0,0,0);};
-	virtual void AddAngularImpulse(const Ang3 &angular,float deceleration=0.0f,float duration=0.0f){}
+	virtual Ang3 GetAngles()
+	{
+		return Ang3(0,0,0);
+	};
+	virtual void AddAngularImpulse(const Ang3 &angular,float deceleration=0.0f,float duration=0.0f) {}
 	//
 	virtual void SetViewLimits(Vec3 dir,float rangeH,float rangeV) {};
 	virtual void SetZoomSpeedMultiplier(float m);
 	virtual float GetZoomSpeedMultiplier() const;
-	virtual void SetHealth( float health );
+	virtual void SetHealth(float health);
 	virtual void DamageInfo(EntityId shooterID, EntityId weaponID, float damage, const char *damageType);
-	virtual IAnimatedCharacter * GetAnimatedCharacter() { return m_pAnimatedCharacter; }
-	virtual void PlayExactPositioningAnimation( const char* sAnimationName, bool bSignal, const Vec3& vPosition, const Vec3& vDirection, float startWidth, float startArcAngle, float directionTolerance ) {}
+	virtual IAnimatedCharacter *GetAnimatedCharacter()
+	{
+		return m_pAnimatedCharacter;
+	}
+	virtual void PlayExactPositioningAnimation(const char *sAnimationName, bool bSignal, const Vec3 &vPosition, const Vec3 &vDirection, float startWidth, float startArcAngle, float directionTolerance) {}
 	virtual void CancelExactPositioningAnimation() {}
-	virtual void PlayAnimation( const char* sAnimationName, bool bSignal ) {}
+	virtual void PlayAnimation(const char *sAnimationName, bool bSignal) {}
 
-	virtual bool PlayReadabilitySound(const Vec3& vSoundPosition, const SReadabilitySoundEntry& soundEntry, bool bPlaySoundAtActorTarget, bool bStopPreviousSound);
+	virtual bool PlayReadabilitySound(const Vec3 &vSoundPosition, const SReadabilitySoundEntry &soundEntry, bool bPlaySoundAtActorTarget, bool bStopPreviousSound);
 
-	void SetMaxHealth( float maxHealth );
-	virtual int   GetHealthAsRoundedPercentage() const { return m_healthAsRoundedPercentage; }
-	virtual float GetHealth() const { return m_health; }
-	virtual float GetMaxHealth() const { return m_maxHealth; }
-	virtual bool  IsDead() const { return m_health <= 0.f; }
-	virtual int32 GetArmor() const { return 0; }
-	virtual int32 GetMaxArmor() const { return 0; }
+	void SetMaxHealth(float maxHealth);
+	virtual int   GetHealthAsRoundedPercentage() const
+	{
+		return m_healthAsRoundedPercentage;
+	}
+	virtual float GetHealth() const
+	{
+		return m_health;
+	}
+	virtual float GetMaxHealth() const
+	{
+		return m_maxHealth;
+	}
+	virtual bool  IsDead() const
+	{
+		return m_health <= 0.f;
+	}
+	virtual int32 GetArmor() const
+	{
+		return 0;
+	}
+	virtual int32 GetMaxArmor() const
+	{
+		return 0;
+	}
 	virtual void Kill();
 
-	ILINE const SActorAnimationEvents& GetAnimationEventsTable() const { return s_animationEventsTable; };
+	ILINE const SActorAnimationEvents &GetAnimationEventsTable() const
+	{
+		return s_animationEventsTable;
+	};
 
 	void ResetHelmetAttachment();
-	
-  virtual float GetFrozenAmount(bool stages=false) const { return m_frozenAmount; }
-  void SetFrozenAmount(float amount);  
-  
-  bool IsFrozen();
-  virtual void AddFrost(float frost);  
 
-	virtual void BindInputs( IAnimationGraphState * pAGState );
+	virtual float GetFrozenAmount(bool stages=false) const
+	{
+		return m_frozenAmount;
+	}
+	void SetFrozenAmount(float amount);
+
+	bool IsFrozen();
+	virtual void AddFrost(float frost);
+
+	virtual void BindInputs(IAnimationGraphState *pAGState);
 	//marcok: GC workaround
-	virtual bool IsSwimming() {	return false; }
-	virtual bool ShouldSwim(){ return false; };
+	virtual bool IsSwimming()
+	{
+		return false;
+	}
+	virtual bool ShouldSwim()
+	{
+		return false;
+	};
 
-	virtual bool IsSprinting() { return false;}
-	virtual bool CanFire(){ return true; }
-	virtual bool BecomeAggressiveToAgent(EntityId agentID) { return true; };
+	virtual bool IsSprinting()
+	{
+		return false;
+	}
+	virtual bool CanFire()
+	{
+		return true;
+	}
+	virtual bool BecomeAggressiveToAgent(EntityId agentID)
+	{
+		return true;
+	};
 
 	//stances
-	ILINE virtual EStance GetStance() const 
+	ILINE virtual EStance GetStance() const
 	{
-/*
-		if(!m_pAnimatedCharacter)
-			return STANCE_NULL;
-		int stance = m_pAnimatedCharacter?m_pAnimatedCharacter->GetCurrentStance():STANCE_NULL;
+		/*
+				if(!m_pAnimatedCharacter)
+					return STANCE_NULL;
+				int stance = m_pAnimatedCharacter?m_pAnimatedCharacter->GetCurrentStance():STANCE_NULL;
 
-		if (stance < 0 || stance > STANCE_LAST)
-			return STANCE_NULL;
-		return (EStance)stance;
-*/
+				if (stance < 0 || stance > STANCE_LAST)
+					return STANCE_NULL;
+				return (EStance)stance;
+		*/
 		return m_stance;
 	}
 
-	ILINE const SStanceInfo* GetStanceInfoInternal(EStance stance) const 
+	ILINE const SStanceInfo *GetStanceInfoInternal(EStance stance) const
 	{
-		if (stance < 0 || stance > STANCE_LAST)
+		if(stance < 0 || stance > STANCE_LAST)
 		{
 			// default stance is always considered "initialized"
 			m_defaultStance.bInitializedFromScript = true;
 
 			return &m_defaultStance;
 		}
+
 		return &m_stances[stance];
 	}
 
-	ILINE const SStanceInfo* GetStanceInfo(EStance stance) const 
+	ILINE const SStanceInfo *GetStanceInfo(EStance stance) const
 	{
-		if (const SStanceInfo* pStance = GetStanceInfoInternal(stance))
+		if(const SStanceInfo *pStance = GetStanceInfoInternal(stance))
 		{
-			if (!pStance->bInitializedFromScript)
+			if(!pStance->bInitializedFromScript)
 			{
 				int s = static_cast<int>(stance);
 				GameWarning("Stance %d (%s) has not been initialized via script table.", s, GetStanceName(s));
@@ -1188,29 +1305,31 @@ public:
 	//
 
 	// forces the animation graph to select a state
-	void QueueAnimationState( const char * state );
-	void ChangeAnimGraph( const char *graph, int layer );
+	void QueueAnimationState(const char *state);
+	void ChangeAnimGraph(const char *graph, int layer);
 
-	virtual bool SetAnimationInput(const char* inputID, const char* value)
+	virtual bool SetAnimationInput(const char *inputID, const char *value)
 	{
-			IAnimationGraphState* pState = GetAnimationGraphState();
-			return pState ? SetAnimationInput(pState->GetInputId(inputID), value) : false;
+		IAnimationGraphState *pState = GetAnimationGraphState();
+		return pState ? SetAnimationInput(pState->GetInputId(inputID), value) : false;
 	}
 
-	virtual bool SetAnimationInput(IAnimationGraphState::InputID inputID, const char* value)
+	virtual bool SetAnimationInput(IAnimationGraphState::InputID inputID, const char *value)
 	{
 		// Handle action and signal inputs via AIproxy, since the AI system and
 		// the AI agent behavior depend on those inputs.
-		IEntity* pEntity = GetEntity();
-		IAIObject* pAI = pEntity ? pEntity->GetAI() : NULL;
-		IAIActorProxy* pProxy = pAI ? pAI->GetProxy() : NULL;
-		if (pProxy && pProxy->IsEnabled())
+		IEntity *pEntity = GetEntity();
+		IAIObject *pAI = pEntity ? pEntity->GetAI() : NULL;
+		IAIActorProxy *pProxy = pAI ? pAI->GetProxy() : NULL;
+
+		if(pProxy && pProxy->IsEnabled())
 		{
 			bool bSignal = (inputID == m_inputSignal);
 			bool bAction = (inputID == m_inputAction);
+
 			if(bSignal)
 			{
-				return pProxy->SetAGInput( AIAG_SIGNAL, value );
+				return pProxy->SetAGInput(AIAG_SIGNAL, value);
 			}
 			else if(bAction)
 			{
@@ -1226,7 +1345,7 @@ public:
 			}
 		}
 
-		IAnimationGraphState* pState = GetAnimationGraphState();
+		IAnimationGraphState *pState = GetAnimationGraphState();
 
 		return pState ? pState->SetInput(inputID, value) : false;
 	}
@@ -1238,8 +1357,9 @@ public:
 
 	ILINE /* virtual */ bool InZeroG() const
 	{
-		if (const SActorStats* pActorStats = GetActorStats())
+		if(const SActorStats *pActorStats = GetActorStats())
 			return pActorStats->inZeroG;
+
 		return false;
 	}
 
@@ -1248,16 +1368,16 @@ public:
 	//
 	virtual void ProcessBonesRotation(ICharacterInstance *pCharacter,float frameTime);
 
-	virtual void OnPhysicsPreStep(float frameTime){};
+	virtual void OnPhysicsPreStep(float frameTime) {};
 
 	//grabbing
 	virtual IGrabHandler *CreateGrabHanlder();
 	virtual void UpdateGrab(float frameTime);
-	
+
 	virtual bool CheckInventoryRestrictions(const char *itemClassName);
 	virtual bool CheckVirtualInventoryRestrictions(const std::vector<string> &inventory, const char *itemClassName);
 
-	virtual bool CanPickUpObject(IEntity *obj, float& heavyness, float& volume);
+	virtual bool CanPickUpObject(IEntity *obj, float &heavyness, float &volume);
 	virtual bool CanPickUpObject(float mass, float volume);
 	virtual float GetActorStrength() const;
 
@@ -1273,7 +1393,7 @@ public:
 	void CreateIKLimb(int characterSlot, const char *limbName, const char *rootBone, const char *midBone, const char *endBone, int flags = 0);
 
 	//
-	virtual IMovementController * GetMovementController() const
+	virtual IMovementController *GetMovementController() const
 	{
 		return m_pMovementController;
 	}
@@ -1281,11 +1401,14 @@ public:
 	//stances
 	virtual void	SetStance(EStance stance);
 	virtual void  StanceChanged(EStance last) {};
-  virtual bool	TrySetStance(EStance stance); // Shared between humans and aliens.
+	virtual bool	TrySetStance(EStance stance); // Shared between humans and aliens.
 	//
-	
-	IAnimationGraphState * GetAnimationGraphState();
-	IAnimatedCharacter * GetAnimatedCharacter() const { return m_pAnimatedCharacter; };
+
+	IAnimationGraphState *GetAnimationGraphState();
+	IAnimatedCharacter *GetAnimatedCharacter() const
+	{
+		return m_pAnimatedCharacter;
+	};
 	void SetFacialAlertnessLevel(int alertness);
 
 	//weapons
@@ -1302,51 +1425,84 @@ public:
 	//AI
 	Vec3 GetAIAttentionPos();
 
-	CScreenEffects *GetScreenEffects() {return m_screenEffects;};
-	CWeaponAttachmentManager* GetWeaponAttachmentManager() { return m_pWeaponAM; }
+	CScreenEffects *GetScreenEffects()
+	{
+		return m_screenEffects;
+	};
+	CWeaponAttachmentManager *GetWeaponAttachmentManager()
+	{
+		return m_pWeaponAM;
+	}
 	void InitActorAttachments();
 
 	virtual void SwitchDemoModeSpectator(bool activate) {};	//this is a player only function
 
 	//misc
 	virtual void ReplaceMaterial(const char *strMaterial);
-	virtual void SendMusicLogicEvent(EMusicLogicEvents event){};
-	
-	virtual const char* GetActorClassName() const { return "CActor"; };
+	virtual void SendMusicLogicEvent(EMusicLogicEvents event) {};
 
-	static  ActorClass GetActorClassType() { return (ActorClass)eActorClass_Actor; }
-	virtual ActorClass GetActorClass() const { return (ActorClass)eActorClass_Actor; };
+	virtual const char *GetActorClassName() const
+	{
+		return "CActor";
+	};
 
-	virtual const char* GetEntityClassName() const { return GetEntity()->GetClass()->GetName(); }
+	static  ActorClass GetActorClassType()
+	{
+		return (ActorClass)eActorClass_Actor;
+	}
+	virtual ActorClass GetActorClass() const
+	{
+		return (ActorClass)eActorClass_Actor;
+	};
+
+	virtual const char *GetEntityClassName() const
+	{
+		return GetEntity()->GetClass()->GetName();
+	}
 
 	//For sleeping bullets
-	virtual bool  CanSleep() { return false; }
+	virtual bool  CanSleep()
+	{
+		return false;
+	}
 
 	//Grabbing
-	virtual int	GetActorSpecies() { return eGCT_UNKNOWN; }
+	virtual int	GetActorSpecies()
+	{
+		return eGCT_UNKNOWN;
+	}
 
-	virtual void SetAnimTentacleParams(pe_params_rope& rope, float animBlend) {};
+	virtual void SetAnimTentacleParams(pe_params_rope &rope, float animBlend) {};
 
-  virtual bool IsCloaked() const { return false; }
+	virtual bool IsCloaked() const
+	{
+		return false;
+	}
 
-  virtual void DumpActorInfo();
+	virtual void DumpActorInfo();
 
-	bool IsFriendlyEntity( EntityId entityId ) const;
+	bool IsFriendlyEntity(EntityId entityId) const;
 
-	virtual EntityId GetCurrentTargetEntityId() const { return 0; }
+	virtual EntityId GetCurrentTargetEntityId() const
+	{
+		return 0;
+	}
 
 	// PLAYERPREDICTION
-	ILINE uint8 GetNetPhysCounter() { return m_netPhysCounter; }
+	ILINE uint8 GetNetPhysCounter()
+	{
+		return m_netPhysCounter;
+	}
 
 	bool AllowPhysicsUpdate(uint8 newCounter) const;
 	static bool AllowPhysicsUpdate(uint8 newCounter, uint8 oldCounter);
 
 	bool IsRemote() const;
 	// ~PLAYERPREDICTION
-	
-	QuatT GetBoneTransform( int id ) const;
 
-	void FillHitInfoFromKillParams(const CActor::KillParams& killParams, HitInfo &hitInfo) const;
+	QuatT GetBoneTransform(int id) const;
+
+	void FillHitInfoFromKillParams(const CActor::KillParams &killParams, HitInfo &hitInfo) const;
 
 	IAnimationGraph::InputID m_inputHealth;
 	IAnimationGraph::InputID m_inputStance;
@@ -1360,41 +1516,44 @@ protected:
 
 	void DisplayDebugInfo();
 
-	virtual void UpdateAnimGraph( IAnimationGraphState * pState );
+	virtual void UpdateAnimGraph(IAnimationGraphState *pState);
 
 	//movement
-	virtual IActorMovementController * CreateMovementController() = 0;
+	virtual IActorMovementController *CreateMovementController() = 0;
 	//
 
-	virtual Vec3 GetModelOffset() const { return GetStanceInfo(GetStance())->modelOffset; }
+	virtual Vec3 GetModelOffset() const
+	{
+		return GetStanceInfo(GetStance())->modelOffset;
+	}
 
 	void UpdateCachedAIValues();
 
 private:
-	mutable IInventory * m_pInventory;
-	mutable IInteractor * m_pInteractor;
+	mutable IInventory *m_pInventory;
+	mutable IInteractor *m_pInteractor;
 	void ClearExtensionCache();
 	void CrapDollize();
 
 protected:
 	void RequestServerResync()
 	{
-		if (!IsClient())
+		if(!IsClient())
 			GetGameObject()->RequestRemoteUpdate(eEA_Physics | eEA_GameClientDynamic | eEA_GameServerDynamic | eEA_GameClientStatic | eEA_GameServerStatic);
 	}
 
-	void GetActorMemoryStatistics( ICrySizer * pSizer ) const;
-	
+	void GetActorMemoryStatistics(ICrySizer *pSizer) const;
+
 	//
 	typedef std::vector<SIKLimb> TIKLimbs;
-	
+
 	//
 	virtual void SetActorModel();
 	virtual bool UpdateStance();
 
 	void UpdateReadabilitySound();
-	void ClPlayReadabilitySound(const SReadabilitySoundParams& params);
-  virtual void OnCloaked(bool cloaked){};
+	void ClPlayReadabilitySound(const SReadabilitySoundParams &params);
+	virtual void OnCloaked(bool cloaked) {};
 
 	mutable int16 m_boneIDs[BONE_ID_NUM];
 
@@ -1404,7 +1563,7 @@ protected:
 	float m_maxHealth;
 	CCachedAIValues m_cachedAIValues;
 	static SActorAnimationEvents s_animationEventsTable;
- 
+
 	EStance m_stance;
 	EStance m_desiredStance;
 
@@ -1416,19 +1575,19 @@ protected:
 	SmartScriptTable m_actorStats;
 
 	IAnimatedCharacter *m_pAnimatedCharacter;
-	IActorMovementController * m_pMovementController;
+	IActorMovementController *m_pMovementController;
 
 	static IItemSystem			*m_pItemSystem;
 	static IGameFramework		*m_pGameFramework;
-	static IGameplayRecorder*m_pGameplayRecorder;
+	static IGameplayRecorder *m_pGameplayRecorder;
 
 	IGrabHandler *m_pGrabHandler;
 
 	mutable SLinkStats m_linkStats;
 
 	TIKLimbs m_IKLimbs;
-  
-  float m_frozenAmount; // internal amount. used to leave authority over frozen state at game
+
+	float m_frozenAmount; // internal amount. used to leave authority over frozen state at game
 
 	// ScreenEffects-related variables
 	CScreenEffects *m_screenEffects;
@@ -1463,15 +1622,15 @@ protected:
 	_smart_ptr<IMaterial> m_pReplacementMaterial;
 
 	//
-  std::map< ICharacterInstance*, _smart_ptr<IMaterial> > m_testOldMats;
-  std::map< IAttachmentObject*, _smart_ptr<IMaterial> > m_attchObjMats;
-  //std::map< EntityId, IMaterial* > m_wepAttchMats;
+	std::map< ICharacterInstance *, _smart_ptr<IMaterial> > m_testOldMats;
+	std::map< IAttachmentObject *, _smart_ptr<IMaterial> > m_attchObjMats;
+	//std::map< EntityId, IMaterial* > m_wepAttchMats;
 
 	float			m_sleepTimer,m_sleepTimerOrg;
 
 	int				m_teamId;
 	EntityId	m_lastItemId;
-	
+
 	// PLAYERPREDICTION
 	uint8		m_netPhysCounter;				 //	Physics counter, to enable us to throw away old updates
 	// ~PLAYERPREDICTION

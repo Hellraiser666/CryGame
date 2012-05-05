@@ -28,44 +28,47 @@ public:
 	virtual ~CVehicleActionDeployRope();
 
 	// IVehicleSeatAction
-	virtual bool Init(IVehicle* pVehicle, IVehicleSeat* pSeat, const CVehicleParams& table);
+	virtual bool Init(IVehicle *pVehicle, IVehicleSeat *pSeat, const CVehicleParams &table);
 	virtual void Reset();
-	virtual void Release() { delete this; }
+	virtual void Release()
+	{
+		delete this;
+	}
 
 	virtual void StartUsing(EntityId passengerId) {}
 	virtual void ForceUsage() {};
 
 	virtual void StopUsing() {}
 	virtual void OnAction(const TVehicleActionId actionId, int activationMode, float value);
-	virtual void OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams& params);
+	virtual void OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams &params);
 
 	virtual void Serialize(TSerialize ser, EEntityAspects aspects) {}
 	virtual void PostSerialize() {}
 	virtual void Update(const float deltaTime);
 
-	virtual void GetMemoryUsage(ICrySizer* pSizer) const;
+	virtual void GetMemoryUsage(ICrySizer *pSizer) const;
 	// ~IVehicleSeatAction
 
 	bool DeployRope();
-	void AttachOnRope(IEntity* pEntity);
+	void AttachOnRope(IEntity *pEntity);
 
 protected:
 
-	EntityId CreateRope(IPhysicalEntity* pLinkedEntity, const Vec3& highPos, const Vec3& lowPos);
-	IRopeRenderNode* GetRopeRenderNode(EntityId ropeId);
+	EntityId CreateRope(IPhysicalEntity *pLinkedEntity, const Vec3 &highPos, const Vec3 &lowPos);
+	IRopeRenderNode *GetRopeRenderNode(EntityId ropeId);
 
-	IVehicle* m_pVehicle;
-	IVehicleSeat* m_pSeat;
+	IVehicle *m_pVehicle;
+	IVehicleSeat *m_pSeat;
 
 	EntityId m_ropeUpperId;
 	EntityId m_ropeLowerId;
 	EntityId m_actorId;
 
-	IVehicleHelper* m_pRopeHelper;
+	IVehicleHelper *m_pRopeHelper;
 
-	IRopeRenderNode* m_pRopeRenderNode;
+	IRopeRenderNode *m_pRopeRenderNode;
 
-	IVehicleAnimation* m_pDeployAnim;
+	IVehicleAnimation *m_pDeployAnim;
 	TVehicleAnimStateId m_deployAnimOpenedId;
 	TVehicleAnimStateId m_deployAnimClosedId;
 };

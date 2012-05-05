@@ -6,7 +6,7 @@
 //  File name:   UIObjectives.h
 //  Version:     v1.00
 //  Created:     20/1/2011 by Paul Reindell.
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -19,22 +19,22 @@
 
 class CGameRules;
 
-class CUIObjectives	
+class CUIObjectives
 	: public IUIGameEventSystem
 {
 public:
 	CUIObjectives();
 
 	// IUIGameEventSystem
-	UIEVENTSYSTEM( "UIObjectives" );
+	UIEVENTSYSTEM("UIObjectives");
 	virtual void InitEventSystem();
 	virtual void UnloadEventSystem();
 
 	// these functions are called by CGameRules ( mission objective related functions )
-	void MissionObjectiveAdded( const string& objectiveID, int state );
-	void MissionObjectiveRemoved( const string& objectiveID );
+	void MissionObjectiveAdded(const string &objectiveID, int state);
+	void MissionObjectiveRemoved(const string &objectiveID);
 	void MissionObjectivesReset();
-	void MissionObjectiveStateChanged( const string& objectiveID, int state );
+	void MissionObjectiveStateChanged(const string &objectiveID, int state);
 
 private:
 	enum EUIObjectiveEvent
@@ -47,8 +47,8 @@ private:
 
 	SUIEventReceiverDispatcher<CUIObjectives> m_eventDispatcher;
 	SUIEventSenderDispatcher<EUIObjectiveEvent> m_eventSender;
-	IUIEventSystem* m_pUIEvents;
-	IUIEventSystem* m_pUIFunctions;
+	IUIEventSystem *m_pUIEvents;
+	IUIEventSystem *m_pUIFunctions;
 
 	// mission objectives info
 	struct SMissionObjectiveInfo
@@ -61,8 +61,8 @@ private:
 
 private:
 	void UpdateObjectiveInfo();
-	SMissionObjectiveInfo* GetMissionObjectiveInfo( const string& objectiveID, bool bLogError = true );
-	CGameRules* GetGameRules();
+	SMissionObjectiveInfo *GetMissionObjectiveInfo(const string &objectiveID, bool bLogError = true);
+	CGameRules *GetGameRules();
 
 	void OnRequestMissionObjectives();
 };

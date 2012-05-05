@@ -51,29 +51,38 @@ public:
 	virtual void InitClient(int channelId) {};
 	virtual void PostInit(IGameObject *pGameObject);
 	virtual void PostInitClient(int channelId) {};
-	virtual bool ReloadExtension( IGameObject * pGameObject, const SEntitySpawnParams &params ) { return false; }
-	virtual void PostReloadExtension( IGameObject * pGameObject, const SEntitySpawnParams &params ) {}
-	virtual bool GetEntityPoolSignature( TSerialize signature ) { return false; }
+	virtual bool ReloadExtension(IGameObject *pGameObject, const SEntitySpawnParams &params)
+	{
+		return false;
+	}
+	virtual void PostReloadExtension(IGameObject *pGameObject, const SEntitySpawnParams &params) {}
+	virtual bool GetEntityPoolSignature(TSerialize signature)
+	{
+		return false;
+	}
 	virtual void Release();
-	virtual void FullSerialize( TSerialize ser );
-	virtual bool NetSerialize( TSerialize ser, EEntityAspects aspect, uint8 profile, int flags );
+	virtual void FullSerialize(TSerialize ser);
+	virtual bool NetSerialize(TSerialize ser, EEntityAspects aspect, uint8 profile, int flags);
 	virtual void PostSerialize();
-	virtual void SerializeSpawnInfo( TSerialize ser );
+	virtual void SerializeSpawnInfo(TSerialize ser);
 	virtual ISerializableInfoPtr GetSpawnInfo();
-	virtual void Update( SEntityUpdateContext &ctx, int updateSlot);
-	virtual void PostUpdate(float frameTime ) {};
+	virtual void Update(SEntityUpdateContext &ctx, int updateSlot);
+	virtual void PostUpdate(float frameTime) {};
 	virtual void PostRemoteSpawn();
-	virtual void HandleEvent( const SGameObjectEvent &);
+	virtual void HandleEvent(const SGameObjectEvent &);
 	virtual void ProcessEvent(SEntityEvent &);
 	virtual void SetChannelId(uint16 id) {};
 	virtual void SetAuthority(bool auth);
 	virtual void GetMemoryUsage(ICrySizer *) const;
-	virtual int  GetMemorySize() { return sizeof(*this); };
+	virtual int  GetMemorySize()
+	{
+		return sizeof(*this);
+	};
 	//~IGameObjectExtension
 
 	// IGameObjectProfileManager
-	virtual bool SetAspectProfile( EEntityAspects aspect, uint8 profile );
-	virtual uint8 GetDefaultProfile( EEntityAspects aspect );
+	virtual bool SetAspectProfile(EEntityAspects aspect, uint8 profile);
+	virtual uint8 GetDefaultProfile(EEntityAspects aspect);
 	// ~IGameObjectProfileManager
 
 	virtual void ReInitFromPool();
@@ -82,20 +91,20 @@ public:
 	virtual void Physicalize();
 	virtual void SetVelocity(const Vec3 &pos, const Vec3 &dir, const Vec3 &velocity, float speedScale=1.0f);
 	virtual void SetParams(EntityId ownerId, EntityId hostId, EntityId weaponId, int damage, int hitTypeId, float damageDrop = 0.0f, float damageDropMinR = 0.0f);
-  virtual void SetDestination(const Vec3& pos){}
-  virtual void SetDestination(EntityId targetId){}
+	virtual void SetDestination(const Vec3 &pos) {}
+	virtual void SetDestination(EntityId targetId) {}
 	virtual void Launch(const Vec3 &pos, const Vec3 &dir, const Vec3 &velocity, float speedScale=1.0f);
 	virtual void Destroy();
 	virtual bool IsRemote() const;
 	virtual void SetRemote(bool remote);
-	
-	virtual void Explode(bool destroy, bool impact=false, const Vec3 &pos=ZERO, const Vec3 &normal=FORWARD_DIRECTION, const Vec3 &vel=ZERO, EntityId targetId=0 );
+
+	virtual void Explode(bool destroy, bool impact=false, const Vec3 &pos=ZERO, const Vec3 &normal=FORWARD_DIRECTION, const Vec3 &vel=ZERO, EntityId targetId=0);
 	virtual void TrailSound(bool enable, const Vec3 &dir=Vec3(0.0f,1.0f,0.0f));
 	virtual void WhizSound(bool enable, const Vec3 &pos, const Vec3 &dir);
 	virtual void TrailEffect(bool enable, bool underWater = false);
-	virtual void FlashbangEffect(const SFlashbangParams* flashbang);
-	virtual void ScaledEffect(const SScaledEffectParams* scaledEffect);
-	virtual void EndScaledEffect(const SScaledEffectParams* scaledEffect);
+	virtual void FlashbangEffect(const SFlashbangParams *flashbang);
+	virtual void ScaledEffect(const SScaledEffectParams *scaledEffect);
+	virtual void EndScaledEffect(const SScaledEffectParams *scaledEffect);
 	virtual void SetTrackedByHUD();
 
 	virtual void Ricochet(EventPhysCollision *pCollision);
@@ -103,21 +112,27 @@ public:
 
 	virtual int AttachEffect(bool attach, int id, const char *name=0, const Vec3 &offset=Vec3(0.0f,0.0f,0.0f), const Vec3 &dir=Vec3(0.0f,1.0f,0.0f), float scale=1.0f, bool bParticlePrime = true);
 
-  EntityId GetOwnerId()const;
+	EntityId GetOwnerId()const;
 
 	float GetSpeed() const;
-	inline float GetLifeTime() const { return m_pAmmoParams? m_pAmmoParams->lifetime : 0.0f; }
-	bool IsPredicted() const { return m_pAmmoParams? m_pAmmoParams->predictSpawn != 0 : false; }
+	inline float GetLifeTime() const
+	{
+		return m_pAmmoParams? m_pAmmoParams->lifetime : 0.0f;
+	}
+	bool IsPredicted() const
+	{
+		return m_pAmmoParams? m_pAmmoParams->predictSpawn != 0 : false;
+	}
 
 	//IHitListener
-	virtual void OnHit(const HitInfo&);
-	virtual void OnExplosion(const ExplosionInfo&);
-	virtual void OnServerExplosion(const ExplosionInfo&);
+	virtual void OnHit(const HitInfo &);
+	virtual void OnExplosion(const ExplosionInfo &);
+	virtual void OnServerExplosion(const ExplosionInfo &);
 
 	//Helper function to initialize particle params in exceptional cases
 	void SetDefaultParticleParams(pe_params_particle *pParams);
 
-	virtual void InitWithAI( );
+	virtual void InitWithAI();
 
 protected:
 	CWeapon *GetWeapon();
@@ -126,18 +141,21 @@ protected:
 	template<typename T> T GetParam(const char *name, T &def)
 	{
 		T v(def);
-		if (m_pAmmoParams)
+
+		if(m_pAmmoParams)
 		{
 			const IItemParamsNode *params = m_pAmmoParams->pItemParams->GetChild("params");
-			if (params)
+
+			if(params)
 			{
 				CItemParamReader reader(params);
 				reader.Read(name, v);
 			}
 		}
+
 		return v;
 	}
-	
+
 	const SAmmoParams			*m_pAmmoParams;
 
 	IPhysicalEntity *m_pPhysicalEntity;
@@ -152,14 +170,14 @@ protected:
 	EntityId	m_hostId;
 	EntityId	m_weaponId;
 	int				m_damage;
-  int       m_hitTypeId;
+	int       m_hitTypeId;
 	bool			m_destroying;
-  
+
 	float			m_damageDropPerMeter;
 	float     m_damageDropMinDisSqr;
 	bool      m_firstDropApplied;
 	Vec3			m_initial_pos;
-	Vec3			m_initial_dir;	
+	Vec3			m_initial_dir;
 	Vec3			m_initial_vel;
 
 	bool			m_remote;

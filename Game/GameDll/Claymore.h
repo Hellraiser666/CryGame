@@ -20,7 +20,7 @@ History:
 
 
 #include "Projectile.h"
-		
+
 static const int EXPLOSIVE_REMOVAL_TIME	= 30000;	// remove claymores 30s after player dies
 
 
@@ -38,7 +38,10 @@ public:
 	virtual void Update(SEntityUpdateContext &ctx, int updateSlot);
 	virtual void Explode(bool destroy, bool impact=false, const Vec3 &pos=ZERO, const Vec3 &normal=FORWARD_DIRECTION , const Vec3 &vel=ZERO, EntityId targetId=0);
 
-	Vec3 GetTriggerDirection() {return m_triggerDirection; }
+	Vec3 GetTriggerDirection()
+	{
+		return m_triggerDirection;
+	}
 
 	virtual void SetParams(EntityId ownerId, EntityId hostId, EntityId weaponId, int damage, int hitTypeId, float damageDrop = 0.0f, float damageDropMinR = 0.0f);
 
@@ -50,7 +53,7 @@ protected:
 	float m_timeToArm;				// time until trigger becomes active
 	bool m_armed;							// is this claymore armed
 	std::list<EntityId>	m_targetList;	// entities within our trigger area (we need to keep
-																		// a record and check their angle etc while inside our trigger).
+	// a record and check their angle etc while inside our trigger).
 	bool m_frozen;
 };
 

@@ -4,7 +4,7 @@ Copyright (C), Crytek Studios, 2001-2006.
 -------------------------------------------------------------------------
 $Id$
 $DateTime$
-Description: 
+Description:
 
 -------------------------------------------------------------------------
 History:
@@ -28,7 +28,7 @@ class classname: public CSetGlobalMsg \
 	classname(int _channelId, CServerSynchedStorage *pStorage, TSynchedKey _key, TSynchedValue &_value); \
 	EMessageSendResult WritePayload(TSerialize ser, uint32 currentSeq, uint32 basisSeq); \
 	}; \
-
+ 
 #define DECLARE_CHANNEL_MESSAGE(classname) \
 class classname: public CSetChannelMsg \
 	{ \
@@ -36,7 +36,7 @@ class classname: public CSetChannelMsg \
 	classname(int _channelId, CServerSynchedStorage *pStorage, TSynchedKey _key, TSynchedValue &_value); \
 	EMessageSendResult WritePayload(TSerialize ser, uint32 currentSeq, uint32 basisSeq); \
 	}; \
-
+ 
 
 #define DECLARE_ENTITY_MESSAGE(classname) \
 	class classname: public CSetEntityMsg \
@@ -45,17 +45,20 @@ class classname: public CSetChannelMsg \
 		classname(int _channelId, CServerSynchedStorage *pStorage, EntityId id, TSynchedKey _key, TSynchedValue &_value); \
 		EMessageSendResult WritePayload(TSerialize ser, uint32 currentSeq, uint32 basisSeq); \
 	}; \
-
+ 
 
 class CServerSynchedStorage;
 class CClientSynchedStorage:
 	public CNetMessageSinkHelper<CClientSynchedStorage, CSynchedStorage>
 {
 public:
-	CClientSynchedStorage(IGameFramework *pGameFramework) { m_pGameFramework=pGameFramework; };
+	CClientSynchedStorage(IGameFramework *pGameFramework)
+	{
+		m_pGameFramework=pGameFramework;
+	};
 	virtual ~CClientSynchedStorage() {};
 
-	void GetMemoryUsage( ICrySizer * ) const;
+	void GetMemoryUsage(ICrySizer *) const;
 
 	// INetMessageSink
 	virtual void DefineProtocol(IProtocolBuilder *pBuilder);
@@ -66,7 +69,7 @@ public:
 	{
 	public:
 		CResetMsg(int _channelId, CServerSynchedStorage *pStorage);
-		
+
 		int											channelId;
 		CServerSynchedStorage		*m_pStorage;
 

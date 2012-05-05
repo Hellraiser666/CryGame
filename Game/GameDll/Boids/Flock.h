@@ -7,7 +7,7 @@
 //  Version:     v1.00
 //  Created:     5/4/2002 by Timur.
 //  Compilers:   Visual C++ 7.0
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -55,7 +55,8 @@ struct SBoidsCreateContext
 
 
 //! Structure passed to CFlock::RayTest method, filled with intersection parameters.
-struct SFlockHit {
+struct SFlockHit
+{
 	//! Hit object.
 	CBoidObject *object;
 	//! Distance from ray origin to the hit distance.
@@ -71,11 +72,11 @@ struct SFlockHit {
 class CFlock : public IAIEventListener
 {
 public:
-	CFlock( IEntity *pEntity,EFlockType flockType );
+	CFlock(IEntity *pEntity,EFlockType flockType);
 	virtual ~CFlock();
 
 	//! Initialize boids in flock.
-	virtual void CreateBoids( SBoidsCreateContext &ctx );
+	virtual void CreateBoids(SBoidsCreateContext &ctx);
 
 	// Called when entering/leaving game mode.
 	virtual void Reset();
@@ -84,80 +85,121 @@ public:
 	//! Must be overriden in derived specialized flocks.
 	virtual bool CreateEntities();
 
-	virtual CBoidObject* CreateBoid() { return 0; };
+	virtual CBoidObject *CreateBoid()
+	{
+		return 0;
+	};
 
-	void DeleteEntities( bool bForceDeleteAll );
+	void DeleteEntities(bool bForceDeleteAll);
 
-	int GetId() const { return m_id; };
-	EFlockType GetType() const { return m_type; };
+	int GetId() const
+	{
+		return m_id;
+	};
+	EFlockType GetType() const
+	{
+		return m_type;
+	};
 
-	void SetPos( const Vec3& pos );
-	Vec3 GetPos() const { return m_origin; };
+	void SetPos(const Vec3 &pos);
+	Vec3 GetPos() const
+	{
+		return m_origin;
+	};
 
-	void AddBoid( CBoidObject *boid );
-	int GetBoidsCount() { return m_boids.size(); }
-	CBoidObject* GetBoid( int index ) { return m_boids[index]; }
+	void AddBoid(CBoidObject *boid);
+	int GetBoidsCount()
+	{
+		return m_boids.size();
+	}
+	CBoidObject *GetBoid(int index)
+	{
+		return m_boids[index];
+	}
 
-	float GetMaxVisibilityDistance() const { return m_bc.maxVisibleDistance; };
+	float GetMaxVisibilityDistance() const
+	{
+		return m_bc.maxVisibleDistance;
+	};
 
 	//! Retrieve general boids settings in this flock.
-	void GetBoidSettings( SBoidContext &bc ) { bc = m_bc; };
+	void GetBoidSettings(SBoidContext &bc)
+	{
+		bc = m_bc;
+	};
 	//! Set general boids settings in this flock.
-	void SetBoidSettings( SBoidContext &bc );
+	void SetBoidSettings(SBoidContext &bc);
 
-	bool IsFollowPlayer() const { return m_bc.followPlayer; };
+	bool IsFollowPlayer() const
+	{
+		return m_bc.followPlayer;
+	};
 
 	void ClearBoids();
 
 	//! Check ray to flock intersection.
-	bool RayTest( Vec3 &raySrc,Vec3 &rayTrg,SFlockHit &hit );
+	bool RayTest(Vec3 &raySrc,Vec3 &rayTrg,SFlockHit &hit);
 
-	const char* GetModelName() const { return m_model; };
+	const char *GetModelName() const
+	{
+		return m_model;
+	};
 
 	//! Static function that initialize defaults of boids info.
-	static void GetDefaultBoidsContext( SBoidContext &bc );
+	static void GetDefaultBoidsContext(SBoidContext &bc);
 
 	//! Enable/Disable Flock to be updated and rendered.
-	virtual void SetEnabled( bool bEnabled );
+	virtual void SetEnabled(bool bEnabled);
 	//! True if this flock is enabled, and must be updated and rendered.
-	bool IsEnabled() const { return m_bEnabled; }
+	bool IsEnabled() const
+	{
+		return m_bEnabled;
+	}
 
 	//! Set how much percent of flock is visible.
 	//! value 0 - 100.
-	void SetPercentEnabled( int percent );
+	void SetPercentEnabled(int percent);
 
 	//! See if this flock must be active now.
 	bool IsFlockActive();
 
 	//! flock's container should not be saved
-	bool IsSaveable() { return(false); }
+	bool IsSaveable()
+	{
+		return(false);
+	}
 
 	//! Get entity owning this flock.
-	IEntity* GetEntity() const { return m_pEntity; }
+	IEntity *GetEntity() const
+	{
+		return m_pEntity;
+	}
 
 	void UpdateBoidsViewDistRatio();
 
 	//////////////////////////////////////////////////////////////////////////
 	// IEntityContainer implementation.
 	//////////////////////////////////////////////////////////////////////////
-	virtual void Update( CCamera *pCamera );
-	void Render( const SRendParams &EntDrawParams );
+	virtual void Update(CCamera *pCamera);
+	void Render(const SRendParams &EntDrawParams);
 	//////////////////////////////////////////////////////////////////////////
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// IAIEventListener implementation
 	//////////////////////////////////////////////////////////////////////////
-	virtual void OnAIEvent(EAIStimulusType type, const Vec3& pos, float radius, float threat, EntityId sender);
+	virtual void OnAIEvent(EAIStimulusType type, const Vec3 &pos, float radius, float threat, EntityId sender);
 	//////////////////////////////////////////////////////////////////////////
 
-	void OnBoidHit( EntityId nBoidId,SmartScriptTable &hit );
-	void RegisterAIEventListener( bool bEnable );
+	void OnBoidHit(EntityId nBoidId,SmartScriptTable &hit);
+	void RegisterAIEventListener(bool bEnable);
 
-	virtual void GetMemoryUsage(ICrySizer *pSizer )const;
-	
-	inline const Vec3& GetAvgBoidPos() const
-	{return m_avgBoidPos;}
+	virtual void GetMemoryUsage(ICrySizer *pSizer)const;
+
+	inline const Vec3 &GetAvgBoidPos() const
+	{
+		return m_avgBoidPos;
+	}
 
 protected:
 	void UpdateAvgBoidPos(float dt);
@@ -172,8 +214,8 @@ public:
 	SBoidContext m_bc;
 
 protected:
-	typedef std::vector<CBoidObject*> Boids;
-	typedef std::multimap<CTimeValue,CBoidObject*> TTimeBoidMap;
+	typedef std::vector<CBoidObject *> Boids;
+	typedef std::multimap<CTimeValue,CBoidObject *> TTimeBoidMap;
 
 	Boids m_boids;
 	Vec3 m_origin;
@@ -187,7 +229,7 @@ protected:
 	uint32 m_RequestedBoidsCount;
 	//! Name of this flock.
 	EFlockType m_type;
-	
+
 	string m_model;
 	string m_modelCgf;
 	string m_boidEntityName;

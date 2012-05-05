@@ -1,6 +1,6 @@
 // ScreenEffects - Allows for simultaneous and queued blending of effects
 //  John Newfield
-//  
+//
 //  23-1-2008: Refactored by Benito G.R.
 
 #ifndef _SCREEN_EFFECTS_H_
@@ -52,7 +52,10 @@ public:
 	// Camera shake
 	virtual void CamShake(Vec3 shiftShake, Vec3 rotateShake, float freq, float shakeTime, float randomness = 0, int shakeID = 5);
 
-	virtual void EnableBlends(bool enable) {m_enableBlends = enable;};
+	virtual void EnableBlends(bool enable)
+	{
+		m_enableBlends = enable;
+	};
 	virtual void EnableBlends(bool enable, int blendGroup);
 
 	// Update x/y coords
@@ -61,12 +64,12 @@ public:
 	// Util
 	virtual float GetCurrentFOV();
 
-	void GetMemoryUsage(ICrySizer * s) const;
+	void GetMemoryUsage(ICrySizer *s) const;
 
 private:
 
 	// Maps blend group IDs to blend groups
-	std::map<int, CBlendGroup*> m_blends;
+	std::map<int, CBlendGroup *> m_blends;
 	std::map<int, bool> m_enabledGroups;
 	int     m_curUniqueID;
 	bool    m_enableBlends;
@@ -74,7 +77,7 @@ private:
 	string  m_coordsXname;
 	string  m_coordsYname;
 	Vec3    m_coords3d;
-	IActor* m_ownerActor;
+	IActor *m_ownerActor;
 };
 
 #endif

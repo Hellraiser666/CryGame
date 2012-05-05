@@ -7,7 +7,7 @@
 //  Version:     v1.00
 //  Created:     11/4/2003 by Timur.
 //  Compilers:   Visual Studio.NET
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -24,14 +24,14 @@
 class CChickenBoid : public CBoidBird
 {
 public:
-	CChickenBoid( SBoidContext &bc );
-	virtual void Update( float dt,SBoidContext &bc );
-	virtual void Think( float dt,SBoidContext &bc );
-	virtual void Kill( const Vec3 &hitPoint,const Vec3 &force );
-	virtual void Physicalize( SBoidContext &bc );
-	virtual void OnPickup( bool bPickup,float fSpeed );
-	virtual void OnCollision( SEntityEvent &event );
-	virtual void CalcOrientation( Quat &qOrient );
+	CChickenBoid(SBoidContext &bc);
+	virtual void Update(float dt,SBoidContext &bc);
+	virtual void Think(float dt,SBoidContext &bc);
+	virtual void Kill(const Vec3 &hitPoint,const Vec3 &force);
+	virtual void Physicalize(SBoidContext &bc);
+	virtual void OnPickup(bool bPickup,float fSpeed);
+	virtual void OnCollision(SEntityEvent &event);
+	virtual void CalcOrientation(Quat &qOrient);
 
 protected:
 	float m_maxIdleTime;
@@ -50,26 +50,32 @@ protected:
 class CChickenFlock : public CFlock
 {
 public:
-	CChickenFlock( IEntity *pEntity );
-	virtual void CreateBoids( SBoidsCreateContext &ctx );
-	virtual CBoidObject* CreateBoid() { return new CChickenBoid(m_bc); };
-	virtual void OnAIEvent(EAIStimulusType type, const Vec3& pos, float radius, float threat, EntityId sender);	
+	CChickenFlock(IEntity *pEntity);
+	virtual void CreateBoids(SBoidsCreateContext &ctx);
+	virtual CBoidObject *CreateBoid()
+	{
+		return new CChickenBoid(m_bc);
+	};
+	virtual void OnAIEvent(EAIStimulusType type, const Vec3 &pos, float radius, float threat, EntityId sender);
 };
 
 //////////////////////////////////////////////////////////////////////////
 class CTurtleBoid : public CChickenBoid
 {
 public:
-	CTurtleBoid( SBoidContext &bc ) : CChickenBoid(bc) {};
-	virtual void Think( float dt,SBoidContext &bc );
+	CTurtleBoid(SBoidContext &bc) : CChickenBoid(bc) {};
+	virtual void Think(float dt,SBoidContext &bc);
 };
 
 //////////////////////////////////////////////////////////////////////////
 class CTurtleFlock : public CChickenFlock
 {
 public:
-	CTurtleFlock( IEntity *pEntity );
-	virtual CBoidObject* CreateBoid() { return new CTurtleBoid(m_bc); };
+	CTurtleFlock(IEntity *pEntity);
+	virtual CBoidObject *CreateBoid()
+	{
+		return new CTurtleBoid(m_bc);
+	};
 };
 
 #endif // __chickenboids_h__

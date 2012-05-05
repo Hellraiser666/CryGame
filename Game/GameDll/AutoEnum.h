@@ -30,11 +30,11 @@ typedef unsigned int TBitfield;
 #define AUTOENUM_BUILDFLAGS_WITHZERO(list,zeroName)                             enum                {	zeroName = 0, list ## _neg1 = -1, list(AUTOENUM_DO_BITINDEX) list ## _numBits, list(AUTOENUM_DO_FLAG) }
 #define AUTOENUM_BUILDFLAGS_WITHZERO_WITHBITSUFFIX(list,zeroName)				        enum                {	zeroName = 0, list ## _neg1 = -1, list(AUTOENUM_DO_BITINDEX) list ## _numBits, list(AUTOENUM_DO_FLAG_WITHBITSUFFIX) }
 
-TBitfield AutoEnum_GetBitfieldFromString(const char * inString, const char ** inArray, int arraySize);
-bool AutoEnum_GetEnumValFromString(const char* inString, const char** inArray, int arraySize, int* outVal);
+TBitfield AutoEnum_GetBitfieldFromString(const char *inString, const char **inArray, int arraySize);
+bool AutoEnum_GetEnumValFromString(const char *inString, const char **inArray, int arraySize, int *outVal);
 
 #ifndef _RELEASE
-string AutoEnum_GetStringFromBitfield(TBitfield bitfield, const char ** inArray, int arraySize);
+string AutoEnum_GetStringFromBitfield(TBitfield bitfield, const char **inArray, int arraySize);
 #else
 #define AutoEnum_GetStringFromBitfield PLEASE_ONLY_CALL_AutoEnum_GetStringFromBitfield_IN_DEBUG_CODE
 #endif

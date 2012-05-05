@@ -31,23 +31,32 @@ public:
 	virtual void InitClient(int channelId) {};
 	virtual void PostInit(IGameObject *pGameObject);
 	virtual void PostInitClient(int channelId) {};
-	virtual bool ReloadExtension( IGameObject * pGameObject, const SEntitySpawnParams &params ) { return false; }
-	virtual void PostReloadExtension( IGameObject * pGameObject, const SEntitySpawnParams &params ) {}
-	virtual bool GetEntityPoolSignature( TSerialize signature ) { return false; }
+	virtual bool ReloadExtension(IGameObject *pGameObject, const SEntitySpawnParams &params)
+	{
+		return false;
+	}
+	virtual void PostReloadExtension(IGameObject *pGameObject, const SEntitySpawnParams &params) {}
+	virtual bool GetEntityPoolSignature(TSerialize signature)
+	{
+		return false;
+	}
 	virtual void Release();
-	virtual void FullSerialize( TSerialize ser );
-	virtual bool NetSerialize( TSerialize ser, EEntityAspects aspect, uint8 profile, int flags );
+	virtual void FullSerialize(TSerialize ser);
+	virtual bool NetSerialize(TSerialize ser, EEntityAspects aspect, uint8 profile, int flags);
 	virtual void PostSerialize() {}
-	virtual void SerializeSpawnInfo( TSerialize ser ) {}
-	virtual ISerializableInfoPtr GetSpawnInfo() {return 0;}
-	virtual void Update( SEntityUpdateContext &ctx, int updateSlot);
-	virtual void PostUpdate(float frameTime ) {};
+	virtual void SerializeSpawnInfo(TSerialize ser) {}
+	virtual ISerializableInfoPtr GetSpawnInfo()
+	{
+		return 0;
+	}
+	virtual void Update(SEntityUpdateContext &ctx, int updateSlot);
+	virtual void PostUpdate(float frameTime) {};
 	virtual void PostRemoteSpawn() {};
-	virtual void HandleEvent( const SGameObjectEvent &);
+	virtual void HandleEvent(const SGameObjectEvent &);
 	virtual void ProcessEvent(SEntityEvent &);
 	virtual void SetChannelId(uint16 id) {}
 	virtual void SetAuthority(bool auth);
-	virtual void GetMemoryUsage(ICrySizer * s) const;
+	virtual void GetMemoryUsage(ICrySizer *s) const;
 	//~IGameObjectExtension
 
 	void	SetTarget(IEntity *pTargetEntity, CFlowTornadoWander *pCallback);
@@ -56,7 +65,7 @@ public:
 
 protected:
 
-	bool	UseFunnelEffect(const char* effectName);
+	bool	UseFunnelEffect(const char *effectName);
 	void	UpdateParticleEmitters();
 	void	UpdateTornadoSpline();
 	void	UpdateFlow();
@@ -65,13 +74,13 @@ protected:
 protected:
 	static const int POSITION_ASPECT = eEA_GameServerStatic;
 
-	IPhysicalEntity*	m_pPhysicalEntity;
+	IPhysicalEntity	*m_pPhysicalEntity;
 
 	// appearance of tornado
-	IParticleEffect*	m_pFunnelEffect;
-	IParticleEffect*	m_pCloudConnectEffect;
-	IParticleEffect*	m_pTopEffect;
-	IGroundEffect*		m_pGroundEffect;
+	IParticleEffect	*m_pFunnelEffect;
+	IParticleEffect	*m_pCloudConnectEffect;
+	IParticleEffect	*m_pTopEffect;
+	IGroundEffect		*m_pGroundEffect;
 	float							m_cloudHeight;
 	bool							m_isOnWater;
 	bool							m_isInAir;
@@ -88,8 +97,8 @@ protected:
 	Vec3							m_currentPos;
 
 	// target
-	IEntity*						m_pTargetEntity;	// the tornado will try to reach this entity
-	CFlowTornadoWander*	m_pTargetCallback;
+	IEntity						*m_pTargetEntity;	// the tornado will try to reach this entity
+	CFlowTornadoWander	*m_pTargetCallback;
 
 	//
 	float m_nextEntitiesCheck;

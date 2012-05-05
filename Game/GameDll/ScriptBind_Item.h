@@ -5,7 +5,7 @@
   $Id$
   $DateTime$
   Description: Script Binding for Item
-  
+
  -------------------------------------------------------------------------
   History:
   - 27:10:2004   11:30 : Created by Marcio Martins
@@ -52,7 +52,7 @@ public:
 	//		params	  - Extension parameters.
 	// Description:
 	//		Sets extension parameters.
-	int SetExtensionParams(IFunctionHandler* pH, const char *extension, SmartScriptTable params);
+	int SetExtensionParams(IFunctionHandler *pH, const char *extension, SmartScriptTable params);
 	// <title GetExtensionParams>
 	// Syntax: Item.GetExtensionParams( const char *extension, SmartScriptTable params )
 	// Arguments:
@@ -60,7 +60,7 @@ public:
 	//		params	  - Extension parameters.
 	// Description:
 	//		Gets extension parameters.
-	int GetExtensionParams(IFunctionHandler* pH, const char *extension, SmartScriptTable params);
+	int GetExtensionParams(IFunctionHandler *pH, const char *extension, SmartScriptTable params);
 
 	// <title Select>
 	// Syntax: Item.Select( bool select )
@@ -108,9 +108,9 @@ public:
 	// <title IsMounted>
 	// Syntax: Item.IsMounted()
 	// Description:
-	//		Checks if the item is mounted.	
+	//		Checks if the item is mounted.
 	int IsMounted(IFunctionHandler *pH);
-	
+
 	// <title PlayAction>
 	// Syntax: Item.PlayAction( const char *actionName )
 	// Arguments:

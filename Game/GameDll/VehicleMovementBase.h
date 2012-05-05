@@ -28,14 +28,14 @@ struct IGroundEffect;
 */
 struct SExhaustStatus
 {
-	IVehicleHelper* pHelper;
+	IVehicleHelper *pHelper;
 	int startStopSlot;
 	int runSlot;
 	int boostSlot;
 	int enabled;
 
 	SExhaustStatus()
-	{    
+	{
 		startStopSlot = -1;
 		runSlot = -1;
 		boostSlot = -1;
@@ -46,24 +46,24 @@ struct SExhaustStatus
 struct TEnvEmitter
 {
 	TEnvEmitter()
-	{ 
-		layer = -1;      
+	{
+		layer = -1;
 		slot = -1;
 		matId = -1;
 		group = -1;
 		bContact = false;
-		pGroundEffect = 0;    
+		pGroundEffect = 0;
 		active = true;
 	}
 
 	QuatT quatT;  // local tm
-	int layer; // layer idx the emitter belongs to    
+	int layer; // layer idx the emitter belongs to
 	int slot;  // emitter slot
-	int matId; // last surface idx    
-	int group; // optional     
-	IGroundEffect* pGroundEffect;
-	bool bContact; // optional  
-	bool active; 
+	int matId; // last surface idx
+	int group; // optional
+	IGroundEffect *pGroundEffect;
+	bool bContact; // optional
+	bool active;
 };
 
 struct SEnvParticleStatus
@@ -77,15 +77,16 @@ struct SEnvParticleStatus
 	{}
 
 	void Serialize(TSerialize ser, EEntityAspects aspects)
-	{    
-		ser.BeginGroup("EnvParticleStatus");   
+	{
+		ser.BeginGroup("EnvParticleStatus");
 
 		int readCount = emitters.size();
 		ser.Value("NumEnvEmitters", readCount);
 		const int count = min(readCount, static_cast<int>(emitters.size()));
 
 		char name[16] = "slot_x";
-		for (int i=0; i<count; ++i)
+
+		for(int i=0; i<count; ++i)
 		{
 			itoa(i, &name[5], 10);
 			ser.ValueWithDefault(name, emitters[i].slot, -1);
@@ -99,40 +100,41 @@ struct SEnvParticleStatus
 /** particle status structure
 */
 struct SParticleStatus
-{  
+{
 	std::vector<SExhaustStatus> exhaustStats; // can hold multiple exhausts
 	SEnvParticleStatus envStats;
 
 	SParticleStatus()
-	{ 
+	{
 	}
 
 	void Serialize(TSerialize ser, EEntityAspects aspects)
 	{
-		ser.BeginGroup("ExhaustStatus");   
+		ser.BeginGroup("ExhaustStatus");
 
 		size_t count = exhaustStats.size();
 		ser.Value("NumExhausts", count);
 
-		if (ser.IsWriting())
+		if(ser.IsWriting())
 		{
-			for(std::vector<SExhaustStatus>::iterator it = exhaustStats.begin(); it != exhaustStats.end(); ++it)      
+			for(std::vector<SExhaustStatus>::iterator it = exhaustStats.begin(); it != exhaustStats.end(); ++it)
 			{
 				ser.BeginGroup("ExhaustRunSlot");
 				ser.Value("slot", it->runSlot);
 				ser.EndGroup();
 			}
 		}
-		else if (ser.IsReading())
+		else if(ser.IsReading())
 		{
 			//assert(count == exhaustStats.size());
-			for (size_t i=0; i<count&&i<exhaustStats.size(); ++i)
+			for(size_t i=0; i<count&&i<exhaustStats.size(); ++i)
 			{
 				ser.BeginGroup("ExhaustRunSlot");
-				ser.Value("slot", exhaustStats[i].runSlot); 
+				ser.Value("slot", exhaustStats[i].runSlot);
 				ser.EndGroup();
 			}
-		}   
+		}
+
 		ser.EndGroup();
 
 		envStats.Serialize(ser, aspects);
@@ -141,7 +143,7 @@ struct SParticleStatus
 
 struct SSurfaceSoundStatus
 {
-	int matId; 
+	int matId;
 	float surfaceParam;
 	float slipRatio;
 	float slipTimer;
@@ -164,7 +166,7 @@ struct SSurfaceSoundStatus
 	void Serialize(TSerialize ser, EEntityAspects aspects)
 	{
 		ser.BeginGroup("SurfaceSoundStats");
-		ser.Value("surfaceParam", surfaceParam);		
+		ser.Value("surfaceParam", surfaceParam);
 		ser.EndGroup();
 	}
 };
@@ -194,12 +196,15 @@ enum EVehicleMovementAnimation
 
 struct SMovementSoundStatus
 {
-	SMovementSoundStatus(){ Reset(); }
+	SMovementSoundStatus()
+	{
+		Reset();
+	}
 
 	void Reset()
-	{    
-		for (int i=0; i<eSID_Max; ++i)    
-		{      
+	{
+		for(int i=0; i<eSID_Max; ++i)
+		{
 			sounds[i] = INVALID_SOUNDID;
 			lastPlayed[i].SetValue(0);
 		}
@@ -207,17 +212,17 @@ struct SMovementSoundStatus
 		inout = 1.f;
 	}
 
-	tSoundID sounds[eSID_Max];  
+	tSoundID sounds[eSID_Max];
 	CTimeValue lastPlayed[eSID_Max];
 	float inout;
 };
 
 #if ENABLE_VEHICLE_DEBUG
-namespace 
+namespace
 {
 	bool DebugParticles()
 	{
-		static ICVar* pVar = gEnv->pConsole->GetCVar("v_debugdraw");
+		static ICVar *pVar = gEnv->pConsole->GetCVar("v_debugdraw");
 		return pVar->GetIVal() == eVDB_Particles;
 	}
 }
@@ -257,37 +262,46 @@ struct SVehicleMovementLargeObjectInfo
 };
 
 
-class CVehicleMovementBase : 
-	public IVehicleMovement, 
-	public IVehicleObject, 
+class CVehicleMovementBase :
+	public IVehicleMovement,
+	public IVehicleObject,
 	public ISoundEventListener
 {
 	IMPLEMENT_VEHICLEOBJECT
-public:  
+public:
 	CVehicleMovementBase();
 	virtual ~CVehicleMovementBase();
 
-	virtual bool Init(IVehicle* pVehicle, const CVehicleParams& table);
+	virtual bool Init(IVehicle *pVehicle, const CVehicleParams &table);
 	virtual void PostInit();
 	virtual void Release();
-	virtual void Reset();  
+	virtual void Reset();
 	virtual void Physicalize();
 	virtual void PostPhysicalize();
 
 	virtual void ResetInput();
 
-	virtual EVehicleMovementType GetMovementType() { return eVMT_Other; }
+	virtual EVehicleMovementType GetMovementType()
+	{
+		return eVMT_Other;
+	}
 
 	virtual bool StartEngine(EntityId driverId);
 	virtual void StopEngine();
-	virtual bool IsPowered() { return m_isEnginePowered; }
+	virtual bool IsPowered()
+	{
+		return m_isEnginePowered;
+	}
 	virtual void DisableEngine(bool disable);
 
-	virtual float GetDamageRatio() { return m_damage; }
+	virtual float GetDamageRatio()
+	{
+		return m_damage;
+	}
 
 	virtual void OnAction(const TVehicleActionId actionId, int activationMode, float value);
-	virtual void OnEvent(EVehicleMovementEvent event, const SVehicleMovementEventParams& params);
-	virtual void OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams& params);
+	virtual void OnEvent(EVehicleMovementEvent event, const SVehicleMovementEventParams &params);
+	virtual void OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams &params);
 
 	virtual void ProcessMovement(const float deltaTime);
 	virtual void ProcessActions(const float deltaTime) {}
@@ -296,74 +310,113 @@ public:
 
 	virtual void Serialize(TSerialize ser, EEntityAspects aspects);
 	virtual void SetChannelId(uint16 id) {};
-	virtual void SetAuthority(bool auth){};
+	virtual void SetAuthority(bool auth) {};
 	virtual void PostSerialize();
 
 	virtual void OnEngineCompletelyStopped();
 
-	virtual void RequestActions(const SVehicleMovementAction& movementAction);
-	virtual bool RequestMovement(CMovementRequest& movementRequest);
-	virtual void GetMovementState(SMovementState& movementState);
-	virtual bool GetStanceState(const SStanceStateQuery& query, SStanceState& state);
+	virtual void RequestActions(const SVehicleMovementAction &movementAction);
+	virtual bool RequestMovement(CMovementRequest &movementRequest);
+	virtual void GetMovementState(SMovementState &movementState);
+	virtual bool GetStanceState(const SStanceStateQuery &query, SStanceState &state);
 
-	virtual pe_type GetPhysicalizationType() const { return PE_RIGID; };
-	virtual bool UseDrivingProxy() const { return false; };
-	virtual int GetWheelContacts() const { return 0; }
+	virtual pe_type GetPhysicalizationType() const
+	{
+		return PE_RIGID;
+	};
+	virtual bool UseDrivingProxy() const
+	{
+		return false;
+	};
+	virtual int GetWheelContacts() const
+	{
+		return 0;
+	}
 
-	virtual void RegisterActionFilter(IVehicleMovementActionFilter* pActionFilter);
-	virtual void UnregisterActionFilter(IVehicleMovementActionFilter* pActionFilter);
+	virtual void RegisterActionFilter(IVehicleMovementActionFilter *pActionFilter);
+	virtual void UnregisterActionFilter(IVehicleMovementActionFilter *pActionFilter);
 
 	virtual void OnSoundEvent(ESoundCallbackEvent event,ISound *pSound);
 
-	virtual void EnableMovementProcessing(bool enable){ m_bMovementProcessingEnabled = enable; }
-	virtual bool IsMovementProcessingEnabled(){ return m_bMovementProcessingEnabled; }
+	virtual void EnableMovementProcessing(bool enable)
+	{
+		m_bMovementProcessingEnabled = enable;
+	}
+	virtual bool IsMovementProcessingEnabled()
+	{
+		return m_bMovementProcessingEnabled;
+	}
 
-	virtual void ProcessEvent(SEntityEvent& event);
+	virtual void ProcessEvent(SEntityEvent &event);
 	virtual void SetSoundMasterVolume(float vol);
 
-	virtual float GetEnginePedal(){ return m_movementAction.power; }
+	virtual float GetEnginePedal()
+	{
+		return m_movementAction.power;
+	}
 
-	const pe_status_dynamics& GetPhysicsDyn() { return m_PhysDyn; }
-	const pe_status_pos& GetPhysicsPos() { return m_PhysPos; }
+	const pe_status_dynamics &GetPhysicsDyn()
+	{
+		return m_PhysDyn;
+	}
+	const pe_status_pos &GetPhysicsPos()
+	{
+		return m_PhysPos;
+	}
 
-	void SetRemotePilot(bool on) { m_remotePilot = on; }
-	SParticleStatus& GetParticleStats() { return m_paStats; }
-	SParticleParams* GetParticleParams() { return m_pPaParams; }
+	void SetRemotePilot(bool on)
+	{
+		m_remotePilot = on;
+	}
+	SParticleStatus &GetParticleStats()
+	{
+		return m_paStats;
+	}
+	SParticleParams *GetParticleParams()
+	{
+		return m_pPaParams;
+	}
 
-	virtual const SVehicleMovementLargeObjectInfo* GetLargeObjectInfo() { return NULL; }
+	virtual const SVehicleMovementLargeObjectInfo *GetLargeObjectInfo()
+	{
+		return NULL;
+	}
 
-	virtual void GetMemoryUsage(ICrySizer * pSizer) const
+	virtual void GetMemoryUsage(ICrySizer *pSizer) const
 	{
 		pSizer->AddObject(this, sizeof(*this));
 		GetMemoryUsageInternal(pSizer);
 	}
 
-	void GetMemoryUsageInternal(ICrySizer * pSizer) const
+	void GetMemoryUsageInternal(ICrySizer *pSizer) const
 	{
-		for( int i = 0 ; i < eSID_Max ; ++i )
+		for(int i = 0 ; i < eSID_Max ; ++i)
 			pSizer->AddObject(m_soundNames[i]);
 
 		pSizer->AddObject(m_actionFilters);
 		pSizer->AddObject(m_damageComponents);
-		pSizer->AddObject(m_surfaceSoundInfo);		
+		pSizer->AddObject(m_surfaceSoundInfo);
 	}
 
 	static void CleanUp();
 
 protected:
 
-	ILINE IPhysicalEntity* GetPhysics() const { return m_pVehicle->GetEntity()->GetPhysics(); }
+	ILINE IPhysicalEntity *GetPhysics() const
+	{
+		return m_pVehicle->GetEntity()->GetPhysics();
+	}
 	bool IsProfilingMovement();
 
 	// sound methods
-	ISound* PlaySound(EVehicleMovementSound eSID, float pulse=0.f, const Vec3& offset=Vec3Constants<float>::fVec3_Zero, int soundFlags=0);
-	ISound* GetOrPlaySound(EVehicleMovementSound eSID, float pulse=0.f, const Vec3& offset=Vec3Constants<float>::fVec3_Zero, int soundFlags=0);
+	ISound *PlaySound(EVehicleMovementSound eSID, float pulse=0.f, const Vec3 &offset=Vec3Constants<float>::fVec3_Zero, int soundFlags=0);
+	ISound *GetOrPlaySound(EVehicleMovementSound eSID, float pulse=0.f, const Vec3 &offset=Vec3Constants<float>::fVec3_Zero, int soundFlags=0);
 	void StopSound(EVehicleMovementSound eSID);
 	void StopSounds();
-	ISound* GetSound(EVehicleMovementSound eSID);
-	const string& GetSoundName(EVehicleMovementSound eSID);
-	void SetSoundParam(EVehicleMovementSound eSID, const char* param, float value);
-	void SetSoundParam(ISound* pSound, const char* param, float value);
+	ISound *GetSound(EVehicleMovementSound eSID);
+	const string &GetSoundName(EVehicleMovementSound eSID);
+	void SetSoundParam(EVehicleMovementSound eSID, const char *param, float value);
+	void SetSoundParam(ISound *pSound, const char *param, float value);
 	tSoundID GetSoundId(EVehicleMovementSound eSID);
 
 #if ENABLE_VEHICLE_DEBUG
@@ -382,7 +435,10 @@ protected:
 	virtual void UpdateSpeedRatio(const float deltaTime);
 
 	virtual void Boost(bool enable);
-	virtual bool Boosting() { return m_boost; }
+	virtual bool Boosting()
+	{
+		return m_boost;
+	}
 	virtual void UpdateBoost(const float deltaTime);
 	virtual void ResetBoost();
 
@@ -394,38 +450,41 @@ protected:
 	virtual void InitExhaust();
 	virtual void InitSurfaceEffects();
 	virtual void ResetParticles();
-	virtual void UpdateSurfaceEffects(const float deltaTime);  
+	virtual void UpdateSurfaceEffects(const float deltaTime);
 	virtual void RemoveSurfaceEffects();
-	virtual void GetParticleScale(const SEnvironmentLayer& layer, float speed, float power, float& countScale, float& sizeScale, float& speedScale);
-	virtual void EnableEnvEmitter(TEnvEmitter& emitter, bool enable);
-	virtual void UpdateExhaust(const float deltaTime);  
-	void FreeEmitterSlot(int& slot);
-	void FreeEmitterSlot(const int& slot);
+	virtual void GetParticleScale(const SEnvironmentLayer &layer, float speed, float power, float &countScale, float &sizeScale, float &speedScale);
+	virtual void EnableEnvEmitter(TEnvEmitter &emitter, bool enable);
+	virtual void UpdateExhaust(const float deltaTime);
+	void FreeEmitterSlot(int &slot);
+	void FreeEmitterSlot(const int &slot);
 	void StartExhaust(bool ignition=true, bool reload=true);
 
 	void FreeExhaustSlots();
-	
-	void StopExhaust();  
-	float GetWaterMod(SExhaustStatus& exStatus);
+
+	void StopExhaust();
+	float GetWaterMod(SExhaustStatus &exStatus);
 	float GetSoundDamage();
 
 	SMFXResourceListPtr GetEffectNode(int matId);
-	const char* GetEffectByIndex(int matId, const char* username);
+	const char *GetEffectByIndex(int matId, const char *username);
 	float GetSurfaceSoundParam(int matId);
 
-	virtual bool GenerateWind() { return true; }
+	virtual bool GenerateWind()
+	{
+		return true;
+	}
 	void InitWind();
 	void UpdateWind(const float deltaTime);
-	void SetWind(const Vec3& wind);
-	Vec3 GetWindPos(Vec3& posRad, Vec3& posLin);
+	void SetWind(const Vec3 &wind);
+	Vec3 GetWindPos(Vec3 &posRad, Vec3 &posLin);
 	// ~surface particle/sound methods
 
-	IVehicle* m_pVehicle;
-	IEntity* m_pEntity;
-	IEntitySoundProxy* m_pEntitySoundsProxy;	
-	static IGameTokenSystem* m_pGameTokenSystem;
-	static IVehicleSystem* m_pVehicleSystem;
-	static IActorSystem* m_pActorSystem;
+	IVehicle *m_pVehicle;
+	IEntity *m_pEntity;
+	IEntitySoundProxy *m_pEntitySoundsProxy;
+	static IGameTokenSystem *m_pGameTokenSystem;
+	static IVehicleSystem *m_pVehicleSystem;
+	static IActorSystem *m_pActorSystem;
 
 	SVehicleMovementAction m_movementAction;
 
@@ -450,22 +509,22 @@ protected:
 	string m_soundNames[eSID_Max];
 
 	Vec3 m_enginePos;
-	float m_runSoundDelay;  
+	float m_runSoundDelay;
 	float m_rpmScale, m_rpmScaleSgn;
 	float m_rpmPitchSpeed;
-	float m_maxSoundSlipSpeed;  
+	float m_maxSoundSlipSpeed;
 	float m_soundMasterVolume;
 
 	bool m_boost;
 	bool m_wasBoosting;
 	float m_boostEndurance;
-	float m_boostRegen;  
+	float m_boostRegen;
 	float m_boostStrength;
 	float m_boostCounter;
 
-	IVehicleAnimation* m_animations[eVMA_Max];
+	IVehicleAnimation *m_animations[eVMA_Max];
 
-	SParticleParams* m_pPaParams;
+	SParticleParams *m_pPaParams;
 	SParticleStatus m_paStats;
 	SSurfaceSoundStatus m_surfaceSoundStats;
 	SMovementSoundStatus m_soundStats;
@@ -482,7 +541,7 @@ protected:
 	unsigned int m_isProbablyDistant : 1;
 	unsigned int m_isProbablyVisible : 1;
 
-	float m_maxSpeed; 
+	float m_maxSpeed;
 	float m_speedRatio;
 	float m_speedRatioUnit;
 
@@ -491,19 +550,19 @@ protected:
 
 	// flight stabilization
 	Vec3 m_dampAngle;
-	Vec3 m_dampAngVel;  
+	Vec3 m_dampAngVel;
 
 	float m_ejectionDotProduct;
 	float m_ejectionTimer;
 	float m_ejectionTimer0;
 
-	IPhysicalEntity* m_pWind[2];
+	IPhysicalEntity *m_pWind[2];
 
-	typedef std::list<IVehicleMovementActionFilter*> TVehicleMovementActionFilterList;
+	typedef std::list<IVehicleMovementActionFilter *> TVehicleMovementActionFilterList;
 	TVehicleMovementActionFilterList m_actionFilters;
 
-	typedef std::vector<IVehicleComponent*> TComponents;
-	TComponents m_damageComponents;  
+	typedef std::vector<IVehicleComponent *> TComponents;
+	TComponents m_damageComponents;
 
 	struct SSurfaceSoundInfo
 	{
@@ -514,7 +573,7 @@ protected:
 		SSurfaceSoundInfo(int index) : paramIndex(index)
 		{}
 
-		void GetMemoryUsage(ICrySizer * pSizer) const{}
+		void GetMemoryUsage(ICrySizer *pSizer) const {}
 
 	};
 	typedef std::map<string, SSurfaceSoundInfo> TSurfaceSoundInfo;
@@ -535,9 +594,13 @@ protected:
 
 struct SPID
 {
-	ILINE SPID() : m_kP( 0 ),	m_kD( 0 ), m_kI( 0 ),	m_prevErr( 0 ),	m_intErr( 0 ){}
-	ILINE void	Reset(){m_prevErr = 0; m_intErr = 0;}
-	float	Update( float inputVal, float setPoint, float clampMin, float clampMax );
+	ILINE SPID() : m_kP(0),	m_kD(0), m_kI(0),	m_prevErr(0),	m_intErr(0) {}
+	ILINE void	Reset()
+	{
+		m_prevErr = 0;
+		m_intErr = 0;
+	}
+	float	Update(float inputVal, float setPoint, float clampMin, float clampMax);
 	void  Serialize(TSerialize ser);
 	float	m_kP;
 	float	m_kD;

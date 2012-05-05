@@ -50,18 +50,21 @@ public:
 	virtual void OnLoadingComplete(ILevel *pLevel) {};
 	virtual void OnLoadingError(ILevelInfo *pLevel, const char *error) {};
 	virtual void OnLoadingProgress(ILevelInfo *pLevel, int progressAmount) {};
-	virtual void OnUnloadComplete(ILevel* pLevel) {};
+	virtual void OnUnloadComplete(ILevel *pLevel) {};
 	// ~ILevelSystemListener
 
 	// IGameFrameworkListener
 	virtual void OnPostUpdate(float fDeltaTime) {};
-	virtual void OnSaveGame(ISaveGame* pSaveGame);
-	virtual void OnLoadGame(ILoadGame* pLoadGame) {};
-	virtual void OnLevelEnd(const char* nextLevel);
-	virtual void OnActionEvent(const SActionEvent& event) {};
+	virtual void OnSaveGame(ISaveGame *pSaveGame);
+	virtual void OnLoadGame(ILoadGame *pLoadGame) {};
+	virtual void OnLevelEnd(const char *nextLevel);
+	virtual void OnActionEvent(const SActionEvent &event) {};
 	// ~IGameFrameworkListener
 
-	ILINE int GetTimePlayed() { return (int)((gEnv->pTimer->GetFrameStartTime()-m_gameAnalysis.levelStartTime).GetSeconds()); }
+	ILINE int GetTimePlayed()
+	{
+		return (int)((gEnv->pTimer->GetFrameStartTime()-m_gameAnalysis.levelStartTime).GetSeconds());
+	}
 
 protected:
 	struct PlayerAnalysis
@@ -72,12 +75,12 @@ protected:
 		int      deaths;
 
 		PlayerAnalysis(EntityId entityId=0)
-		: entityId(entityId),
-			kills(0),
-			deaths(0)
+			: entityId(entityId),
+			  kills(0),
+			  deaths(0)
 		{
 		}
-		
+
 		void Serialize(TSerialize ser);
 	};
 
@@ -85,16 +88,16 @@ protected:
 	{
 		PlayerAnalysis player;
 		CTimeValue levelStartTime;  // time when this level has started, restored from SG
-		                            // will be set whenever a new level is loaded
+		// will be set whenever a new level is loaded
 		CTimeValue gameStartTime;   // will be set when 'Island' is loaded (also restored from SG)
-		                            // will never be touched again
+		// will never be touched again
 	};
 
 protected:
 	bool IsPlayer(EntityId entityId) const;
-	void ProcessPlayerEvent(IEntity* pEntity, const GameplayEvent& event);
-	void NewPlayer(IEntity* pEntity);
-	PlayerAnalysis* GetPlayer(EntityId entityId);
+	void ProcessPlayerEvent(IEntity *pEntity, const GameplayEvent &event);
+	void NewPlayer(IEntity *pEntity);
+	PlayerAnalysis *GetPlayer(EntityId entityId);
 
 protected:
 	bool m_bEnabled;

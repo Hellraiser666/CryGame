@@ -30,7 +30,7 @@ enum ECameraRays
 };
 
 const QueuedRayID INVALID_RAY_ID = 0;
-typedef Functor2<const uint32&, const RayCastResult&> RayCastResultCallback;
+typedef Functor2<const uint32 &, const RayCastResult &> RayCastResultCallback;
 
 class CCameraRayScan
 {
@@ -47,13 +47,13 @@ public:
 	//get current hit
 	ray_hit *GetHit(ECameraRays nr = eNUM_RAYS);
 	//get ray dir for hit
-	const Vec3&	GetRayDir(ECameraRays nr) const;
+	const Vec3	&GetRayDir(ECameraRays nr) const;
 
-	const RayCastResult* GetExternalHit(const QueuedRayID& queuedId) const;
-	void RemoveExternalHit(const QueuedRayID& queuedId);
+	const RayCastResult *GetExternalHit(const QueuedRayID &queuedId) const;
+	void RemoveExternalHit(const QueuedRayID &queuedId);
 
 private:
-	void ShootRayInt(ECameraRays camRay, const Vec3 &rayPos, const Vec3 &rayDir, const float& len, IPhysicalEntity **pSkipEnts, int numSkipEnts);
+	void ShootRayInt(ECameraRays camRay, const Vec3 &rayPos, const Vec3 &rayDir, const float &len, IPhysicalEntity **pSkipEnts, int numSkipEnts);
 	void OnRayCastResult(const QueuedRayID &rayID, const RayCastResult &result);
 
 private:

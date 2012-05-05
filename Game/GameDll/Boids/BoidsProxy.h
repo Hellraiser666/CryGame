@@ -7,7 +7,7 @@
 //  Version:     v1.00
 //  Created:     2/10/2004 by Timur.
 //  Compilers:   Visual Studio.NET
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -28,32 +28,47 @@ class CBoidObject;
 //////////////////////////////////////////////////////////////////////////
 struct CBoidsProxy : public IEntityBoidsProxy
 {
-	CBoidsProxy( IEntity *pEntity );
+	CBoidsProxy(IEntity *pEntity);
 	~CBoidsProxy();
-	IEntity* GetEntity() const { return m_pEntity; };
+	IEntity *GetEntity() const
+	{
+		return m_pEntity;
+	};
 
 	//////////////////////////////////////////////////////////////////////////
 	// IEntityProxy interface implementation.
 	//////////////////////////////////////////////////////////////////////////
-	virtual EEntityProxy GetType() { return ENTITY_PROXY_BOIDS; }
+	virtual EEntityProxy GetType()
+	{
+		return ENTITY_PROXY_BOIDS;
+	}
 	virtual void Release();
 	virtual void Done() {};
-	virtual	void Update( SEntityUpdateContext &ctx );
-	virtual	void ProcessEvent( SEntityEvent &event );
-	virtual bool Init( IEntity *pEntity,SEntitySpawnParams &params ) { return true; }
-	virtual void Reload( IEntity *pEntity,SEntitySpawnParams &params );
-	virtual void SerializeXML( XmlNodeRef &entityNode,bool bLoading ) {};
-	virtual void Serialize( TSerialize ser );
-	virtual bool NeedSerialize() { return false; };
-	virtual bool GetSignature( TSerialize signature );
+	virtual	void Update(SEntityUpdateContext &ctx);
+	virtual	void ProcessEvent(SEntityEvent &event);
+	virtual bool Init(IEntity *pEntity,SEntitySpawnParams &params)
+	{
+		return true;
+	}
+	virtual void Reload(IEntity *pEntity,SEntitySpawnParams &params);
+	virtual void SerializeXML(XmlNodeRef &entityNode,bool bLoading) {};
+	virtual void Serialize(TSerialize ser);
+	virtual bool NeedSerialize()
+	{
+		return false;
+	};
+	virtual bool GetSignature(TSerialize signature);
 	//////////////////////////////////////////////////////////////////////////
 
 	//////////////////////////////////////////////////////////////////////////
-	void SetFlock( CFlock *pFlock );
-	CFlock* GetFlock() { return m_pFlock; }
-	void OnTrigger( bool bEnter,SEntityEvent &event );
+	void SetFlock(CFlock *pFlock);
+	CFlock *GetFlock()
+	{
+		return m_pFlock;
+	}
+	void OnTrigger(bool bEnter,SEntityEvent &event);
 
-	virtual void GetMemoryUsage(ICrySizer *pSizer )const
+	virtual void GetMemoryUsage(ICrySizer *pSizer)const
 	{
 		pSizer->AddObject(this, sizeof(*this));
 		pSizer->AddObject(m_pFlock);
@@ -80,31 +95,56 @@ private:
 //////////////////////////////////////////////////////////////////////////
 struct CBoidObjectProxy : public IEntityProxy
 {
-	CBoidObjectProxy( IEntity *pEntity ) { m_pBoid = 0; m_pEntity = pEntity; };
+	CBoidObjectProxy(IEntity *pEntity)
+	{
+		m_pBoid = 0;
+		m_pEntity = pEntity;
+	};
 	~CBoidObjectProxy() {};
-	IEntity* GetEntity() const { return m_pEntity; };
+	IEntity *GetEntity() const
+	{
+		return m_pEntity;
+	};
 
 	//////////////////////////////////////////////////////////////////////////
 	// IEntityProxy interface implementation.
 	//////////////////////////////////////////////////////////////////////////
-	virtual EEntityProxy GetType() { return ENTITY_PROXY_BOID_OBJECT; }
-	virtual void Release() { delete this; };
+	virtual EEntityProxy GetType()
+	{
+		return ENTITY_PROXY_BOID_OBJECT;
+	}
+	virtual void Release()
+	{
+		delete this;
+	};
 	virtual void Done() {};
-	virtual	void Update( SEntityUpdateContext &ctx ){};
-	virtual	void ProcessEvent( SEntityEvent &event );
-	virtual bool Init( IEntity *pEntity,SEntitySpawnParams &params ) { return true; }
-	virtual void Reload( IEntity *pEntity,SEntitySpawnParams &params ) {};
-	virtual void SerializeXML( XmlNodeRef &entityNode,bool bLoading ) {};
-	virtual void Serialize( TSerialize ser );
-	virtual bool NeedSerialize() { return false; };
-	virtual bool GetSignature( TSerialize signature );
+	virtual	void Update(SEntityUpdateContext &ctx) {};
+	virtual	void ProcessEvent(SEntityEvent &event);
+	virtual bool Init(IEntity *pEntity,SEntitySpawnParams &params)
+	{
+		return true;
+	}
+	virtual void Reload(IEntity *pEntity,SEntitySpawnParams &params) {};
+	virtual void SerializeXML(XmlNodeRef &entityNode,bool bLoading) {};
+	virtual void Serialize(TSerialize ser);
+	virtual bool NeedSerialize()
+	{
+		return false;
+	};
+	virtual bool GetSignature(TSerialize signature);
 	//////////////////////////////////////////////////////////////////////////
 
 	//////////////////////////////////////////////////////////////////////////
-	void SetBoid( CBoidObject *pBoid ) { m_pBoid = pBoid; };
-	CBoidObject* GetBoid() { return m_pBoid; }
+	void SetBoid(CBoidObject *pBoid)
+	{
+		m_pBoid = pBoid;
+	};
+	CBoidObject *GetBoid()
+	{
+		return m_pBoid;
+	}
 
-	virtual void GetMemoryUsage(ICrySizer *pSizer )const
+	virtual void GetMemoryUsage(ICrySizer *pSizer)const
 	{
 		pSizer->AddObject(this, sizeof(*this));
 		pSizer->AddObject(m_pBoid);

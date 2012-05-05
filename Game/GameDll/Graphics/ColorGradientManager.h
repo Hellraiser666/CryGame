@@ -17,12 +17,12 @@ History:
 
 namespace Graphics
 {
-    class CColorGradientManager
-    {
-    public:
-        CColorGradientManager();
+	class CColorGradientManager
+	{
+	public:
+		CColorGradientManager();
 
-		void TriggerFadingColorGradient(const string& filePath, const float fadeInTimeInSeconds);
+		void TriggerFadingColorGradient(const string &filePath, const float fadeInTimeInSeconds);
 
 		void UpdateForThisFrame(const float frameTimeInSeconds);
 		void Reset();
@@ -35,19 +35,19 @@ namespace Graphics
 		void SetLayersForThisFrame();
 		void LoadGradients();
 
-		IColorGradingController& GetColorGradingController();
+		IColorGradingController &GetColorGradingController();
 
 	private:
 
 		class LoadedColorGradient
 		{
 		public:
-			LoadedColorGradient(const string& filePath, const SColorChartLayer& layer, const float fadeInTimeInSeconds);
+			LoadedColorGradient(const string &filePath, const SColorChartLayer &layer, const float fadeInTimeInSeconds);
 
 		public:
 			void FadeIn(const float frameTimeInSeconds);
 			void FadeOut(const float blendAmountOfFadingInGradient);
-			
+
 			void FreezeMaximumBlendAmount();
 
 			SColorChartLayer m_layer;
@@ -60,9 +60,9 @@ namespace Graphics
 		class LoadingColorGradient
 		{
 		public:
-			LoadingColorGradient(const string& filePath, const float fadeInTimeInSeconds);
+			LoadingColorGradient(const string &filePath, const float fadeInTimeInSeconds);
 
-			LoadedColorGradient Load(IColorGradingController& colorGradingController) const;
+			LoadedColorGradient Load(IColorGradingController &colorGradingController) const;
 
 		public:
 			string m_filePath;
@@ -73,7 +73,7 @@ namespace Graphics
 
 		std::vector<LoadingColorGradient> m_colorGradientsToLoad;
 		std::vector<LoadedColorGradient> m_currentGradients;
-    };
+	};
 }
 
 #endif //COLOR_GRADIENT_MANAGER_H_INCLUDED

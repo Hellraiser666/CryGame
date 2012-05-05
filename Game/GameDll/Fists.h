@@ -50,7 +50,7 @@ public:
 	virtual ~CFists();
 
 	virtual void Update(SEntityUpdateContext &ctx, int slot);
-	virtual void OnAction(EntityId actorId, const ActionId& actionId, int activationMode, float value);
+	virtual void OnAction(EntityId actorId, const ActionId &actionId, int activationMode, float value);
 
 	virtual bool CanSelect() const;
 	virtual void Select(bool select);
@@ -60,26 +60,36 @@ public:
 	virtual void UpdateFPView(float frameTime);
 	virtual void PostFilterView(SViewParams &viewParams);
 	virtual void EnterWater(bool enter);
-	virtual void GetMemoryUsage(ICrySizer * s) const { s->Add(*this); CWeapon::GetMemoryUsage(s); }
+	virtual void GetMemoryUsage(ICrySizer *s) const
+	{
+		s->Add(*this);
+		CWeapon::GetMemoryUsage(s);
+	}
 	virtual void RaiseWeapon(bool raise, bool faster = false);
 	virtual void NetStartMeleeAttack(bool weaponMelee);
 
 	virtual void FullSerialize(TSerialize ser);
 
 	void	RequestAnimState(EFistAnimState eFAS, bool force=false);
-	int   GetCurrentAnimState() { return m_currentAnimState; }
+	int   GetCurrentAnimState()
+	{
+		return m_currentAnimState;
+	}
 
-	void  EnterFreeFall(bool enter) { m_inFreeFall = enter;}
+	void  EnterFreeFall(bool enter)
+	{
+		m_inFreeFall = enter;
+	}
 
-	virtual void ForcePendingActions(uint8 blockedActions = 0){};
+	virtual void ForcePendingActions(uint8 blockedActions = 0) {};
 
 protected:
 	void	UpdateAnimState(float frameTime);
 	void  CollisionFeeback(Vec3 &pos, int eFAS);
 
 private:
-	bool OnActionAttack(EntityId actorId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionSpecial(EntityId actorId, const ActionId& actionId, int activationMode, float value);
+	bool OnActionAttack(EntityId actorId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionSpecial(EntityId actorId, const ActionId &actionId, int activationMode, float value);
 
 	static TActionHandler<CFists>	s_actionHandler;
 

@@ -27,27 +27,27 @@ public:
 	void Draw();
 
 	// ILevelSystemListener
-	VIRTUAL void OnLevelNotFound( const char* levelName ) {}
-	VIRTUAL void OnLoadingStart( ILevelInfo* pLevel );
-	VIRTUAL void OnLoadingComplete( ILevel* pLevel ) {}
-	VIRTUAL void OnLoadingError( ILevelInfo* pLevel, const char* error ) {}
-	VIRTUAL void OnLoadingProgress( ILevelInfo* pLevel, int progressAmount );
-	VIRTUAL void OnUnloadComplete( ILevel* pLevel ) {}
+	VIRTUAL void OnLevelNotFound(const char *levelName) {}
+	VIRTUAL void OnLoadingStart(ILevelInfo *pLevel);
+	VIRTUAL void OnLoadingComplete(ILevel *pLevel) {}
+	VIRTUAL void OnLoadingError(ILevelInfo *pLevel, const char *error) {}
+	VIRTUAL void OnLoadingProgress(ILevelInfo *pLevel, int progressAmount);
+	VIRTUAL void OnUnloadComplete(ILevel *pLevel) {}
 	// ~ILevelSystemListener
 
 	// IGameFrameworkListener
-	VIRTUAL void OnPostUpdate( float fDeltaTime );
-	VIRTUAL void OnSaveGame( ISaveGame* pSaveGame ) {}
-	VIRTUAL void OnLoadGame( ILoadGame* pLoadGame );
-	VIRTUAL void OnLevelEnd( const char* nextLevel ) {}
-	VIRTUAL void OnActionEvent( const SActionEvent& event );
+	VIRTUAL void OnPostUpdate(float fDeltaTime);
+	VIRTUAL void OnSaveGame(ISaveGame *pSaveGame) {}
+	VIRTUAL void OnLoadGame(ILoadGame *pLoadGame);
+	VIRTUAL void OnLevelEnd(const char *nextLevel) {}
+	VIRTUAL void OnActionEvent(const SActionEvent &event);
 	// ~IGameFrameworkListener
 
 	// ISystemEventListener
-	VIRTUAL void OnSystemEvent( ESystemEvent event, UINT_PTR wparam, UINT_PTR lparam );
+	VIRTUAL void OnSystemEvent(ESystemEvent event, UINT_PTR wparam, UINT_PTR lparam);
 	// ~ISystemEventListener
 
-	void SetScreenState( const EScreenState state );
+	void SetScreenState(const EScreenState state);
 	EScreenState GetScreenState() const;
 
 protected:
@@ -55,9 +55,9 @@ protected:
 
 	bool CanDrawCrosshair() const;
 	void DrawCrosshair() const;
-	
-	void DrawFullscreenQuad( const int textureId ) const;
-	void DrawCenteredQuad( const int textureId, const float textureWidth, const float textureHeight ) const;	
+
+	void DrawFullscreenQuad(const int textureId) const;
+	void DrawCenteredQuad(const int textureId, const float textureWidth, const float textureHeight) const;
 
 	bool IsEnabled() const;
 
@@ -65,14 +65,14 @@ protected:
 
 	void DrawFullFrame();
 
-private:	
-	IGameFramework* m_pGameFramework;
+private:
+	IGameFramework *m_pGameFramework;
 
-	IUIDraw* m_pUiDraw;
+	IUIDraw *m_pUiDraw;
 
 	int m_iTexCrosshair;
 	int m_iTexLoadingScreen;
-	int m_iTexStartScreen;	
+	int m_iTexStartScreen;
 	int m_iTexPauseScreen;
 
 	EScreenState m_currentScreenState;

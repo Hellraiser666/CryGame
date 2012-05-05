@@ -31,41 +31,50 @@ public:
 	typedef std::map<ItemString,EntityId>	TBoneAttachmentMap;
 	typedef std::list<EntityId>				TAttachedWeaponsList;
 
-	CWeaponAttachmentManager(CActor* _pOwner);
+	CWeaponAttachmentManager(CActor *_pOwner);
 	~CWeaponAttachmentManager();
 
 	bool Init();
 	void HideAllAttachments(bool hide);
 
-	void RequestAttachWeaponToBack(EntityId weaponId) { m_itemToBack = weaponId; }
-	void RequestAttachWeaponToHand(EntityId weaponId) { m_itemToHand = weaponId; }
+	void RequestAttachWeaponToBack(EntityId weaponId)
+	{
+		m_itemToBack = weaponId;
+	}
+	void RequestAttachWeaponToHand(EntityId weaponId)
+	{
+		m_itemToHand = weaponId;
+	}
 
 	void RemoveAttachments();
 
 	void DoHandToBackSwitch();
 	void DoBackToHandSwitch();
 
-	void SetWeaponAttachment(bool attach, const char* attachmentName, EntityId weaponId);
-	TAttachedWeaponsList GetAttachedWeapons() { return m_attachedWeaponList; }
+	void SetWeaponAttachment(bool attach, const char *attachmentName, EntityId weaponId);
+	TAttachedWeaponsList GetAttachedWeapons()
+	{
+		return m_attachedWeaponList;
+	}
 
-	bool IsAttachmentFree(const char* attachmentName);
-	
+	bool IsAttachmentFree(const char *attachmentName);
+
 protected:
 
 	//Create different weapon attachments
 	void CreatePlayerBoneAttachments();
-	
+
 private:
-	
-	CActor*			m_pOwner;
-	
+
+	CActor			*m_pOwner;
+
 	TBoneAttachmentMap		m_boneAttachmentMap;
 	TAttachedWeaponsList	m_attachedWeaponList;
 
 	EntityId		m_itemToBack;
 	EntityId		m_itemToHand;
 
-	IItemSystem*	m_pItemSystem;
+	IItemSystem	*m_pItemSystem;
 };
 
 #endif //__WEAPON_ATTACHMENT_MANAGER_H__

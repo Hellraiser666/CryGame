@@ -11,31 +11,31 @@
 
 class CGameMechanismBase
 {
-	public:
+public:
 	struct SLinkedListPointers
 	{
-		CGameMechanismBase * m_nextMechanism;
-		CGameMechanismBase * m_prevMechanism;
+		CGameMechanismBase *m_nextMechanism;
+		CGameMechanismBase *m_prevMechanism;
 	};
 
-	CGameMechanismBase(const char * className);
+	CGameMechanismBase(const char *className);
 	virtual ~CGameMechanismBase();
 	virtual void Update(float dt) = 0;
-	virtual void Inform(EGameMechanismEvent gmEvent, const SGameMechanismEventData * data) {}
+	virtual void Inform(EGameMechanismEvent gmEvent, const SGameMechanismEventData *data) {}
 
-	ILINE SLinkedListPointers * GetLinkedListPointers()
+	ILINE SLinkedListPointers *GetLinkedListPointers()
 	{
 		return & m_linkedListPointers;
 	}
 
-	ILINE const char * GetName()
+	ILINE const char *GetName()
 	{
 		return m_className;
 	}
 
-	private:
+private:
 	SLinkedListPointers m_linkedListPointers;
-	const char * m_className;
+	const char *m_className;
 };
 
 #endif //__CGAMEMECHANISMBASE_H__

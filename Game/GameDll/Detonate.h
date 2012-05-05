@@ -32,7 +32,11 @@ public:
 
 	//IFireMode
 	virtual void Update(float frameTime, uint32 frameId);
-	void GetMemoryUsage(ICrySizer * s) const { s->Add(*this); CSingle::GetMemoryUsage(s); }
+	void GetMemoryUsage(ICrySizer *s) const
+	{
+		s->Add(*this);
+		CSingle::GetMemoryUsage(s);
+	}
 
 	virtual void ResetParams(const struct IItemParamsNode *params);
 	virtual void PatchParams(const struct IItemParamsNode *patch);

@@ -10,25 +10,25 @@
 class CPlayerRotation
 {
 public:
-	CPlayerRotation( const CPlayer& player, const SActorFrameMovementParams& movement, float frameTime );
+	CPlayerRotation(const CPlayer &player, const SActorFrameMovementParams &movement, float frameTime);
 	void Process();
-	void Commit( CPlayer& player );
+	void Commit(CPlayer &player);
 
 private:
 	const float m_frameTime;
-	const SPlayerParams& m_params;
-	const SPlayerStats& m_stats;
-	const CPlayer& m_player;
+	const SPlayerParams &m_params;
+	const SPlayerStats &m_stats;
+	const CPlayer &m_player;
 	const int m_actions;
 
 	Ang3 m_deltaAngles;
-	
-	void GetStanceAngleLimits(float & minAngle,float & maxAngle);
+
+	void GetStanceAngleLimits(float &minAngle,float &maxAngle);
 	ILINE float GetLocalPitch()
 	{
 		return asin((m_baseQuat.GetInverted() * m_viewQuat.GetColumn1()).z);
 	}
-	
+
 	void ProcessFlyingZeroG();
 	void ProcessNormalRoll();
 	void ProcessAngularImpulses();
@@ -38,7 +38,7 @@ private:
 	void ProcessParachute();
 
 	void ClampAngles();
-  
+
 	Quat m_viewQuat;
 	Quat m_viewQuatFinal;
 	Quat m_baseQuat;
@@ -49,7 +49,7 @@ private:
 	float m_viewRoll;
 	Vec3 m_upVector;
 	Ang3 m_viewAnglesOffset;
-	float m_leanAmount;	  
+	float m_leanAmount;
 	float m_absRoll;
 	float	m_desiredLeanAmount;
 

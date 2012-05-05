@@ -15,7 +15,7 @@ History:
 #define __VEHICLEACTIONAUTOMATICDOOR_H__
 
 class CVehicleActionAutomaticDoor
-: public IVehicleAction
+	: public IVehicleAction
 {
 	IMPLEMENT_VEHICLEOBJECT;
 
@@ -25,18 +25,24 @@ public:
 	virtual ~CVehicleActionAutomaticDoor();
 
 	// IVehicleAction
-	virtual bool Init(IVehicle* pVehicle, const CVehicleParams& table);
+	virtual bool Init(IVehicle *pVehicle, const CVehicleParams &table);
 	virtual void Reset();
-	virtual void Release() { delete this; }
+	virtual void Release()
+	{
+		delete this;
+	}
 
-	virtual int OnEvent(int eventType, SVehicleEventParams& eventParams);
-	void GetMemoryUsage(ICrySizer * s) const { s->Add(*this); }
+	virtual int OnEvent(int eventType, SVehicleEventParams &eventParams);
+	void GetMemoryUsage(ICrySizer *s) const
+	{
+		s->Add(*this);
+	}
 	// ~IVehicleAction
 
 	// IVehicleObject
 	virtual void Serialize(TSerialize ser, EEntityAspects aspects);
 	virtual void Update(const float deltaTime);
-  virtual void OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams& params);
+	virtual void OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams &params);
 	// ~IVehicleObject
 
 	void OpenDoor(bool value);
@@ -46,9 +52,9 @@ public:
 
 protected:
 
-	IVehicle* m_pVehicle;
-	
-	IVehicleAnimation* m_pDoorAnim;
+	IVehicle *m_pVehicle;
+
+	IVehicleAnimation *m_pDoorAnim;
 	TVehicleAnimStateId m_doorOpenedStateId;
 	TVehicleAnimStateId m_doorClosedStateId;
 

@@ -28,7 +28,10 @@ class CBurst : public CSingle
 public:
 	typedef struct SBurstParams
 	{
-		SBurstParams() { Reset(); };
+		SBurstParams()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
@@ -37,7 +40,7 @@ public:
 			ResetValue(noSound,		false);
 		}
 
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
 
 		}
@@ -54,7 +57,11 @@ public:
 
 	// CSingle
 	virtual void Update(float frameTime, uint32 frameId);
-	virtual void GetMemoryUsage(ICrySizer * s) const { s->Add(*this); CSingle::GetMemoryUsage(s); }
+	virtual void GetMemoryUsage(ICrySizer *s) const
+	{
+		s->Add(*this);
+		CSingle::GetMemoryUsage(s);
+	}
 
 	virtual void ResetParams(const struct IItemParamsNode *params);
 	virtual void PatchParams(const struct IItemParamsNode *patch);
@@ -80,18 +87,21 @@ protected:
 	bool  m_canShoot;
 
 private:
-	CBurstSharedData*	m_pShared;
+	CBurstSharedData	*m_pShared;
 };
 
 
 class CBurstSharedData: public CSingleSharedData
 {
 public:
-	CBurstSharedData(){};
-	virtual ~CBurstSharedData(){};
+	CBurstSharedData() {};
+	virtual ~CBurstSharedData() {};
 
-	virtual const char* GetDataType() const { return "BurstData"; }
-	virtual void GetMemoryUsage(ICrySizer* s) const
+	virtual const char *GetDataType() const
+	{
+		return "BurstData";
+	}
+	virtual void GetMemoryUsage(ICrySizer *s) const
 	{
 		s->Add(*this);
 		burstparams.GetMemoryUsage(s);

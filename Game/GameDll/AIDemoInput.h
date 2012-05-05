@@ -12,18 +12,18 @@ static const float THETA = 3.14159265358979323f / 180.0f * 30;
 class CDedicatedInput : public IPlayerInput
 {
 public:
-	CDedicatedInput(CPlayer* pPlayer) :
+	CDedicatedInput(CPlayer *pPlayer) :
 		m_pPlayer(pPlayer),
 		m_deltaMovement(0.0f,1.0f,0.0f),
 		m_deltaRotation(0.0f,0.0f,THETA),
-		m_rand( (uint32)gEnv->pTimer->GetAsyncCurTime() ),
+		m_rand((uint32)gEnv->pTimer->GetAsyncCurTime()),
 		m_movingTime(5.0f)
 	{
 	}
 
-	virtual void PreUpdate()	
+	virtual void PreUpdate()
 	{
-		if (m_movingTime >= 5.0f)
+		if(m_movingTime >= 5.0f)
 		{
 			m_deltaMovement = -m_deltaMovement;
 			m_deltaRotation = -m_deltaRotation;
@@ -32,7 +32,7 @@ public:
 
 		m_movingTime += gEnv->pTimer->GetFrameTime();
 
-		m_pPlayer->GetGameObject()->ChangedNetworkState( INPUT_ASPECT );
+		m_pPlayer->GetGameObject()->ChangedNetworkState(INPUT_ASPECT);
 	}
 
 	virtual void Update()
@@ -44,14 +44,17 @@ public:
 		request.SetPseudoSpeed(pseudoSpeed);
 		m_pPlayer->GetMovementController()->RequestMovement(request);
 
-		IItem* pItem = m_pPlayer->GetCurrentItem();
-		if (pItem)
+		IItem *pItem = m_pPlayer->GetCurrentItem();
+
+		if(pItem)
 		{
-			IWeapon* pWeapon = pItem->GetIWeapon();
-			if (pWeapon)
+			IWeapon *pWeapon = pItem->GetIWeapon();
+
+			if(pWeapon)
 			{
-				if ( pWeapon->OutOfAmmo(false) )
-					pWeapon->SetAmmoCount( pWeapon->GetFireMode(pWeapon->GetCurrentFireMode())->GetAmmoType(), 100 );
+				if(pWeapon->OutOfAmmo(false))
+					pWeapon->SetAmmoCount(pWeapon->GetFireMode(pWeapon->GetCurrentFireMode())->GetAmmoType(), 100);
+
 				pWeapon->StartFire();
 			}
 		}
@@ -69,16 +72,16 @@ public:
 		m_serializedInput.stance = movementState.stance;
 	}
 
-	virtual void OnAction( const ActionId& action, int activationMode, float value )
+	virtual void OnAction(const ActionId &action, int activationMode, float value)
 	{
 	}
 
-	virtual void SetState( const SSerializedPlayerInput& input )
+	virtual void SetState(const SSerializedPlayerInput &input)
 	{
 		GameWarning("CDedicatedInput::SetState called - should not happen");
 	}
 
-	virtual void GetState( SSerializedPlayerInput& input )
+	virtual void GetState(SSerializedPlayerInput &input)
 	{
 		input = m_serializedInput;
 	}
@@ -98,16 +101,22 @@ public:
 		return DEDICATED_INPUT;
 	}
 
-	virtual void GetMemoryUsage(ICrySizer * pSizer) const
+	virtual void GetMemoryUsage(ICrySizer *pSizer) const
 	{
 		pSizer->Add(*this);
 	}
 
-	ILINE virtual uint32 GetMoveButtonsState() const { return 0; }
-	ILINE virtual uint32 GetActions() const { return 0; }
+	ILINE virtual uint32 GetMoveButtonsState() const
+	{
+		return 0;
+	}
+	ILINE virtual uint32 GetActions() const
+	{
+		return 0;
+	}
 
 private:
-	CPlayer* m_pPlayer;
+	CPlayer *m_pPlayer;
 	SSerializedPlayerInput m_serializedInput;
 
 	Vec3 m_deltaMovement;

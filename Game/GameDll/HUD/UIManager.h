@@ -6,7 +6,7 @@
 //  File name:   UIManager.h
 //  Version:     v1.00
 //  Created:     08/8/2011 by Paul Reindell.
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -26,15 +26,15 @@ public:
 	static void Destroy();
 
 	// can return NULL if dedicated server!
-	static CUIManager* GetInstance();
+	static CUIManager *GetInstance();
 
-	IUIGameEventSystem* GetUIEventSystem(const char* typeName) const;
+	IUIGameEventSystem *GetUIEventSystem(const char *typeName) const;
 
 	void ProcessViewParams(const SViewParams &viewParams);
 	void UpdatePickupMessage(bool bShow);
 
 	// ISystemEventListener
-	virtual void OnSystemEvent( ESystemEvent event, UINT_PTR wparam, UINT_PTR lparam );
+	virtual void OnSystemEvent(ESystemEvent event, UINT_PTR wparam, UINT_PTR lparam);
 	// ~ISystemEventListener
 
 	void LoadProfile();
@@ -42,31 +42,34 @@ public:
 
 private:
 	CUIManager();
-	CUIManager(const CUIManager& ) {}
-	CUIManager operator=(const CUIManager& ) { return *this; }
+	CUIManager(const CUIManager &) {}
+	CUIManager operator=(const CUIManager &)
+	{
+		return *this;
+	}
 	~CUIManager();
 
-	static CUIManager* m_pInstance;
+	static CUIManager *m_pInstance;
 
 	void InitSound();
 
-	IPlayerProfile* GetCurrentProfile();
+	IPlayerProfile *GetCurrentProfile();
 
 private:
 	bool m_bPickupMsgVisible;
 	int m_soundListener;
 
-	typedef std::map<string, IUIGameEventSystem*> TUIEventSystems;
+	typedef std::map<string, IUIGameEventSystem *> TUIEventSystems;
 	TUIEventSystems m_EventSystems;
 };
 
 namespace UIEvents
 {
 	template <class T>
-	T* Get()
+	T *Get()
 	{
-		CUIManager* pManager = CUIManager::GetInstance();
-		return pManager ? (T*) pManager->GetUIEventSystem(T::GetTypeNameS()) : NULL;
+		CUIManager *pManager = CUIManager::GetInstance();
+		return pManager ? (T *) pManager->GetUIEventSystem(T::GetTypeNameS()) : NULL;
 	}
 }
 

@@ -4,9 +4,9 @@ Crytek Source File.
 Copyright (C), Crytek Studios, 2001-2004.
 -------------------------------------------------------------------------
 $Id: GameRealtimeRemoveUpdate.h,v 1.1 23/09/2009 Johnmichael Quinlan
-Description:  This is the header file for the game module specific Realtime remote update. 
-							The purpose of this module is to allow data update to happen remotely inside 
-							the game layer so that you can, for example, edit the terrain and see 
+Description:  This is the header file for the game module specific Realtime remote update.
+							The purpose of this module is to allow data update to happen remotely inside
+							the game layer so that you can, for example, edit the terrain and see
 							the changes in the console.
 -------------------------------------------------------------------------
 History:
@@ -27,13 +27,13 @@ protected:
 	virtual ~CGameRealtimeRemoteUpdateListener();
 
 public:
-	static CGameRealtimeRemoteUpdateListener& GetGameRealtimeRemoteUpdateListener();
+	static CGameRealtimeRemoteUpdateListener &GetGameRealtimeRemoteUpdateListener();
 	bool Enable(bool boEnable);
 
 	bool Update();
 protected:
-	
-	virtual bool UpdateGameData(XmlNodeRef oXmlNode, unsigned char * auchBinaryData);
+
+	virtual bool UpdateGameData(XmlNodeRef oXmlNode, unsigned char *auchBinaryData);
 	virtual void UpdateCamera(XmlNodeRef oXmlNode);
 	virtual void CloseLevel();
 	virtual void CameraSync();

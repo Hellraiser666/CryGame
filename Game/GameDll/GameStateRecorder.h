@@ -46,8 +46,8 @@ struct SAmmoVector
 typedef std::vector<SAmmoVector> TAmmoArray;
 */
 
-enum 
-{	
+enum
+{
 	eGE_ZoomFactor  = eGE_Last,
 	eGE_AmmoPickedUp,
 	eGE_AccessoryPickedUp,
@@ -105,15 +105,18 @@ struct SActorGameState
 class CGameStateRecorder: public IGameStateRecorder, IGameplayListener
 {
 public:
-	
+
 	CGameStateRecorder();
 	~CGameStateRecorder();
 	VIRTUAL void Enable(bool bEnable, bool bRecording);
-	void GetMemoryStatistics(ICrySizer * s);
-	VIRTUAL void RegisterListener(IGameplayListener* pL);
-	VIRTUAL void UnRegisterListener(IGameplayListener* pL);
+	void GetMemoryStatistics(ICrySizer *s);
+	VIRTUAL void RegisterListener(IGameplayListener *pL);
+	VIRTUAL void UnRegisterListener(IGameplayListener *pL);
 	VIRTUAL float RenderInfo(float y, bool bRecording);
-	VIRTUAL bool	IsEnabled() {return m_mode!=0;}
+	VIRTUAL bool	IsEnabled()
+	{
+		return m_mode!=0;
+	}
 	VIRTUAL void	Update();
 	virtual void	Release();
 	VIRTUAL void	OnRecordedGameplayEvent(IEntity *pEntity, const GameplayEvent &event, int currentFrame, bool bRecording=false);
@@ -121,82 +124,91 @@ public:
 	// implements IGameplayListener
 	virtual void OnGameplayEvent(IEntity *pEntity, const GameplayEvent &event);
 	void	SendGamePlayEvent(IEntity *pEntity, const GameplayEvent &event);
-	
+
 private:
 
-	inline bool CheckDifference( float rec, float	curr, const char* message, IEntity* pentity, bool* pbDifferent = 0)
+	inline bool CheckDifference(float rec, float	curr, const char *message, IEntity *pentity, bool *pbDifferent = 0)
 	{
 		bool bDiff = !m_bRecording && rec != curr;
+
 		if(bDiff)
 		{
 			if(!pbDifferent || !*pbDifferent)
 				GameWarning(message, m_currentFrame, pentity->GetName(), rec,curr);
 		}
+
 		if(pbDifferent)
 			*pbDifferent = bDiff;
 
 		return bDiff;
 	}
 
-	inline bool CheckDifference( int rec, int	curr, const char* message, IEntity* pentity, bool* pbDifferent = 0)
+	inline bool CheckDifference(int rec, int	curr, const char *message, IEntity *pentity, bool *pbDifferent = 0)
 	{
 		bool bDiff = !m_bRecording && rec != curr;
+
 		if(bDiff)
 		{
 			if(!pbDifferent || !*pbDifferent)
 				GameWarning(message, m_currentFrame, pentity->GetName(), rec,curr);
 		}
+
 		if(pbDifferent)
 			*pbDifferent = bDiff;
 
 		return bDiff;
 	}
 
-	template <typename T2> inline bool CheckDifference( float rec, float curr, const char* message, IEntity* pentity, T2 val)
+	template <typename T2> inline bool CheckDifference(float rec, float curr, const char *message, IEntity *pentity, T2 val)
 	{
-		if( !m_bRecording && rec != curr)
+		if(!m_bRecording && rec != curr)
 		{
 			GameWarning(message, m_currentFrame, pentity->GetName(), val,rec,curr);
 			return true;
 		}
+
 		return false;
 	}
 
-	template <typename T2> inline bool CheckDifference( int rec, int curr, const char* message, IEntity* pentity, T2 val)
+	template <typename T2> inline bool CheckDifference(int rec, int curr, const char *message, IEntity *pentity, T2 val)
 	{
-	 if( !m_bRecording && rec != curr)
-	 {
-		 GameWarning(message,m_currentFrame, pentity->GetName(), val,rec,curr);
-		 return true;
-	 }
-	 return false;
-	}
-
-
-	bool CheckDifferenceString(const char* rec, const char* curr, const char* message,IEntity* pEntity)
-	{
-		const char* recOut = (rec? rec:"(null)");
-		const char* currOut = (curr? curr:"(null)");
-		if(!m_bRecording  && !equal_strings(recOut,currOut))
+		if(!m_bRecording && rec != curr)
 		{
-			GameWarning(message,m_currentFrame,pEntity->GetName(),rec,curr );
+			GameWarning(message,m_currentFrame, pentity->GetName(), val,rec,curr);
 			return true;
 		}
+
 		return false;
 	}
 
-	void	DumpWholeGameState(const CActor* pActor);
 
-	TItemName	GetItemName(const char* desc, bool bAddIfNotFound = false);
-	TItemName	GetItemName(EntityId id, CItem** pItemOut =0);
-	CItem* GetItemOfName(CActor* pActor, TItemName itemName);
-	CActor* GetActorOfName(const char* name);
-	void AddActorToStats(const CActor* pActor);
+	bool CheckDifferenceString(const char *rec, const char *curr, const char *message,IEntity *pEntity)
+	{
+		const char *recOut = (rec? rec:"(null)");
+		const char *currOut = (curr? curr:"(null)");
+
+		if(!m_bRecording  && !equal_strings(recOut,currOut))
+		{
+			GameWarning(message,m_currentFrame,pEntity->GetName(),rec,curr);
+			return true;
+		}
+
+		return false;
+	}
+
+	void	DumpWholeGameState(const CActor *pActor);
+
+	TItemName	GetItemName(const char *desc, bool bAddIfNotFound = false);
+	TItemName	GetItemName(EntityId id, CItem **pItemOut =0);
+	CItem *GetItemOfName(CActor *pActor, TItemName itemName);
+	CActor *GetActorOfName(const char *name);
+	void AddActorToStats(const CActor *pActor);
 	void StartSession();
 
-	/*template <class EventHandlerFunc>*/ void CheckInventory(CActor* pActor, IItem *pItem);//, EventHandlerFunc eventHandler);
+	/*template <class EventHandlerFunc>*/
+	void CheckInventory(CActor *pActor, IItem *pItem);//, EventHandlerFunc eventHandler);
 
-	typedef std::vector<IGameplayListener*> TListeners;
+	typedef std::vector<IGameplayListener *> TListeners;
 	typedef std::vector<int> TGameEventContainer;
 
 	//typedef std::map<EntityId,float> TMapEntityFloat;
@@ -210,15 +222,15 @@ private:
 	bool m_bLogWarning;
 	int m_currentFrame;
 	TGameEventContainer m_IgnoredEvents;
-	
+
 	TGameStates::iterator m_itSingleActorGameState;
 
 //	RecordGameEventFtor* m_pRecordGameEventFtor;
 
-	CActor* m_pSingleActor;
+	CActor *m_pSingleActor;
 	int m_demo_forceGameState;
-	ICVar* m_demo_actorInfo;
-	ICVar* m_demo_actorFilter;
+	ICVar *m_demo_actorInfo;
+	ICVar *m_demo_actorFilter;
 	bool m_bEnable;
 };
 

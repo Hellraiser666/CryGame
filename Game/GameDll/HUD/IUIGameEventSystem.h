@@ -6,7 +6,7 @@
 //  File name:   IGameUIEventSystem.h
 //  Version:     v1.00
 //  Created:     19/03/2012 by Paul Reindell.
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -22,20 +22,20 @@ struct IUIPseudoRTTI
 	virtual ~IUIPseudoRTTI() {}
 	// do not override this function,
 	// use UIEVENTSYSTEM( name ) instead
-	virtual const char* GetTypeName() const = 0;
+	virtual const char *GetTypeName() const = 0;
 };
 
 struct IUIGameEventSystem : public IUIPseudoRTTI
 {
 	virtual ~IUIGameEventSystem() {}
-	
+
 	virtual void InitEventSystem() = 0;
 	virtual void UnloadEventSystem() = 0;
 
-	virtual void UpdateView( const SViewParams &viewParams ) {}
+	virtual void UpdateView(const SViewParams &viewParams) {}
 
-	virtual void LoadProfile( IPlayerProfile* pProfile ) {}
-	virtual void SaveProfile( IPlayerProfile* pProfile ) const {}
+	virtual void LoadProfile(IPlayerProfile *pProfile) {}
+	virtual void SaveProfile(IPlayerProfile *pProfile) const {}
 };
 
 struct IUIEventSystemFactory
@@ -43,29 +43,40 @@ struct IUIEventSystemFactory
 	IUIEventSystemFactory()
 	{
 		m_pNext = 0;
-		if (!s_pLast)
+
+		if(!s_pLast)
 			s_pFirst = this;
 		else
 			s_pLast->m_pNext = this;
+
 		s_pLast = this;
 	}
 
-	virtual ~IUIEventSystemFactory(){}
-	virtual IUIGameEventSystem* Create() = 0;
+	virtual ~IUIEventSystemFactory() {}
+	virtual IUIGameEventSystem *Create() = 0;
 
-	static IUIEventSystemFactory* GetFirst() { return s_pFirst; }
-	IUIEventSystemFactory* GetNext() const { return m_pNext; }
+	static IUIEventSystemFactory *GetFirst()
+	{
+		return s_pFirst;
+	}
+	IUIEventSystemFactory *GetNext() const
+	{
+		return m_pNext;
+	}
 
 private:
-	IUIEventSystemFactory* m_pNext;
-	static IUIEventSystemFactory* s_pFirst;
-	static IUIEventSystemFactory* s_pLast;
+	IUIEventSystemFactory *m_pNext;
+	static IUIEventSystemFactory *s_pFirst;
+	static IUIEventSystemFactory *s_pLast;
 };
 
 template <class T>
 struct SAutoRegUIEventSystem : public IUIEventSystemFactory
 {
-	virtual IUIGameEventSystem* Create() { return new T(); }
+	virtual IUIGameEventSystem *Create()
+	{
+		return new T();
+	}
 };
 
 #define UIEVENTSYSTEM(name) \

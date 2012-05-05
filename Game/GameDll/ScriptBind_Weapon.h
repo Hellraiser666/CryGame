@@ -5,7 +5,7 @@
   $Id$
   $DateTime$
   Description: Script Binding for Weapon
-  
+
  -------------------------------------------------------------------------
   History:
   - 25:11:2004   11:30 : Created by Marcio Martins
@@ -176,7 +176,7 @@ public:
 	//      enable - enable (true) / disable (false) the fire mode
 	// Description:
 	//      Sets the current fire mode.
-	int EnableFireMode(IFunctionHandler *pH, const char* name, bool enable);
+	int EnableFireMode(IFunctionHandler *pH, const char *name, bool enable);
 
 	// <title IsFireModeEnabled>
 	// Syntax: Weapon.IsFireModeEnabled(const char *name)
@@ -184,7 +184,7 @@ public:
 	//      name - Fire mode name.
 	// Description:
 	//      Returns true if specified fire mode is enabled, false otherwise.
-	int IsFireModeEnabled(IFunctionHandler *pH, const char* name);
+	int IsFireModeEnabled(IFunctionHandler *pH, const char *name);
 
 	// <title SetCurrentFireMode>
 	// Syntax: Weapon.SetCurrentFireMode(const char *name)
@@ -214,7 +214,7 @@ public:
 	//      name - Fire mode name.
 	// Description:
 	//      Returns the zero-based index of the specified fire mode, nil if none invalid name.
-	int GetFireModeIdx(IFunctionHandler *pH, const char* name);
+	int GetFireModeIdx(IFunctionHandler *pH, const char *name);
 
 	// <title GetNumOfFireModes>
 	// Syntax: Weapon.GetNumOfFireModes()

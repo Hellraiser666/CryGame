@@ -18,81 +18,90 @@ History:
 #include "VehicleMovementHovercraft.h"
 
 
-class CVehicleMovementWarrior  
-  : public CVehicleMovementHovercraft
+class CVehicleMovementWarrior
+	: public CVehicleMovementHovercraft
 {
 public:
-  
-  struct SThrusterW : public SThruster
-  {      
-    SThrusterW( const Vec3& vpos, const Vec3& vdir ) : SThruster(vpos, vdir)
-    { 
-    }    
-  };
 
-  enum EWarriorMovement
-  {
-    eWM_None = 0,
-    eWM_Hovering,
-    eWM_Leveling,
-    eWM_Neutralizing,
-    eWM_Last
-  };
+	struct SThrusterW : public SThruster
+	{
+		SThrusterW(const Vec3 &vpos, const Vec3 &vdir) : SThruster(vpos, vdir)
+		{
+		}
+	};
 
-  CVehicleMovementWarrior();
-  virtual ~CVehicleMovementWarrior();
+	enum EWarriorMovement
+	{
+		eWM_None = 0,
+		eWM_Hovering,
+		eWM_Leveling,
+		eWM_Neutralizing,
+		eWM_Last
+	};
 
-  virtual bool Init(IVehicle* pVehicle, const CVehicleParams& table);  
-  virtual void Reset();
+	CVehicleMovementWarrior();
+	virtual ~CVehicleMovementWarrior();
+
+	virtual bool Init(IVehicle *pVehicle, const CVehicleParams &table);
+	virtual void Reset();
 	virtual void Physicalize();
 
-  virtual EVehicleMovementType GetMovementType() { return eVMT_Land; }
-  
-	virtual bool StartEngine(EntityId driverId);	
-  virtual void StopEngine();
+	virtual EVehicleMovementType GetMovementType()
+	{
+		return eVMT_Land;
+	}
+
+	virtual bool StartEngine(EntityId driverId);
+	virtual void StopEngine();
 	virtual void ProcessMovement(const float deltaTime);
-  virtual bool RequestMovement(CMovementRequest& movementRequest);
+	virtual bool RequestMovement(CMovementRequest &movementRequest);
 
 	virtual void Serialize(TSerialize ser, EEntityAspects aspects);
-  virtual void Update(const float deltaTime);
-  virtual bool UpdateAlways();
-  virtual void OnEvent(EVehicleMovementEvent event, const SVehicleMovementEventParams& params);
+	virtual void Update(const float deltaTime);
+	virtual bool UpdateAlways();
+	virtual void OnEvent(EVehicleMovementEvent event, const SVehicleMovementEventParams &params);
 
-	virtual void GetMemoryUsage(ICrySizer * s) const;
+	virtual void GetMemoryUsage(ICrySizer *s) const;
 
 protected:
-  
-  virtual bool GenerateWind() { return false; }
+
+	virtual bool GenerateWind()
+	{
+		return false;
+	}
 
 private:
 
-  void ResetThrusters();
-  void EnableThruster(SThruster* pThruster, bool enable);
-  float RotatePart(IVehiclePart* pPart, float angleGoal, int axis, float speed, float deltaTime, float maxDelta = 0.f);
-  
-  bool IsCollapsing();
-  bool IsCollapsed() { return m_collapsed; }
-  
-  void Collapse();
-  void Collapsed(bool collapsed);
+	void ResetThrusters();
+	void EnableThruster(SThruster *pThruster, bool enable);
+	float RotatePart(IVehiclePart *pPart, float angleGoal, int axis, float speed, float deltaTime, float maxDelta = 0.f);
 
-  int m_maxThrustersDamaged;
-  int m_thrustersDamaged;
-  float m_collapsedFeetAngle;
-  float m_collapsedLegAngle;
-  float m_recoverTime;
-  
-  float m_collapseTimer;  
-  bool m_collapsed;
-  bool m_platformDown;
+	bool IsCollapsing();
+	bool IsCollapsed()
+	{
+		return m_collapsed;
+	}
 
-  TThrusters m_thrustersInit;
+	void Collapse();
+	void Collapsed(bool collapsed);
 
-  IVehiclePart* m_pTurret;
-  IVehiclePart* m_pWing;
-  IVehiclePart* m_pCannon;
+	int m_maxThrustersDamaged;
+	int m_thrustersDamaged;
+	float m_collapsedFeetAngle;
+	float m_collapsedLegAngle;
+	float m_recoverTime;
 
-	IVehicleHelper* m_pPlatformPos;
-  
+	float m_collapseTimer;
+	bool m_collapsed;
+	bool m_platformDown;
+
+	TThrusters m_thrustersInit;
+
+	IVehiclePart *m_pTurret;
+	IVehiclePart *m_pWing;
+	IVehiclePart *m_pCannon;
+
+	IVehicleHelper *m_pPlatformPos;
+
 };
 #endif

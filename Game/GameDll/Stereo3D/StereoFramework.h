@@ -15,39 +15,40 @@ History:
 #include "RayCastQueue.h"
 
 namespace Stereo3D
-{	
-  void Update(float deltaTime);
+{
+	void Update(float deltaTime);
 
-  namespace Zoom
-  {
-    void SetFinalPlaneDist(float planeDist, float transitionTime);
-    void SetFinalEyeDist(float eyeDist, float transitionTime);
-    void ReturnToNormalSetting(float);
-  } // namespace zoom
+	namespace Zoom
+	{
+		void SetFinalPlaneDist(float planeDist, float transitionTime);
+		void SetFinalEyeDist(float eyeDist, float transitionTime);
+		void ReturnToNormalSetting(float);
+	} // namespace zoom
 
-  namespace Weapon{
-    const int MAX_RAY_IDS = 5;
-    const QueuedRayID INVALID_RAY_ID = 0;
+	namespace Weapon
+	{
+		const int MAX_RAY_IDS = 5;
+		const QueuedRayID INVALID_RAY_ID = 0;
 
-    class CWeaponCheck
-    {
-    public:
-      CWeaponCheck() : m_closestCastDist(1000.f) {}
-      ~CWeaponCheck();
-      void Update(float deltaTime);
-      void OnRayCastResult(const QueuedRayID &rayID, const RayCastResult &result);
-      float GetCurrentPlaneDist();
+		class CWeaponCheck
+		{
+		public:
+			CWeaponCheck() : m_closestCastDist(1000.f) {}
+			~CWeaponCheck();
+			void Update(float deltaTime);
+			void OnRayCastResult(const QueuedRayID &rayID, const RayCastResult &result);
+			float GetCurrentPlaneDist();
 
-    private:
-      void CastRays();
+		private:
+			void CastRays();
 
-      float  m_closestDist;
-      float  m_closestCastDist;
-      QueuedRayID m_rayIDs[MAX_RAY_IDS];
-      uint8  m_numFramesWaiting;
-      uint8  m_numResults;
-    };
-  } // 
+			float  m_closestDist;
+			float  m_closestCastDist;
+			QueuedRayID m_rayIDs[MAX_RAY_IDS];
+			uint8  m_numFramesWaiting;
+			uint8  m_numResults;
+		};
+	} //
 } // namespace Stereo3D
 
 #endif

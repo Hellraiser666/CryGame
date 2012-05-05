@@ -36,8 +36,8 @@ public:
 
 protected:
 	void OnEMPActivate();
-	void OnPlayerEnter(CPlayer* pPlayer);
-	void OnPlayerLeave(CPlayer* pPlayer);
+	void OnPlayerEnter(CPlayer *pPlayer);
+	void OnPlayerLeave(CPlayer *pPlayer);
 	void ReleaseAll();
 	void RemoveEntity(EntityId id);
 

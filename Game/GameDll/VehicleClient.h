@@ -30,16 +30,19 @@ public:
 
 	VIRTUAL bool Init();
 	VIRTUAL void Reset();
-	virtual void Release() { delete this; }
+	virtual void Release()
+	{
+		delete this;
+	}
 
-	VIRTUAL void OnAction(IVehicle* pVehicle, EntityId actorId, const ActionId& actionId, int activationMode, float value);
-	virtual void PreUpdate(IVehicle* pVehicle, EntityId actorId, float frameTime);
-	VIRTUAL void OnEnterVehicleSeat(IVehicleSeat* pSeat);
-	VIRTUAL void OnExitVehicleSeat(IVehicleSeat* pSeat);
-  
+	VIRTUAL void OnAction(IVehicle *pVehicle, EntityId actorId, const ActionId &actionId, int activationMode, float value);
+	virtual void PreUpdate(IVehicle *pVehicle, EntityId actorId, float frameTime);
+	VIRTUAL void OnEnterVehicleSeat(IVehicleSeat *pSeat);
+	VIRTUAL void OnExitVehicleSeat(IVehicleSeat *pSeat);
+
 protected:
 
-	void EnableActionMaps(IVehicleSeat* pSeat, bool enable);
+	void EnableActionMaps(IVehicleSeat *pSeat, bool enable);
 
 	typedef std::map<ActionId, int> TActionNameIdMap;
 	TActionNameIdMap m_actionNameIds;
@@ -57,23 +60,23 @@ protected:
 		TVehicleSeatClientInfoVector seats;
 	};
 
-	typedef std::map <IEntityClass*, SVehicleClientInfo> TVehicleClientInfoMap;
+	typedef std::map <IEntityClass *, SVehicleClientInfo> TVehicleClientInfoMap;
 	TVehicleClientInfoMap m_vehiclesInfo;
 
-	SVehicleClientInfo& GetVehicleClientInfo(IVehicle* pVehicle);
-	SVehicleSeatClientInfo& GetVehicleSeatClientInfo(SVehicleClientInfo& vehicleClientInfo, TVehicleSeatId seatId);
+	SVehicleClientInfo &GetVehicleClientInfo(IVehicle *pVehicle);
+	SVehicleSeatClientInfo &GetVehicleSeatClientInfo(SVehicleClientInfo &vehicleClientInfo, TVehicleSeatId seatId);
 
 private:
 	Ang3 m_xiRotation;
 	Ang3 m_xiMovement;
-  float m_fLeftRight;
-  float m_fForwardBackward;
+	float m_fLeftRight;
+	float m_fForwardBackward;
 	bool m_bMovementFlagForward;
 	bool m_bMovementFlagBack;
 	bool m_bMovementFlagRight;
 	bool m_bMovementFlagLeft;
 
-  bool m_tp;
+	bool m_tp;
 
 };
 

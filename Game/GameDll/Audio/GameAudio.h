@@ -4,7 +4,7 @@ Copyright (C), Crytek Studios, 2001-2005.
 -------------------------------------------------------------------------
 $Id$
 $DateTime$
-Description: 
+Description:
 	Header for G04 centralized Game Audio code
 
 -------------------------------------------------------------------------
@@ -67,8 +67,14 @@ public:
 	void Serialize(TSerialize ser);
 	void Update();
 
-	CSoundMoods* GetSoundMoods() { return m_pSoundMoods; }
-	CBattleStatus* GetBattleStatus() { return m_pBattleStatus; }
+	CSoundMoods *GetSoundMoods()
+	{
+		return m_pSoundMoods;
+	}
+	CBattleStatus *GetBattleStatus()
+	{
+		return m_pBattleStatus;
+	}
 
 	// Play a Sound
 	void PlaySound(EGameAudioSounds eSound, IEntity *pEntity = NULL, float param = 1.0f, bool stopSound = false);

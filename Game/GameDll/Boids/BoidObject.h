@@ -38,19 +38,29 @@ namespace Boid
 	}
 
 	// Fast normalize vector and return square distance.
-	inline float Normalize_fast( Vec3 &v )
+	inline float Normalize_fast(Vec3 &v)
 	{
 
 
 
 		f32 fLenSqr = v.x*v.x + v.y*v.y + v.z*v.z;
-		union {f32 *pF; int32 *pUI;} u; 
+		union
+		{
+			f32 *pF;
+			int32 *pUI;
+		} u;
 		u.pF = &fLenSqr;
-		union {f32 F; int32 UI;} uN;
+		union
+		{
+			f32 F;
+			int32 UI;
+		} uN;
 		uN.UI = 0x5f3759df - (*u.pUI >> 1);
 		f32 *n2 = &uN.F;
 		f32 d = (1.5f - (fLenSqr * 0.5f) * *n2 * *n2) * *n2;
-		v.x*=d; v.y*=d; v.z*=d;
+		v.x*=d;
+		v.y*=d;
+		v.z*=d;
 		return fLenSqr;
 
 	}
@@ -132,7 +142,7 @@ struct SBoidContext
 
 	I3DEngine *engine;
 	IPhysicalWorld *physics;
-	IEntity* entity;
+	IEntity *entity;
 
 	Vec3 vEntitySlotOffset;
 
@@ -145,7 +155,7 @@ struct SBoidContext
 	float fMaxTurnRatio;
 
 	Vec3 randomFlockCenter;
-	
+
 	Vec3 scarePoint;        // Point where some scaring event happened
 	float scareRadius;      // Radius from scare point where boids get scared.
 	float scareRatio;       // How scarry is scare point
@@ -156,10 +166,11 @@ struct SBoidContext
 
 	bool bAutoTakeOff;
 
-	const char* GetAnimationName(int id)
+	const char *GetAnimationName(int id)
 	{
 		if((size_t) id < animations.size())
 			return animations[id].c_str();
+
 		return NULL;
 	}
 };
@@ -171,69 +182,75 @@ struct SBoidContext
  */
 class CBoidObject
 {
-	enum 
+	enum
 	{
 		eSlot_Chr = 0,
 		eSlot_Cgf
 	};
 
 public:
-	CBoidObject( SBoidContext &bc );
+	CBoidObject(SBoidContext &bc);
 	virtual ~CBoidObject();
 
-	virtual void Update( float dt,SBoidContext &bc ) {};
-	virtual void Physicalize( SBoidContext &bc );
+	virtual void Update(float dt,SBoidContext &bc) {};
+	virtual void Physicalize(SBoidContext &bc);
 
 	//! Kill this boid object.
 	//! @param force Force vector applyed on dying boid (shot vector).
-	virtual void Kill( const Vec3 &hitPoint,const Vec3 &force ) {};
+	virtual void Kill(const Vec3 &hitPoint,const Vec3 &force) {};
 
-	virtual void OnFlockMove( SBoidContext &bc ) {};
-	virtual void OnEntityEvent( SEntityEvent &event );
-	virtual void CalcOrientation( Quat &qOrient );
-	virtual void Render( SRendParams &rp,CCamera &cam,SBoidContext &bc );
-	void CalcFlockBehavior( SBoidContext &bc,Vec3 &vAlignment,Vec3 &vCohesion,Vec3 &vSeparation );
-	void CalcMovement( float dt,SBoidContext &bc,bool banking );
+	virtual void OnFlockMove(SBoidContext &bc) {};
+	virtual void OnEntityEvent(SEntityEvent &event);
+	virtual void CalcOrientation(Quat &qOrient);
+	virtual void Render(SRendParams &rp,CCamera &cam,SBoidContext &bc);
+	void CalcFlockBehavior(SBoidContext &bc,Vec3 &vAlignment,Vec3 &vCohesion,Vec3 &vSeparation);
+	void CalcMovement(float dt,SBoidContext &bc,bool banking);
 
-	void CreateRigidBox( SBoidContext &bc,const Vec3 &size,float mass,float density );
-	void CreateArticulatedCharacter( SBoidContext &bc,const Vec3 &size,float mass );
+	void CreateRigidBox(SBoidContext &bc,const Vec3 &size,float mass,float density);
+	void CreateArticulatedCharacter(SBoidContext &bc,const Vec3 &size,float mass);
 
-	bool PlayAnimation( const char *animation,bool bLooped,float fBlendTime=0.3f );
-	bool PlayAnimationId( int nIndex,bool bLooped,float fBlendTime=0.3f );
-	void PlaySound( int nIndex );
+	bool PlayAnimation(const char *animation,bool bLooped,float fBlendTime=0.3f);
+	bool PlayAnimationId(int nIndex,bool bLooped,float fBlendTime=0.3f);
+	void PlaySound(int nIndex);
 
 	int GetGeometrySurfaceType();
 
 	//virtual void OnPickup( bool bPickup,float fSpeed );
-	virtual void OnCollision( SEntityEvent &event );
-	
-	const Vec3& GetPos() const {return m_pos;}
+	virtual void OnCollision(SEntityEvent &event);
 
-	bool IsDead() const {return m_dead || m_dying;}
+	const Vec3 &GetPos() const
+	{
+		return m_pos;
+	}
 
-	void GetMemoryUsage(ICrySizer *pSizer )const
+	bool IsDead() const
+	{
+		return m_dead || m_dying;
+	}
+
+	void GetMemoryUsage(ICrySizer *pSizer)const
 	{
 		//pSizer->AddObject(this, sizeof(*this));
 		//pSizer->AddObject(m_flock);
-		//pSizer->AddObject(m_object);		
+		//pSizer->AddObject(m_object);
 	}
 
-	CTimeValue& GetLastCollisionCheckTime() 
+	CTimeValue &GetLastCollisionCheckTime()
 	{
 		return m_collisionInfo.LastCheckTime();
 	}
 
 	virtual void UpdateCollisionInfo();
-	
-	virtual bool ShouldUpdateCollisionInfo(const CTimeValue& t);
+
+	virtual bool ShouldUpdateCollisionInfo(const CTimeValue &t);
 
 
 protected:
 	void DisplayCharacter(bool bEnable);
-	void UpdateDisplay(SBoidContext& bc);
+	void UpdateDisplay(SBoidContext &bc);
 	virtual float GetCollisionDistance();
 	virtual void UpdateAnimationSpeed(SBoidContext &bc);
-	virtual void ClampSpeed(SBoidContext& bc, float dt);
+	virtual void ClampSpeed(SBoidContext &bc, float dt);
 
 public:
 	//////////////////////////////////////////////////////////////////////////

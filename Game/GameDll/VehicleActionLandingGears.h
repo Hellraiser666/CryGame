@@ -25,18 +25,24 @@ public:
 	virtual ~CVehicleActionLandingGears();
 
 	// IVehicleAction
-	virtual bool Init(IVehicle* pVehicle, const CVehicleParams& table);
+	virtual bool Init(IVehicle *pVehicle, const CVehicleParams &table);
 	virtual void Reset();
-	virtual void Release() { delete this; }
+	virtual void Release()
+	{
+		delete this;
+	}
 
-	virtual int OnEvent(int eventType, SVehicleEventParams& eventParams);
-	void GetMemoryUsage(ICrySizer * s) const { s->Add(*this); }
+	virtual int OnEvent(int eventType, SVehicleEventParams &eventParams);
+	void GetMemoryUsage(ICrySizer *s) const
+	{
+		s->Add(*this);
+	}
 	// ~IVehicleAction
 
 	// IVehicleObject
 	virtual void Serialize(TSerialize ser, EEntityAspects aspects);
 	virtual void Update(const float deltaTime);
-  virtual void OnVehicleEvent(EVehicleEvent eventType, const SVehicleEventParams& params);
+	virtual void OnVehicleEvent(EVehicleEvent eventType, const SVehicleEventParams &params);
 	// ~IVehicleObject
 
 	bool AreLandingGearsOpen();
@@ -45,7 +51,7 @@ public:
 
 protected:
 
-	IVehicle* m_pVehicle;
+	IVehicle *m_pVehicle;
 
 	// Settings variables (do not change outside Init)
 	float m_altitudeToRetractGears;
@@ -55,11 +61,11 @@ protected:
 
 	bool m_isOnlyAutoForPlayer;
 
-	IVehicleAnimation* m_pLandingGearsAnim;
+	IVehicleAnimation *m_pLandingGearsAnim;
 	TVehicleAnimStateId m_landingGearOpenedId;
 	TVehicleAnimStateId m_landingGearClosedId;
 
-	IVehiclePart* m_pPartToBlockRotation;
+	IVehiclePart *m_pPartToBlockRotation;
 
 	// Status variables
 	bool m_isDriverPlayer;

@@ -25,21 +25,27 @@ public:
 	CVehicleDamageBehaviorExplosion() {}
 	virtual ~CVehicleDamageBehaviorExplosion() {}
 
-	virtual bool Init(IVehicle* pVehicle, const CVehicleParams& table);
+	virtual bool Init(IVehicle *pVehicle, const CVehicleParams &table);
 	virtual void Reset();
-	virtual void Release() { delete this; }
+	virtual void Release()
+	{
+		delete this;
+	}
 
-	virtual void OnDamageEvent(EVehicleDamageBehaviorEvent event, const SVehicleDamageBehaviorEventParams& behaviorParams);
+	virtual void OnDamageEvent(EVehicleDamageBehaviorEvent event, const SVehicleDamageBehaviorEventParams &behaviorParams);
 
 	virtual void Serialize(TSerialize ser, EEntityAspects aspects);
 	virtual void Update(const float deltaTime) {}
-  virtual void OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams& params){}
+	virtual void OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams &params) {}
 
-	virtual void GetMemoryUsage(ICrySizer * s) const { s->Add(*this); }
+	virtual void GetMemoryUsage(ICrySizer *s) const
+	{
+		s->Add(*this);
+	}
 
 protected:
 
-	IVehicle* m_pVehicle;
+	IVehicle *m_pVehicle;
 
 	float m_damage;
 	float m_minRadius;
@@ -47,9 +53,9 @@ protected:
 	float m_minPhysRadius;
 	float m_physRadius;
 	float m_pressure;
-	IVehicleHelper* m_pHelper;
+	IVehicleHelper *m_pHelper;
 
-  bool m_exploded;
+	bool m_exploded;
 };
 
 #endif

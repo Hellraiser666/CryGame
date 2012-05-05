@@ -7,7 +7,7 @@
 //  Version:     v1.00
 //  Created:     11/4/2003 by Timur.
 //  Compilers:   Visual Studio.NET
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -24,13 +24,13 @@
 class CFrogBoid : public CBoidBird
 {
 public:
-	CFrogBoid( SBoidContext &bc );
-	virtual void Update( float dt,SBoidContext &bc );
-	virtual void Think( float dt,SBoidContext &bc );
-	virtual void Kill( const Vec3 &hitPoint,const Vec3 &force );
-	virtual void Physicalize( SBoidContext &bc );
-	virtual void OnPickup( bool bPickup,float fSpeed );
-	virtual void OnCollision( SEntityEvent &event );
+	CFrogBoid(SBoidContext &bc);
+	virtual void Update(float dt,SBoidContext &bc);
+	virtual void Think(float dt,SBoidContext &bc);
+	virtual void Kill(const Vec3 &hitPoint,const Vec3 &force);
+	virtual void Physicalize(SBoidContext &bc);
+	virtual void OnPickup(bool bPickup,float fSpeed);
+	virtual void OnCollision(SEntityEvent &event);
 
 protected:
 	float m_maxIdleTime;
@@ -46,8 +46,8 @@ protected:
 class CFrogFlock : public CFlock
 {
 public:
-	CFrogFlock( IEntity *pEntity );
-	virtual void CreateBoids( SBoidsCreateContext &ctx );
+	CFrogFlock(IEntity *pEntity);
+	virtual void CreateBoids(SBoidsCreateContext &ctx);
 	virtual bool CreateEntities();
 };
 

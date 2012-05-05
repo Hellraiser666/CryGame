@@ -25,28 +25,34 @@ public:
 	CVehicleDamageBehaviorBurn() {}
 	virtual ~CVehicleDamageBehaviorBurn();
 
-	virtual bool Init(IVehicle* pVehicle, const CVehicleParams& table);
+	virtual bool Init(IVehicle *pVehicle, const CVehicleParams &table);
 	virtual void Reset();
-	virtual void Release() { delete this; }
+	virtual void Release()
+	{
+		delete this;
+	}
 
-	virtual void OnDamageEvent(EVehicleDamageBehaviorEvent event, const SVehicleDamageBehaviorEventParams& behaviorParams);
+	virtual void OnDamageEvent(EVehicleDamageBehaviorEvent event, const SVehicleDamageBehaviorEventParams &behaviorParams);
 
 	virtual void Serialize(TSerialize ser, EEntityAspects aspects);
 	virtual void Update(const float deltaTime);
-  virtual void OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams& params);
+	virtual void OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams &params);
 
-	virtual void GetMemoryUsage(ICrySizer * s) const { s->Add(*this); }
+	virtual void GetMemoryUsage(ICrySizer *s) const
+	{
+		s->Add(*this);
+	}
 
 protected:
 
-  void Activate(bool activate);
+	void Activate(bool activate);
 
-	IVehicle* m_pVehicle;
-	IVehicleHelper* m_pHelper;
+	IVehicle *m_pVehicle;
+	IVehicleHelper *m_pHelper;
 
-  float m_damageRatioMin;
+	float m_damageRatioMin;
 	float m_damage;
-  float m_selfDamage;
+	float m_selfDamage;
 	float m_interval;
 	float m_radius;
 
@@ -54,7 +60,7 @@ protected:
 	float m_timeCounter;
 
 	EntityId m_shooterId;
-  int m_timerId;
+	int m_timerId;
 };
 
 #endif

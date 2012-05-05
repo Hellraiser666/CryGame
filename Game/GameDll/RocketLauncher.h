@@ -17,7 +17,7 @@ History:
 #if _MSC_VER > 1000
 # pragma once
 #endif
-	
+
 
 #include "Weapon.h"
 
@@ -36,19 +36,22 @@ public:
 	virtual void UpdateFPView(float frameTime);
 	virtual void PickUp(EntityId pickerId, bool sound, bool select/* =true */, bool keepHistory/* =true */, const char *setup = NULL);
 	virtual void Drop(float impulseScale, bool selectNext/* =true */, bool byDeath/* =false */);
-	virtual void ProcessEvent(SEntityEvent& event);
+	virtual void ProcessEvent(SEntityEvent &event);
 
 	virtual void GetAttachmentsAtHelper(const char *helper, CCryFixedStringListT<5, 30> &attachments);
 
 	virtual bool CanPickUp(EntityId userId) const;
 
-	virtual void Update(SEntityUpdateContext& ctx, int);
+	virtual void Update(SEntityUpdateContext &ctx, int);
 
-	virtual void FullSerialize( TSerialize ser );
+	virtual void FullSerialize(TSerialize ser);
 	virtual void PostSerialize();
 
 	virtual void AutoDrop();
-	virtual void AddFiredRocket() { m_firedRockets++; }
+	virtual void AddFiredRocket()
+	{
+		m_firedRockets++;
+	}
 
 	virtual void OnStopFire(EntityId shooterId);
 
@@ -92,7 +95,7 @@ private:
 	float m_Timeout;
 
 protected:
-		virtual bool ReadItemParams(const IItemParamsNode *params);
+	virtual bool ReadItemParams(const IItemParamsNode *params);
 };
 
 

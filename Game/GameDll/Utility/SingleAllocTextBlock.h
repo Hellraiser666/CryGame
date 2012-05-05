@@ -19,10 +19,10 @@ Created December 2009 by Tim Furnish
 
 class CSingleAllocTextBlock
 {
-	public:
+public:
 	struct SReuseDuplicatedStrings
 	{
-		const char * m_charPtr;
+		const char *m_charPtr;
 	};
 
 	CSingleAllocTextBlock();
@@ -30,8 +30,8 @@ class CSingleAllocTextBlock
 	void Reset();
 	void EmptyWithoutFreeing();
 	void IncreaseSizeNeeded(size_t theSize);
-	void IncreaseSizeNeeded(const char * textIn, bool doDuplicateCheck = true);
-	const char * StoreText(const char * textIn, bool doDuplicateCheck = true);
+	void IncreaseSizeNeeded(const char *textIn, bool doDuplicateCheck = true);
+	const char *StoreText(const char *textIn, bool doDuplicateCheck = true);
 	void Allocate();
 	void Lock();
 
@@ -40,7 +40,7 @@ class CSingleAllocTextBlock
 		return m_sizeNeeded;
 	}
 
-	ILINE const char * GetMem() const
+	ILINE const char *GetMem() const
 	{
 		return m_mem;
 	}
@@ -50,25 +50,25 @@ class CSingleAllocTextBlock
 		return m_numBytesUsed;
 	}
 
-	ILINE void SetDuplicatedStringWorkspace(SReuseDuplicatedStrings * theArray, int arraySize)
+	ILINE void SetDuplicatedStringWorkspace(SReuseDuplicatedStrings *theArray, int arraySize)
 	{
-		assert (m_reuseDuplicatedStringsArray == NULL);
-		assert (m_reuseDuplicatedStringsArraySize == 0);
-		assert (m_reuseDuplicatedStringsNumUsed == 0);
+		assert(m_reuseDuplicatedStringsArray == NULL);
+		assert(m_reuseDuplicatedStringsArraySize == 0);
+		assert(m_reuseDuplicatedStringsNumUsed == 0);
 
 		m_reuseDuplicatedStringsArray = theArray;
 		m_reuseDuplicatedStringsArraySize = arraySize;
 	}
 
-	private:
-	const char * FindDuplicate(const char * textIn);
-	void RememberPossibleDuplicate(const char * textIn);
+private:
+	const char *FindDuplicate(const char *textIn);
+	void RememberPossibleDuplicate(const char *textIn);
 
-	char *                     m_mem;
+	char                      *m_mem;
 	size_t                     m_sizeNeeded;
 	size_t                     m_sizeNeededWithoutUsingDuplicates;
 	size_t                     m_numBytesUsed;
-	SReuseDuplicatedStrings *  m_reuseDuplicatedStringsArray;
+	SReuseDuplicatedStrings   *m_reuseDuplicatedStringsArray;
 	int                        m_reuseDuplicatedStringsArraySize;
 	int                        m_reuseDuplicatedStringsNumUsed;
 };

@@ -2,7 +2,7 @@
 Crytek Source File.
 Copyright (C), Crytek Studios, 2001-2009.
 -------------------------------------------------------------------------
-Description: 
+Description:
 
 -------------------------------------------------------------------------
 History:
@@ -34,15 +34,15 @@ public:
 	// Executes a hit reaction using the default C++ execution code
 	// Params:
 	// reactionParams = script table with the reaction parameters
-	int										ExecuteHitReaction (IFunctionHandler *pH, SmartScriptTable reactionParams);
+	int										ExecuteHitReaction(IFunctionHandler *pH, SmartScriptTable reactionParams);
 
 	// Executes a death reaction using the default C++ execution code
 	// Params:
 	// reactionParams = script table with the reaction parameters
-	int										ExecuteDeathReaction (IFunctionHandler *pH, SmartScriptTable reactionParams);
+	int										ExecuteDeathReaction(IFunctionHandler *pH, SmartScriptTable reactionParams);
 
 	// Ends the current reaction
-	int										EndCurrentReaction (IFunctionHandler *pH);
+	int										EndCurrentReaction(IFunctionHandler *pH);
 
 	// Run the default C++ validation code and returns its result
 	// Params:
@@ -50,7 +50,7 @@ public:
 	//	scriptHitInfo = script table with the hit info
 	// Return:
 	//	TRUE is the validation was successful, FALSE otherwise
-	int										IsValidReaction (IFunctionHandler *pH, SmartScriptTable validationParams, SmartScriptTable scriptHitInfo);
+	int										IsValidReaction(IFunctionHandler *pH, SmartScriptTable validationParams, SmartScriptTable scriptHitInfo);
 
 	// Starts an animation through the HitDeathReactions. Pauses the animation graph while playing it
 	// and resumes automatically when the animation ends
@@ -61,10 +61,10 @@ public:
 	// Ends the current reaction anim, if any
 	int										EndReactionAnim(IFunctionHandler *pH);
 
-	// Starts an interactive action. 
+	// Starts an interactive action.
 	// Params:
 	// szActionName = name of the interactive action
-	int										StartInteractiveAction(IFunctionHandler *pH, const char* szActionName);
+	int										StartInteractiveAction(IFunctionHandler *pH, const char *szActionName);
 
 	virtual void GetMemoryUsage(ICrySizer *pSizer) const
 	{
@@ -72,13 +72,13 @@ public:
 	}
 
 private:
-	CPlayer*							GetAssociatedActor(IFunctionHandler *pH) const;
+	CPlayer							*GetAssociatedActor(IFunctionHandler *pH) const;
 	CHitDeathReactionsPtr GetHitDeathReactions(IFunctionHandler *pH) const;
 
 	SmartScriptTable	m_pParams;
 
-	ISystem*					m_pSystem;
-	IGameFramework*		m_pGameFW;
+	ISystem					*m_pSystem;
+	IGameFramework		*m_pGameFW;
 };
 
 #endif // __SCRIPT_BIND_HIT_DEATH_REACTIONS_H

@@ -27,50 +27,57 @@ class CBlendGroup;
 
 class CBlendJobNode
 {
-	
+
 	friend class CBlendGroup;
 
-	public:
-		CBlendJobNode();
-		~CBlendJobNode();
+public:
+	CBlendJobNode();
+	~CBlendJobNode();
 
-		void Init(IBlendType* pBlend, IBlendedEffect* pFx, float speed);
-		void Update(float frameTime);
+	void Init(IBlendType *pBlend, IBlendedEffect *pFx, float speed);
+	void Update(float frameTime);
 
-		bool IsFree() const { return m_myEffect==0; }
-		bool Done() const{ assert(m_progress>=0.0f && m_progress<=1.0f); return (m_progress==1.0f);}
+	bool IsFree() const
+	{
+		return m_myEffect==0;
+	}
+	bool Done() const
+	{
+		assert(m_progress>=0.0f && m_progress<=1.0f);
+		return (m_progress==1.0f);
+	}
 
-		void ResetBlendJob();
+	void ResetBlendJob();
 
-	private:
-		IBlendedEffect	*m_myEffect;
-		IBlendType			*m_blendType;
-	
-		float m_speed;
-		float m_progress;
+private:
+	IBlendedEffect	*m_myEffect;
+	IBlendType			*m_blendType;
+
+	float m_speed;
+	float m_progress;
 
 };
 
 
 // A blend group is a queue of blend jobs.
-class CBlendGroup 
+class CBlendGroup
 {
-	public:
-		CBlendGroup();
-		~CBlendGroup();
+public:
+	CBlendGroup();
+	~CBlendGroup();
 
-		void Update(float frameTime);
-		void AddJob(IBlendType* pBlend, IBlendedEffect* pFx, float speed);
-		bool HasJobs();
-		void Reset();
+	void Update(float frameTime);
+	void AddJob(IBlendType *pBlend, IBlendedEffect *pFx, float speed);
+	bool HasJobs();
+	void Reset();
 
-		void GetMemoryUsage(ICrySizer* s) const;
+	void GetMemoryUsage(ICrySizer *s) const;
 
-	private:
+private:
 
-		void AllocateMinJobs();
-		typedef std::vector<CBlendJobNode*> TJobVector;
-		TJobVector			m_jobs; 
+	void AllocateMinJobs();
+	typedef std::vector<CBlendJobNode *> TJobVector;
+	TJobVector			m_jobs;
 };
 
 #endif

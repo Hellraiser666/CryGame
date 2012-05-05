@@ -69,7 +69,7 @@ enum EOffHandSounds
 {
 	eOHSound_Choking_Trooper	= 0,
 	eOHSound_Choking_Human		= 1,
-	eOHSound_Kill_Human				= 2, 
+	eOHSound_Kill_Human				= 2,
 	eOHSound_LastSound				= 3
 };
 
@@ -84,7 +84,7 @@ class COffHand : public CWeapon
 		ItemString	idle;
 		ItemString	throwFM;
 		bool		twoHanded;
-	}SGrabType;
+	} SGrabType;
 
 	typedef std::vector<SGrabType>				TGrabTypes;
 
@@ -95,17 +95,20 @@ public:
 
 	virtual void Update(SEntityUpdateContext &ctx, int slot);
 	virtual void PostUpdate(float frameTime);
-	virtual void PostInit(IGameObject * pGameObject );
+	virtual void PostInit(IGameObject *pGameObject);
 	virtual void Reset();
 
-	virtual void OnAction(EntityId actorId, const ActionId& actionId, int activationMode, float value);
+	virtual void OnAction(EntityId actorId, const ActionId &actionId, int activationMode, float value);
 
 	virtual bool CanSelect() const;
 	virtual void Select(bool select);
-	virtual void FullSerialize( TSerialize ser );
-	virtual bool NetSerialize( TSerialize ser, EEntityAspects aspect, uint8 profile, int flags );
+	virtual void FullSerialize(TSerialize ser);
+	virtual bool NetSerialize(TSerialize ser, EEntityAspects aspect, uint8 profile, int flags);
 	virtual void PostSerialize();
-	void PostSerReset() { m_iPostSerReset = 3; }
+	void PostSerReset()
+	{
+		m_iPostSerReset = 3;
+	}
 
 	virtual void MeleeAttack(bool bShort = false);
 
@@ -120,10 +123,17 @@ public:
 	//virtual void PerformThrow(float speedScale){};
 
 	//Memory Statistics
-	virtual void GetMemoryUsage(ICrySizer * s) const { s->Add(*this); CWeapon::GetMemoryUsage(s); }
+	virtual void GetMemoryUsage(ICrySizer *s) const
+	{
+		s->Add(*this);
+		CWeapon::GetMemoryUsage(s);
+	}
 
 	void  SetOffHandState(EOffHandStates eOHS);
-	ILINE int  GetOffHandState() { return m_currentState; } 
+	ILINE int  GetOffHandState()
+	{
+		return m_currentState;
+	}
 	void  FinishAction(EOffHandActions eOHA);
 	virtual void Freeze(bool freeze);
 
@@ -134,14 +144,20 @@ public:
 
 	void GetAvailableGrenades(std::vector<string> &grenades);
 
-	ILINE void SetResetTimer(float t) { m_resetTimer = t;}
-	ILINE int32 GetGrabType() const { return m_grabType; }
+	ILINE void SetResetTimer(float t)
+	{
+		m_resetTimer = t;
+	}
+	ILINE int32 GetGrabType() const
+	{
+		return m_grabType;
+	}
 
 	float GetObjectMassScale();  //Scale for mouse sensitivity
 
 	virtual bool ReadItemParams(const IItemParamsNode *root);
 
-	void	SelectGrabType(IEntity* pEntity);
+	void	SelectGrabType(IEntity *pEntity);
 
 	bool EvaluateStateTransition(int requestedAction, int activationMode, int inputMethod);
 	bool PreExecuteAction(int requestedAction, int activationMode, bool forceSelect =false);
@@ -178,7 +194,7 @@ public:
 	void ThrowNPC(bool kill = true);
 
 	//Special stuff for grabbed NPCs
-	void RunEffectOnGrabbedNPC(CActor* pNPC);
+	void RunEffectOnGrabbedNPC(CActor *pNPC);
 	void PlaySound(EOffHandSounds sound, bool play);
 
 	EntityId	GetHeldEntityId() const;
@@ -203,7 +219,7 @@ private:
 
 	//Grenade info
 	int					m_lastFireModeId;
-	float				m_nextGrenadeThrow;		
+	float				m_nextGrenadeThrow;
 
 	float				m_lastCHUpdate;
 
@@ -217,7 +233,7 @@ private:
 	bool					m_hasHelper;
 	int						m_grabbedNPCSpecies;
 	float					m_heldEntityMass;
-	
+
 	float					m_killTimeOut;
 	bool					m_killNPC;
 	bool					m_effectRunning;
@@ -247,7 +263,7 @@ private:
 	CWeapon				*m_mainHandWeapon;
 	EntityId			m_prevMainHandId;
 
-	IRenderNode*  m_pRockRN;
+	IRenderNode  *m_pRockRN;
 
 	Matrix34      m_lastNPCMatrix;
 	int						m_iPostSerReset;
@@ -256,14 +272,14 @@ private:
 	static TActionHandler<COffHand> s_actionHandler;
 
 	bool ProcessOffHandActions(EOffHandActions eOHA, int input, int activationMode, float value = 0.0f);
-	bool OnActionUse(EntityId actorId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionAttack(EntityId actorId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionDrop(EntityId actorId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionThrowGrenade(EntityId actorId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionXIThrowGrenade(EntityId actorId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionSwitchGrenade(EntityId actorId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionXISwitchGrenade(EntityId actorId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionSpecial(EntityId actorId, const ActionId& actionId, int activationMode, float value);
+	bool OnActionUse(EntityId actorId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionAttack(EntityId actorId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionDrop(EntityId actorId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionThrowGrenade(EntityId actorId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionXIThrowGrenade(EntityId actorId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionSwitchGrenade(EntityId actorId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionXISwitchGrenade(EntityId actorId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionSpecial(EntityId actorId, const ActionId &actionId, int activationMode, float value);
 	void RegisterActions();
 };
 

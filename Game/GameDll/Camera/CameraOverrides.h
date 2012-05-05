@@ -39,17 +39,35 @@ public:
 	void Update();
 
 	//returns whether current camera gets overridden
-	int GetCameraOverride() const { return m_camOverrideType/* != ECO_NONE*/; }
+	int GetCameraOverride() const
+	{
+		return m_camOverrideType/* != ECO_NONE*/;
+	}
 	//get override settings
-	void GetCameraOverrideSettings(SCamModeSettings &settings) const { settings = m_overrideSettings; }
+	void GetCameraOverrideSettings(SCamModeSettings &settings) const
+	{
+		settings = m_overrideSettings;
+	}
 	//set override settings
-	void SetCameraOverrideSettings(const SCamModeSettings &settings) { m_overrideSettings = settings; }
+	void SetCameraOverrideSettings(const SCamModeSettings &settings)
+	{
+		m_overrideSettings = settings;
+	}
 
 	//set tracked entity for tracking mode
-	void SetTrackEntity(const EntityId id) { m_trackedEntityId = id; }
-	EntityId GetTrackEntity() const { return m_trackedEntityId; }
+	void SetTrackEntity(const EntityId id)
+	{
+		m_trackedEntityId = id;
+	}
+	EntityId GetTrackEntity() const
+	{
+		return m_trackedEntityId;
+	}
 	//set tracking distance
-	void SetTrackDistance(const float dist) { m_fTrackingDistance = max(dist, 0.1f); }
+	void SetTrackDistance(const float dist)
+	{
+		m_fTrackingDistance = max(dist, 0.1f);
+	}
 
 	//run track entity override
 	void SetTrackEntityOverride(bool active);

@@ -7,7 +7,7 @@
 //  Version:     v1.00
 //  Created:     8/2010 by Luciano Morpurgo (refactored from flock.h)
 //  Compilers:   Visual C++ 7.0
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -28,8 +28,12 @@
 class CFishFlock : public CFlock
 {
 public:
-	CFishFlock( IEntity *pEntity ) : CFlock( pEntity,EFLOCK_FISH ) { m_boidEntityName = "FishBoid"; m_boidDefaultAnimName = "swim_loop"; };
-	virtual void CreateBoids( SBoidsCreateContext &ctx );
+	CFishFlock(IEntity *pEntity) : CFlock(pEntity,EFLOCK_FISH)
+	{
+		m_boidEntityName = "FishBoid";
+		m_boidDefaultAnimName = "swim_loop";
+	};
+	virtual void CreateBoids(SBoidsCreateContext &ctx);
 };
 
 #endif // __fishflock_h__

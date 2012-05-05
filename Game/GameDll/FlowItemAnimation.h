@@ -10,25 +10,27 @@
 class CFlowItemAnimation : public CFlowBaseNode<eNCT_Instanced>
 {
 public:
-	CFlowItemAnimation( SActivationInfo * pActInfo )
+	CFlowItemAnimation(SActivationInfo *pActInfo)
 	{
 	}
 
-	IFlowNodePtr Clone( SActivationInfo * pActInfo )
+	IFlowNodePtr Clone(SActivationInfo *pActInfo)
 	{
 		return new CFlowItemAnimation(pActInfo);
 	}
 
-	virtual void GetConfiguration(SFlowNodeConfig& config)
+	virtual void GetConfiguration(SFlowNodeConfig &config)
 	{
-		static const SInputPortConfig inputs[] = {
+		static const SInputPortConfig inputs[] =
+		{
 			InputPortConfig_Void("Activate", _HELP("Play the animation.")),
 			InputPortConfig<EntityId>("ItemId", _HELP("Set item that will play the animation.")),
 			InputPortConfig<bool>("Busy", true, _HELP("Set item as busy while the animation is playing.")),
 			InputPortConfig<string>("Animation", _HELP("Set the animation to be played.")),
 			{0}
 		};
-		static const SOutputPortConfig outputs[] = {
+		static const SOutputPortConfig outputs[] =
+		{
 			{0}
 		};
 		config.pInputPorts = inputs;
@@ -58,7 +60,7 @@ public:
 		{
 			pItem->PlayAnimation(anim.c_str());
 
-			if (busy)
+			if(busy)
 			{
 				pItem->SetBusy(true);
 
@@ -67,25 +69,26 @@ public:
 		}
 	};
 
-	virtual void ProcessEvent( EFlowEvent event, SActivationInfo *pActInfo )
+	virtual void ProcessEvent(EFlowEvent event, SActivationInfo *pActInfo)
 	{
-		switch (event)
+		switch(event)
 		{
 		case eFE_Activate:
-			if (IsPortActive(pActInfo, 0))
+			if(IsPortActive(pActInfo, 0))
 			{
-				CItem *pItem = static_cast<CItem*>(g_pGame->GetIGameFramework()->GetIItemSystem()->GetItem(GetPortEntityId(pActInfo, 1)));
-				
-				if (pItem)
+				CItem *pItem = static_cast<CItem *>(g_pGame->GetIGameFramework()->GetIItemSystem()->GetItem(GetPortEntityId(pActInfo, 1)));
+
+				if(pItem)
 				{
 					pItem->GetScheduler()->ScheduleAction(CSchedulerAction<FlowPlayItemAnimationAction>::Create(FlowPlayItemAnimationAction(GetPortString(pActInfo, 3), GetPortBool(pActInfo, 2))));
 				}
 			}
+
 			break;
 		}
 	}
 
-	virtual void GetMemoryUsage(ICrySizer * s) const
+	virtual void GetMemoryUsage(ICrySizer *s) const
 	{
 		s->Add(*this);
 	}
@@ -96,25 +99,27 @@ public:
 class CFlowOffhandAnimation : public CFlowBaseNode<eNCT_Instanced>
 {
 public:
-	CFlowOffhandAnimation( SActivationInfo * pActInfo )
+	CFlowOffhandAnimation(SActivationInfo *pActInfo)
 	{
 	}
 
-	IFlowNodePtr Clone( SActivationInfo * pActInfo )
+	IFlowNodePtr Clone(SActivationInfo *pActInfo)
 	{
 		return new CFlowOffhandAnimation(pActInfo);
 	}
 
-	virtual void GetConfiguration(SFlowNodeConfig& config)
+	virtual void GetConfiguration(SFlowNodeConfig &config)
 	{
-		static const SInputPortConfig inputs[] = {
+		static const SInputPortConfig inputs[] =
+		{
 			InputPortConfig_Void("Activate", _HELP("Play the animation.")),
 			InputPortConfig<EntityId>("ItemId", _HELP("Set item that will play the animation.")),
 			InputPortConfig<bool>("Busy", true, _HELP("Set item as busy while the animation is playing.")),
 			InputPortConfig<string>("Animation", _HELP("Set the animation to be played.")),
 			{0}
 		};
-		static const SOutputPortConfig outputs[] = {
+		static const SOutputPortConfig outputs[] =
+		{
 			{0}
 		};
 		config.pInputPorts = inputs;
@@ -144,12 +149,12 @@ public:
 		{
 			void execute(CItem *pOffHand)
 			{
-				if (pOffHand->GetEntity()->GetClass()==CItem::sOffHandClass)
+				if(pOffHand->GetEntity()->GetClass()==CItem::sOffHandClass)
 				{
-					if (COffHand *pCOffHand=static_cast<COffHand *>(pOffHand))
+					if(COffHand *pCOffHand=static_cast<COffHand *>(pOffHand))
 						pCOffHand->CancelAction();
 
-					if (CActor *pOwner=pOffHand->GetOwnerActor())
+					if(CActor *pOwner=pOffHand->GetOwnerActor())
 					{
 						CItem *pMainHandItem=static_cast<CItem *>(pOwner->GetCurrentItem());
 
@@ -169,32 +174,32 @@ public:
 		};
 
 		void execute(CItem *pOffHand)
- 		{
-			if (pOffHand->GetEntity()->GetClass()==CItem::sOffHandClass)
+		{
+			if(pOffHand->GetEntity()->GetClass()==CItem::sOffHandClass)
 			{
-				if (COffHand *pCOffHand=static_cast<COffHand *>(pOffHand))
+				if(COffHand *pCOffHand=static_cast<COffHand *>(pOffHand))
 					pCOffHand->PreExecuteAction(eOHA_THROW_GRENADE, eAAM_OnPress);
 			}
 
 			pOffHand->PlayAnimation(anim.c_str());
 
-			if (busy)
+			if(busy)
 			{
 				pOffHand->SetBusy(true);
 				pOffHand->GetScheduler()->TimerAction(pOffHand->GetCurrentAnimationTime(eIGS_FirstPerson), CSchedulerAction<FlowPlayOffhandAnimationActionUnbusy>::Create(), false);
 			}
 
-			if (CActor *pOwner=pOffHand->GetOwnerActor())
+			if(CActor *pOwner=pOffHand->GetOwnerActor())
 			{
-				if (CItem *pMainHandItem=static_cast<CItem *>(pOwner->GetCurrentItem()))
+				if(CItem *pMainHandItem=static_cast<CItem *>(pOwner->GetCurrentItem()))
 				{
-					if (busy)
+					if(busy)
 					{
 						pMainHandItem->SetBusy(true);
 						pMainHandItem->GetScheduler()->TimerAction(pOffHand->GetCurrentAnimationTime(eIGS_FirstPerson), CSchedulerAction<FlowPlayOffhandAnimationActionUnbusy>::Create(), false);
 					}
 
-					if (pMainHandItem->TwoHandMode() >= 1 || pMainHandItem->IsDualWield())
+					if(pMainHandItem->TwoHandMode() >= 1 || pMainHandItem->IsDualWield())
 						pMainHandItem->GetOwnerActor()->HolsterItem(true);
 					else
 					{
@@ -208,32 +213,34 @@ public:
 		}
 	};
 
-	virtual void ProcessEvent( EFlowEvent event, SActivationInfo *pActInfo )
+	virtual void ProcessEvent(EFlowEvent event, SActivationInfo *pActInfo)
 	{
-		switch (event)
+		switch(event)
 		{
 		case eFE_Activate:
-			if (IsPortActive(pActInfo, 0))
+			if(IsPortActive(pActInfo, 0))
 			{
 				CItem *pItem=0;
-				if (EntityId id=GetPortEntityId(pActInfo, 1))
-					pItem = static_cast<CItem*>(g_pGame->GetIGameFramework()->GetIItemSystem()->GetItem(id));
+
+				if(EntityId id=GetPortEntityId(pActInfo, 1))
+					pItem = static_cast<CItem *>(g_pGame->GetIGameFramework()->GetIItemSystem()->GetItem(id));
 				else
 				{
-					if (CActor *pActor=static_cast<CActor *>(g_pGame->GetIGameFramework()->GetClientActor()))
+					if(CActor *pActor=static_cast<CActor *>(g_pGame->GetIGameFramework()->GetClientActor()))
 						pItem=pActor->GetItemByClass(CItem::sOffHandClass);
 				}
 
-				if (!pItem)
+				if(!pItem)
 					return;
 
 				pItem->GetScheduler()->ScheduleAction(CSchedulerAction<FlowPlayOffhandAnimationAction>::Create(FlowPlayOffhandAnimationAction(GetPortString(pActInfo, 3), GetPortBool(pActInfo, 2))));
 			}
+
 			break;
 		}
 	}
 
-	virtual void GetMemoryUsage(ICrySizer * s) const
+	virtual void GetMemoryUsage(ICrySizer *s) const
 	{
 		s->Add(*this);
 	}

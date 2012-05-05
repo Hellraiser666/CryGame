@@ -6,7 +6,7 @@
 //  File name:   UIInput.h
 //  Version:     v1.00
 //  Created:     17/9/2010 by Paul Reindell.
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -19,7 +19,7 @@
 #include <IPlatformOS.h>
 #include <IActionMapManager.h>
 
-class CUIInput 
+class CUIInput
 	: public IUIGameEventSystem
 	, public IActionListener
 	, public IVirtualKeyboardEvents
@@ -28,12 +28,12 @@ public:
 	CUIInput();
 
 	// IUIGameEventSystem
-	UIEVENTSYSTEM( "UIInput" );
+	UIEVENTSYSTEM("UIInput");
 	virtual void InitEventSystem();
 	virtual void UnloadEventSystem();
 
 	// IActionListener
-	virtual void OnAction( const ActionId& action, int activationMode, float value );
+	virtual void OnAction(const ActionId &action, int activationMode, float value);
 	// ~IActionListener
 
 	// IVirtualKeyboardEvents
@@ -43,19 +43,19 @@ public:
 
 private:
 	// ui events
-	void OnDisplayVirtualKeyboard( const wchar_t* title, const wchar_t* initialStr, int maxchars );
+	void OnDisplayVirtualKeyboard(const wchar_t *title, const wchar_t *initialStr, int maxchars);
 
 	// actions
-	bool OnActionTogglePause(EntityId entityId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionStartPause(EntityId entityId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionUp(EntityId entityId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionDown(EntityId entityId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionLeft(EntityId entityId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionRight(EntityId entityId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionClick(EntityId entityId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionBack(EntityId entityId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionConfirm(EntityId entityId, const ActionId& actionId, int activationMode, float value);
-	bool OnActionReset(EntityId entityId, const ActionId& actionId, int activationMode, float value);
+	bool OnActionTogglePause(EntityId entityId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionStartPause(EntityId entityId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionUp(EntityId entityId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionDown(EntityId entityId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionLeft(EntityId entityId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionRight(EntityId entityId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionClick(EntityId entityId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionBack(EntityId entityId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionConfirm(EntityId entityId, const ActionId &actionId, int activationMode, float value);
+	bool OnActionReset(EntityId entityId, const ActionId &actionId, int activationMode, float value);
 
 private:
 	enum EUIEvent
@@ -66,8 +66,8 @@ private:
 
 	SUIEventReceiverDispatcher<CUIInput> m_eventDispatcher;
 	SUIEventSenderDispatcher<EUIEvent> m_eventSender;
-	IUIEventSystem* m_pUIEvents;
-	IUIEventSystem* m_pUIFunctions;
+	IUIEventSystem *m_pUIEvents;
+	IUIEventSystem *m_pUIFunctions;
 
 	static TActionHandler<CUIInput>	s_actionHandler;
 	std::map< EUIEvent, uint > m_eventMap;

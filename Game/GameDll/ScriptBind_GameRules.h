@@ -80,7 +80,7 @@ public:
 	//		pos				- Player position.
 	//		angles			- Player angle.
 	//		teamId			- Team identifier.
-	//		clearInventory	- True to clean the inventory, false otherwise. 
+	//		clearInventory	- True to clean the inventory, false otherwise.
 	// Description:
 	//		Revives the player.
 	int RevivePlayer(IFunctionHandler *pH, ScriptHandle playerId, Vec3 pos, Vec3 angles, int teamId, bool clearInventory);
@@ -119,7 +119,7 @@ public:
 	// Description:
 	//		Kills the player.
 	int KillPlayer(IFunctionHandler *pH, ScriptHandle playerId, bool dropItem, bool ragdoll,
-			ScriptHandle shooterId, ScriptHandle weaponId, float damage, int hitJoint, int hit_type, Vec3 impulse, ScriptHandle projectileId);
+				   ScriptHandle shooterId, ScriptHandle weaponId, float damage, int hitJoint, int hit_type, Vec3 impulse, ScriptHandle projectileId);
 	// <title MovePlayer>
 	// Syntax: GameRules.MovePlayer( ScriptHandle playerId, Vec3 pos, Vec3 angles )
 	// Arguments:
@@ -133,7 +133,7 @@ public:
 	// Syntax: GameRules.GetPlayerByChannelId( int channelId )
 	// Arguments:
 	//		channelId - Channel identifier.
-	// Description: 
+	// Description:
 	//		Gets the player from the channel id.
 	int GetPlayerByChannelId(IFunctionHandler *pH, int channelId);
 	// <title GetChannelId>
@@ -362,15 +362,15 @@ public:
 	//		targetId - Target identifier.
 	// Description:
 	//		Changes the spectator mode.
-	int ChangeSpectatorMode(IFunctionHandler* pH, ScriptHandle playerId, int mode, ScriptHandle targetId);
+	int ChangeSpectatorMode(IFunctionHandler *pH, ScriptHandle playerId, int mode, ScriptHandle targetId);
 	// <title CanChangeSpectatorMode>
 	// Syntax: GameRules.CanChangeSpectatorMode( ScriptHandle playerId )
 	// Arguments:
 	//		playerId - Player identifier.
 	// Description:
 	//		Check if it's possible to change the spectator mode.
-	int CanChangeSpectatorMode(IFunctionHandler* pH, ScriptHandle playerId);
-	
+	int CanChangeSpectatorMode(IFunctionHandler *pH, ScriptHandle playerId);
+
 	// <title AddMinimapEntity>
 	// Syntax: GameRules.AddMinimapEntity( ScriptHandle entityId, int type, float lifetime )
 	// Arguments:
@@ -406,7 +406,7 @@ public:
 	// Syntax: GameRules.ServerExplosion( ScriptHandle shooterId, ScriptHandle weaponId, float dmg,
 	//		Vec3 pos, Vec3 dir, float radius, float angle, float pressure, float holesize )
 	int ServerExplosion(IFunctionHandler *pH, ScriptHandle shooterId, ScriptHandle weaponId, float dmg,
-		Vec3 pos, Vec3 dir, float radius, float angle, float pressure, float holesize);
+						Vec3 pos, Vec3 dir, float radius, float angle, float pressure, float holesize);
 	// <title ServerHit>
 	// Syntax: GameRules.ServerHit( ScriptHandle targetId, ScriptHandle shooterId, ScriptHandle weaponId, float dmg, float radius, int materialId, int partId, int typeId )
 	int ServerHit(IFunctionHandler *pH, ScriptHandle targetId, ScriptHandle shooterId, ScriptHandle weaponId, float dmg, float radius, int materialId, int partId, int typeId);
@@ -734,7 +734,7 @@ public:
 	// Arguments:
 	//		entityId	- Entity identifier.
 	//		timer		- Float value for the time of the entity removal.
-	//		visibility	- Removal visibility. 
+	//		visibility	- Removal visibility.
 	// Description:
 	//		Schedules the removal of the specified entity.
 	int ScheduleEntityRemoval(IFunctionHandler *pH, ScriptHandle entityId, float timer, bool visibility);
@@ -856,7 +856,7 @@ public:
 	// Description:
 	//		Gets the team lock.
 	int GetTeamLock(IFunctionHandler *pH);
-	
+
 	// <title IsFrozen>
 	// Syntax: GameRules.IsFrozen( ScriptHandle entityId )
 	// Arguments:
@@ -900,7 +900,7 @@ public:
 	//		shooterId - Shooter identifier.
 	// Description:
 	//		Sends a hit indicator.
-	int SendHitIndicator(IFunctionHandler* pH, ScriptHandle shooterId);
+	int SendHitIndicator(IFunctionHandler *pH, ScriptHandle shooterId);
 	// <title SendDamageIndicator>
 	// Syntax: GameRules.SendDamageIndicator( ScriptHandle targetId, ScriptHandle shooterId, ScriptHandle weaponId )
 	// Arguments:
@@ -909,7 +909,7 @@ public:
 	//		weaponId	- Weapon identifier.
 	// Description:
 	//		Send a damage indicator from the shooter to the target.
-	int SendDamageIndicator(IFunctionHandler* pH, ScriptHandle targetId, ScriptHandle shooterId, ScriptHandle weaponId);
+	int SendDamageIndicator(IFunctionHandler *pH, ScriptHandle targetId, ScriptHandle shooterId, ScriptHandle weaponId);
 
 	// <title IsInvulnerable>
 	// Syntax: GameRules.IsInvulnerable( ScriptHandle playerId )
@@ -917,7 +917,7 @@ public:
 	//		playerId - Player identifier.
 	// Description:
 	//		Checks if the player is invulnerable.
-	int IsInvulnerable(IFunctionHandler* pH, ScriptHandle playerId);
+	int IsInvulnerable(IFunctionHandler *pH, ScriptHandle playerId);
 	// <title SetInvulnerability>
 	// Syntax: GameRules.SetInvulnerability( ScriptHandle playerId, bool invulnerable )
 	// Arguments:
@@ -925,7 +925,7 @@ public:
 	//		invulnerable	- True to set invulnerability to the player, false to unset.
 	// Description:
 	//		Sets/unsets invulnerability for the specified player.
-	int SetInvulnerability(IFunctionHandler* pH, ScriptHandle playerId, bool invulnerable);
+	int SetInvulnerability(IFunctionHandler *pH, ScriptHandle playerId, bool invulnerable);
 
 
 	// For the power struggle tutorial.
@@ -935,17 +935,17 @@ public:
 	//		localWinner - Local winner ID.
 	// Description:
 	//		Ends the game with a local winner.
-	int GameOver(IFunctionHandler* pH, int localWinner);
+	int GameOver(IFunctionHandler *pH, int localWinner);
 	// <title EnteredGame>
 	// Syntax: GameRules.EnteredGame()
 	// Description:
 	//		Get the game rules and enter the game.
-	int EnteredGame(IFunctionHandler* pH);
+	int EnteredGame(IFunctionHandler *pH);
 	// <title EndGameNear>
 	// Syntax: GameRules.EndGameNear( ScriptHandle entityId )
 	// Arguments:
 	//		entityId - Entity identifier.
-	int EndGameNear(IFunctionHandler* pH, ScriptHandle entityId);
+	int EndGameNear(IFunctionHandler *pH, ScriptHandle entityId);
 
 	// <title SPNotifyPlayerKill>
 	// Syntax: GameRules.SPNotifyPlayerKill( ScriptHandle targetId, ScriptHandle weaponId, bool bHeadShot )
@@ -955,7 +955,7 @@ public:
 	//		bHeadShot	- True if the shot was to the head of the target, false otherwise.
 	// Description:
 	//		Notifies that the player kills somebody.
-	int SPNotifyPlayerKill(IFunctionHandler* pH, ScriptHandle targetId, ScriptHandle weaponId, bool bHeadShot);
+	int SPNotifyPlayerKill(IFunctionHandler *pH, ScriptHandle targetId, ScriptHandle weaponId, bool bHeadShot);
 
 
 	// EMP Grenade
@@ -967,12 +967,12 @@ public:
 	//		timeScale - Time scale.
 	// Description:
 	//		Processes the EMP (Electro Magnetic Pulse) effect.
-	int ProcessEMPEffect(IFunctionHandler* pH, ScriptHandle targetId, float timeScale);
+	int ProcessEMPEffect(IFunctionHandler *pH, ScriptHandle targetId, float timeScale);
 	// <title PerformDeadHit>
 	// Syntax: GameRules.PerformDeadHit()
 	// Description:
 	//		Performs a death hit.
-	int PerformDeadHit(IFunctionHandler* pH);
+	int PerformDeadHit(IFunctionHandler *pH);
 
 private:
 	void RegisterGlobals();

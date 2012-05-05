@@ -4,7 +4,7 @@ Copyright (C), Crytek Studios, 2001-2008.
 -------------------------------------------------------------------------
 $Id$
 $DateTime$
-Description: 
+Description:
 
 -------------------------------------------------------------------------
 History:
@@ -51,7 +51,7 @@ public:
 	virtual void AddToQueue(TGameTokenName name);
 
 	virtual void AddToQueueFor(int channelId, TGameTokenName name);
-	
+
 	virtual void FullSynch(int channelId, bool reset);
 
 	virtual void OnClientConnect(int channelId);
@@ -61,17 +61,20 @@ public:
 	struct SChannel
 	{
 		SChannel()
-		: local(false), pNetChannel(0), onhold(false) {};
+			: local(false), pNetChannel(0), onhold(false) {};
 
 		SChannel(INetChannel *_pNetChannel, bool isLocal)
-		: local(isLocal), pNetChannel(_pNetChannel), onhold(false) {};
+			: local(isLocal), pNetChannel(_pNetChannel), onhold(false) {};
 
 		INetChannel				*pNetChannel;
 		SSendableHandle   lastOrderedMessage;
 		bool							local:1;
 		bool							onhold:1;
 
-		void GetMemoryUsage( ICrySizer *pSizer ) const { /*nothing*/ }
+		void GetMemoryUsage(ICrySizer *pSizer) const
+		{
+			/*nothing*/
+		}
 	};
 
 	SChannel *GetChannel(int channelId);
@@ -82,16 +85,16 @@ protected:
 	struct SChannelQueueEnt
 	{
 		SChannelQueueEnt() {}
-		SChannelQueueEnt(int c, const TGameTokenName& k) : channel(c), name(k) {}
+		SChannelQueueEnt(int c, const TGameTokenName &k) : channel(c), name(k) {}
 		int channel;
 		TGameTokenName name;
 
-		bool operator<( const SChannelQueueEnt& rhs ) const
+		bool operator<(const SChannelQueueEnt &rhs) const
 		{
 			return rhs.channel < channel || (rhs.channel == channel && rhs.name < name);
 		}
 
-		void GetMemoryUsage( ICrySizer *pSizer ) const
+		void GetMemoryUsage(ICrySizer *pSizer) const
 		{
 			pSizer->AddObject(name);
 		}

@@ -26,11 +26,11 @@ class CCachedAIValues : public ICachedAIValues
 public:
 	CCachedAIValues();
 
-	void Init(IGameObject* pGameObject);
+	void Init(IGameObject *pGameObject);
 
-	VIRTUAL bool operator==(const ICachedAIValues& _rhs) const;
+	VIRTUAL bool operator==(const ICachedAIValues &_rhs) const;
 
-	VIRTUAL bool NetSerialize( TSerialize ser, EEntityAspects aspect, uint8 profile, int flags );
+	VIRTUAL bool NetSerialize(TSerialize ser, EEntityAspects aspect, uint8 profile, int flags);
 
 	VIRTUAL int GetAlertnessState() const;
 	VIRTUAL void SetAlertnessState(int iAlertnessState);
@@ -42,14 +42,14 @@ public:
 	VIRTUAL bool HasReadabilitySoundFinished() const;
 	VIRTUAL void SetReadabilitySoundFinished(bool bReadabilitySoundFinished);
 
-	virtual const SReadabilitySoundParams* PopUnplayedReadabilitySoundParams();
-	virtual void SetReadabilitySoundParams(const SReadabilitySoundParams& params);
+	virtual const SReadabilitySoundParams *PopUnplayedReadabilitySoundParams();
+	virtual void SetReadabilitySoundParams(const SReadabilitySoundParams &params);
 	//~ Readability sounds
 
 private:
 	void TriggerNetUpdate();
 
-	IGameObject* m_pGameObject;
+	IGameObject *m_pGameObject;
 
 	int m_iAlertnessState;
 	CountedValue<SReadabilitySoundParams> m_readabilitySoundParams;

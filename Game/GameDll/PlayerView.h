@@ -64,7 +64,7 @@ protected:
 		uint8 stats_spectatorMode;
 		EntityId stats_spectatorTarget;
 		bool  stats_onLadder;
-		
+
 		float params_viewFoVScale;
 		Vec3 params_viewPivot;
 		float params_viewDistance;
@@ -148,20 +148,20 @@ protected:
 	void FirstPersonJump(SViewParams &viewParams,Vec3 &weaponOffset, Ang3 &weaponAngleOffset);
 	void ViewVehicle(SViewParams &viewParams);
 	void ViewFollowCharacterFirstPerson(SViewParams &viewParams);
-	void ViewFirstPersonOnLadder(SViewParams & viewParams);
+	void ViewFirstPersonOnLadder(SViewParams &viewParams);
 	void ViewSpectatorTarget(SViewParams &viewParams);
 	void ViewDeathCamTarget(SViewParams &viewParams);
 
 	void ViewExternalControlPostProcess(CPlayer &rPlayer,SViewParams &viewParams);
-	public:
+public:
 	void FirstPersonWeaponPostProcess(CPlayer &rPlayer,SViewParams &viewParams);
-	protected:
+protected:
 	void ViewShakePostProcess(CPlayer &rPlayer,SViewParams &viewParams);
 	void HudPostProcess(CPlayer &rPlayer,SViewParams &viewParams);
 	void HandsPostProcess(CPlayer &rPlayer,SViewParams &viewParams);
 
 	void ViewProcess(SViewParams &viewParams);
-	void ViewPreProcess(const CPlayer &rPlayer,SViewParams &viewParams,SViewStateIn & m_viewStateIn);
+	void ViewPreProcess(const CPlayer &rPlayer,SViewParams &viewParams,SViewStateIn &m_viewStateIn);
 	void ViewPostProcess(CPlayer &rPlayer,SViewParams &viewParams);
 };
 

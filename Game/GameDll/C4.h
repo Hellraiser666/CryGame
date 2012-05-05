@@ -30,12 +30,16 @@ public:
 	CC4();
 	virtual ~CC4();
 
-	virtual void OnAction(EntityId actorId, const ActionId& actionId, int activationMode, float value);
+	virtual void OnAction(EntityId actorId, const ActionId &actionId, int activationMode, float value);
 
 	virtual void PickUp(EntityId pickerId, bool sound, bool select, bool keepHistory, const char *setup = NULL);
 	virtual bool CanSelect() const;
 	virtual void Select(bool select);
-	virtual void GetMemoryUsage(ICrySizer * s) const { s->Add(*this); CWeapon::GetMemoryUsage(s); }
+	virtual void GetMemoryUsage(ICrySizer *s) const
+	{
+		s->Add(*this);
+		CWeapon::GetMemoryUsage(s);
+	}
 	virtual void Drop(float impulseScale, bool selectNext/* =true */, bool byDeath/* =false */);
 
 
@@ -76,7 +80,7 @@ private:
 
 	static TActionHandler<CC4> s_actionHandler;
 
-	bool OnActionSelectDetonator(EntityId actorId, const ActionId& actionId, int activationMode, float value);
+	bool OnActionSelectDetonator(EntityId actorId, const ActionId &actionId, int activationMode, float value);
 	void SelectDetonator();
 };
 

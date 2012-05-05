@@ -28,23 +28,38 @@ public:
 	virtual void InitClient(int channelId) {};
 	virtual void PostInit(IGameObject *pGameObject);
 	virtual void PostInitClient(int channelId) {};
-	virtual bool ReloadExtension( IGameObject * pGameObject, const SEntitySpawnParams &params ) { return false; }
-	virtual void PostReloadExtension( IGameObject * pGameObject, const SEntitySpawnParams &params ) {}
-	virtual bool GetEntityPoolSignature( TSerialize signature ) { return false; }
+	virtual bool ReloadExtension(IGameObject *pGameObject, const SEntitySpawnParams &params)
+	{
+		return false;
+	}
+	virtual void PostReloadExtension(IGameObject *pGameObject, const SEntitySpawnParams &params) {}
+	virtual bool GetEntityPoolSignature(TSerialize signature)
+	{
+		return false;
+	}
 	virtual void Release();
-	virtual bool NetSerialize(TSerialize ser, EEntityAspects aspect, uint8 profile, int pflags) { return true; }
+	virtual bool NetSerialize(TSerialize ser, EEntityAspects aspect, uint8 profile, int pflags)
+	{
+		return true;
+	}
 	virtual void FullSerialize(TSerialize ser);
 	virtual void PostSerialize() {}
-	virtual void SerializeSpawnInfo( TSerialize ser ) {}
-	virtual ISerializableInfoPtr GetSpawnInfo() {return 0;}
-	virtual void Update( SEntityUpdateContext &ctx, int updateSlot);
-	virtual void PostUpdate(float frameTime ) {};
+	virtual void SerializeSpawnInfo(TSerialize ser) {}
+	virtual ISerializableInfoPtr GetSpawnInfo()
+	{
+		return 0;
+	}
+	virtual void Update(SEntityUpdateContext &ctx, int updateSlot);
+	virtual void PostUpdate(float frameTime) {};
 	virtual void PostRemoteSpawn() {};
-	virtual void HandleEvent( const SGameObjectEvent &);
+	virtual void HandleEvent(const SGameObjectEvent &);
 	virtual void ProcessEvent(SEntityEvent &);
 	virtual void SetChannelId(uint16 id) {}
 	virtual void SetAuthority(bool auth);
-	virtual void GetMemoryUsage(ICrySizer * s) const { s->Add(*this); }
+	virtual void GetMemoryUsage(ICrySizer *s) const
+	{
+		s->Add(*this);
+	}
 	//~IGameObjectExtension
 
 

@@ -30,7 +30,11 @@ public:
 	virtual ~CSingleTG();
 
 	// CSingle
-	virtual void GetMemoryUsage(ICrySizer * s) const { s->Add(*this); CSingle::GetMemoryUsage(s); }
+	virtual void GetMemoryUsage(ICrySizer *s) const
+	{
+		s->Add(*this);
+		CSingle::GetMemoryUsage(s);
+	}
 
 	virtual bool CanFire(bool considerAmmo /* = true */) const;
 	virtual void UpdateFPView(float frameTime);
@@ -38,7 +42,7 @@ public:
 	virtual void StartFire();
 
 	virtual void UpdateAutoAim(float frameTime);
-	virtual bool IsValidAutoAimTarget(IEntity* pEntity, int partId = 0);
+	virtual bool IsValidAutoAimTarget(IEntity *pEntity, int partId = 0);
 
 	virtual void StartLocking(EntityId targetId, int partId = 0);
 	virtual void Lock(EntityId targetId, int partId = 0);
@@ -58,7 +62,7 @@ private:
 	int					m_iSerializeIgnoreUpdate;
 
 private:
-	CSingleSharedData*	m_pShared;
+	CSingleSharedData	*m_pShared;
 };
 
 

@@ -23,13 +23,13 @@ class CFlowNode_ColorGradient : public CFlowBaseNode<eNCT_Instanced>
 public:
 	static const SInputPortConfig inputPorts[];
 
-	CFlowNode_ColorGradient( SActivationInfo* activationInformation);
+	CFlowNode_ColorGradient(SActivationInfo *activationInformation);
 	~CFlowNode_ColorGradient();
 
-	virtual void GetConfiguration(SFlowNodeConfig& config);
-	virtual void ProcessEvent(EFlowEvent event, SActivationInfo* activationInformation);
-	virtual void GetMemoryUsage(ICrySizer* sizer) const;
-	virtual IFlowNodePtr Clone( SActivationInfo * pActInfo );
+	virtual void GetConfiguration(SFlowNodeConfig &config);
+	virtual void ProcessEvent(EFlowEvent event, SActivationInfo *activationInformation);
+	virtual void GetMemoryUsage(ICrySizer *sizer) const;
+	virtual IFlowNodePtr Clone(SActivationInfo *pActInfo);
 
 	enum EInputPorts
 	{
@@ -44,4 +44,4 @@ private:
 	ITexture *m_pTexture;
 };
 
-#endif 
+#endif

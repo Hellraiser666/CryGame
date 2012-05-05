@@ -93,7 +93,7 @@ struct SVehicleWheel
 	Vec3 worldOffset;
 	Vec3 contactNormal;
 
-	IVehiclePart* wheelPart;
+	IVehiclePart *wheelPart;
 
 	float radius;
 	float mass;
@@ -176,49 +176,64 @@ public:
 	~CVehicleMovementArcadeWheeled();
 
 	// IVehicleMovement
-	virtual bool Init(IVehicle* pVehicle, const CVehicleParams& table);
+	virtual bool Init(IVehicle *pVehicle, const CVehicleParams &table);
 	virtual void PostInit();
 	virtual void Reset();
 	virtual void Release();
 	virtual void Physicalize();
 	virtual void PostPhysicalize();
 
-	virtual EVehicleMovementType GetMovementType() { return eVMT_Land; } 
+	virtual EVehicleMovementType GetMovementType()
+	{
+		return eVMT_Land;
+	}
 
-	virtual bool StartEngine(EntityId driverId);  
+	virtual bool StartEngine(EntityId driverId);
 	virtual void StopEngine();
-	virtual void OnEvent(EVehicleMovementEvent event, const SVehicleMovementEventParams& params);
+	virtual void OnEvent(EVehicleMovementEvent event, const SVehicleMovementEventParams &params);
 	virtual void OnAction(const TVehicleActionId actionId, int activationMode, float value);
 
 	virtual void ProcessAI(const float deltaTime);
 	virtual void ProcessMovement(const float deltaTime);
-	virtual void Update(const float deltaTime);  
+	virtual void Update(const float deltaTime);
 	virtual void UpdateSounds(const float deltaTime);
 
-	virtual bool RequestMovement(CMovementRequest& movementRequest);
-	virtual void GetMovementState(SMovementState& movementState);
+	virtual bool RequestMovement(CMovementRequest &movementRequest);
+	virtual void GetMovementState(SMovementState &movementState);
 
-	virtual pe_type GetPhysicalizationType() const { return PE_WHEELEDVEHICLE; };
-	virtual bool UseDrivingProxy() const { return true; };
-	virtual int GetWheelContacts() const { return m_wheelContacts; }
-	virtual int GetBlownTires() const { return m_blownTires; }
+	virtual pe_type GetPhysicalizationType() const
+	{
+		return PE_WHEELEDVEHICLE;
+	};
+	virtual bool UseDrivingProxy() const
+	{
+		return true;
+	};
+	virtual int GetWheelContacts() const
+	{
+		return m_wheelContacts;
+	}
+	virtual int GetBlownTires() const
+	{
+		return m_blownTires;
+	}
 
-	virtual void GetMemoryUsage(ICrySizer * pSizer) const;
+	virtual void GetMemoryUsage(ICrySizer *pSizer) const;
 
 	virtual void Serialize(TSerialize ser, EEntityAspects aspects);
-	virtual void SetAuthority( bool auth )
+	virtual void SetAuthority(bool auth)
 	{
 		// m_netActionSync.CancelReceived();
 	};
 	// ~IVehicleMovement
 
 	// IVehicleObject
-	virtual void OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams& params);
+	virtual void OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams &params);
 
 protected:
 
-	virtual bool InitPhysics(const CVehicleParams& table);
-	virtual void InitSurfaceEffects();  
+	virtual bool InitPhysics(const CVehicleParams &table);
+	virtual void InitSurfaceEffects();
 
 	virtual void UpdateSuspension(const float deltaTime);
 	void UpdateSuspensionSound(const float deltaTime);
@@ -230,7 +245,10 @@ protected:
 	virtual void ApplyBoost(float speed, float maxSpeed, float strength, float deltaTime);
 
 	virtual bool DoGearSound();
-	virtual float GetMinRPMSoundRatio() { return 0.f; }
+	virtual float GetMinRPMSoundRatio()
+	{
+		return 0.f;
+	}
 
 #if ENABLE_VEHICLE_DEBUG
 	virtual void DebugDrawMovement(const float deltaTime);
@@ -246,7 +264,7 @@ protected:
 	void TickGears(float dt, float averageWheelSpeed, float throttle, float forwardSpeed);
 	void EnableLowLevelPhysics(int state, int bThreadSafe);
 	void InternalPhysicsTick(float dt);
-	void GetCurrentWheelStatus(IPhysicalEntity* pPhysics);
+	void GetCurrentWheelStatus(IPhysicalEntity *pPhysics);
 
 #if ENABLE_VEHICLE_DEBUG
 	void DebugCheat(float dt);
@@ -258,12 +276,12 @@ protected:
 protected:
 
 	pe_params_car m_carParams;
-	pe_status_vehicle m_vehicleStatus;	
+	pe_status_vehicle m_vehicleStatus;
 	pe_action_drive m_action;
 
 	float m_steerMax;	// max steering angle in deg
 	float m_rpmTarget;
-	float m_lastBump, m_compressionMax;	
+	float m_lastBump, m_compressionMax;
 	float	m_rpmScalePrev;
 	float m_brakeTimer;
 	float m_reverseTimer;
@@ -275,7 +293,7 @@ protected:
 
 	float m_suspDamping;
 	float m_stabi;
-	float m_speedSuspUpdated;    
+	float m_speedSuspUpdated;
 
 	// Network related
 	//CNetActionSync<CNetworkMovementArcadeWheeled> m_netActionSync;
@@ -326,7 +344,7 @@ protected:
 
 	BEGIN_SHARED_PARAMS(SSharedParams)
 
-		bool								isBreakingOnIdle;
+	bool								isBreakingOnIdle;
 	float								steerSpeed, steerSpeedMin;	// Steer speed at vMaxSteerMax and steer speed at v = 0.
 	float								kvSteerMax;									// Reduce steer max at vMaxSteerMax.
 	float								v0SteerMax;									// Max steering angle in deg at v = 0.
@@ -346,7 +364,7 @@ protected:
 
 	END_SHARED_PARAMS
 
-		Handling m_handling;
+	Handling m_handling;
 
 	float m_damageRPMScale;
 
@@ -367,7 +385,7 @@ protected:
 
 	//------------------------------------------------------------------------------
 	// AI related
-	// PID controller for speed control.	
+	// PID controller for speed control.
 
 	float	m_steering;
 	float	m_prevAngle;

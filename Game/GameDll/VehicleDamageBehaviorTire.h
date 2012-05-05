@@ -25,29 +25,32 @@ public:
 	CVehicleDamageBehaviorBlowTire() {}
 	virtual ~CVehicleDamageBehaviorBlowTire() {}
 
-	virtual bool Init(IVehicle* pVehicle, const CVehicleParams& table);
+	virtual bool Init(IVehicle *pVehicle, const CVehicleParams &table);
 	virtual void Reset();
-	virtual void Release() { delete this; }
+	virtual void Release()
+	{
+		delete this;
+	}
 
-	virtual void OnDamageEvent(EVehicleDamageBehaviorEvent event, const SVehicleDamageBehaviorEventParams& behaviorParams);
+	virtual void OnDamageEvent(EVehicleDamageBehaviorEvent event, const SVehicleDamageBehaviorEventParams &behaviorParams);
 
 	virtual void Serialize(TSerialize ser, EEntityAspects aspects);
 	virtual void Update(const float deltaTime);
-  virtual void OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams& params);
+	virtual void OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams &params);
 
-	virtual void GetMemoryUsage(ICrySizer * s) const;
+	virtual void GetMemoryUsage(ICrySizer *s) const;
 
 protected:
-  void Activate(bool activate);
+	void Activate(bool activate);
 	void DamagePlayers();
 
-	IVehicle* m_pVehicle;
-	
+	IVehicle *m_pVehicle;
+
 	bool m_isActive;
-  string m_component;
+	string m_component;
 	string m_sBlowTireEffect;
-	  
-  int m_aiImmobilizedTimer;
+
+	int m_aiImmobilizedTimer;
 };
 
 #endif

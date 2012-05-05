@@ -7,7 +7,7 @@
 //  Version:     v1.00
 //  Created:     17/5/2002 by Timur.
 //  Compilers:   Visual Studio.NET
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -33,12 +33,12 @@ struct SBoidsCreateContext;
 class CScriptBind_Boids  : public CScriptableBase
 {
 public:
-	CScriptBind_Boids( ISystem *pSystem );
+	CScriptBind_Boids(ISystem *pSystem);
 	virtual ~CScriptBind_Boids(void);
 
 	virtual void GetMemoryUsage(ICrySizer *pSizer) const
 	{
-		pSizer->AddObject(this, sizeof(*this));	
+		pSizer->AddObject(this, sizeof(*this));
 	}
 	// <title CreateFlock>
 	// Syntax: Boids.CreateFlock( entity,paramsTable )
@@ -48,7 +48,7 @@ public:
 	//    entity - Valid entity table.
 	//    nType - Type of the flock, can be Boids.FLOCK_BIRDS,Boids.FLOCK_FISH,Boids.FLOCK_BUGS.
 	//    paramTable - Table with parameters for flock (Look at sample scripts).
-	int CreateFlock( IFunctionHandler *pH, SmartScriptTable entity,int nType,SmartScriptTable paramTable );
+	int CreateFlock(IFunctionHandler *pH, SmartScriptTable entity,int nType,SmartScriptTable paramTable);
 
 	// <title CreateFishFlock>
 	// Syntax: Boids.CreateFishFlock( entity,paramsTable )
@@ -57,7 +57,7 @@ public:
 	// Arguments:
 	//    entity - Valid entity table.
 	//    paramTable - Table with parameters for flock (Look at sample scripts).
-	int CreateFishFlock(IFunctionHandler *pH, SmartScriptTable entity,SmartScriptTable paramTable );
+	int CreateFishFlock(IFunctionHandler *pH, SmartScriptTable entity,SmartScriptTable paramTable);
 
 	// <title CreateBugsFlock>
 	// Syntax: Boids.CreateBugsFlock( entity,paramsTable )
@@ -66,7 +66,7 @@ public:
 	// Arguments:
 	//    entity - Valid entity table.
 	//    paramTable - Table with parameters for flock (Look at sample scripts).
-	int CreateBugsFlock(IFunctionHandler *pH, SmartScriptTable entity,SmartScriptTable paramTable );
+	int CreateBugsFlock(IFunctionHandler *pH, SmartScriptTable entity,SmartScriptTable paramTable);
 
 	// <title SetFlockParams>
 	// Syntax: Boids.SetFlockParams( entity,paramsTable )
@@ -75,7 +75,7 @@ public:
 	// Arguments:
 	//    entity - Valid entity table containing flock.
 	//    paramTable - Table with parameters for flock (Look at sample scripts).
-	int SetFlockParams(IFunctionHandler *pH, SmartScriptTable entity,SmartScriptTable paramTable );
+	int SetFlockParams(IFunctionHandler *pH, SmartScriptTable entity,SmartScriptTable paramTable);
 
 	// <title EnableFlock>
 	// Syntax: Boids.EnableFlock( entity,paramsTable )
@@ -84,7 +84,7 @@ public:
 	// Arguments:
 	//    entity - Valid entity table containing flock.
 	//    bEnable - true to enable or false to disable flock.
-	int EnableFlock(IFunctionHandler *pH,SmartScriptTable entity,bool bEnable );
+	int EnableFlock(IFunctionHandler *pH,SmartScriptTable entity,bool bEnable);
 
 	// <title SetFlockPercentEnabled>
 	// Syntax: Boids.SetFlockPercentEnabled( entity,paramsTable )
@@ -94,7 +94,7 @@ public:
 	// Arguments:
 	//    entity - Valid entity table containing flock.
 	//    nPercent - In range 0 to 100, 0 mean no boids will be rendered,if 100 then all boids will be rendered.
-	int SetFlockPercentEnabled(IFunctionHandler *pH,SmartScriptTable entity,int nPercent );
+	int SetFlockPercentEnabled(IFunctionHandler *pH,SmartScriptTable entity,int nPercent);
 
 	// <title SetAttractionPoint>
 	// Syntax: Boids.SetAttractionPoint( entity,paramsTable )
@@ -103,7 +103,7 @@ public:
 	// Arguments:
 	//    entity - Valid entity table containing flock.
 	//    point - The one time attraction point
-	int SetAttractionPoint(IFunctionHandler *pH,SmartScriptTable entity,Vec3 point );
+	int SetAttractionPoint(IFunctionHandler *pH,SmartScriptTable entity,Vec3 point);
 
 	// <title OnBoidHit>
 	// Syntax: Boids.OnBoidHit( flockEntity,boidEntity,hit )
@@ -113,14 +113,14 @@ public:
 	//    flockEntity - Valid entity table containing flock.
 	//    boidEntity - Valid entity table containing boid.
 	//	  hit - Valid entity table containing hit information..
-	int OnBoidHit( IFunctionHandler *pH,SmartScriptTable flockEntity,SmartScriptTable boidEntity,SmartScriptTable hit );
+	int OnBoidHit(IFunctionHandler *pH,SmartScriptTable flockEntity,SmartScriptTable boidEntity,SmartScriptTable hit);
 
 private:
-	bool ReadParamsTable( IScriptTable *pTable, struct SBoidContext &bc,SBoidsCreateContext &ctx );	
-	IEntity* GetEntity( IScriptTable *pEntityTable );
-	CFlock* GetFlock( IScriptTable *pEntityTable );
+	bool ReadParamsTable(IScriptTable *pTable, struct SBoidContext &bc,SBoidsCreateContext &ctx);
+	IEntity *GetEntity(IScriptTable *pEntityTable);
+	CFlock *GetFlock(IScriptTable *pEntityTable);
 
-	int CommonCreateFlock( int type,IFunctionHandler *pH,SmartScriptTable entity,SmartScriptTable paramTable );
+	int CommonCreateFlock(int type,IFunctionHandler *pH,SmartScriptTable entity,SmartScriptTable paramTable);
 
 	ISystem *m_pSystem;
 	IScriptSystem *m_pScriptSystem;

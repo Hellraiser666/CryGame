@@ -29,7 +29,10 @@ History:
 //Spread Modifiers (let modify spread per value when zoomed)
 typedef struct SSpreadModParams
 {
-	SSpreadModParams() { Reset(); };
+	SSpreadModParams()
+	{
+		Reset();
+	};
 	void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 	{
 		CItemParamReader reader(params);
@@ -60,7 +63,7 @@ typedef struct SSpreadModParams
 	float								spread_jump_m_mod;
 	float								spread_zeroG_m_mod;
 
-	void GetMemoryUsage(ICrySizer * s) const
+	void GetMemoryUsage(ICrySizer *s) const
 	{
 	}
 
@@ -69,7 +72,10 @@ typedef struct SSpreadModParams
 //Recoil Modifiers (let modify recoil per value when zoomed)
 typedef struct SRecoilModParams
 {
-	SRecoilModParams() { Reset(); };
+	SRecoilModParams()
+	{
+		Reset();
+	};
 	void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 	{
 		CItemParamReader reader(params);
@@ -108,7 +114,7 @@ typedef struct SRecoilModParams
 	//Nano suit modifiers
 	float								recoil_strMode_m_mod;
 
-	void GetMemoryUsage(ICrySizer * s) const
+	void GetMemoryUsage(ICrySizer *s) const
 	{
 	}
 
@@ -126,7 +132,10 @@ public:
 
 	typedef struct SZoomParams
 	{
-		SZoomParams(){ Reset(); };
+		SZoomParams()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
@@ -149,38 +158,41 @@ public:
 			ResetValue(scope_mode, false);
 			ResetValue(scope_nearFov, 60.0f);
 			ResetValue(scope_offset,Vec3(0,0,0));
-			
+
 			dof = true;
-			if (dof_mask.empty() && alternate_dof_mask.empty())
+
+			if(dof_mask.empty() && alternate_dof_mask.empty())
 				dof = false;
 
-			if (dof && alternate_dof_mask.empty())
+			if(dof && alternate_dof_mask.empty())
 				alternate_dof_mask = dof_mask;
 
-			if (defaultInit)
+			if(defaultInit)
 			{
 				stages.resize(0);
 				stages.push_back(1.5f);
 			}
 
-			if (params)
+			if(params)
 			{
 				const IItemParamsNode *pstages=params->GetChild("stages");
-				if (pstages)
+
+				if(pstages)
 				{
-					stages.resize(0); 
+					stages.resize(0);
 					int n=pstages->GetChildCount();
 
-					for (int i=0; i<n; i++)
+					for(int i=0; i<n; i++)
 					{
 						const IItemParamsNode *stage = pstages->GetChild(i);
-						float v = 1.0f; stage->GetAttribute("value", v);
+						float v = 1.0f;
+						stage->GetAttribute("value", v);
 						stages.push_back(v);
 					}
 				}
 			}
 		}
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
 			s->AddContainer(stages);
 			s->Add(layer);
@@ -216,7 +228,10 @@ public:
 	typedef struct SZoomActions
 	{
 
-		SZoomActions() { Reset(); };
+		SZoomActions()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
@@ -229,7 +244,7 @@ public:
 		ItemString	zoom_out;
 		ItemString	idle;
 
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
 			s->Add(zoom_in);
 			s->Add(zoom_out);
@@ -240,7 +255,10 @@ public:
 	typedef struct SZoomSway
 	{
 
-		SZoomSway() { Reset(); };
+		SZoomSway()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
@@ -267,14 +285,14 @@ public:
 		float								crouchScale;
 		float								proneScale;
 
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
 		}
 	} SZoomSway;
 
 	CIronSight();
 	virtual ~CIronSight();
-	virtual void GetMemoryUsage(ICrySizer * s) const;
+	virtual void GetMemoryUsage(ICrySizer *s) const;
 
 	// IZoomMode
 	virtual void Init(IWeapon *pWeapon, const struct IItemParamsNode *params, uint32 id);
@@ -292,7 +310,10 @@ public:
 	virtual void StopZoom();
 	virtual void ExitZoom(bool force=false);
 
-	virtual int GetCurrentStep() const {return m_currentStep;}
+	virtual int GetCurrentStep() const
+	{
+		return m_currentStep;
+	}
 	virtual float GetZoomFoVScale(int step) const;
 
 	virtual void ZoomIn();
@@ -300,13 +321,25 @@ public:
 
 	virtual bool IsZoomed() const;
 	virtual bool IsZoomingInOrOut() const;
-	inline bool IsZoomingIn() const { return IsZoomingInOrOut() && m_zoomingIn; }
-	inline bool IsZoomingOut() const { return IsZoomingInOrOut() && !m_zoomingIn; }
+	inline bool IsZoomingIn() const
+	{
+		return IsZoomingInOrOut() && m_zoomingIn;
+	}
+	inline bool IsZoomingOut() const
+	{
+		return IsZoomingInOrOut() && !m_zoomingIn;
+	}
 	virtual EZoomState GetZoomState() const;
-	virtual float GetZoomInTime() const { return 1.0f; }
+	virtual float GetZoomInTime() const
+	{
+		return 1.0f;
+	}
 	virtual float GetZoomTransition() const;
-	
-	virtual bool AllowsZoomSnap() const { return false; }
+
+	virtual bool AllowsZoomSnap() const
+	{
+		return false;
+	}
 
 	virtual void Enable(bool enable);
 	virtual bool IsEnabled() const;
@@ -318,25 +351,28 @@ public:
 		offset.SetIdentity();
 	}
 
-	virtual void UpdateFPView(float frameTime){}
+	virtual void UpdateFPView(float frameTime) {}
 
 	virtual int  GetMaxZoomSteps() const;
 
-	virtual void ApplyZoomMod(IFireMode* pFM);
+	virtual void ApplyZoomMod(IFireMode *pFM);
 	virtual void ResetZoomMod(IFireMode *pFM) {}
 
 	virtual bool IsToggle();
 
 	virtual void FilterView(SViewParams &viewparams);
-	virtual void PostFilterView(SViewParams & viewparams);
+	virtual void PostFilterView(SViewParams &viewparams);
 	// ~IZoomMode
 
 	virtual void ResetTurnOff();
 	virtual void TurnOff(bool enable, bool smooth=true, bool anim=true);
 
-	virtual bool IsScope() const { return false; }
+	virtual bool IsScope() const
+	{
+		return false;
+	}
 
-	virtual void InitSharedParams ();
+	virtual void InitSharedParams();
 	virtual void CacheSharedParamsPtr();
 
 	virtual void StartStabilize();
@@ -358,7 +394,7 @@ protected:
 
 	virtual void OnZoomStep(bool zoomingIn, float t);
 
-	virtual void UpdateDepthOfField(CActor* pActor, float frameTime, float t);
+	virtual void UpdateDepthOfField(CActor *pActor, float frameTime, float t);
 
 	virtual void SetActorFoVScale(float fov, bool sens,bool recoil, bool hbob);
 	virtual float GetActorFoVScale() const;
@@ -369,7 +405,7 @@ protected:
 	virtual float GetSensitivityFromFoVScale(float scale) const;
 	virtual float GetHBobFromFoVScale(float scale) const;
 	virtual float GetRecoilFromFoVScale(float scale) const;
-  
+
 	virtual float GetMagFromFoVScale(float scale) const;
 	virtual float GetFoVScaleFromMag(float mag) const;
 
@@ -382,17 +418,17 @@ protected:
 	void AdjustNearFov(float time, bool zoomIn);
 	void ResetFovAndPosition();
 
-	void ZoomSway(float time, float &x, float&y);
+	void ZoomSway(float time, float &x, float &y);
 
 	CWeapon				*m_pWeapon;
 
-	_smart_ptr<IWeaponSharedData>		m_zoomParams;  
+	_smart_ptr<IWeaponSharedData>		m_zoomParams;
 	uint32												m_zmIdx;
 	bool												m_useCustomParams;
 
 	//Beni - TODO: Many of the var members below could be static
-  float					m_savedFoVScale;
-	
+	float					m_savedFoVScale;
+
 	bool					m_zoomed;
 	bool					m_zoomingIn;
 	float					m_zoomTimer;
@@ -418,7 +454,7 @@ protected:
 
 private:
 
-	CIronSightSharedData*		m_pShared;
+	CIronSightSharedData		*m_pShared;
 };
 
 //Add data that you think it might be shared here.
@@ -428,22 +464,38 @@ class CIronSightSharedData: public IWeaponSharedData
 {
 public:
 
-	CIronSightSharedData():m_refs(0),m_valid(false){};
-	virtual ~CIronSightSharedData(){};
+	CIronSightSharedData():m_refs(0),m_valid(false) {};
+	virtual ~CIronSightSharedData() {};
 
-	virtual void SetValid(bool valid) { m_valid = valid; }
-	virtual bool Valid() const { return m_valid; }
+	virtual void SetValid(bool valid)
+	{
+		m_valid = valid;
+	}
+	virtual bool Valid() const
+	{
+		return m_valid;
+	}
 
-	virtual const char* GetDataType() const { return "IronSightData"; };
+	virtual const char *GetDataType() const
+	{
+		return "IronSightData";
+	};
 
-	virtual void AddRef() const { ++m_refs; };
-	virtual uint32 GetRefCount() const { return m_refs; };
-	virtual void Release() const { 
-		if (--m_refs <= 0)
+	virtual void AddRef() const
+	{
+		++m_refs;
+	};
+	virtual uint32 GetRefCount() const
+	{
+		return m_refs;
+	};
+	virtual void Release() const
+	{
+		if(--m_refs <= 0)
 			delete this;
 	}
 
-	virtual void GetMemoryUsage(ICrySizer* s) const
+	virtual void GetMemoryUsage(ICrySizer *s) const
 	{
 		s->Add(*this);
 		zoomParams.GetMemoryUsage(s);

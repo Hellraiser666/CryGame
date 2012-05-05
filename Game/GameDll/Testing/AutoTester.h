@@ -2,7 +2,7 @@
 Crytek Source File.
 Copyright (C), Crytek Studios, 2001-2004.
 -------------------------------------------------------------------------
-AutoTester.cpp 
+AutoTester.cpp
 
 -	[09/11/2009] : Created by James Bamford
 
@@ -19,11 +19,11 @@ AutoTester.cpp
 	f(ATEST_STATE_TEST_NUM_CLIENTS_LEVEL_ROTATE)	\
 	f(ATEST_STATE_TEST_FEATURES)                  \
 	f(ATEST_STATE_TEST_PERFORMANCE)               \
-
+ 
 #define WriteResultsFlagList(f)             \
 	f(kWriteResultsFlag_writeDoneMarkerFile)  \
 	f(kWriteResultsFlag_unfinished)           \
-
+ 
 class CAutoTester
 {
 protected:
@@ -42,7 +42,7 @@ protected:
 			int m_maxNumClientsConnected;	// max num of clients ever connected
 			float m_debugTimer;						// timer for debug output to try and track down autotest builds not finishing when they should be
 		} testNumClients;
-		struct  
+		struct
 		{
 			int m_levelIndex;							// counter to just improve the test output to be ordered by the level loading order
 			float m_firstLevelTimeOut;		// how long to run the 1st level - allow more time for clients to slowly join
@@ -52,7 +52,7 @@ protected:
 			int m_maxNumClientsConnected;	// max num of clients ever connected
 			float m_debugTimer;						// timer for debug output to try and track down autotest builds not finishing when they should be
 		} testNumClientsRotate;
-		struct  
+		struct
 		{
 			char m_configFile[256];
 			bool m_bConfigExecuted;
@@ -60,14 +60,14 @@ protected:
 			float m_timeOut;							// time to actually run the test
 			SubState m_subState;
 		} testPerformance;
-		struct 
+		struct
 		{
 			char m_setNames[128];
 			char m_loadFileName[64];
 		} testRunFeatureTests;
 	} m_stateData;
 
-	typedef struct STestSuite_s 
+	typedef struct STestSuite_s
 	{
 		std::vector<XmlNodeRef> m_testCases;
 		int m_numTestCasesPassed;
@@ -93,7 +93,7 @@ protected:
 	bool m_createVerboseFilename;
 	bool m_writeResultsCompleteTestCasePass;
 	static CAutoTester *s_instance;
-	static const char * s_autoTesterStateNames[];
+	static const char *s_autoTesterStateNames[];
 
 	bool m_quitWhenDone;
 public:
@@ -107,11 +107,11 @@ public:
 	void AddTestCaseResult(const char *testSuiteName, XmlNodeRef &testCase, bool passed);
 	static bool SaveToValidXmlFile(const XmlNodeRef &xmlToSave, const char *fileName);
 	void CreateTestCase(XmlNodeRef &testCase, const char *testName, bool passed, const char *failedType=NULL, const char *failedMessage=NULL);
-	void AddSimpleTestCase(const char * groupName, const char * testName, float duration = -1.f, const char * failureReason = NULL, const char * owners = NULL);
-	void WriteResults(TBitfield flags, const string * additionalTestSuiteName = NULL, const XmlNodeRef * additionalTestCase = NULL);
+	void AddSimpleTestCase(const char *groupName, const char *testName, float duration = -1.f, const char *failureReason = NULL, const char *owners = NULL);
+	void WriteResults(TBitfield flags, const string *additionalTestSuiteName = NULL, const XmlNodeRef *additionalTestCase = NULL);
 	void Stop();
 
-	ILINE const char * GetTestName()
+	ILINE const char *GetTestName()
 	{
 		return m_includeThisInFileName;
 	}

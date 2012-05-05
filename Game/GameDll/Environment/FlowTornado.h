@@ -8,28 +8,30 @@
 class CFlowTornadoWander : public CFlowBaseNode<eNCT_Instanced>
 {
 public:
-	CFlowTornadoWander( SActivationInfo * pActInfo )
+	CFlowTornadoWander(SActivationInfo *pActInfo)
 	{
 	}
 
-	IFlowNodePtr Clone( SActivationInfo * pActInfo )
+	IFlowNodePtr Clone(SActivationInfo *pActInfo)
 	{
 		return new CFlowTornadoWander(pActInfo);
 	}
 
-	virtual void GetMemoryUsage(ICrySizer * s) const
+	virtual void GetMemoryUsage(ICrySizer *s) const
 	{
 		s->Add(*this);
 	}
 
-	virtual void GetConfiguration(SFlowNodeConfig& config)
+	virtual void GetConfiguration(SFlowNodeConfig &config)
 	{
-		static const SInputPortConfig inputs[] = {
+		static const SInputPortConfig inputs[] =
+		{
 			InputPortConfig_Void("Activate", _HELP("Tell the tornado to actually wander to the new [Target]")),
-				InputPortConfig<EntityId>("Target", _HELP("Set a new wandering target for the tornado")),
+			InputPortConfig<EntityId>("Target", _HELP("Set a new wandering target for the tornado")),
 			{0}
 		};
-		static const SOutputPortConfig outputs[] = {
+		static const SOutputPortConfig outputs[] =
+		{
 			OutputPortConfig_Void("Done", _HELP("Triggered when target has been reached")),
 			{0}
 		};
@@ -40,35 +42,38 @@ public:
 		config.SetCategory(EFLN_ADVANCED);
 	}
 
-	virtual void ProcessEvent( EFlowEvent event, SActivationInfo *pActInfo )
+	virtual void ProcessEvent(EFlowEvent event, SActivationInfo *pActInfo)
 	{
-		switch (event)
+		switch(event)
 		{
 		case eFE_Initialize:
 			m_actInfo = *pActInfo;
 			break;
-		case eFE_Activate:
-			if (IsPortActive(pActInfo, 0) && pActInfo->pEntity)
-			{
-				CTornado* pTornado = (CTornado*)g_pGame->GetIGameFramework()->QueryGameObjectExtension(pActInfo->pEntity->GetId(), "Tornado");
 
-				if (pTornado)
-				{ 
-					IEntity* pTarget = gEnv->pEntitySystem->GetEntity( GetPortEntityId(pActInfo, 1) );
-					if (pTarget)
+		case eFE_Activate:
+			if(IsPortActive(pActInfo, 0) && pActInfo->pEntity)
+			{
+				CTornado *pTornado = (CTornado *)g_pGame->GetIGameFramework()->QueryGameObjectExtension(pActInfo->pEntity->GetId(), "Tornado");
+
+				if(pTornado)
+				{
+					IEntity *pTarget = gEnv->pEntitySystem->GetEntity(GetPortEntityId(pActInfo, 1));
+
+					if(pTarget)
 					{
 						pTornado->SetTarget(pTarget, this);
 					}
-				}        
+				}
 			}
+
 			break;
 		}
 	}
 
 	void Done()
 	{
-		if (m_actInfo.pGraph)
-			ActivateOutput( &m_actInfo, 0, true);
+		if(m_actInfo.pGraph)
+			ActivateOutput(&m_actInfo, 0, true);
 	}
 private:
 	SActivationInfo m_actInfo;

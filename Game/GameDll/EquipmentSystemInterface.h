@@ -29,11 +29,11 @@ struct IEquipmentManager;
 class CEquipmentSystemInterface : public IEquipmentSystemInterface
 {
 public:
-	CEquipmentSystemInterface(CEditorGame* pEditorGame, IGameToEditorInterface* pGTE);
+	CEquipmentSystemInterface(CEditorGame *pEditorGame, IGameToEditorInterface *pGTE);
 	~CEquipmentSystemInterface();
 
 	// return iterator with all available equipment items
-	VIRTUAL IEquipmentSystemInterface::IEquipmentItemIteratorPtr CreateEquipmentItemIterator(const char* type="");
+	VIRTUAL IEquipmentSystemInterface::IEquipmentItemIteratorPtr CreateEquipmentItemIterator(const char *type="");
 
 	// delete all equipment packs
 	VIRTUAL void DeleteAllEquipmentPacks();
@@ -48,19 +48,19 @@ public:
 	//   <Ammo Scar="50" SOCOM="70" />
 	// </EquipPack>
 
-	VIRTUAL bool LoadEquipmentPack(const XmlNodeRef& rootNode);	
+	VIRTUAL bool LoadEquipmentPack(const XmlNodeRef &rootNode);
 
 	// set the players equipment pack. maybe we enable this, but normally via FG only
 	// virtual void SetPlayerEquipmentPackName(const char *packName);
 protected:
-	void InitItems(IGameToEditorInterface* pGTE);
+	void InitItems(IGameToEditorInterface *pGTE);
 
 protected:
 	class CIterator;
 
-	CEditorGame* m_pEditorGame;
-	IItemSystem* m_pIItemSystem;
-	IEquipmentManager* m_pIEquipmentManager;
+	CEditorGame *m_pEditorGame;
+	IItemSystem *m_pIItemSystem;
+	IEquipmentManager *m_pIEquipmentManager;
 
 	typedef std::vector<string> TNameArray;
 	typedef std::map<string, TNameArray> TItemMap;

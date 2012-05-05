@@ -4,7 +4,7 @@ Copyright (C), Crytek Studios, 2001-2006.
 -------------------------------------------------------------------------
 $Id$
 $DateTime$
-Description: 
+Description:
 
 -------------------------------------------------------------------------
 History:
@@ -29,10 +29,13 @@ class CServerSynchedStorage:
 	public CNetMessageSinkHelper<CServerSynchedStorage, CSynchedStorage>
 {
 public:
-	CServerSynchedStorage(IGameFramework *pGameFramework) { m_pGameFramework=pGameFramework; };
+	CServerSynchedStorage(IGameFramework *pGameFramework)
+	{
+		m_pGameFramework=pGameFramework;
+	};
 	virtual ~CServerSynchedStorage() {};
 
-	void GetMemoryUsage( ICrySizer * ) const;
+	void GetMemoryUsage(ICrySizer *) const;
 
 	// INetMessageSink
 	virtual void DefineProtocol(IProtocolBuilder *pBuilder);
@@ -52,7 +55,7 @@ public:
 
 	virtual void AddToGlobalQueueFor(int channelId, TSynchedKey key);
 	virtual void AddToEntityQueueFor(int channelId, EntityId entityId, TSynchedKey key);
-	
+
 	virtual void FullSynch(int channelId, bool reset);
 
 	virtual void OnClientConnect(int channelId);
@@ -66,9 +69,9 @@ public:
 	struct SChannel
 	{
 		SChannel()
-		: local(false), pNetChannel(0), onhold(false) {};
+			: local(false), pNetChannel(0), onhold(false) {};
 		SChannel(INetChannel *_pNetChannel, bool isLocal)
-		: local(isLocal), pNetChannel(_pNetChannel), onhold(false) {};
+			: local(isLocal), pNetChannel(_pNetChannel), onhold(false) {};
 		INetChannel *pNetChannel;
 		SSendableHandle     lastOrderedMessage;
 		bool				local:1;
@@ -87,7 +90,7 @@ protected:
 		int channel;
 		TSynchedKey key;
 
-		bool operator<( const SChannelQueueEnt& rhs ) const
+		bool operator<(const SChannelQueueEnt &rhs) const
 		{
 			return rhs.channel < channel || (rhs.channel == channel && rhs.key < key);
 		}
@@ -101,20 +104,21 @@ protected:
 		EntityId entity;
 		TSynchedKey key;
 
-		bool operator<( const SChannelEntityQueueEnt& rhs ) const
+		bool operator<(const SChannelEntityQueueEnt &rhs) const
 		{
-			if (channel < rhs.channel)
+			if(channel < rhs.channel)
 				return true;
-			else if (channel > rhs.channel)
+			else if(channel > rhs.channel)
 				return false;
-			else if (key < rhs.key)
+			else if(key < rhs.key)
 				return true;
-			else if (key > rhs.key)
+			else if(key > rhs.key)
 				return false;
-			else if (entity < rhs.entity)
+			else if(entity < rhs.entity)
 				return true;
-			else if (entity > rhs.entity)
+			else if(entity > rhs.entity)
 				return false;
+
 			return false;
 		}
 	};

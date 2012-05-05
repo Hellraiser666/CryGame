@@ -34,12 +34,12 @@ struct SSharkStats : public SActorStats
 
 struct SSharkParams : public SActorParams
 {
-/*	string trailEffect;
-	float trailEffectMinSpeed;
-	float trailEffectMaxSpeedSize;
-	float trailEffectMaxSpeedCount;
-	Vec3	trailEffectDir;
-*/
+	/*	string trailEffect;
+		float trailEffectMinSpeed;
+		float trailEffectMaxSpeedSize;
+		float trailEffectMaxSpeedCount;
+		Vec3	trailEffectDir;
+	*/
 	float speedInertia;
 	float rollAmount;
 	float rollSpeed;
@@ -77,12 +77,12 @@ struct SSharkParams : public SActorParams
 		spineBoneName2 = "";
 		spineBoneName1 = "";
 		headBoneName = "";
-/*		trailEffectMinSpeed = 0;
-		trailEffectMaxSpeedSize = 0;
-		trailEffectMaxSpeedCount = 0;
-		trailEffectDir.zero();
-		trailEffect = "";
-*/
+		/*		trailEffectMinSpeed = 0;
+				trailEffectMaxSpeedSize = 0;
+				trailEffectMaxSpeedCount = 0;
+				trailEffectDir.zero();
+				trailEffect = "";
+		*/
 		speedInertia = 0;
 		rollAmount = 0;
 		rollSpeed = 0;
@@ -100,7 +100,7 @@ struct SSharkParams : public SActorParams
 		maxDistanceCircle = 0;
 		numCircles = 0;
 		minDistForUpdatingMoveTarget = 0;
-		
+
 		meleeDistance = 0;
 		circlingTime = 0;
 		attackRollTime = 0;
@@ -109,7 +109,7 @@ struct SSharkParams : public SActorParams
 		bSpawned = false;
 	}
 
-	void Serialize( TSerialize ser );
+	void Serialize(TSerialize ser);
 };
 
 
@@ -126,16 +126,16 @@ struct SSharkInput
 
 	Vec3 viewDir; // requested view direction
 	float pathLength; // remaining path length
-/*
-	Vec3 posTarget;
-	Vec3 dirTarget;
-	Vec3 upTarget;
-	float	speedTarget;
-*/
-	static const int STICKY_ACTIONS = 
-		ACTION_JUMP | 
+	/*
+		Vec3 posTarget;
+		Vec3 dirTarget;
+		Vec3 upTarget;
+		float	speedTarget;
+	*/
+	static const int STICKY_ACTIONS =
+		ACTION_JUMP |
 		ACTION_CROUCH |
-		ACTION_LEANLEFT | 
+		ACTION_LEANLEFT |
 		ACTION_LEANRIGHT |
 		ACTION_SPRINT;
 
@@ -156,7 +156,7 @@ struct SSharkInput
 		//speedTarget = 1.0f;
 	}
 
-	void Serialize( TSerialize ser );
+	void Serialize(TSerialize ser);
 };
 
 
@@ -179,10 +179,10 @@ public:
 		float	fDistanceToPathEnd;
 
 		/// Initializes SMovementRequestParams from CMovementRequest.
-		explicit SMovementRequestParams (CMovementRequest& );
+		explicit SMovementRequestParams(CMovementRequest &);
 	};
 
-	typedef enum 
+	typedef enum
 	{
 		S_Sleeping,
 		S_Reaching,
@@ -197,8 +197,9 @@ public:
 	} eSharkStatus;
 
 	/// SAIBodyInfo was previously used in place of this struct.
-	struct SBodyInfo {
-		Vec3		vEyePos;		
+	struct SBodyInfo
+	{
+		Vec3		vEyePos;
 		Vec3		vEyeDir;
 		Vec3		vEyeDirAnim;
 		Vec3		vFwdDir;
@@ -229,26 +230,35 @@ public:
 	virtual ~CShark();
 
 
-	virtual bool Init( IGameObject * pGameObject );
-	virtual void Update(SEntityUpdateContext&, int updateSlot);
+	virtual bool Init(IGameObject *pGameObject);
+	virtual void Update(SEntityUpdateContext &, int updateSlot);
 	virtual void PrePhysicsUpdate();
 	virtual void Kill();
 	virtual void Revive(bool fromInit = false);
-	virtual void RagDollize( bool fallAndPlay );
-	virtual void BindInputs( IAnimationGraphState * pAGState );
+	virtual void RagDollize(bool fallAndPlay);
+	virtual void BindInputs(IAnimationGraphState *pAGState);
 	virtual void Reset(bool toGame);
-	virtual void ProcessEvent(SEntityEvent& event);
-	virtual void OnAction(const ActionId& actionId, int activationMode, float value);
-	virtual void FullSerialize( TSerialize ser );
-	virtual void SerializeXML( XmlNodeRef& node, bool bLoading );
-	virtual void SetAuthority( bool auth );
+	virtual void ProcessEvent(SEntityEvent &event);
+	virtual void OnAction(const ActionId &actionId, int activationMode, float value);
+	virtual void FullSerialize(TSerialize ser);
+	virtual void SerializeXML(XmlNodeRef &node, bool bLoading);
+	virtual void SetAuthority(bool auth);
 	//AI specific
 	virtual void SetActorMovement(SMovementRequestParams &control);
-	virtual void GetActorInfo( SBodyInfo& bodyInfo );
+	virtual void GetActorInfo(SBodyInfo &bodyInfo);
 	//retrieve actor status
-	virtual SActorStats *GetActorStats() { return &m_stats; };
-	virtual const SActorStats *GetActorStats() const { return &m_stats; };
-	virtual SActorParams *GetActorParams() { return &m_params; };
+	virtual SActorStats *GetActorStats()
+	{
+		return &m_stats;
+	};
+	virtual const SActorStats *GetActorStats() const
+	{
+		return &m_stats;
+	};
+	virtual SActorParams *GetActorParams()
+	{
+		return &m_params;
+	};
 	virtual void SetStats(SmartScriptTable &rTable);
 	virtual void UpdateScriptStats(SmartScriptTable &rTable);
 	//set actor params
@@ -292,54 +302,72 @@ public:
 
 	//virtual void SetFiring(bool fire);
 
-	virtual IActorMovementController * CreateMovementController();
+	virtual IActorMovementController *CreateMovementController();
 
 	virtual void UpdateFootSteps(float frameTime, int32 nFootJointID) {};
 
-	virtual const char* GetActorClassName() const { return "CShark"; };
+	virtual const char *GetActorClassName() const
+	{
+		return "CShark";
+	};
 
-	static  ActorClass GetActorClassType() { return (ActorClass)eActorClass_Shark; }
-	virtual ActorClass GetActorClass() const { return (ActorClass)eActorClass_Shark; };
+	static  ActorClass GetActorClassType()
+	{
+		return (ActorClass)eActorClass_Shark;
+	}
+	virtual ActorClass GetActorClass() const
+	{
+		return (ActorClass)eActorClass_Shark;
+	};
 
-	ILINE const Vec3& GetWeaponOffset() const { return m_weaponOffset; }
-	ILINE const Vec3& GetEyeOffset() const { return m_eyeOffset; }
+	ILINE const Vec3 &GetWeaponOffset() const
+	{
+		return m_weaponOffset;
+	}
+	ILINE const Vec3 &GetEyeOffset() const
+	{
+		return m_eyeOffset;
+	}
 
 	//void SetSearchBeamGoal(const Vec3& dir);
 	//Quat GetSearchBeamQuat() const;
 	//void SetSearchBeamQuat(const Quat& rot);
 	//void UpdateSearchBeam(float frameTime);
 
-	void GetMemoryUsage(ICrySizer * s) const
-	{ 
+	void GetMemoryUsage(ICrySizer *s) const
+	{
 		s->Add(*this);
-		//GetAlienMemoryStatistics(s); 
+		//GetAlienMemoryStatistics(s);
 	}
 
 	//virtual void SetAnimTentacleParams(pe_params_rope& rope, float animBlend);
 
 	//Player can't grab sharks
-	virtual int	 GetActorSpecies() { return eGCT_UNKNOWN; }
+	virtual int	 GetActorSpecies()
+	{
+		return eGCT_UNKNOWN;
+	}
 
 	//virtual bool IsCloaked() const { return m_stats.cloaked; }
 	virtual void	SetStance(EStance stance);
 
 protected:
-	
-	void GetMovementVector(Vec3& move, float& speed, float& maxSpeed);
-	void SetActorMovementCommon(SMovementRequestParams& control);
-	virtual void UpdateAnimGraph( IAnimationGraphState * pState );
-	void SetMoveTarget(Vec3 moveTarget, bool bForced = false, float minDistForUpdate = 0);
-	void AdjustMoveTarget(float maxHeight, const IEntity* pTargetEntity);
 
-	void UpdateCollider(float frameTime, const IEntity* pTarget);
-	void UpdateStatus(float frameTime, const IEntity* pTarget);
+	void GetMovementVector(Vec3 &move, float &speed, float &maxSpeed);
+	void SetActorMovementCommon(SMovementRequestParams &control);
+	virtual void UpdateAnimGraph(IAnimationGraphState *pState);
+	void SetMoveTarget(Vec3 moveTarget, bool bForced = false, float minDistForUpdate = 0);
+	void AdjustMoveTarget(float maxHeight, const IEntity *pTargetEntity);
+
+	void UpdateCollider(float frameTime, const IEntity *pTarget);
+	void UpdateStatus(float frameTime, const IEntity *pTarget);
 	void Attack(bool fast=false);
 	void GoAway();
-	void SetStartPos(const Vec3& targetPos);
+	void SetStartPos(const Vec3 &targetPos);
 	void MeleeAnimation();
 	void FindEscapePoints();
-	void SetReaching(const Vec3& targetPos);
-	float GetDistHeadTarget(const Vec3& targetPos, const Vec3& targetDirN,float& dotMouth);
+	void SetReaching(const Vec3 &targetPos);
+	float GetDistHeadTarget(const Vec3 &targetPos, const Vec3 &targetDirN,float &dotMouth);
 	void ResetValues();
 
 	typedef std::vector<Vec3> TPointList;
@@ -400,7 +428,7 @@ protected:
 	SSharkParams m_params;
 	SSharkInput m_input;
 
-	
+
 	eSharkStatus m_state;
 	Vec3 m_moveTarget;
 	int		m_numHalfCircles;

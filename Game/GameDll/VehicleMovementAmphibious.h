@@ -32,10 +32,10 @@ public:
 	CVehicleMovementAmphibiousT();
 	virtual ~CVehicleMovementAmphibiousT();
 
-	virtual bool InitWheeled(IVehicle* pVehicle, const CVehicleParams& table);
-	virtual bool Init(IVehicle* pVehicle, const CVehicleParams& table);
+	virtual bool InitWheeled(IVehicle *pVehicle, const CVehicleParams &table);
+	virtual bool Init(IVehicle *pVehicle, const CVehicleParams &table);
 	virtual void PostInit();
-	virtual void Reset();  
+	virtual void Reset();
 	virtual void PostPhysicalize();
 
 	virtual EVehicleMovementType GetMovementType();
@@ -45,18 +45,18 @@ public:
 	virtual void DisableEngine(bool disable);
 
 	virtual void OnAction(const TVehicleActionId actionId, int activationMode, float value);
-	virtual void OnEvent(EVehicleMovementEvent event, const SVehicleMovementEventParams& params);
-	virtual void OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams& params);
+	virtual void OnEvent(EVehicleMovementEvent event, const SVehicleMovementEventParams &params);
+	virtual void OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams &params);
 
-	virtual void Update(const float deltaTime);  
+	virtual void Update(const float deltaTime);
 	virtual void ProcessMovement(const float deltaTime);
 
 	virtual void Serialize(TSerialize ser, EEntityAspects aspects);
 	virtual void PostSerialize();
 
-	virtual void ProcessEvent(SEntityEvent& event);
+	virtual void ProcessEvent(SEntityEvent &event);
 
-	virtual void GetMemoryStatistics(ICrySizer * s);
+	virtual void GetMemoryStatistics(ICrySizer *s);
 
 protected:
 

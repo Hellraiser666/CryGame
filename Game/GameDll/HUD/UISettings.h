@@ -6,7 +6,7 @@
 //  File name:   UISettings.h
 //  Version:     v1.00
 //  Created:     10/8/2011 by Paul Reindell.
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -26,11 +26,11 @@ public:
 	CUISettings();
 
 	// IUIGameEventSystem
-	UIEVENTSYSTEM( "UISettings" );
+	UIEVENTSYSTEM("UISettings");
 	virtual void InitEventSystem();
 	virtual void UnloadEventSystem();
-	virtual void LoadProfile( IPlayerProfile* pProfile );
-	virtual void SaveProfile( IPlayerProfile* pProfile ) const;
+	virtual void LoadProfile(IPlayerProfile *pProfile);
+	virtual void SaveProfile(IPlayerProfile *pProfile) const;
 
 	//IUIModule
 	virtual void Init();
@@ -44,10 +44,10 @@ private:
 	void SendGameSettingsChange();
 
 	// ui events
-	void OnSetGraphicSettings( int resIndex, bool fullscreen );
-	void OnSetResolution( int resX, int resY, bool fullscreen );
-	void OnSetSoundSettings( float music, float sfx, float video );
-	void OnSetGameSettings( float sensitivity, bool invertMouse, bool invertController );
+	void OnSetGraphicSettings(int resIndex, bool fullscreen);
+	void OnSetResolution(int resX, int resY, bool fullscreen);
+	void OnSetSoundSettings(float music, float sfx, float video);
+	void OnSetGameSettings(float sensitivity, bool invertMouse, bool invertController);
 
 	void OnGetResolutions();
 	void OnGetCurrGraphicsSettings();
@@ -72,20 +72,20 @@ private:
 
 	SUIEventReceiverDispatcher<CUISettings> m_eventDispatcher;
 	SUIEventSenderDispatcher<EUIEvent> m_eventSender;
-	IUIEventSystem* m_pUIEvents;
-	IUIEventSystem* m_pUIFunctions;
+	IUIEventSystem *m_pUIEvents;
+	IUIEventSystem *m_pUIFunctions;
 
-	ICVar* m_pRXVar;
-	ICVar* m_pRYVar;
- 	ICVar* m_pFSVar;
+	ICVar *m_pRXVar;
+	ICVar *m_pRYVar;
+	ICVar *m_pFSVar;
 
-	ICVar* m_pMusicVar;
-	ICVar* m_pSFxVar;
-	ICVar* m_pVideoVar;
+	ICVar *m_pMusicVar;
+	ICVar *m_pSFxVar;
+	ICVar *m_pVideoVar;
 
-	ICVar* m_pMouseSensitivity;
-	ICVar* m_pInvertMouse;
-	ICVar* m_pInvertController;
+	ICVar *m_pMouseSensitivity;
+	ICVar *m_pInvertMouse;
+	ICVar *m_pInvertController;
 
 	int m_currResId;
 

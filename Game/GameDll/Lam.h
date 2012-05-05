@@ -29,28 +29,31 @@ class CLam : public CAccessory
 
 public:
 
-  typedef struct SLAMParams
-  {   
-    SLAMParams() 
-    { 
-      Reset(); 
-    }
-    
-    void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
-    { 
-      if (defaultInit)
-      { 
-        light_range[0] = light_range[1] = 0.f;
-        light_fov[0] = light_fov[1] = 0.f;        
-        light_color[0] = light_color[1] = Vec3(1,1,1);
-        light_diffuse_mul[0] = light_diffuse_mul[1] = 1.f;        
-        light_hdr_dyn[0] = light_hdr_dyn[1] = 0.f;
-        light_dir[0] = light_dir[1] = Vec3(0,1,0);
-        light_texture[0].clear(); light_texture[1].clear();
-        light_material[0].clear(); light_material[1].clear();
-        laser_geometry_tp.clear();
+	typedef struct SLAMParams
+	{
+		SLAMParams()
+		{
+			Reset();
+		}
+
+		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
+		{
+			if(defaultInit)
+			{
+				light_range[0] = light_range[1] = 0.f;
+				light_fov[0] = light_fov[1] = 0.f;
+				light_color[0] = light_color[1] = Vec3(1,1,1);
+				light_diffuse_mul[0] = light_diffuse_mul[1] = 1.f;
+				light_hdr_dyn[0] = light_hdr_dyn[1] = 0.f;
+				light_dir[0] = light_dir[1] = Vec3(0,1,0);
+				light_texture[0].clear();
+				light_texture[1].clear();
+				light_material[0].clear();
+				light_material[1].clear();
+				laser_geometry_tp.clear();
 				fake_laser_geometry_tp.clear();
-				laser_dot[0].clear(); laser_dot[1].clear();
+				laser_dot[0].clear();
+				laser_dot[1].clear();
 				laser_range[0] = laser_range[1] = 50.0f;
 				laser_max_len = 20.0f;
 				laser_max_scale = 16.0f;
@@ -61,43 +64,43 @@ public:
 				giveExtraAccessory = false;
 				extraAccessoryName.clear();
 				isLamRifle = false;
-      }   
-      
-      const IItemParamsNode* fp = params?params->GetChild("firstperson"):0;
-      const IItemParamsNode* tp = params?params->GetChild("thirdperson"):0;
-			const IItemParamsNode* special = params?params->GetChild("special"):0;
+			}
 
-      if (fp)
-      {
-        fp->GetAttribute("light_range", light_range[0]);
-        fp->GetAttribute("light_fov", light_fov[0]);
-        fp->GetAttribute("light_color", light_color[0]);
-        fp->GetAttribute("light_diffuse_mul", light_diffuse_mul[0]);
-        fp->GetAttribute("light_hdr_dyn", light_hdr_dyn[0]);
-        fp->GetAttribute("light_dir", light_dir[0]);
-        light_texture[0] = fp->GetAttribute("light_texture");
-        light_material[0] = fp->GetAttribute("light_material");
+			const IItemParamsNode *fp = params?params->GetChild("firstperson"):0;
+			const IItemParamsNode *tp = params?params->GetChild("thirdperson"):0;
+			const IItemParamsNode *special = params?params->GetChild("special"):0;
+
+			if(fp)
+			{
+				fp->GetAttribute("light_range", light_range[0]);
+				fp->GetAttribute("light_fov", light_fov[0]);
+				fp->GetAttribute("light_color", light_color[0]);
+				fp->GetAttribute("light_diffuse_mul", light_diffuse_mul[0]);
+				fp->GetAttribute("light_hdr_dyn", light_hdr_dyn[0]);
+				fp->GetAttribute("light_dir", light_dir[0]);
+				light_texture[0] = fp->GetAttribute("light_texture");
+				light_material[0] = fp->GetAttribute("light_material");
 				laser_dot[0] = fp->GetAttribute("laser_dot");
 				fp->GetAttribute("laser_range",laser_range[0]);
-      }
-      
-      if (tp)
-      {
-        tp->GetAttribute("light_range", light_range[1]);
-        tp->GetAttribute("light_fov", light_fov[1]);
-        tp->GetAttribute("light_color", light_color[1]);
-        tp->GetAttribute("light_diffuse_mul", light_diffuse_mul[1]);
-        tp->GetAttribute("light_hdr_dyn", light_hdr_dyn[1]);
-        tp->GetAttribute("light_dir", light_dir[1]);
-        light_texture[1] = tp->GetAttribute("light_texture");
-        light_material[1] = tp->GetAttribute("light_material");
-        laser_geometry_tp = tp->GetAttribute("laser_geometry_tp");
+			}
+
+			if(tp)
+			{
+				tp->GetAttribute("light_range", light_range[1]);
+				tp->GetAttribute("light_fov", light_fov[1]);
+				tp->GetAttribute("light_color", light_color[1]);
+				tp->GetAttribute("light_diffuse_mul", light_diffuse_mul[1]);
+				tp->GetAttribute("light_hdr_dyn", light_hdr_dyn[1]);
+				tp->GetAttribute("light_dir", light_dir[1]);
+				light_texture[1] = tp->GetAttribute("light_texture");
+				light_material[1] = tp->GetAttribute("light_material");
+				laser_geometry_tp = tp->GetAttribute("laser_geometry_tp");
 				fake_laser_geometry_tp = tp->GetAttribute("fake_laser_geometry_tp");
 				laser_dot[1] = tp->GetAttribute("laser_dot");
 				tp->GetAttribute("laser_range",laser_range[1]);
 				tp->GetAttribute("laser_max_scale",laser_max_scale);
 				tp->GetAttribute("laser_max_len", laser_max_len);
-      }
+			}
 
 			if(special)
 			{
@@ -113,25 +116,28 @@ public:
 				extraAccessoryName = special->GetAttribute("extraAccessoryName");
 
 			}
-    }
+		}
 
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
-			s->Add(light_texture[0]);s->Add(light_texture[1]);
-			s->Add(light_material[0]);s->Add(light_material[1]);
-			s->Add(laser_dot[0]);s->Add(laser_dot[1]);
+			s->Add(light_texture[0]);
+			s->Add(light_texture[1]);
+			s->Add(light_material[0]);
+			s->Add(light_material[1]);
+			s->Add(laser_dot[0]);
+			s->Add(laser_dot[1]);
 			s->Add(laser_geometry_tp);
 		}
-        
-    Vec3  light_color[2];
-    Vec3  light_dir[2];
-    float light_diffuse_mul[2];
-    float light_range[2];
-    float light_fov[2];
-    float light_hdr_dyn[2];
-    ItemString light_texture[2];
-    ItemString light_material[2];    
-    ItemString laser_geometry_tp;
+
+		Vec3  light_color[2];
+		Vec3  light_dir[2];
+		float light_diffuse_mul[2];
+		float light_range[2];
+		float light_fov[2];
+		float light_hdr_dyn[2];
+		ItemString light_texture[2];
+		ItemString light_material[2];
+		ItemString laser_geometry_tp;
 		ItemString fake_laser_geometry_tp;
 		ItemString laser_dot[2];
 		float			 laser_range[2];
@@ -144,14 +150,14 @@ public:
 		bool  giveExtraAccessory;
 		bool  isLamRifle;
 		ItemString extraAccessoryName;
-  } 
-  SLAMParams;
+	}
+	SLAMParams;
 
 	CLam();
 	virtual			~CLam();
 
-	virtual bool Init(IGameObject * pGameObject );
-  virtual bool ReadItemParams(const IItemParamsNode *root);
+	virtual bool Init(IGameObject *pGameObject);
+	virtual bool ReadItemParams(const IItemParamsNode *root);
 	virtual void Reset();
 	virtual void PostUpdate(float frameTime);
 	virtual void ActivateLaser(bool activate, bool aiRequest = false);
@@ -161,20 +167,29 @@ public:
 
 	virtual void PickUp(EntityId pickerId, bool sound, bool select/* =true */, bool keepHistory/* =true */, const char *setup /*= NULL*/);
 
-	virtual void GetMemoryUsage(ICrySizer * s) const;
+	virtual void GetMemoryUsage(ICrySizer *s) const;
 
 	virtual void FullSerialize(TSerialize ser);
 	virtual void PostSerialize();
 
-	static  inline  uint32 GetNumLightsActivated(){ return s_lightCount; }
+	static  inline  uint32 GetNumLightsActivated()
+	{
+		return s_lightCount;
+	}
 
-	inline bool IsLaserActivated() const { return m_laserActivated; }
-	inline bool IsLightActivated() const { return m_lightActivated; }
+	inline bool IsLaserActivated() const
+	{
+		return m_laserActivated;
+	}
+	inline bool IsLightActivated() const
+	{
+		return m_lightActivated;
+	}
 
 protected:
 
-	virtual void AttachLAMLight(bool attach, CItem *pLightAttach, eGeometrySlot slot);	
-	virtual void AttachLAMLaser(bool attach, eGeometrySlot slot);	
+	virtual void AttachLAMLight(bool attach, CItem *pLightAttach, eGeometrySlot slot);
+	virtual void AttachLAMLaser(bool attach, eGeometrySlot slot);
 
 	virtual void SaveLastState();
 
@@ -182,19 +197,22 @@ protected:
 	void DestroyLaserEntity();
 	void SetLaserGeometry(const char *name);
 	void CreateLaserDot(const char *name, eGeometrySlot slot);
-	void UpdateLaserScale(float scaleLenght, IEntity* pLaserEntity);
-	void UpdateFPLaser(float frameTime,CItem* parent);
-	void UpdateTPLaser(float frameTime,CItem* parent);
+	void UpdateLaserScale(float scaleLenght, IEntity *pLaserEntity);
+	void UpdateFPLaser(float frameTime,CItem *parent);
+	void UpdateTPLaser(float frameTime,CItem *parent);
 
-	void AdjustLaserFPDirection(CItem* parent, Vec3 &dir, Vec3 &pos);
+	void AdjustLaserFPDirection(CItem *parent, Vec3 &dir, Vec3 &pos);
 
-	void UpdateAILightAndLaser(const Vec3& pos, const Vec3& dir, float lightRange, float fov, float laserRange);
+	void UpdateAILightAndLaser(const Vec3 &pos, const Vec3 &dir, float lightRange, float fov, float laserRange);
 
-	void SetAllowUpdate() { m_allowUpdate = true; }
+	void SetAllowUpdate()
+	{
+		m_allowUpdate = true;
+	}
 
 private:
 
-  SLAMParams m_lamparams;
+	SLAMParams m_lamparams;
 
 	//Laser
 	bool		m_laserActivated;
@@ -207,8 +225,8 @@ private:
 	//Flashlight
 	bool    m_lightActivated;
 	uint32		m_lightID[2];
-  tSoundID m_lightSoundId;
-	
+	tSoundID m_lightSoundId;
+
 	//Track previous state (after select/deselect)
 	bool    m_lightWasOn;
 	bool    m_laserWasOn;
@@ -228,7 +246,7 @@ private:
 	static uint32 s_curLaser;
 	static float s_laserUpdateTimeError;
 	static int s_lastUpdateFrameId;
-	static VectorSet<CLam*> s_lasers;
+	static VectorSet<CLam *> s_lasers;
 };
 
 #endif

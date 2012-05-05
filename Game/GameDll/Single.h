@@ -53,35 +53,42 @@ public:
 	//SEffectParams
 	struct SEffectParams
 	{
-		SEffectParams() { Reset(); };
+		SEffectParams()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
-		{ 
-			if (defaultInit)
+		{
+			if(defaultInit)
 			{
-				effect[0].clear(); effect[1].clear();
-				helper[0].clear(); helper[1].clear();
+				effect[0].clear();
+				effect[1].clear();
+				helper[0].clear();
+				helper[1].clear();
 				scale[0]=scale[1]=1.0f;
 				time[0]=time[1]=0.060f;
 				offset.Set(0.0f,0.0f,0.0f);
 			}
 
-			if (params)
+			if(params)
 			{
 				const IItemParamsNode *fp=params->GetChild("firstperson");
-				if (fp)
-				{ 
+
+				if(fp)
+				{
 					effect[0] = fp->GetAttribute("effect");
-					helper[0] = fp->GetAttribute("helper");					
+					helper[0] = fp->GetAttribute("helper");
 					fp->GetAttribute("scale", scale[0]);
 					fp->GetAttribute("time", time[0]);
 					fp->GetAttribute("offset", offset);
 				}
 
 				const IItemParamsNode *tp=params->GetChild("thirdperson");
-				if (tp)
-				{ 
+
+				if(tp)
+				{
 					effect[1] = tp->GetAttribute("effect");
-					helper[1] = tp->GetAttribute("helper");					
+					helper[1] = tp->GetAttribute("helper");
 					tp->GetAttribute("scale", scale[1]);
 					tp->GetAttribute("time", time[1]);
 					tp->GetAttribute("offset",offset);
@@ -92,12 +99,12 @@ public:
 		}
 		void PreLoadAssets()
 		{
-			for (int i = 0; i < 2; i++)
+			for(int i = 0; i < 2; i++)
 				gEnv->pParticleManager->FindEffect(effect[i]);
 		}
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
-			for (int i=0; i<2; i++)
+			for(int i=0; i<2; i++)
 			{
 				s->Add(effect[i]);
 				s->Add(helper[i]);
@@ -108,40 +115,47 @@ public:
 		ItemString helper[2];
 		float	scale[2];
 		float	time[2];
-		Vec3 offset;   
+		Vec3 offset;
 	};
 
 	//SEffectParams + Extra data for dynamic lights (not all FX need it)
 	struct SEffectParamsEx
 	{
-		SEffectParamsEx() { Reset(); };
+		SEffectParamsEx()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
-		{ 
-			if (defaultInit)
+		{
+			if(defaultInit)
 			{
-				effect[0].clear(); effect[1].clear();
-				helper[0].clear(); helper[1].clear();
+				effect[0].clear();
+				effect[1].clear();
+				helper[0].clear();
+				helper[1].clear();
 				scale[0]=scale[1]=1.0f;
 				time[0]=time[1]=0.060f;
-				light_helper[0].clear(); light_helper[1].clear();
+				light_helper[0].clear();
+				light_helper[1].clear();
 				light_radius[0]=light_radius[1]=0.0f;
-				light_color[0]=light_color[1]=Vec3(1,1,1);        
-				light_time[0]=light_time[1]=0.060f;   
+				light_color[0]=light_color[1]=Vec3(1,1,1);
+				light_time[0]=light_time[1]=0.060f;
 				offset.Set(0.0f,0.0f,0.0f);
 			}
 
-			if (params)
+			if(params)
 			{
 				const IItemParamsNode *fp=params->GetChild("firstperson");
-				if (fp)
-				{ 
+
+				if(fp)
+				{
 					effect[0] = fp->GetAttribute("effect");
-					helper[0] = fp->GetAttribute("helper");					
+					helper[0] = fp->GetAttribute("helper");
 					fp->GetAttribute("scale", scale[0]);
 					fp->GetAttribute("time", time[0]);
-					light_helper[0] = fp->GetAttribute("light_helper");					
+					light_helper[0] = fp->GetAttribute("light_helper");
 					fp->GetAttribute("light_radius", light_radius[0]);
-					fp->GetAttribute("light_color", light_color[0]);          
+					fp->GetAttribute("light_color", light_color[0]);
 					fp->GetAttribute("light_time", light_time[0]);
 					fp->GetAttribute("offset", offset);
 
@@ -151,15 +165,16 @@ public:
 				}
 
 				const IItemParamsNode *tp=params->GetChild("thirdperson");
-				if (tp)
-				{ 
+
+				if(tp)
+				{
 					effect[1] = tp->GetAttribute("effect");
-					helper[1] = tp->GetAttribute("helper");					
+					helper[1] = tp->GetAttribute("helper");
 					tp->GetAttribute("scale", scale[1]);
 					tp->GetAttribute("time", time[1]);
-					light_helper[1] = tp->GetAttribute("light_helper");					
+					light_helper[1] = tp->GetAttribute("light_helper");
 					tp->GetAttribute("light_radius", light_radius[1]);
-					tp->GetAttribute("light_color", light_color[1]);          
+					tp->GetAttribute("light_color", light_color[1]);
 					tp->GetAttribute("light_time", light_time[1]);
 					tp->GetAttribute("offset",offset);
 
@@ -173,12 +188,12 @@ public:
 		}
 		void PreLoadAssets()
 		{
-			for (int i = 0; i < 2; i++)
+			for(int i = 0; i < 2; i++)
 				gEnv->pParticleManager->FindEffect(effect[i]);
 		}
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
-			for (int i=0; i<2; i++)
+			for(int i=0; i<2; i++)
 			{
 				s->Add(effect[i]);
 				s->Add(helper[i]);
@@ -192,35 +207,41 @@ public:
 		ItemString helper[2];
 		float light_radius[2];
 		float light_time[2];
-		Vec3 light_color[2]; 
+		Vec3 light_color[2];
 		Vec3 offset;
-		ItemString light_helper[2];    
+		ItemString light_helper[2];
 	};
 
-  struct SDustParams
-  {
-    SDustParams() { Reset(); }
-    void Reset(const IItemParamsNode* params=0, bool defaultInit=true)
-    {
-      CItemParamReader reader(params);
-      ResetValue(mfxtag, "");
-      ResetValue(maxheight, 2.5f);
-      ResetValue(maxheightscale, 1.f);
-    }
+	struct SDustParams
+	{
+		SDustParams()
+		{
+			Reset();
+		}
+		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
+		{
+			CItemParamReader reader(params);
+			ResetValue(mfxtag, "");
+			ResetValue(maxheight, 2.5f);
+			ResetValue(maxheightscale, 1.f);
+		}
 
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
 			s->Add(mfxtag);
 		}
 
-    ItemString mfxtag;
-    float maxheight;
-    float maxheightscale;
-  };
+		ItemString mfxtag;
+		float maxheight;
+		float maxheightscale;
+	};
 
 	struct SRecoilParams
 	{
-		SRecoilParams() { Reset(); };
+		SRecoilParams()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
@@ -242,22 +263,24 @@ public:
 
 			ResetValue(recoil_strMode_m, 0.5f);
 
-			if (defaultInit)
+			if(defaultInit)
 				hints.resize(0);
 
-			if (params)
+			if(params)
 			{
 				const IItemParamsNode *phints = params->GetChild("hints");
-				if (phints && phints->GetChildCount())
+
+				if(phints && phints->GetChildCount())
 				{
 					Vec2 h;
 					int n = phints->GetChildCount();
 					hints.resize(n);
 
-					for (int i=0; i<n; i++)
+					for(int i=0; i<n; i++)
 					{
 						const IItemParamsNode *hint = phints->GetChild(i);
-						if (hint->GetAttribute("x", h.x) && hint->GetAttribute("y", h.y))
+
+						if(hint->GetAttribute("x", h.x) && hint->GetAttribute("y", h.y))
 							hints[i]=h;
 					}
 				}
@@ -284,7 +307,7 @@ public:
 		//Nano suit modifiers
 		float								recoil_strMode_m;
 
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
 			s->AddContainer(hints);
 		}
@@ -293,7 +316,10 @@ public:
 
 	struct SSpreadParams
 	{
-		SSpreadParams() { Reset(); };
+		SSpreadParams()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
@@ -324,7 +350,7 @@ public:
 		float	spread_jump_m;
 		float	spread_zeroG_m;
 
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
 		}
 
@@ -332,7 +358,10 @@ public:
 
 	struct STracerParams
 	{
-		STracerParams() { Reset(); };
+		STracerParams()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
@@ -365,7 +394,7 @@ public:
 			gEnv->pParticleManager->FindEffect(effect);
 			gEnv->pParticleManager->FindEffect(effectFP);
 		}
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
 			s->Add(geometry);
 			s->Add(effect);
@@ -379,7 +408,10 @@ public:
 
 	struct SHeatingParams
 	{
-		SHeatingParams() { Reset(); };
+		SHeatingParams()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
@@ -401,12 +433,12 @@ public:
 
 		void PreLoadAssets()
 		{
-			for (int i = 0; i < 2; i++)
+			for(int i = 0; i < 2; i++)
 				gEnv->pParticleManager->FindEffect(effect[i]);
 		}
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
-			for (int i=0; i<2; i++)
+			for(int i=0; i<2; i++)
 			{
 				s->Add(helper[i]);
 				s->Add(effect[i]);
@@ -419,7 +451,10 @@ public:
 
 	struct SFireParams
 	{
-		SFireParams() { Reset(); };
+		SFireParams()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
@@ -429,10 +464,12 @@ public:
 			ResetValue(max_clips,			20);
 			ResetValue(hit_type,			"bullet");
 			ResetValue(ammo_type,			"");
-			if (defaultInit || !ammo_type.empty())
+
+			if(defaultInit || !ammo_type.empty())
 				ammo_type_class = gEnv->pEntitySystem->GetClassRegistry()->FindClass(ammo_type.c_str());
+
 			ResetValue(reload_time,		2.0f);
-			ResetValue(offset,				0.15f);      
+			ResetValue(offset,				0.15f);
 			ResetValue(bullet_chamber,false);
 			ResetValue(slider_layer,	"");
 			ResetValue(slider_layer_time,	500);
@@ -445,7 +482,7 @@ public:
 			ResetValue(ooatracer_treshold, 0);
 			ResetValueEx("helper_fp", helper[0],	"");
 			ResetValueEx("helper_tp",	helper[1],	"");
-      ResetValue(barrel_count,  1);
+			ResetValue(barrel_count,  1);
 
 			ResetValue(spin_up_time,	0.0f);
 			ResetValue(spin_down_time,0.0f);
@@ -470,11 +507,11 @@ public:
 			ResetValue(auto_fire_rate, 60.0f);
 			ResetValue(advanced_AAim,false);
 			ResetValue(advanced_AAim_Range,1.0f);
-      ResetValue(crosshair_assist_range, 0.0f);
+			ResetValue(crosshair_assist_range, 0.0f);
 
 		}
 
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
 			s->Add(helper[0]);
 			s->Add(helper[1]);
@@ -489,7 +526,7 @@ public:
 		float		reload_time;
 		float		offset;
 		ItemString	helper[2];
-    short   barrel_count;
+		short   barrel_count;
 
 		bool		unzoomed_cock;
 		bool		no_cock;
@@ -502,7 +539,7 @@ public:
 		ItemString	crosshair;
 
 		ItemString	hit_type;
-		IEntityClass* ammo_type_class;
+		IEntityClass *ammo_type_class;
 
 		bool		bullet_chamber;
 		ItemString	slider_layer;
@@ -536,13 +573,16 @@ public:
 		bool  advanced_AAim;
 		float advanced_AAim_Range;
 
-    float  crosshair_assist_range;
+		float  crosshair_assist_range;
 	};
 
 	struct SSingleActions
 	{
 
-		SSingleActions() { Reset(); };
+		SSingleActions()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
@@ -561,7 +601,7 @@ public:
 			ResetValue(null_fire, "null_fire");
 		}
 
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
 			s->Add(fire);
 			s->Add(fire_cock);
@@ -603,7 +643,7 @@ public:
 	virtual void Update(float frameTime, uint32 frameId);
 	virtual void UpdateFPView(float frameTime);
 	virtual void Release();
-	virtual void GetMemoryUsage(ICrySizer * s) const;
+	virtual void GetMemoryUsage(ICrySizer *s) const;
 
 	virtual void ResetParams(const struct IItemParamsNode *params);
 	virtual void PatchParams(const struct IItemParamsNode *patch);
@@ -613,20 +653,32 @@ public:
 
 	virtual int GetAmmoCount() const;
 	virtual int GetClipSize() const;
-	
+
 	virtual bool OutOfAmmo() const;
-	virtual bool LowAmmo(float) const { return false; }; // TODO: Implement properly if required. This is for Crysis2 compatibility.
+	virtual bool LowAmmo(float) const
+	{
+		return false;
+	}; // TODO: Implement properly if required. This is for Crysis2 compatibility.
 	virtual bool CanReload() const;
 	virtual void Reload(int zoomed);
 	virtual void CancelReload();
-	virtual bool CanCancelReload() { return true;};
+	virtual bool CanCancelReload()
+	{
+		return true;
+	};
 
 	virtual bool CanFire(bool considerAmmo = true) const;
 	virtual void StartFire();
 	virtual void StopFire();
-	virtual bool IsFiring() const { return m_firing; };
-	virtual bool IsSilenced() const { return false; } // compile fix, no guarantee of functionality
-	virtual void SetProjectileLaunchParams(const SProjectileLaunchParams& launchParams);
+	virtual bool IsFiring() const
+	{
+		return m_firing;
+	};
+	virtual bool IsSilenced() const
+	{
+		return false;    // compile fix, no guarantee of functionality
+	}
+	virtual void SetProjectileLaunchParams(const SProjectileLaunchParams &launchParams);
 	virtual void SetProjectileSpeedScale(float fSpeedScale);
 	virtual void StopPendingFire();
 	virtual bool AllowZoom() const;
@@ -634,19 +686,31 @@ public:
 
 	virtual void NetShoot(const Vec3 &hit, int predictionHandle);
 	virtual void NetShootEx(const Vec3 &pos, const Vec3 &dir, const Vec3 &vel, const Vec3 &hit, float extra, int predictionHandle);
-	virtual void NetEndReload() { m_reloadPending=false; };
+	virtual void NetEndReload()
+	{
+		m_reloadPending=false;
+	};
 
 	virtual void NetStartFire() {};
 	virtual void NetStopFire() {};
 
-	virtual bool IsReadyToFire() const { return CanFire(true); };
+	virtual bool IsReadyToFire() const
+	{
+		return CanFire(true);
+	};
 
-	virtual EntityId GetProjectileId() const { return m_projectileId; };
+	virtual EntityId GetProjectileId() const
+	{
+		return m_projectileId;
+	};
 	virtual EntityId RemoveProjectileId();
-	virtual void SetProjectileId(EntityId id) { m_projectileId = id; };
+	virtual void SetProjectileId(EntityId id)
+	{
+		m_projectileId = id;
+	};
 
-	virtual const char* GetType() const;
-	virtual IEntityClass* GetAmmoType() const;
+	virtual const char *GetType() const;
+	virtual IEntityClass *GetAmmoType() const;
 
 	virtual float GetSpinUpTime() const;
 	virtual float GetSpinDownTime() const;
@@ -656,29 +720,39 @@ public:
 
 	virtual void Enable(bool enable);
 	virtual bool IsEnabled() const;
-	
-	virtual void SetSecondary(bool secondary) { m_secondary = secondary; }
-	virtual bool IsSecondary() const { return m_secondary; }
 
-  virtual bool HasFireHelper() const;
-  virtual Vec3 GetFireHelperPos() const;
-  virtual Vec3 GetFireHelperDir() const;
+	virtual void SetSecondary(bool secondary)
+	{
+		m_secondary = secondary;
+	}
+	virtual bool IsSecondary() const
+	{
+		return m_secondary;
+	}
 
-  virtual int GetCurrentBarrel() const { return m_barrelId; }  
-	virtual void Serialize(TSerialize ser) 
-	{ 
+	virtual bool HasFireHelper() const;
+	virtual Vec3 GetFireHelperPos() const;
+	virtual Vec3 GetFireHelperDir() const;
+
+	virtual int GetCurrentBarrel() const
+	{
+		return m_barrelId;
+	}
+	virtual void Serialize(TSerialize ser)
+	{
 		if(ser.GetSerializationTarget() != eST_Network)
 		{
 			ser.BeginGroup("firemode");
 			ser.Value("enabled", m_enabled);
 			ser.Value("nextShot", m_next_shot);
 			ser.EndGroup();
+
 			if(ser.IsReading())
 				m_saved_next_shot = m_next_shot;
 		}
 	};
 
-	virtual void PostSerialize() 
+	virtual void PostSerialize()
 	{
 		SetNextShotTime(m_saved_next_shot);
 	};
@@ -694,9 +768,9 @@ public:
 	virtual void Lock(EntityId targetId, int partId = 0);
 	virtual void Unlock();
 	virtual void OnZoomStateChanged() {} // compile fix, no guarantee of functionality
-  //~IFireMode
+	//~IFireMode
 
-	virtual bool IsValidAutoAimTarget(IEntity* pEntity, int partId = 0);
+	virtual bool IsValidAutoAimTarget(IEntity *pEntity, int partId = 0);
 
 	virtual void StartReload(int zoomed);
 	virtual void EndReload(int zoomed);
@@ -707,13 +781,13 @@ public:
 	virtual Vec3 GetFireTarget() const;
 	virtual Vec3 GetProbableHit(float range, bool *pbHit=0, ray_hit *hit=0) const;
 	virtual Vec3 GetFiringPos(const Vec3 &probableHit) const;
-	virtual Vec3 GetFiringDir(const Vec3 &probableHit, const Vec3& firingPos) const;
-	virtual Vec3 GetFiringVelocity(const Vec3& dir) const;
+	virtual Vec3 GetFiringDir(const Vec3 &probableHit, const Vec3 &firingPos) const;
+	virtual Vec3 GetFiringVelocity(const Vec3 &dir) const;
 	virtual Vec3 ApplySpread(const Vec3 &dir, float spread);
 
 	virtual Vec3 NetGetFiringPos(const Vec3 &probableHit) const;
-	virtual Vec3 NetGetFiringDir(const Vec3 &probableHit, const Vec3& firingPos) const;
-	virtual Vec3 NetGetFiringVelocity(const Vec3& dir) const;
+	virtual Vec3 NetGetFiringDir(const Vec3 &probableHit, const Vec3 &firingPos) const;
+	virtual Vec3 NetGetFiringVelocity(const Vec3 &dir) const;
 
 	virtual Vec3 GetTracerPos(const Vec3 &firingPos, bool ooa);
 
@@ -721,7 +795,10 @@ public:
 
 	virtual float GetRecoil() const;
 	virtual float GetSpread() const;
-	virtual float GetSpreadForHUD() const { return GetSpread(); };
+	virtual float GetSpreadForHUD() const
+	{
+		return GetSpread();
+	};
 
 	virtual float GetMinSpread() const;
 	virtual float GetMaxSpread() const;
@@ -733,8 +810,8 @@ public:
 	virtual void SmokeEffect(bool effect=true);
 	virtual void SpinUpEffect(bool attach);
 	virtual void RejectEffect();
-  virtual void DustEffect(const Vec3& pos);
-  virtual void RecoilImpulse(const Vec3& firingPos, const Vec3& firingDir);
+	virtual void DustEffect(const Vec3 &pos);
+	virtual void RecoilImpulse(const Vec3 &firingPos, const Vec3 &firingDir);
 
 	virtual void UpdateHeat(float frameTime);
 
@@ -742,24 +819,36 @@ public:
 	virtual void UpdateRecoil(float frameTime);
 	virtual void ResetRecoil(bool spread=true);
 
-	virtual void SetRecoilMultiplier(float recoilMult) { m_recoilMultiplier = recoilMult; }
-	virtual float GetRecoilMultiplier() const { return m_recoilMultiplier; }
+	virtual void SetRecoilMultiplier(float recoilMult)
+	{
+		m_recoilMultiplier = recoilMult;
+	}
+	virtual float GetRecoilMultiplier() const
+	{
+		return m_recoilMultiplier;
+	}
 
 	virtual void UpdateAutoAim(float frameTime);
 	virtual void PostUpdate(float frameTime);
 	virtual void SetName(const char *name);
-	virtual const char *GetName()const { return m_name.empty()?0:m_name.c_str(); };
+	virtual const char *GetName()const
+	{
+		return m_name.empty()?0:m_name.c_str();
+	};
 
 
 	virtual float GetProjectileFiringAngle(float v, float g, float x, float y);
 
 	virtual void SetupEmitters(bool attach);
 	// sound and animation flags
-	virtual int PlayActionSAFlags(int flags) { return flags | CItem::eIPAF_Sound | CItem::eIPAF_Animation; };
+	virtual int PlayActionSAFlags(int flags)
+	{
+		return flags | CItem::eIPAF_Sound | CItem::eIPAF_Animation;
+	};
 
-	static int GetSkipEntities(CWeapon* pWeapon, IPhysicalEntity** pSkipEnts, int nMaxSkip);
+	static int GetSkipEntities(CWeapon *pWeapon, IPhysicalEntity **pSkipEnts, int nMaxSkip);
 
-	virtual void InitSharedParams ();
+	virtual void InitSharedParams();
 	virtual void CacheSharedParamsPtr();
 
 protected:
@@ -768,16 +857,22 @@ protected:
 	void CacheTracer();
 	void CacheAmmoGeometry();
 	void ClearTracerCache();
-	bool CheckAutoAimTolerance(const Vec3& aimPos, const Vec3& aimDir);
+	bool CheckAutoAimTolerance(const Vec3 &aimPos, const Vec3 &aimDir);
 
-	void SetAutoFireTimer(float time) { m_autoFireTimer = time; }
+	void SetAutoFireTimer(float time)
+	{
+		m_autoFireTimer = time;
+	}
 	void AutoFire();
 
-	void SetAutoAimHelperTimer(float time) { m_autoAimHelperTimer = time;}
+	void SetAutoAimHelperTimer(float time)
+	{
+		m_autoAimHelperTimer = time;
+	}
 
-  bool CrosshairAssistAiming(const Vec3& firingPos, Vec3& firingDir, ray_hit* pRayhit=NULL);
+	bool CrosshairAssistAiming(const Vec3 &firingPos, Vec3 &firingDir, ray_hit *pRayhit=NULL);
 
-	void EmitTracer(const Vec3& pos,const Vec3& destination,bool ooa);
+	void EmitTracer(const Vec3 &pos,const Vec3 &destination,bool ooa);
 
 	std::vector<IStatObj *> m_tracerCache;
 
@@ -792,22 +887,22 @@ protected:
 	float			m_next_shot_dt;
 	float			m_next_shot;
 	float     m_saved_next_shot; //For serialization
-  short     m_barrelId;
+	short     m_barrelId;
 
 	EntityId	m_projectileId;
 
-  struct SMuzzleEffectInfo
-  {
-    uint32 mfId[2];
+	struct SMuzzleEffectInfo
+	{
+		uint32 mfId[2];
 
-    SMuzzleEffectInfo()
-    {
-      mfId[0] = mfId[1] = 0;
-    }
-  };
-    
-  std::vector<SMuzzleEffectInfo> m_mfIds;
-	uint32			m_mflightId[2];	
+		SMuzzleEffectInfo()
+		{
+			mfId[0] = mfId[1] = 0;
+		}
+	};
+
+	std::vector<SMuzzleEffectInfo> m_mfIds;
+	uint32			m_mflightId[2];
 	float			m_mflTimer;
 
 	uint32			m_suId;
@@ -820,7 +915,7 @@ protected:
 	Vec2			m_recoil_offset;
 	float			m_spread;
 
-	float			m_recoilMultiplier;			
+	float			m_recoilMultiplier;
 
 	float			m_speed_scale;
 
@@ -843,19 +938,19 @@ protected:
 	//SEffectParams		m_muzzlesmoke;
 	//SEffectParams   m_muzzlesmokeice;
 	//SEffectParams		m_reject;
-	//SEffectParamsEx	m_spinup;  
+	//SEffectParamsEx	m_spinup;
 	SRecoilParams		m_recoilparams;
-	//SRecoilParams   m_recoilparamsCopy;		
+	//SRecoilParams   m_recoilparamsCopy;
 	SSpreadParams		m_spreadparams;
-	//SSpreadParams   m_spreadparamsCopy;		
+	//SSpreadParams   m_spreadparamsCopy;
 	//SHeatingParams	m_heatingparams;
-  //SDustParams     m_dustparams;
+	//SDustParams     m_dustparams;
 
 	float						m_heat;
 	float						m_overheat;
 	float           m_nextHeatTime;
 	int							m_heatEffectId;
-  tSoundID        m_heatSoundId;
+	tSoundID        m_heatSoundId;
 
 	int             m_smokeEffectId;
 
@@ -868,18 +963,18 @@ protected:
 	float						m_fStareTime;
 	bool						m_bLocking;
 
-	ItemString			m_name;	
+	ItemString			m_name;
 	bool						m_targetSpotSelected;
 	Vec3						m_targetSpot;
 	Vec3						m_lastAimSpot;
 	float						m_autoAimHelperTimer;
 
 	float						m_autoaimTimeOut;
-	
+
 	float						m_autoFireTimer;
 	float						m_autoFireTimerLength;
 
-	float						m_soundVariationParam; //Should be 1.0, 2.0f, 3.0f (or something in between 0 and 5)	
+	float						m_soundVariationParam; //Should be 1.0, 2.0f, 3.0f (or something in between 0 and 5)
 
 	bool						m_reloadCancelled;
 	int							m_reloadStartFrame;
@@ -893,7 +988,7 @@ private:
 
 	void RestoreOverHeating(bool activate);
 
-	CSingleSharedData*		m_pShared;
+	CSingleSharedData		*m_pShared;
 };
 
 
@@ -904,22 +999,38 @@ class CSingleSharedData: public IWeaponSharedData
 {
 public:
 
-	CSingleSharedData():m_refs(0),m_valid(false){};
-	virtual ~CSingleSharedData(){};
+	CSingleSharedData():m_refs(0),m_valid(false) {};
+	virtual ~CSingleSharedData() {};
 
-	virtual void SetValid(bool valid) { m_valid = valid; }
-	virtual bool Valid() const { return m_valid; }
+	virtual void SetValid(bool valid)
+	{
+		m_valid = valid;
+	}
+	virtual bool Valid() const
+	{
+		return m_valid;
+	}
 
-	virtual const char* GetDataType() const { return "SingleData"; };
+	virtual const char *GetDataType() const
+	{
+		return "SingleData";
+	};
 
-	virtual void AddRef() const { ++m_refs; };
-	virtual uint32 GetRefCount() const { return m_refs; };
-	virtual void Release() const { 
-		if (--m_refs <= 0)
+	virtual void AddRef() const
+	{
+		++m_refs;
+	};
+	virtual uint32 GetRefCount() const
+	{
+		return m_refs;
+	};
+	virtual void Release() const
+	{
+		if(--m_refs <= 0)
 			delete this;
 	}
 
-	virtual void GetMemoryUsage(ICrySizer* s) const
+	virtual void GetMemoryUsage(ICrySizer *s) const
 	{
 		s->Add(*this);
 		fireparams.GetMemoryUsage(s);
@@ -946,9 +1057,9 @@ public:
 	CSingle::SEffectParams		muzzlesmoke;
 	CSingle::SEffectParams		muzzlesmokeice;
 	CSingle::SEffectParams		reject;
-	CSingle::SEffectParamsEx	spinup;  
-	CSingle::SRecoilParams		recoilparamsCopy;		
-	CSingle::SSpreadParams		spreadparamsCopy;		
+	CSingle::SEffectParamsEx	spinup;
+	CSingle::SRecoilParams		recoilparamsCopy;
+	CSingle::SSpreadParams		spreadparamsCopy;
 	CSingle::SHeatingParams		heatingparams;
 	CSingle::SDustParams			dustparams;
 

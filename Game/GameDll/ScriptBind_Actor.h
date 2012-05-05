@@ -5,7 +5,7 @@
   $Id$
   $DateTime$
   Description: Exposes actor functionality to LUA
-  
+
  -------------------------------------------------------------------------
   History:
   - 7:10:2004   14:19 : Created by Marcio Martins
@@ -91,7 +91,7 @@ public:
 	// <title GetHeadPos>
 	// Syntax: Actor.GetHeadPos()
 	// Description:
-	//		Gets the actor's head position. 
+	//		Gets the actor's head position.
 	virtual int GetHeadPos(IFunctionHandler *pH);
 	// <title PostPhysicalize>
 	// Syntax: Actor.PostPhysicalize()
@@ -151,7 +151,7 @@ public:
 	//		vAngles - Rotation angle for the actor.
 	// Description:
 	//		Sets the rotation angle for the actor.
-	virtual int SetAngles(IFunctionHandler *pH,Ang3 vAngles );
+	virtual int SetAngles(IFunctionHandler *pH,Ang3 vAngles);
 	// <title GetAngles>
 	// Syntax: Actor.GetAngles()
 	// Description:
@@ -231,7 +231,7 @@ public:
 	// Syntax: Actor.EnableAspect( const char *aspect, bool enable )
 	// Arguments:
 	//		aspect - Aspect name.
-	//		enable - True to enable the aspect, false otherwise.	
+	//		enable - True to enable the aspect, false otherwise.
 	// Description:
 	//		Enables/Disables the specified aspect.
 	virtual int EnableAspect(IFunctionHandler *pH, const char *aspect, bool enable);
@@ -247,7 +247,7 @@ public:
 	//		params		- Parameters to be set for the extension.
 	// Description:
 	//		Sets some parameters to the specified extension.
-	virtual int SetExtensionParams(IFunctionHandler* pH, const char *extension, SmartScriptTable params);
+	virtual int SetExtensionParams(IFunctionHandler *pH, const char *extension, SmartScriptTable params);
 	// <title GetExtensionParams>
 	// Syntax: Actor.GetExtensionParams( const char *extension, SmartScriptTable params )
 	// Arguments:
@@ -255,7 +255,7 @@ public:
 	//		params		- Parameters to be set for the extension.
 	// Description:
 	//		Gets the parameters for the specified extension.
-	virtual int GetExtensionParams(IFunctionHandler* pH, const char *extension, SmartScriptTable params);
+	virtual int GetExtensionParams(IFunctionHandler *pH, const char *extension, SmartScriptTable params);
 
 
 
@@ -268,7 +268,7 @@ public:
 	//		ammo	- Ammunition string name.
 	//		amount	- Amount of the specified ammunition.
 	// Description:
-	//		Sets the amount of a specified ammunition in the inventory. 
+	//		Sets the amount of a specified ammunition in the inventory.
 	virtual int SetInventoryAmmo(IFunctionHandler *pH, const char *ammo, int amount);
 	// <title AddInventoryAmmo>
 	// Syntax: Actor.AddInventoryAmmo( const char *ammo, int amount )
@@ -276,14 +276,14 @@ public:
 	//		ammo	- Ammunition string name.
 	//		amount	- Amount of the specified ammunition.
 	// Description:
-	//		Adds the amount of a specified ammunition in the inventory. 
+	//		Adds the amount of a specified ammunition in the inventory.
 	virtual int AddInventoryAmmo(IFunctionHandler *pH, const char *ammo, int amount);
 	// <title GetInventoryAmmo>
 	// Syntax: Actor.GetInventoryAmmo( const char *ammo )
 	// Arguments:
 	//		ammo	- Ammunition string name.
 	// Description:
-	//		Gets the amount of a specified ammunition in the inventory. 
+	//		Gets the amount of a specified ammunition in the inventory.
 	virtual int GetInventoryAmmo(IFunctionHandler *pH, const char *ammo);
 
 	// <title SetHealth>
@@ -397,18 +397,18 @@ public:
 	// <title SetAnimationInput>
 	// Syntax: Actor.SetAnimationInput( const char * inputID, const char * value )
 	// Arguments:
-	//		inputID - Identifier for the input. 
+	//		inputID - Identifier for the input.
 	//		value	- Value for the input.
 	// Description:
 	//		Sets the animation input.
-	virtual int SetAnimationInput( IFunctionHandler *pH, const char * inputID, const char * value );
+	virtual int SetAnimationInput(IFunctionHandler *pH, const char *inputID, const char *value);
 	// <title TrackViewControlled>
 	// Syntax: Actor.TrackViewControlled( int characterSlot )
 	// Arguments:
 	//		characterSlot - Slot of the character.
 	// Description:
 	//		Checks if the track view is controlled.
-	virtual int TrackViewControlled( IFunctionHandler *pH, int characterSlot );
+	virtual int TrackViewControlled(IFunctionHandler *pH, int characterSlot);
 
 	// <title SetSpectatorMode>
 	// Syntax: Actor.SetSpectatorMode( int mode, ScriptHandle targetId )
@@ -427,7 +427,7 @@ public:
 	// Syntax: Actor.GetSpectatorTarget()
 	// Description:
 	//		Gets the current spectator target.
-	virtual int GetSpectatorTarget(IFunctionHandler* pH);
+	virtual int GetSpectatorTarget(IFunctionHandler *pH);
 
 	// <title Fall>
 	// Syntax: Actor.Fall( Vec3 hitPos )
@@ -474,7 +474,7 @@ public:
 	// <title CheckVirtualInventoryRestrictions>
 	// Syntax: Actor.CheckVirtualInventoryRestrictions( SmartScriptTable inventory, const char *itemClassName )
 	// Arguments:
-	//		inventory		- Inventory. 
+	//		inventory		- Inventory.
 	//		itemClassName	- Item class name.
 	// Description:
 	//		Checks if there is any restriction in the virtual inventory for the specific item class.
@@ -530,9 +530,9 @@ public:
 	//		suffix			- Suffix string.
 	// Description:
 	//		Gets the closest attachment to the specified position within the specified distance.
-	virtual int GetClosestAttachment(IFunctionHandler *pH, int characterSlot, Vec3 testPos, float maxDistance, const char* suffix);
+	virtual int GetClosestAttachment(IFunctionHandler *pH, int characterSlot, Vec3 testPos, float maxDistance, const char *suffix);
 	// <title AttachVulnerabilityEffect>
-	// Syntax: Actor.AttachVulnerabilityEffect( int characterSlot, int partid, Vec3 hitPos, float radius, const char* effect, const char* attachmentIdentifier) 
+	// Syntax: Actor.AttachVulnerabilityEffect( int characterSlot, int partid, Vec3 hitPos, float radius, const char* effect, const char* attachmentIdentifier)
 	// Arguments:
 	//		characterSlot			- Character slot.
 	//		partid					- .
@@ -542,7 +542,7 @@ public:
 	//		attachmentIndetifier	- Identifier for the attachment.
 	// Description:
 	//		Attaches vulnerability effect.
-	virtual int AttachVulnerabilityEffect(IFunctionHandler *pH, int characterSlot, int partid, Vec3 hitPos, float radius, const char* effect, const char* attachmentIdentifier);
+	virtual int AttachVulnerabilityEffect(IFunctionHandler *pH, int characterSlot, int partid, Vec3 hitPos, float radius, const char *effect, const char *attachmentIdentifier);
 	// <title ResetVulnerabilityEffects>
 	// Syntax: Actor.ResetVulnerabilityEffects( int characterSlot )
 	// Arguments:
@@ -569,7 +569,7 @@ public:
 	//		flags		- Flags.
 	// Description:
 	//		Creates an IK (Inverse Kinematics) limb.
-	virtual int CreateIKLimb( IFunctionHandler *pH, int slot, const char *limbName, const char *rootBone, const char *midBone, const char *endBone, int flags);
+	virtual int CreateIKLimb(IFunctionHandler *pH, int slot, const char *limbName, const char *rootBone, const char *midBone, const char *endBone, int flags);
 	// <title ResetScores>
 	// Syntax: Actor.ResetScores()
 	// Description:

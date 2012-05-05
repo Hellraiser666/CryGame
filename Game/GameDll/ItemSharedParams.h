@@ -32,18 +32,32 @@ public:
 	CItemSharedParams(): m_refs(0), m_valid(false) {};
 	virtual ~CItemSharedParams()
 	{
-		int x=0;(void)x;
+		int x=0;
+		(void)x;
 	};
 
-	virtual void AddRef() const { ++m_refs; };
-	virtual uint32 GetRefCount() const { return m_refs; };
-	virtual void Release() const { 
-		if (--m_refs <= 0)
+	virtual void AddRef() const
+	{
+		++m_refs;
+	};
+	virtual uint32 GetRefCount() const
+	{
+		return m_refs;
+	};
+	virtual void Release() const
+	{
+		if(--m_refs <= 0)
 			delete this;
 	};
 
-	virtual bool Valid() const { return m_valid; };
-	virtual void SetValid(bool valid) { m_valid=valid; };
+	virtual bool Valid() const
+	{
+		return m_valid;
+	};
+	virtual void SetValid(bool valid)
+	{
+		m_valid=valid;
+	};
 
 	void GetMemoryUsage(ICrySizer *s) const;
 
@@ -63,7 +77,10 @@ public:
 	CItemSharedParamsList() {};
 	virtual ~CItemSharedParamsList() {};
 
-	void Reset() { m_params.clear(); };
+	void Reset()
+	{
+		m_params.clear();
+	};
 	CItemSharedParams *GetSharedParams(const char *className, bool create);
 
 	void GetMemoryUsage(ICrySizer *s) const;

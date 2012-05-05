@@ -6,7 +6,7 @@
 //  File name:   UIHUD3D.h
 //  Version:     v1.00
 //  Created:     22/11/2011 by Paul Reindell.
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -26,13 +26,13 @@ public:
 	CUIHUD3D();
 
 	// IUIGameEventSystem
-	UIEVENTSYSTEM( "UIHUD3D" );
+	UIEVENTSYSTEM("UIHUD3D");
 	virtual void InitEventSystem();
 	virtual void UnloadEventSystem();
-	virtual void UpdateView( const SViewParams &viewParams );
+	virtual void UpdateView(const SViewParams &viewParams);
 
 	// ISystemEventListener
-	virtual void OnSystemEvent( ESystemEvent event, UINT_PTR wparam, UINT_PTR lparam );
+	virtual void OnSystemEvent(ESystemEvent event, UINT_PTR wparam, UINT_PTR lparam);
 	// ~ISystemEventListener
 
 	// IUIModule
@@ -40,17 +40,17 @@ public:
 	void Update(float fDeltaTime);
 	// ~IUIModule
 
-	void SetVisible( bool visible );
+	void SetVisible(bool visible);
 	bool IsVisible() const;
 
 private:
 	void SpawnHudEntities();
 	void RemoveHudEntities();
 
-	static void OnVisCVarChange( ICVar * );
+	static void OnVisCVarChange(ICVar *);
 
 private:
-	IEntity* m_pHUDRootEntity;
+	IEntity *m_pHUDRootEntity;
 	EntityId m_HUDRootEntityId;
 	typedef std::vector< EntityId > THUDEntityList;
 	THUDEntityList m_HUDEnties;

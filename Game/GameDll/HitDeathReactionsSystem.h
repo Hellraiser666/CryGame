@@ -2,8 +2,8 @@
 Crytek Source File.
 Copyright (C), Crytek Studios, 2001-2010.
 -------------------------------------------------------------------------
-Description: 
-This file holds shared data and functionality across all actor using the 
+Description:
+This file holds shared data and functionality across all actor using the
 HitDeathReactions system
 -------------------------------------------------------------------------
 History:
@@ -25,7 +25,7 @@ class CActor;
 class CHitDeathReactionsSystem
 {
 public:
-	static void														Warning(const char* szFormat, ...);
+	static void														Warning(const char *szFormat, ...);
 
 
 	CHitDeathReactionsSystem();
@@ -34,23 +34,35 @@ public:
 	void																	OnToggleGameMode();
 	void																	Reset();
 
-	ProfileId															GetReactionParamsForActor(const CActor& actor, ReactionsContainerConstPtr& pHitReactions, ReactionsContainerConstPtr& pDeathReactions, ReactionsContainerConstPtr& pCollisionReactions, SHitDeathReactionsConfigConstPtr& pHitDeathReactionsConfig);
-	void																	RequestReactionAnimsForActor(const CActor& actor, uint32 requestFlags);
-	void																	ReleaseReactionAnimsForActor(const CActor& actor, uint32 requestFlags);
+	ProfileId															GetReactionParamsForActor(const CActor &actor, ReactionsContainerConstPtr &pHitReactions, ReactionsContainerConstPtr &pDeathReactions, ReactionsContainerConstPtr &pCollisionReactions, SHitDeathReactionsConfigConstPtr &pHitDeathReactionsConfig);
+	void																	RequestReactionAnimsForActor(const CActor &actor, uint32 requestFlags);
+	void																	ReleaseReactionAnimsForActor(const CActor &actor, uint32 requestFlags);
 
 	void																	Reload();
 	void																	PreloadData();
 
 	void																	DumpHitDeathReactionsAssetUsage() const;
 
-	ILINE bool														IsStreamingEnabled() const { return static_cast<uint8>(GetStreamingPolicy()) != 0U; }
+	ILINE bool														IsStreamingEnabled() const
+	{
+		return static_cast<uint8>(GetStreamingPolicy()) != 0U;
+	}
 
-	void																	GetMemoryUsage(ICrySizer * s) const;
+	void																	GetMemoryUsage(ICrySizer *s) const;
 
-	ILINE CCustomReactionFunctions&				GetCustomReactionFunctions() { return m_customReactionFunctions; }
-	ILINE const CCustomReactionFunctions&	GetCustomReactionFunctions() const { return m_customReactionFunctions; }
+	ILINE CCustomReactionFunctions				&GetCustomReactionFunctions()
+	{
+		return m_customReactionFunctions;
+	}
+	ILINE const CCustomReactionFunctions	&GetCustomReactionFunctions() const
+	{
+		return m_customReactionFunctions;
+	}
 
-	CMTRand_int32&												GetRandomGenerator() { return m_pseudoRandom; }
+	CMTRand_int32												&GetRandomGenerator()
+	{
+		return m_pseudoRandom;
+	}
 
 private:
 	// private types
@@ -59,12 +71,15 @@ private:
 		typedef std::map<EntityId, uint32> entitiesUsingProfileContainer;
 
 		SReactionsProfile() : timerId(0), iRefCount(0) {}
-		SReactionsProfile(ReactionsContainerConstPtr pHitReactions, ReactionsContainerConstPtr pDeathReactions, ReactionsContainerConstPtr pCollisionReactions, ScriptTablePtr pHitAndDeathReactionsTable, SHitDeathReactionsConfigConstPtr	pHitDeathReactionsConfig) : 
-		pHitReactions(pHitReactions), pDeathReactions(pDeathReactions), pCollisionReactions(pCollisionReactions), pHitAndDeathReactionsTable(pHitAndDeathReactionsTable), pHitDeathReactionsConfig(pHitDeathReactionsConfig), timerId(0), iRefCount(0) {}
+		SReactionsProfile(ReactionsContainerConstPtr pHitReactions, ReactionsContainerConstPtr pDeathReactions, ReactionsContainerConstPtr pCollisionReactions, ScriptTablePtr pHitAndDeathReactionsTable, SHitDeathReactionsConfigConstPtr	pHitDeathReactionsConfig) :
+			pHitReactions(pHitReactions), pDeathReactions(pDeathReactions), pCollisionReactions(pCollisionReactions), pHitAndDeathReactionsTable(pHitAndDeathReactionsTable), pHitDeathReactionsConfig(pHitDeathReactionsConfig), timerId(0), iRefCount(0) {}
 		~SReactionsProfile();
 
-		void				GetMemoryUsage(ICrySizer * s) const;
-		ILINE bool	IsValid() const { return !(pHitReactions.expired() || pDeathReactions.expired() || pCollisionReactions.expired() || pHitDeathReactionsConfig.expired()); }
+		void				GetMemoryUsage(ICrySizer *s) const;
+		ILINE bool	IsValid() const
+		{
+			return !(pHitReactions.expired() || pDeathReactions.expired() || pCollisionReactions.expired() || pHitDeathReactionsConfig.expired());
+		}
 
 		ScriptTablePtr												pHitAndDeathReactionsTable;
 
@@ -102,25 +117,31 @@ private:
 
 	// Private methods
 	void								ExecuteHitDeathReactionsScripts(bool bForceReload);
-	ProfileId						GetActorProfileId(const CActor& actor) const;
-	ScriptTablePtr			LoadReactionsScriptTable(const CActor& actor) const;
-	ScriptTablePtr			LoadReactionsScriptTable(const char* szReactionsDataFile) const;
-	bool								LoadHitDeathReactionsParams(const CActor& actor, ScriptTablePtr pHitDeathReactionsTable, ReactionsContainerPtr pHitReactions, ReactionsContainerPtr pDeathReactions, ReactionsContainerPtr pCollisionReactions);
-	bool								LoadHitDeathReactionsConfig(const CActor& actor, ScriptTablePtr pHitDeathReactionsTable, SHitDeathReactionsConfigPtr pHitDeathReactionsConfig);
-	void								LoadReactionsParams(const CActor& actor, IScriptTable* pHitDeathReactionsTable, const char* szReactionParamsName, bool bDeathReactions, ReactionId baseReactionId, ReactionsContainer& reactions);
+	ProfileId						GetActorProfileId(const CActor &actor) const;
+	ScriptTablePtr			LoadReactionsScriptTable(const CActor &actor) const;
+	ScriptTablePtr			LoadReactionsScriptTable(const char *szReactionsDataFile) const;
+	bool								LoadHitDeathReactionsParams(const CActor &actor, ScriptTablePtr pHitDeathReactionsTable, ReactionsContainerPtr pHitReactions, ReactionsContainerPtr pDeathReactions, ReactionsContainerPtr pCollisionReactions);
+	bool								LoadHitDeathReactionsConfig(const CActor &actor, ScriptTablePtr pHitDeathReactionsTable, SHitDeathReactionsConfigPtr pHitDeathReactionsConfig);
+	void								LoadReactionsParams(const CActor &actor, IScriptTable *pHitDeathReactionsTable, const char *szReactionParamsName, bool bDeathReactions, ReactionId baseReactionId, ReactionsContainer &reactions);
 
-	void								GetReactionParamsFromScript(const CActor& actor, const ScriptTablePtr pScriptTable, SReactionParams& reactionParams, ReactionId reactionId) const;
-	bool								GetValidationParamsFromScript( const ScriptTablePtr pScriptTable, SReactionParams::SValidationParams& validationParams, const CActor& actor, ReactionId reactionId) const;
-	void								GetReactionAnimParamsFromScript(const CActor& actor, ScriptTablePtr pScriptTable, SReactionParams::SReactionAnim& reactionAnim) const;
-	ILINE	uint8					GetStreamingPolicy() const { return m_streamingEnabled; }
+	void								GetReactionParamsFromScript(const CActor &actor, const ScriptTablePtr pScriptTable, SReactionParams &reactionParams, ReactionId reactionId) const;
+	bool								GetValidationParamsFromScript(const ScriptTablePtr pScriptTable, SReactionParams::SValidationParams &validationParams, const CActor &actor, ReactionId reactionId) const;
+	void								GetReactionAnimParamsFromScript(const CActor &actor, ScriptTablePtr pScriptTable, SReactionParams::SReactionAnim &reactionAnim) const;
+	ILINE	uint8					GetStreamingPolicy() const
+	{
+		return m_streamingEnabled;
+	}
 
 	void								PreProcessStanceParams(SmartScriptTable pReactionTable) const;
-	void								FillAllowedPartIds(const CActor& actor, const ScriptTablePtr pScriptTable, SReactionParams::SValidationParams& validationParams) const;
-	ECardinalDirection	GetCardinalDirectionFromString(const char* szCardinalDirection) const;
+	void								FillAllowedPartIds(const CActor &actor, const ScriptTablePtr pScriptTable, SReactionParams::SValidationParams &validationParams) const;
+	ECardinalDirection	GetCardinalDirectionFromString(const char *szCardinalDirection) const;
 
-	ILINE bool					FlagsValidateLocking(uint32 flags) const { return flags == ((eRRF_Alive | eRRF_AIEnabled) | (!gEnv->bMultiplayer * eRRF_OutFromPool)); }
-	void								OnRequestAnimsTimer(void* pUserData, IGameFramework::TimerID handler);
-	void								OnReleaseAnimsTimer(void* pUserData, IGameFramework::TimerID handler);
+	ILINE bool					FlagsValidateLocking(uint32 flags) const
+	{
+		return flags == ((eRRF_Alive | eRRF_AIEnabled) | (!gEnv->bMultiplayer * eRRF_OutFromPool));
+	}
+	void								OnRequestAnimsTimer(void *pUserData, IGameFramework::TimerID handler);
+	void								OnReleaseAnimsTimer(void *pUserData, IGameFramework::TimerID handler);
 
 
 	ProfilesContainer 							m_reactionProfiles;
@@ -138,7 +159,7 @@ private:
 	std::map<ProfileId, string>			m_profileIdToReactionFileMap; // debug attribute
 
 	class CHitDeathReactionsDebugWidget;
-	CHitDeathReactionsDebugWidget*	m_pWidget;
+	CHitDeathReactionsDebugWidget	*m_pWidget;
 #endif // #ifndef _RELEASE
 };
 

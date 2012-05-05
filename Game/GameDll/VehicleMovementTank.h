@@ -25,31 +25,40 @@ public:
 	virtual ~CVehicleMovementTank();
 
 	// overrides from StdWheeled
-	virtual bool Init(IVehicle* pVehicle, const CVehicleParams& table);  
+	virtual bool Init(IVehicle *pVehicle, const CVehicleParams &table);
 	virtual void PostInit();
 	virtual void Reset();
 
 	virtual void ProcessAI(const float deltaTime);
 	virtual void ProcessMovement(const float deltaTime);
-	virtual bool RequestMovement(CMovementRequest& movementRequest);
+	virtual bool RequestMovement(CMovementRequest &movementRequest);
 
-	virtual void OnEvent(EVehicleMovementEvent event, const SVehicleMovementEventParams& params);
+	virtual void OnEvent(EVehicleMovementEvent event, const SVehicleMovementEventParams &params);
 	virtual void OnAction(const TVehicleActionId actionId, int activationMode, float value);
 
 	virtual void Update(const float deltaTime);
 	virtual void StopEngine();
 	virtual void UpdateSounds(const float deltaTime);
 
-	virtual void GetMemoryUsage(ICrySizer * pSizer) const;
+	virtual void GetMemoryUsage(ICrySizer *pSizer) const;
 	// ~StdWheeled
 
-	virtual float GetEnginePedal(){ return m_currPedal; }
+	virtual float GetEnginePedal()
+	{
+		return m_currPedal;
+	}
 
-protected:  
+protected:
 	virtual void UpdateSpeedRatio(const float deltaTime);
 
-	virtual bool DoGearSound() { return false; }
-	virtual float GetMinRPMSoundRatio() { return 0.6f; }  
+	virtual bool DoGearSound()
+	{
+		return false;
+	}
+	virtual float GetMinRPMSoundRatio()
+	{
+		return 0.6f;
+	}
 #if ENABLE_VEHICLE_DEBUG
 	virtual void DebugDrawMovement(const float deltaTime);
 #endif
@@ -69,14 +78,14 @@ protected:
 	float m_currPedal;
 	float m_currSteer;
 
-	IVehiclePart* m_drivingWheels[2];
+	IVehiclePart *m_drivingWheels[2];
 	float m_steeringImpulseMin;
 	float m_steeringImpulseMax;
 	float m_steeringImpulseRelaxMin;
 	float m_steeringImpulseRelaxMax;
 
-	typedef std::vector<IVehiclePart*> TTreadParts;
-	TTreadParts m_treadParts;    
+	typedef std::vector<IVehiclePart *> TTreadParts;
+	TTreadParts m_treadParts;
 };
 
 #endif

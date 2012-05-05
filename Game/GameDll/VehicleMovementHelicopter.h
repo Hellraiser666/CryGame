@@ -28,7 +28,7 @@ public:
 	CNetworkMovementHelicopter(CVehicleMovementHelicopter *pMovement);
 
 
-	typedef CVehicleMovementHelicopter * UpdateObjectSink;
+	typedef CVehicleMovementHelicopter *UpdateObjectSink;
 
 
 	bool operator == (const CNetworkMovementHelicopter &rhs)
@@ -41,7 +41,7 @@ public:
 		return !this->operator==(rhs);
 	};
 
-	void UpdateObject( CVehicleMovementHelicopter *pMovement );
+	void UpdateObject(CVehicleMovementHelicopter *pMovement);
 	void Serialize(TSerialize ser, EEntityAspects aspects);
 
 	static const NetworkAspectType CONTROLLED_ASPECT = eEA_GameClientDynamic;
@@ -67,13 +67,13 @@ public:
 		eVM_Positive = 1,
 		eVM_Negative,
 	};
-	virtual ~CHelicopterPlayerControls(){}
-	void Init(CVehicleMovementHelicopter* pHelicopterMovement);
+	virtual ~CHelicopterPlayerControls() {}
+	void Init(CVehicleMovementHelicopter *pHelicopterMovement);
 
-	void RegisterValue(float* pValue, bool isAccumulator, float perUpdateMult, const string& name);
-	void RegisterAction(TVehicleActionId actionId, EValueModif valueModif, float* pValue, ICVar* pSensivityCVar = NULL);
+	void RegisterValue(float *pValue, bool isAccumulator, float perUpdateMult, const string &name);
+	void RegisterAction(TVehicleActionId actionId, EValueModif valueModif, float *pValue, ICVar *pSensivityCVar = NULL);
 
-	void SetValueUpdateMult(float* pValue, float perUpdateMult);
+	void SetValueUpdateMult(float *pValue, float perUpdateMult);
 	void SetActionMult(TVehicleActionId actionId, float mult);
 
 	void Reset();
@@ -82,7 +82,7 @@ public:
 
 	void Serialize(TSerialize ser, EEntityAspects aspects);
 
-	virtual void GetMemoryUsage(ICrySizer * pSizer) const;
+	virtual void GetMemoryUsage(ICrySizer *pSizer) const;
 
 	void ClearAllActions();
 
@@ -91,11 +91,11 @@ protected:
 	struct SMovementValue
 	{
 		string name;
-		float* pValue;
+		float *pValue;
 		float serializedValue;
 		float perUpdateMult;
 		bool isAccumulator;
-		void GetMemoryUsage( ICrySizer *pSizer ) const{}
+		void GetMemoryUsage(ICrySizer *pSizer) const {}
 	};
 
 	struct SActionInfo
@@ -108,12 +108,12 @@ protected:
 		EValueModif valueModif;
 
 		float mult;
-		ICVar* pSensivityCVar;
+		ICVar *pSensivityCVar;
 
-		void GetMemoryUsage( ICrySizer *pSizer ) const{}
+		void GetMemoryUsage(ICrySizer *pSizer) const {}
 	};
 
-	CVehicleMovementHelicopter* m_pHelicopterMovement;
+	CVehicleMovementHelicopter *m_pHelicopterMovement;
 
 	typedef std::vector<SActionInfo> TActionInfoVector;
 	TActionInfoVector m_actions;
@@ -134,19 +134,25 @@ public:
 	virtual ~CVehicleMovementHelicopter() {}
 
 	// IVehicleMovement
-	virtual bool Init(IVehicle* pVehicle, const CVehicleParams& table);
+	virtual bool Init(IVehicle *pVehicle, const CVehicleParams &table);
 	virtual void PostInit();
 	virtual void Reset();
 	virtual void Release();
 	virtual void Physicalize();
 
-	virtual EVehicleMovementType GetMovementType() { return eVMT_Air; }
-	virtual float GetDamageRatio() { return min(1.0f, max(m_damage, m_steeringDamage/3.0f ) ); }
+	virtual EVehicleMovementType GetMovementType()
+	{
+		return eVMT_Air;
+	}
+	virtual float GetDamageRatio()
+	{
+		return min(1.0f, max(m_damage, m_steeringDamage/3.0f));
+	}
 
 	virtual bool StartEngine(EntityId driverId);
 	virtual void StopEngine();
 
-	virtual void OnEvent(EVehicleMovementEvent event, const SVehicleMovementEventParams& params);
+	virtual void OnEvent(EVehicleMovementEvent event, const SVehicleMovementEventParams &params);
 	virtual void OnAction(const TVehicleActionId actionId, int activationMode, float value);
 
 	virtual void ProcessMovement(const float deltaTime);
@@ -155,10 +161,10 @@ public:
 
 	virtual void Update(const float deltaTime);
 
-	virtual bool RequestMovement(CMovementRequest& movementRequest);
+	virtual bool RequestMovement(CMovementRequest &movementRequest);
 
 	virtual void Serialize(TSerialize ser, EEntityAspects aspects);
-	virtual void SetAuthority( bool auth )
+	virtual void SetAuthority(bool auth)
 	{
 		m_netActionSync.CancelReceived();
 	};
@@ -170,7 +176,10 @@ public:
 	virtual float GetEnginePedal();
 	// ~CVehicleMovementBase
 
-	void SetRotorPart(IVehiclePart* pPart) { m_pRotorPart = pPart; }
+	void SetRotorPart(IVehiclePart *pPart)
+	{
+		m_pRotorPart = pPart;
+	}
 
 	virtual void PreProcessMovement(const float deltaTime);
 	virtual void ResetActions();
@@ -179,8 +188,8 @@ public:
 	virtual void ProcessActions_AdjustActions(float deltaTime) {}
 	virtual void SetSoundMasterVolume(float vol);
 
-	virtual void GetMemoryUsage(ICrySizer * pSizer) const; 
-	void GetMemoryUsageInternal(ICrySizer * pSizer) const; 	
+	virtual void GetMemoryUsage(ICrySizer *pSizer) const;
+	void GetMemoryUsageInternal(ICrySizer *pSizer) const;
 
 	virtual void ProcessActionsLift(float deltaTime);
 
@@ -192,10 +201,10 @@ protected:
 	pe_action_impulse m_control;
 	pe_action_impulse m_controlDamages;
 
-	IVehiclePart* m_pRotorPart;
-	IVehicleHelper* m_pRotorHelper;
+	IVehiclePart *m_pRotorPart;
+	IVehicleHelper *m_pRotorHelper;
 
-	CVehicleActionLandingGears* m_pLandingGears;
+	CVehicleActionLandingGears *m_pLandingGears;
 
 	// movement settings (shouldn't be changed outside Init())
 	float m_engineWarmupDelay;
@@ -207,7 +216,7 @@ protected:
 
 	/// Adjustment to the rotor up direction with control input. 1 means direction changes by 45degrees
 	/// at full control input
-	float m_rotorDiskTiltScale; 
+	float m_rotorDiskTiltScale;
 	float m_pitchResponsiveness;
 	float m_rollResponsiveness;
 	float m_yawResponsiveness;
@@ -257,7 +266,7 @@ protected:
 	float m_steeringDamage;
 	float m_turbulence;
 
-	// movement actions (to be modified by AI and player actions) and correspond 
+	// movement actions (to be modified by AI and player actions) and correspond
 	// to low-level "stick" inputs in the range -1 to 1
 	float m_hoveringPower;
 	float m_actionPitch;
@@ -319,11 +328,11 @@ protected:
 	float m_boostMult;
 	float m_vehicleVolume;
 
-	ICVar* m_pInvertPitchVar;
-	ICVar* m_pAltitudeLimitVar;
-	ICVar* m_pAltitudeLimitLowerOffsetVar;
-	ICVar* m_pAirControlSensivity;
-	ICVar* m_pStabilizeVTOL;
+	ICVar *m_pInvertPitchVar;
+	ICVar *m_pAltitudeLimitVar;
+	ICVar *m_pAltitudeLimitLowerOffsetVar;
+	ICVar *m_pAirControlSensivity;
+	ICVar *m_pStabilizeVTOL;
 
 	friend class CNetworkMovementHelicopter;
 

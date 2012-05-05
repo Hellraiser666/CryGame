@@ -7,7 +7,7 @@
 //  Version:     v1.00
 //  Created:     11/4/2003 by Timur.
 //  Compilers:   Visual Studio.NET
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -24,13 +24,13 @@
 class CBoidBug : public CBoidObject
 {
 public:
-	CBoidBug( SBoidContext &bc );
-	void Update( float dt,SBoidContext &bc );
-	void Render( SRendParams &rp,CCamera &cam,SBoidContext &bc );
+	CBoidBug(SBoidContext &bc);
+	void Update(float dt,SBoidContext &bc);
+	void Render(SRendParams &rp,CCamera &cam,SBoidContext &bc);
 private:
-	void UpdateBugsBehavior( float dt,SBoidContext &bc );
-	void UpdateDragonflyBehavior( float dt,SBoidContext &bc );
-	void UpdateFrogsBehavior( float dt,SBoidContext &bc );
+	void UpdateBugsBehavior(float dt,SBoidContext &bc);
+	void UpdateDragonflyBehavior(float dt,SBoidContext &bc);
+	void UpdateFrogsBehavior(float dt,SBoidContext &bc);
 	//void CalcRandomTarget( const Vec3 &origin,SBoidContext &bc );
 	friend class CBugsFlock;
 	int m_objectId;
@@ -47,10 +47,10 @@ private:
 class CBugsFlock : public CFlock
 {
 public:
-	CBugsFlock( IEntity *pEntity );
+	CBugsFlock(IEntity *pEntity);
 	~CBugsFlock();
 
-	virtual void CreateBoids( SBoidsCreateContext &ctx );
+	virtual void CreateBoids(SBoidsCreateContext &ctx);
 protected:
 	friend class CBoidBug;
 };

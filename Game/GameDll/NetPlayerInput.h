@@ -10,37 +10,49 @@ class CPlayer;
 class CNetPlayerInput : public IPlayerInput
 {
 public:
-	CNetPlayerInput( CPlayer * pPlayer );
+	CNetPlayerInput(CPlayer *pPlayer);
 
 	// IPlayerInput
 	virtual void PreUpdate();
 	virtual void Update();
 	virtual void PostUpdate();
 
-	virtual void SetState( const SSerializedPlayerInput& input );
-	virtual void GetState( SSerializedPlayerInput& input );
+	virtual void SetState(const SSerializedPlayerInput &input);
+	virtual void GetState(SSerializedPlayerInput &input);
 
-	virtual void OnAction(  const ActionId& action, int activationMode, float value  ) {};
+	virtual void OnAction(const ActionId &action, int activationMode, float value) {};
 
 	virtual void Reset();
 	virtual void DisableXI(bool disabled);
 	// PLAYERPREDICTION
 	virtual void ClearXIMovement() {};
 	// ~PLAYERPREDICTION
-	
-	virtual void GetMemoryUsage(ICrySizer * s) const {s->Add(*this);}
+
+	virtual void GetMemoryUsage(ICrySizer *s) const
+	{
+		s->Add(*this);
+	}
 
 	virtual EInputType GetType() const
 	{
 		return NETPLAYER_INPUT;
 	};
 
-	ILINE virtual uint32 GetMoveButtonsState() const { return 0; }
-	ILINE virtual uint32 GetActions() const { return 0; }
+	ILINE virtual uint32 GetMoveButtonsState() const
+	{
+		return 0;
+	}
+	ILINE virtual uint32 GetActions() const
+	{
+		return 0;
+	}
 
 	// PLAYERPREDICTION
-	virtual float GetLastRegisteredInputTime() const { return 0.0f; }
-	virtual void SerializeSaveGame( TSerialize ser ) {}
+	virtual float GetLastRegisteredInputTime() const
+	{
+		return 0.0f;
+	}
+	virtual void SerializeSaveGame(TSerialize ser) {}
 	// ~IPlayerInput
 
 	void GetDesiredVel(const Vec3 &pos, Vec3 &vel) const;
@@ -52,12 +64,12 @@ public:
 	// ~PLAYERPREDICTION
 
 protected:
-	CPlayer * m_pPlayer;
+	CPlayer *m_pPlayer;
 	SSerializedPlayerInput m_curInput;
 	// PLAYERPREDICTION
 	float CalculatePseudoSpeed() const;
 
-	void DoSetState( const SSerializedPlayerInput& input );
+	void DoSetState(const SSerializedPlayerInput &input);
 	void UpdateInterpolation();
 	void UpdateMoveRequest();
 
@@ -81,7 +93,7 @@ protected:
 	bool		m_newInterpolation;
 
 	Vec3				m_breadCrumb;
-	CTimeValue	m_nextBCTime;     	 
+	CTimeValue	m_nextBCTime;
 	float				m_blockedTime;
 	// ~PLAYERPREDICTION
 };

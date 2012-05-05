@@ -30,15 +30,19 @@ class CC4Detonator :
 public:
 	CC4Detonator();
 
-	virtual void OnAction(EntityId actorId, const ActionId& actionId, int activationMode, float value);
+	virtual void OnAction(EntityId actorId, const ActionId &actionId, int activationMode, float value);
 
-	virtual void GetMemoryUsage(ICrySizer * s)  const { s->Add(*this); CWeapon::GetMemoryUsage(s); }
+	virtual void GetMemoryUsage(ICrySizer *s)  const
+	{
+		s->Add(*this);
+		CWeapon::GetMemoryUsage(s);
+	}
 
 private:
 
 	static TActionHandler<CC4Detonator> s_actionHandler;
 
-	bool OnActionSelectC4(EntityId actorId, const ActionId& actionId, int activationMode, float value);
+	bool OnActionSelectC4(EntityId actorId, const ActionId &actionId, int activationMode, float value);
 	void SelectC4();
 
 };

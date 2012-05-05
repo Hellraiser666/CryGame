@@ -18,20 +18,20 @@ public:
 		Vec3 vMoveDir;
 		float fDesiredSpeed;
 
-		explicit SMovementRequestParams(CMovementRequest& movementRequest) :
+		explicit SMovementRequestParams(CMovementRequest &movementRequest) :
 			vLookTargetPos(movementRequest.HasLookTarget() ? movementRequest.GetLookTarget() : Vec3Constants<float>::fVec3_Zero),
 			vMoveDir(ZERO),
 			fDesiredSpeed(movementRequest.HasDesiredSpeed() ? movementRequest.GetDesiredSpeed() : 1.f)
-		{	
+		{
 		}
 	};
 
 	struct SBodyInfo
 	{
-		Vec3 vEyePos;		
+		Vec3 vEyePos;
 		Vec3 velocity;
 		EStance eStance;
-		const SStanceInfo* pStanceInfo;
+		const SStanceInfo *pStanceInfo;
 
 		SBodyInfo() :
 			vEyePos(ZERO),
@@ -45,27 +45,30 @@ public:
 
 	CFlyer();
 
-	
-	virtual void GetMemoryUsage(ICrySizer* pCrySizer) const { pCrySizer->Add(*this); }
+
+	virtual void GetMemoryUsage(ICrySizer *pCrySizer) const
+	{
+		pCrySizer->Add(*this);
+	}
 	virtual void FullSerialize(TSerialize ser);
 	virtual void PrePhysicsUpdate();
 	virtual void Revive(bool bFromInit = false);
 
-	void GetActorInfo(SBodyInfo& bodyInfo);
-	void SetActorMovement(SMovementRequestParams& movementRequestParam);
+	void GetActorInfo(SBodyInfo &bodyInfo);
+	void SetActorMovement(SMovementRequestParams &movementRequestParam);
 
 
 protected:
 
-	virtual IActorMovementController* CreateMovementController();
+	virtual IActorMovementController *CreateMovementController();
 
 
 private:
 
 	void ProcessMovement(float frameTime);	// Ad-hoc
 
-	void SetDesiredVelocity(const Vec3& vDesiredVelocity);
-	void SetDesiredDirection(const Vec3& vDesiredDir);
+	void SetDesiredVelocity(const Vec3 &vDesiredVelocity);
+	void SetDesiredDirection(const Vec3 &vDesiredDir);
 
 
 	Vec3 m_vDesiredVelocity;

@@ -29,7 +29,10 @@ class CCharge :
 public:
 	typedef struct SChargeParams
 	{
-		SChargeParams() { Reset(); };
+		SChargeParams()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
@@ -39,7 +42,7 @@ public:
 			ResetValue(reset_spinup,		false);
 		};
 
-		void GetMemoryUsage(ICrySizer * s) const{}
+		void GetMemoryUsage(ICrySizer *s) const {}
 
 		float		time;
 		int			max_charges;
@@ -49,7 +52,10 @@ public:
 
 	typedef struct SChargeActions
 	{
-		SChargeActions() { Reset(); };
+		SChargeActions()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
@@ -57,7 +63,7 @@ public:
 			ResetValue(uncharge,"uncharge");
 		};
 
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
 			s->Add(charge);
 			s->Add(uncharge);
@@ -73,7 +79,7 @@ public:
 	virtual ~CCharge();
 
 	virtual void Update(float frameTime, uint32 frameId);
-	virtual void GetMemoryUsage(ICrySizer * s) const;
+	virtual void GetMemoryUsage(ICrySizer *s) const;
 
 	virtual void ResetParams(const struct IItemParamsNode *params);
 	virtual void PatchParams(const struct IItemParamsNode *patch);
@@ -102,18 +108,21 @@ protected:
 	float					m_chTimer;
 
 private:
-	CChargeSharedData* m_pShared;
+	CChargeSharedData *m_pShared;
 };
 
 
 class CChargeSharedData: public CAutomaticSharedData
 {
 public:
-	CChargeSharedData(){};
-	virtual ~CChargeSharedData(){};
+	CChargeSharedData() {};
+	virtual ~CChargeSharedData() {};
 
-	virtual const char* GetDataType() const { return "ChargeData"; }
-	virtual void GetMemoryUsage(ICrySizer* s) const
+	virtual const char *GetDataType() const
+	{
+		return "ChargeData";
+	}
+	virtual void GetMemoryUsage(ICrySizer *s) const
 	{
 		s->Add(*this);
 		chargeeffect.GetMemoryUsage(s);
@@ -122,7 +131,7 @@ public:
 		CAutomaticSharedData::GetMemoryUsage(s);
 	}
 
-	CSingle::SEffectParamsEx	chargeeffect;	
+	CSingle::SEffectParamsEx	chargeeffect;
 	CCharge::SChargeParams		chargeparams;
 	CCharge::SChargeActions		chargeactions;
 };

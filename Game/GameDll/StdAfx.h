@@ -65,14 +65,15 @@
 
 //////////////////////////////////////////////////////////////////////////
 //! Reports a Game Warning to validator with WARNING severity.
-inline void GameWarning( const char *format,... ) PRINTF_PARAMS(1, 2);
-inline void GameWarning( const char *format,... )
+inline void GameWarning(const char *format,...) PRINTF_PARAMS(1, 2);
+inline void GameWarning(const char *format,...)
 {
-	if (!format)
+	if(!format)
 		return;
+
 	va_list args;
 	va_start(args, format);
-	GetISystem()->WarningV( VALIDATOR_MODULE_GAME,VALIDATOR_WARNING,0,NULL,format,args );
+	GetISystem()->WarningV(VALIDATOR_MODULE_GAME,VALIDATOR_WARNING,0,NULL,format,args);
 	va_end(args);
 }
 
@@ -81,7 +82,7 @@ extern struct SCVars *g_pGameCVars;
 #define PLAYER_REFACTORING 1
 
 //---------------------------------------------------------------------
-inline float LinePointDistanceSqr(const Line& line, const Vec3& point, float zScale = 1.0f)
+inline float LinePointDistanceSqr(const Line &line, const Vec3 &point, float zScale = 1.0f)
 {
 	Vec3 x0=point;
 	Vec3 x1=line.pointonline;

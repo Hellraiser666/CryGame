@@ -27,18 +27,21 @@ class CLookAim_Helper
 public:
 	CLookAim_Helper();
 
-	void UpdateLook(CPlayer* pPlayer, ICharacterInstance* pCharacter, bool bEnabled, f32 FOV, const Vec3& LookAtTarget,const f32 *customBlends = NULL);
-	
+	void UpdateLook(CPlayer *pPlayer, ICharacterInstance *pCharacter, bool bEnabled, f32 FOV, const Vec3 &LookAtTarget,const f32 *customBlends = NULL);
+
 	void Reset()
 	{
 		m_initialized = false;
 	}
 
-	bool CanHandFire(int hand) const { return 0 != (m_availableHandsForFiring & (1 << hand)); }
+	bool CanHandFire(int hand) const
+	{
+		return 0 != (m_availableHandsForFiring & (1 << hand));
+	}
 
 private:
 
-	void Init(CPlayer* pPlayer, ICharacterInstance* pCharacter);
+	void Init(CPlayer *pPlayer, ICharacterInstance *pCharacter);
 
 	bool m_initialized;
 

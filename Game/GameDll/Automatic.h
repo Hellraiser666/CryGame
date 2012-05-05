@@ -28,14 +28,17 @@ class CAutomatic : public CSingle
 public:
 	typedef struct SAutomaticActions
 	{
-		SAutomaticActions() { Reset(); };
+		SAutomaticActions()
+		{
+			Reset();
+		};
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
 		{
 			CItemParamReader reader(params);
 			ResetValue(automatic_fire,"automatic_fire");
 		}
 
-		void GetMemoryUsage(ICrySizer * s) const
+		void GetMemoryUsage(ICrySizer *s) const
 		{
 			s->Add(automatic_fire);
 		}
@@ -53,7 +56,7 @@ public:
 	virtual void ResetParams(const struct IItemParamsNode *params);
 	virtual void PatchParams(const struct IItemParamsNode *patch);
 
-	virtual void GetMemoryUsage(ICrySizer * s) const;
+	virtual void GetMemoryUsage(ICrySizer *s) const;
 
 	virtual void Update(float frameTime, uint32 frameId);
 	virtual void StartFire();
@@ -70,17 +73,20 @@ protected:
 
 private:
 
-	CAutomaticSharedData*	m_pShared;
+	CAutomaticSharedData	*m_pShared;
 };
 
 class CAutomaticSharedData: public CSingleSharedData
 {
 public:
-	CAutomaticSharedData(){};
-	virtual ~CAutomaticSharedData(){};
+	CAutomaticSharedData() {};
+	virtual ~CAutomaticSharedData() {};
 
-	virtual const char* GetDataType() const { return "AutomaticData"; }
-	virtual void GetMemoryUsage(ICrySizer* s) const
+	virtual const char *GetDataType() const
+	{
+		return "AutomaticData";
+	}
+	virtual void GetMemoryUsage(ICrySizer *s) const
 	{
 		s->Add(*this);
 		automaticactions.GetMemoryUsage(s);

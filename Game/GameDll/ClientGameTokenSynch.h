@@ -4,7 +4,7 @@ Copyright (C), Crytek Studios, 2001-2008.
 -------------------------------------------------------------------------
 $Id$
 $DateTime$
-Description: 
+Description:
 
 -------------------------------------------------------------------------
 History:
@@ -36,7 +36,7 @@ class classname: public CSetMsg \
 	classname(int _channelId, TGameTokenName _name, TGameTokenValue &_value); \
 	EMessageSendResult WritePayload(TSerialize ser, uint32 currentSeq, uint32 basisSeq); \
 	}; \
-
+ 
 
 struct IGameFramework;
 class CServerGameTokenSynch;
@@ -45,7 +45,10 @@ class CClientGameTokenSynch:
 	public CNetMessageSinkHelper<CClientGameTokenSynch, INetMessageSink>
 {
 public:
-	CClientGameTokenSynch(IGameTokenSystem *pGTS) { m_pGTS=pGTS; };
+	CClientGameTokenSynch(IGameTokenSystem *pGTS)
+	{
+		m_pGTS=pGTS;
+	};
 	virtual ~CClientGameTokenSynch() {};
 
 	void Reset() {}; // TODO: implement
@@ -60,7 +63,7 @@ public:
 	{
 	public:
 		CResetMsg(int _channelId);
-		
+
 		int											channelId;
 
 		EMessageSendResult WritePayload(TSerialize ser, uint32 currentSeq, uint32 basisSeq);
@@ -85,7 +88,7 @@ public:
 	};
 
 	static void SerializeGameToken(TSerialize ser, TGameTokenName &name, TGameTokenValue &value, int type);
-	
+
 	DECLARE_MESSAGE(CSetIntMsg);
 	DECLARE_MESSAGE(CSetFloatMsg);
 	DECLARE_MESSAGE(CSetVec3Msg);
@@ -95,7 +98,7 @@ public:
 
 	//------------------------------------------------------------------------
 	NET_DECLARE_IMMEDIATE_MESSAGE(ResetMsg);
-	
+
 	NET_DECLARE_IMMEDIATE_MESSAGE(SetIntMsg);
 	NET_DECLARE_IMMEDIATE_MESSAGE(SetFloatMsg);
 	NET_DECLARE_IMMEDIATE_MESSAGE(SetVec3Msg);

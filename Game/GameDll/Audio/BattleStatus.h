@@ -4,8 +4,8 @@ Copyright (C), Crytek Studios, 2001-2005.
 -------------------------------------------------------------------------
 $Id$
 $DateTime$
-Description: 
-	Header for G04 Audio BattleStatus 
+Description:
+	Header for G04 Audio BattleStatus
 
 -------------------------------------------------------------------------
 History:
@@ -32,9 +32,9 @@ public:
 	void	TickBattleStatus(float fValue);
 
 	void	Update();
-	
+
 	//	Queries the battle status, 0=no battle, 1=full battle
-	float	QueryBattleStatus(); 
+	float	QueryBattleStatus();
 	float GetBattleRange();
 
 	void Serialize(TSerialize ser);
@@ -42,7 +42,7 @@ public:
 private:
 
 	float	m_fBattleStatus;
-	float m_fBattleStatusDelay;	
+	float m_fBattleStatusDelay;
 
 };
 

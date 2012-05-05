@@ -14,82 +14,82 @@ History:
 
 namespace Stereo3D
 {
-  namespace Zoom
-  {
-    struct Parameters
-    {
-      Parameters()
-        : eyeDistance(0)
-        , convergenceDistance(10)
-      { 
-        Reset(XmlNodeRef((IXmlNode*)NULL)); 
-      };
+	namespace Zoom
+	{
+		struct Parameters
+		{
+			Parameters()
+				: eyeDistance(0)
+				, convergenceDistance(10)
+			{
+				Reset(XmlNodeRef((IXmlNode *)NULL));
+			};
 
-      void Reset(const XmlNodeRef& paramsNode, bool defaultInit = true);
-      void GetMemoryUsage(ICrySizer * s) const;
+			void Reset(const XmlNodeRef &paramsNode, bool defaultInit = true);
+			void GetMemoryUsage(ICrySizer *s) const;
 
-      float eyeDistance;
-      float convergenceDistance;
-    };
+			float eyeDistance;
+			float convergenceDistance;
+		};
 
-    class CStereoZoom
-    {
-    public:
-      CStereoZoom();
+		class CStereoZoom
+		{
+		public:
+			CStereoZoom();
 
-      float GetCurrentPlaneDist() const;
-      bool IsPlaneZooming() const;
-      void Update(float deltaTime);
-      void SetPlaneDistAndTransitionTime(float, float);
-      void SetEyeDistAndTransitionTime(float, float);
-      void ReturnEyeToNormalSetting(float);
-      void ReturnPlaneToNormalSetting(float);
+			float GetCurrentPlaneDist() const;
+			bool IsPlaneZooming() const;
+			void Update(float deltaTime);
+			void SetPlaneDistAndTransitionTime(float, float);
+			void SetEyeDistAndTransitionTime(float, float);
+			void ReturnEyeToNormalSetting(float);
+			void ReturnPlaneToNormalSetting(float);
 
-    protected:
-    private:
-      float GetCurrentClampedPlaneTValue() const;
+		protected:
+		private:
+			float GetCurrentClampedPlaneTValue() const;
 
-      float GetCurrentClampedEyeTValue() const;
-      float GetCurrentEyeDist() const;
+			float GetCurrentClampedEyeTValue() const;
+			float GetCurrentEyeDist() const;
 
 			bool IsStereoEnabled() const;
 
-      bool IsEyeZooming() const;
-      bool IsPlaneTransitionFinished() const;
-      bool IsEyeTransitionFinished()const;
+			bool IsEyeZooming() const;
+			bool IsPlaneTransitionFinished() const;
+			bool IsEyeTransitionFinished()const;
 
-      void UpdateStereoEyeDistance();
-      void RememberCurrentPlaneDistance();
-      void RememberCurrentEyeDistance();
-      void SetStereoPlaneDistCVAR(float);
-      void SetStereoEyeDistCVAR(float);
-      void PrintDebugOutput();
+			void UpdateStereoEyeDistance();
+			void RememberCurrentPlaneDistance();
+			void RememberCurrentEyeDistance();
+			void SetStereoPlaneDistCVAR(float);
+			void SetStereoEyeDistCVAR(float);
+			void PrintDebugOutput();
 
 			void UpdatePlaneZooming(float deltaTime);
 			void UpdateEyeZooming(float deltaTime);
 
-    public:
-    protected:
-    private:
-      float m_distanceOfPlaneBeforeChanging;
-      float m_distanceOfPlaneAtTransitionStart;
-      float m_distanceOfPlaneAtTransitionEnd;
-      float m_timeOfPlaneWhenTransitionFinishes;
-      float m_timeOfPlaneCurrentlyPast;
+		public:
+		protected:
+		private:
+			float m_distanceOfPlaneBeforeChanging;
+			float m_distanceOfPlaneAtTransitionStart;
+			float m_distanceOfPlaneAtTransitionEnd;
+			float m_timeOfPlaneWhenTransitionFinishes;
+			float m_timeOfPlaneCurrentlyPast;
 
-      float m_distanceOfEyesBeforeChanging;
-      float m_distanceOfEyesAtTransitionStart;
-      float m_distanceOfEyesAtTransitionEnd;
-      float m_timeOfEyesWhenTransitionFinishes;
-      float m_timeOfEyesCurrentlyPast;
+			float m_distanceOfEyesBeforeChanging;
+			float m_distanceOfEyesAtTransitionStart;
+			float m_distanceOfEyesAtTransitionEnd;
+			float m_timeOfEyesWhenTransitionFinishes;
+			float m_timeOfEyesCurrentlyPast;
 
-      bool m_isEyeZooming;
-      bool m_isPlaneZooming;
+			bool m_isEyeZooming;
+			bool m_isPlaneZooming;
 
-      bool m_isEyeReturningToNormal;
-      bool m_isPlaneReturningToNormal;
-    };
-  } // namespace Zoom
+			bool m_isEyeReturningToNormal;
+			bool m_isPlaneReturningToNormal;
+		};
+	} // namespace Zoom
 } // namespace Stereo3D
 
 #endif

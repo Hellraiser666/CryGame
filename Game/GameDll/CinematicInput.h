@@ -4,7 +4,7 @@ Copyright (C), Crytek Studios, 2001-2010.
 -------------------------------------------------------------------------
 $Id$
 $DateTime$
-Description: Controls script variables coming from track view to add some 
+Description: Controls script variables coming from track view to add some
 							control/feedback during cutscenes
 
 -------------------------------------------------------------------------
@@ -30,15 +30,15 @@ public:
 
 	void Update(float frameTime);
 
-	ILINE bool IsAnyCutSceneRunning() const 
-	{ 
-		return (m_cutsceneRunningCount > 0); 
+	ILINE bool IsAnyCutSceneRunning() const
+	{
+		return (m_cutsceneRunningCount > 0);
 	}
 
 private:
 
-	void UpdateForceFeedback(IScriptSystem* pScriptSystem, float frameTime);
-	void UpdateAdditiveCameraInput(IScriptSystem* pScriptSystem, float frameTime);
+	void UpdateForceFeedback(IScriptSystem *pScriptSystem, float frameTime);
+	void UpdateAdditiveCameraInput(IScriptSystem *pScriptSystem, float frameTime);
 
 	void ClearCutSceneScriptVariables();
 	void DisablePlayerForCutscenes();

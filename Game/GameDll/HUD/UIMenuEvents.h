@@ -6,7 +6,7 @@
 //  File name:   UIMenuEvents.h
 //  Version:     v1.00
 //  Created:     21/11/2011 by Paul Reindell.
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -26,7 +26,7 @@ public:
 	CUIMenuEvents();
 
 	// IUIGameEventSystem
-	UIEVENTSYSTEM( "UIMenuEvents" );
+	UIEVENTSYSTEM("UIMenuEvents");
 	virtual void InitEventSystem();
 	virtual void UnloadEventSystem();
 
@@ -34,7 +34,10 @@ public:
 	virtual void Reset();
 
 	void DisplayIngameMenu(bool bDisplay);
-	bool IsIngameMenuStarted() const { return m_bIsIngameMenuStarted; }
+	bool IsIngameMenuStarted() const
+	{
+		return m_bIsIngameMenuStarted;
+	}
 
 private:
 	void StartIngameMenu();
@@ -49,8 +52,8 @@ private:
 
 	SUIEventReceiverDispatcher<CUIMenuEvents> m_eventDispatcher;
 	SUIEventSenderDispatcher<EUIEvent> m_eventSender;
-	IUIEventSystem* m_pUIEvents;
-	IUIEventSystem* m_pUIFunctions;
+	IUIEventSystem *m_pUIEvents;
+	IUIEventSystem *m_pUIFunctions;
 
 	bool m_bIsIngameMenuStarted;
 };

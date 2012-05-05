@@ -2,7 +2,7 @@
 Crytek Source File.
 Copyright (C), Crytek Studios, 2001-2010.
 -------------------------------------------------------------------------
-Description: 
+Description:
 
 -------------------------------------------------------------------------
 History:
@@ -55,7 +55,7 @@ typedef int								ReactionId;
 // Forward declarations
 class CHitDeathReactions;
 
-// 
+//
 namespace
 {
 	const char VALIDATION_ID[] = "__validationId";
@@ -71,15 +71,15 @@ namespace
 //////////////////////////////////////////////////////////////////////////
 struct SRandomGeneratorFunct
 {
-	SRandomGeneratorFunct(CMTRand_int32& pseudoRandomGenerator);
+	SRandomGeneratorFunct(CMTRand_int32 &pseudoRandomGenerator);
 
 	template <typename Distance>
-	Distance operator () (const Distance& n)
+	Distance operator()(const Distance &n)
 	{
 		return static_cast<Distance>(m_pseudoRandomGenerator.Generate() % n);
 	}
 
-	CMTRand_int32& m_pseudoRandomGenerator;
+	CMTRand_int32 &m_pseudoRandomGenerator;
 };
 
 
@@ -99,8 +99,8 @@ struct SReactionParams
 		void Reset();
 
 		int	 GetNextReactionAnimIndex() const;
-		int	 GetNextReactionAnimId(const IAnimationSet* pAnimSet) const;
-		void RequestNextAnim(const IAnimationSet* pAnimSet) const;
+		int	 GetNextReactionAnimId(const IAnimationSet *pAnimSet) const;
+		void RequestNextAnim(const IAnimationSet *pAnimSet) const;
 		void ReleaseRequestedAnims();
 
 		int												iLayer;
@@ -112,7 +112,7 @@ struct SReactionParams
 
 	private:
 		void UpdateRequestedAnimStatus() const; // Checks if the requested anim has been loaded and calls OnAnimLoaded() if it is
-		void OnTimer(void* pUserData, IGameFramework::TimerID handler) const;
+		void OnTimer(void *pUserData, IGameFramework::TimerID handler) const;
 		void OnAnimLoaded() const;
 
 		mutable int16										m_iNextAnimIndex;
@@ -128,9 +128,9 @@ struct SReactionParams
 		struct SVariationData
 		{
 			SVariationData() {}
-			SVariationData(const char* szName, const char* szValue) : sName(szName), sValue(szValue) {}
+			SVariationData(const char *szName, const char *szValue) : sName(szName), sValue(szValue) {}
 
-			void GetMemoryUsage(ICrySizer * s) const
+			void GetMemoryUsage(ICrySizer *s) const
 			{
 				s->AddObject(sName);
 				s->AddObject(sValue);
@@ -155,8 +155,8 @@ struct SReactionParams
 	struct SValidationParams
 	{
 		SValidationParams();
-		void Reset(); 
-		void GetMemoryUsage(ICrySizer * s) const;
+		void Reset();
+		void GetMemoryUsage(ICrySizer *s) const;
 
 		ScriptTablePtr			validationParamsScriptTable;	// Holds the pointer to the script table holding the validation information
 
@@ -196,7 +196,7 @@ struct SReactionParams
 	SReactionParams();
 	void Reset();
 
-	void GetMemoryUsage(ICrySizer * s) const;
+	void GetMemoryUsage(ICrySizer *s) const;
 
 	ScriptTablePtr			reactionScriptTable;	// Holds the pointer to the script table holding the reaction information
 
@@ -220,10 +220,10 @@ struct SReactionParams
 //////////////////////////////////////////////////////////////////////////
 struct SHitDeathReactionsConfig
 {
-	SHitDeathReactionsConfig() : iCollisionBoneId(-1), fCollisionRadius(0.6f), fCollisionVerticalOffset(0.5f), 
+	SHitDeathReactionsConfig() : iCollisionBoneId(-1), fCollisionRadius(0.6f), fCollisionVerticalOffset(0.5f),
 		fCollMaxHorzAngleSin(0.342f), fCollMaxMovAngleCos(0.7071f), fCollReactionStartDist(0.4f), fMaximumReactionTime(4.0f) {}
 
-	void GetMemoryUsage(ICrySizer * s) const
+	void GetMemoryUsage(ICrySizer *s) const
 	{
 		s->AddObject(this, sizeof(*this));
 	}
