@@ -23,7 +23,7 @@ CTornado::CTornado() :
 //------------------------------------------------------------------------
 CTornado::~CTornado()
 {
-	if (m_pGroundEffect)
+	if(m_pGroundEffect)
 		delete m_pGroundEffect;
 }
 
@@ -34,7 +34,7 @@ bool CTornado::Init(IGameObject *pGameObject)
 
 	GetGameObject()->EnablePhysicsEvent(true, eEPE_OnCollisionLogged);
 
-	if (!Reset())
+	if(!Reset())
 		return false;
 
 	if(!GetGameObject()->BindToNetwork())
@@ -54,23 +54,25 @@ bool CTornado::Reset()
 	m_attractionImpulse = 13.0f;
 	m_upImpulse = 18.0f;
 
-	const char* funnelEffect = 0;
+	const char *funnelEffect = 0;
 
 	SmartScriptTable props;
-	IScriptTable* pScriptTable = GetEntity()->GetScriptTable();
+	IScriptTable *pScriptTable = GetEntity()->GetScriptTable();
+
 	if(!pScriptTable || !pScriptTable->GetValue("Properties", props))
 		return false;
 
 	props->GetValue("fWanderSpeed", m_wanderSpeed);
 	props->GetValue("fCloudHeight", m_cloudHeight);
 	props->GetValue("Radius", m_radius);
-		
+
 	props->GetValue("fSpinImpulse", m_spinImpulse);
 	props->GetValue("fAttractionImpulse", m_attractionImpulse);
 	props->GetValue("fUpImpulse", m_upImpulse);
-  
+
 	props->GetValue("FunnelEffect", funnelEffect);
-	if (!UseFunnelEffect(funnelEffect))
+
+	if(!UseFunnelEffect(funnelEffect))
 		return false;
 
 	Matrix34 m = GetEntity()->GetWorldTM();
@@ -87,12 +89,13 @@ bool CTornado::Reset()
 	m_points[1] = pos + Vec3(0,0,m_cloudHeight/8.0f);
 	m_points[2] = pos + Vec3(0,0,m_cloudHeight/2.0f);
 	m_points[3] = pos + Vec3(0,0,m_cloudHeight);
-	for (int i=0; i<4; ++i)
+
+	for(int i=0; i<4; ++i)
 		m_oldPoints[i] = m_points[i];
 
 	m_currentPos = GetEntity()->GetWorldPos();
 	GetGameObject()->ChangedNetworkState(POSITION_ASPECT);
-	
+
 	UpdateTornadoSpline();
 
 	return true;
@@ -120,19 +123,20 @@ void CTornado::FullSerialize(TSerialize ser)
 }
 
 //------------------------------------------------------------------------
-bool CTornado::NetSerialize( TSerialize ser, EEntityAspects aspect, uint8 profile, int flags )
+bool CTornado::NetSerialize(TSerialize ser, EEntityAspects aspect, uint8 profile, int flags)
 {
-	if (aspect == POSITION_ASPECT)
+	if(aspect == POSITION_ASPECT)
 	{
 		ser.Value("Pos", m_currentPos, 'wrld');
 	}
+
 	return true;
 }
 
 //------------------------------------------------------------------------
 void CTornado::Update(SEntityUpdateContext &ctx, int updateSlot)
 {
-	if (g_pGame->GetIGameFramework()->IsEditing())
+	if(g_pGame->GetIGameFramework()->IsEditing())
 		return;
 
 	// wandering
@@ -158,20 +162,23 @@ void CTornado::Update(SEntityUpdateContext &ctx, int updateSlot)
 	wanderSteer.NormalizeSafe(Vec3(1,0,0));
 
 	Vec3 targetSteer(0,0,0);
+
 	// go to target
-	if (m_pTargetEntity)
+	if(m_pTargetEntity)
 	{
 		Vec3 target = m_pTargetEntity->GetWorldPos() - pos;
-		if (target.GetLength() < 10.0f)
+
+		if(target.GetLength() < 10.0f)
 		{
 			// emit target reached event
-			SEntityEvent event( ENTITY_EVENT_SCRIPT_EVENT );
+			SEntityEvent event(ENTITY_EVENT_SCRIPT_EVENT);
 			event.nParam[0] = (INT_PTR)"TargetReached";
 			event.nParam[1] = IEntityClass::EVT_BOOL;
 			bool bValue = true;
 			event.nParam[2] = (INT_PTR)&bValue;
-			GetEntity()->SendEvent( event );
-			if (m_pTargetCallback)
+			GetEntity()->SendEvent(event);
+
+			if(m_pTargetCallback)
 				m_pTargetCallback->Done();
 
 			m_pTargetEntity = 0;
@@ -191,41 +198,45 @@ void CTornado::Update(SEntityUpdateContext &ctx, int updateSlot)
 
 	bool prevIsOnWater = m_isOnWater;
 	m_isOnWater = (pos.z < waterLevel);
-	if (m_isOnWater)
+
+	if(m_isOnWater)
 	{
 		pos.z = waterLevel;
 	}
 
 	// raycast does not work for oceans
-	if (prevIsOnWater != m_isOnWater && m_isOnWater)
+	if(prevIsOnWater != m_isOnWater && m_isOnWater)
 	{
-			m_pGroundEffect->SetParticleEffect("wind.tornado.water");
+		m_pGroundEffect->SetParticleEffect("wind.tornado.water");
 	}
-	else if (!m_isOnWater)
-	{		
+	else if(!m_isOnWater)
+	{
 		if(IMaterialEffects *mfx = gEnv->pGame->GetIGameFramework()->GetIMaterialEffects())
 		{
 			Vec3 down = Vec3(0,0,-1.0f);
 			int matID = mfx->GetDefaultSurfaceIndex();
 
-			static const int objTypes = ent_all;    
+			static const int objTypes = ent_all;
 			static const unsigned int flags = rwi_stop_at_pierceable|rwi_colltype_any;
 			ray_hit hit;
 			int col = gEnv->pPhysicalWorld->RayWorldIntersection(pos, (down * 5.0f), objTypes, flags, &hit, 1, GetEntity()->GetPhysics());
-			if (col)
+
+			if(col)
 			{
 				matID = hit.surface_idx;
 			}
 
-			if (m_curMatID != matID)
+			if(m_curMatID != matID)
 			{
 				TMFXEffectId effectId = mfx->GetEffectId("tornado", matID);
 
 				SMFXResourceListPtr pList = mfx->GetResources(effectId);
-				if (pList && pList->m_particleList)
+
+				if(pList && pList->m_particleList)
 				{
 					m_pGroundEffect->SetParticleEffect(pList->m_particleList->m_particleParams.name);
 				}
+
 				m_curMatID = matID;
 			}
 		}
@@ -258,7 +269,7 @@ void CTornado::HandleEvent(const SGameObjectEvent &event)
 //------------------------------------------------------------------------
 void CTornado::ProcessEvent(SEntityEvent &event)
 {
-	switch (event.event)
+	switch(event.event)
 	{
 	case ENTITY_EVENT_RESET:
 		Reset();
@@ -278,11 +289,11 @@ void CTornado::SetTarget(IEntity *pTargetEntity, CFlowTornadoWander *pCallback)
 }
 
 
-bool CTornado::UseFunnelEffect(const char* effectName)
+bool CTornado::UseFunnelEffect(const char *effectName)
 {
 	m_pFunnelEffect = gEnv->pParticleManager->FindEffect(effectName);
 
-	if (!m_pFunnelEffect)
+	if(!m_pFunnelEffect)
 		return false;
 
 	// move particle slot to the helper position+offset
@@ -290,29 +301,32 @@ bool CTornado::UseFunnelEffect(const char* effectName)
 	Matrix34 tm = IParticleEffect::ParticleLoc(Vec3(0,0,0));
 	GetEntity()->SetSlotLocalTM(0, tm);
 	GetEntity()->SetSlotFlags(0, GetEntity()->GetSlotFlags(0)|ENTITY_SLOT_RENDER);
-	IParticleEmitter* pEmitter = GetEntity()->GetParticleEmitter(0);
+	IParticleEmitter *pEmitter = GetEntity()->GetParticleEmitter(0);
 	assert(pEmitter);
 	pEmitter->Prime();
 
 	// init the first time
-	if (!m_pCloudConnectEffect)
+	if(!m_pCloudConnectEffect)
 	{
 		m_pCloudConnectEffect = gEnv->pParticleManager->FindEffect("wind.tornado.cloud_connection");
-		if (m_pCloudConnectEffect)
+
+		if(m_pCloudConnectEffect)
 		{
 			GetEntity()->LoadParticleEmitter(1, m_pCloudConnectEffect, 0, true);
 		}
 	}
-	if (!m_pTopEffect)
+
+	if(!m_pTopEffect)
 	{
 		m_pTopEffect = gEnv->pParticleManager->FindEffect("wind.tornado.top_part");
-		if (m_pTopEffect)
+
+		if(m_pTopEffect)
 		{
 			GetEntity()->LoadParticleEmitter(2, m_pTopEffect, 0, true);
 		}
 	}
 
-	if (!m_pGroundEffect)
+	if(!m_pGroundEffect)
 	{
 		m_pGroundEffect = g_pGame->GetIGameFramework()->GetIEffectSystem()->CreateGroundEffect(GetEntity());
 		m_pGroundEffect->SetParticleEffect("wind.tornado.leaves");
@@ -329,7 +343,7 @@ void CTornado::UpdateParticleEmitters()
 	pos.z = (GetEntity()->GetWorldPos()).z;
 	Vec3 cloudOffset(pos);
 
-	if (m_pCloudConnectEffect)
+	if(m_pCloudConnectEffect)
 	{
 		cloudOffset.z = m_cloudHeight - pos.z;
 		tm = IParticleEffect::ParticleLoc(cloudOffset);
@@ -337,7 +351,7 @@ void CTornado::UpdateParticleEmitters()
 		GetEntity()->SetSlotFlags(1, GetEntity()->GetSlotFlags(1)|ENTITY_SLOT_RENDER);
 	}
 
-	if (m_pTopEffect)
+	if(m_pTopEffect)
 	{
 		Vec3 topOffset(cloudOffset);
 		topOffset.z -= 140.0f;
@@ -359,7 +373,7 @@ void CTornado::UpdateTornadoSpline()
 	Vec3 pos = GetEntity()->GetWorldPos();
 	//gEnv->pLog->Log("TORNADO DELTA: %f %f %f", deltaPos.x, deltaPos.y, deltaPos.z);
 	float fac = 0.0f;
-	
+
 	m_points[0] = pos;
 	fac = 0.5f * gEnv->pTimer->GetFrameTime();
 	m_points[1] = m_oldPoints[1] + fac * (pos + Vec3(0,0,m_cloudHeight/8.0f) - m_oldPoints[1]);
@@ -371,7 +385,7 @@ void CTornado::UpdateTornadoSpline()
 	//for (int i=0; i<4; ++i)
 	//	gEnv->pLog->Log("TORNADO %d: %f %f %f", i, m_points[i].x, m_points[i].y, m_points[i].z);
 
-	for (int i=0; i<4; ++i)
+	for(int i=0; i<4; ++i)
 		m_oldPoints[i] = m_points[i];
 
 
@@ -386,7 +400,7 @@ void CTornado::UpdateTornadoSpline()
 	gravityParams.size = ZERO;
 	gravityParams.falloff0 = -1.0f;	// ?: was NAN. CPhysicalProxy::PhysicalizeArea sets to 'unused' if less than zero...
 	//gravityParams.gravity.Set(0,0,0);
-	
+
 	gravityParams.bUniform = 1;
 	gravityParams.bUseCallback = 0;
 	gravityParams.damping = 0.0f;
@@ -396,7 +410,7 @@ void CTornado::UpdateTornadoSpline()
 
 void CTornado::UpdateFlow()
 {
-	IVehicleSystem* pVehicleSystem = g_pGame->GetIGameFramework()->GetIVehicleSystem();
+	IVehicleSystem *pVehicleSystem = g_pGame->GetIGameFramework()->GetIVehicleSystem();
 	assert(pVehicleSystem);
 
 	float frameTime(gEnv->pTimer->GetFrameTime());
@@ -407,51 +421,56 @@ void CTornado::UpdateFlow()
 
 	//first, check the entities in range
 	m_nextEntitiesCheck -= frameTime;
-	if (m_nextEntitiesCheck<0.0f)
+
+	if(m_nextEntitiesCheck<0.0f)
 	{
 		m_nextEntitiesCheck = 1.0f;
-		
+
 		Vec3 radiusVec(m_radius,m_radius,0);
-		
+
 		IPhysicalEntity **ppList = NULL;
 
 		int	numEnts = ppWorld->GetEntitiesInBox(pos-radiusVec,pos+radiusVec+Vec3(0,0,m_cloudHeight*0.5f),ppList,ent_sleeping_rigid|ent_rigid|ent_living);
 
 		m_spinningEnts.clear();
-		for (int i=0;i<numEnts;++i)
+
+		for(int i=0; i<numEnts; ++i)
 		{
 			// add check for spectating players...
 			EntityId id = ppWorld->GetPhysicalEntityId(ppList[i]);
-			CActor* pActor = static_cast<CActor*>(g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
+			CActor *pActor = static_cast<CActor *>(g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
+
 			if(!pActor || !pActor->GetSpectatorMode())
 			{
 				m_spinningEnts.push_back(id);
 			}
 		}
+
 		//OutputDistance();
 	}
 
 	//mess entities around
-	for (int i=0;i<m_spinningEnts.size();++i)
+	for(int i=0; i<m_spinningEnts.size(); ++i)
 	{
 		IPhysicalEntity *ppEnt = ppWorld->GetPhysicalEntityById(m_spinningEnts[i]);
-		if (ppEnt)
+
+		if(ppEnt)
 		{
 			pe_status_pos spos;
 			pe_status_dynamics sdyn;
 
-			if (!ppEnt->GetStatus(&spos) || !ppEnt->GetStatus(&sdyn))
+			if(!ppEnt->GetStatus(&spos) || !ppEnt->GetStatus(&sdyn))
 				continue;
-		
+
 			//gEnv->pRenderer->GetIRenderAuxGeom()->DrawSphere(spos.pos,2.0f,ColorB(255,0,255,255));
-						
+
 			Vec3 delta(pos - spos.pos);
 			delta.z = 0.0f;
 
 			float dLen(delta.len());
 			float forceMult(max(0.0f,(m_radius-dLen)/m_radius));
 
-			if (dLen>0.001f)
+			if(dLen>0.001f)
 				delta /= dLen;
 			else
 				delta.zero();
@@ -463,19 +482,19 @@ void CTornado::UpdateFlow()
 			float upImpulse(m_upImpulse);
 
 			//FIXME:kind of workaround, living entities needs some "help" to get out of the vortex
-			if (ppEnt->GetType() == PE_LIVING)
+			if(ppEnt->GetType() == PE_LIVING)
 			{
 				upImpulse *= 0.75f;
 				attractionImpulse *= 0.35f;
 				spinImpulse *= 1.5f;
 			}
 
-			
-			if (IVehicle* pVehicle = pVehicleSystem->GetVehicle(m_spinningEnts[i]))
-			{
-				IVehicleMovement* pMovement = pVehicle->GetMovement();
 
-				if (pMovement && pMovement->GetMovementType() == IVehicleMovement::eVMT_Air)
+			if(IVehicle *pVehicle = pVehicleSystem->GetVehicle(m_spinningEnts[i]))
+			{
+				IVehicleMovement *pMovement = pVehicle->GetMovement();
+
+				if(pMovement && pMovement->GetMovementType() == IVehicleMovement::eVMT_Air)
 				{
 					SVehicleMovementEventParams params;
 					params.fValue = forceMult;
@@ -483,7 +502,7 @@ void CTornado::UpdateFlow()
 				}
 			}
 
-			Vec3 spinForce( (delta % upVector) * spinImpulse );
+			Vec3 spinForce((delta % upVector) * spinImpulse);
 			Vec3 attractionForce(delta * attractionImpulse);
 			Vec3 upForce(0,0,upImpulse);
 
@@ -503,16 +522,18 @@ void CTornado::UpdateFlow()
 void CTornado::OutputDistance()
 {
 	IActor *pClient = g_pGame->GetIGameFramework()->GetClientActor();
-	if (!pClient)
+
+	if(!pClient)
 		return;
 
-	IEntity *pEntity = GetEntity(); 
+	IEntity *pEntity = GetEntity();
 
-	HSCRIPTFUNCTION scriptEvent(NULL);	
+	HSCRIPTFUNCTION scriptEvent(NULL);
+
 	if(pEntity->GetScriptTable())
 		pEntity->GetScriptTable()->GetValue("ScriptEvent", scriptEvent);
 
-	if (scriptEvent)
+	if(scriptEvent)
 	{
 		Vec3 deltaToClient(pClient->GetEntity()->GetWorldPos() - pEntity->GetWorldPos());
 		deltaToClient.z = 0;
@@ -523,7 +544,7 @@ void CTornado::OutputDistance()
 	gEnv->pScriptSystem->ReleaseFunc(scriptEvent);
 }
 
-void CTornado::GetMemoryUsage( ICrySizer *s ) const
+void CTornado::GetMemoryUsage(ICrySizer *s) const
 {
 	s->Add(*this);
 	s->AddContainer(m_spinningEnts);

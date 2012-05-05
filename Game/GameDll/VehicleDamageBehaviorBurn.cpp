@@ -20,33 +20,33 @@ History:
 //------------------------------------------------------------------------
 CVehicleDamageBehaviorBurn::~CVehicleDamageBehaviorBurn()
 {
-	if (gEnv->pAISystem)
-	  gEnv->pAISystem->RegisterDamageRegion(this, Sphere(ZERO, -1.0f)); // disable
+	if(gEnv->pAISystem)
+		gEnv->pAISystem->RegisterDamageRegion(this, Sphere(ZERO, -1.0f)); // disable
 }
 
 
 //------------------------------------------------------------------------
-bool CVehicleDamageBehaviorBurn::Init(IVehicle* pVehicle, const CVehicleParams& table)
+bool CVehicleDamageBehaviorBurn::Init(IVehicle *pVehicle, const CVehicleParams &table)
 {
 	m_pVehicle = pVehicle;
 	m_isActive = false;
-  m_damageRatioMin = 1.f;
-  m_timerId = -1;
+	m_damageRatioMin = 1.f;
+	m_timerId = -1;
 
 	m_shooterId = 0;
 
-  table.getAttr("damageRatioMin", m_damageRatioMin);
+	table.getAttr("damageRatioMin", m_damageRatioMin);
 
-	if (CVehicleParams burnTable = table.findChild("Burn"))
+	if(CVehicleParams burnTable = table.findChild("Burn"))
 	{
 		burnTable.getAttr("damage", m_damage);
-    burnTable.getAttr("selfDamage", m_selfDamage);
+		burnTable.getAttr("selfDamage", m_selfDamage);
 		burnTable.getAttr("interval", m_interval);
 		burnTable.getAttr("radius", m_radius);
 
 		m_pHelper = NULL;
 
-		if (burnTable.haveAttr("helper"))
+		if(burnTable.haveAttr("helper"))
 			m_pHelper = m_pVehicle->GetHelper(burnTable.getAttr("helper"));
 		else
 			m_pHelper = NULL;
@@ -60,7 +60,7 @@ bool CVehicleDamageBehaviorBurn::Init(IVehicle* pVehicle, const CVehicleParams& 
 //------------------------------------------------------------------------
 void CVehicleDamageBehaviorBurn::Reset()
 {
-	if (m_isActive)
+	if(m_isActive)
 	{
 		Activate(false);
 	}
@@ -71,59 +71,60 @@ void CVehicleDamageBehaviorBurn::Reset()
 //------------------------------------------------------------------------
 void CVehicleDamageBehaviorBurn::Activate(bool activate)
 {
-  if (activate && !m_isActive)
-  {
-    m_timeCounter = m_interval;
-    m_pVehicle->SetObjectUpdate(this, IVehicle::eVOU_AlwaysUpdate);
-    m_timerId = m_pVehicle->SetTimer(-1, 20000, this); // total burn of 60 secs
+	if(activate && !m_isActive)
+	{
+		m_timeCounter = m_interval;
+		m_pVehicle->SetObjectUpdate(this, IVehicle::eVOU_AlwaysUpdate);
+		m_timerId = m_pVehicle->SetTimer(-1, 20000, this); // total burn of 60 secs
 
-    if (!m_pVehicle->IsDestroyed() && !m_pVehicle->IsFlipped() && gEnv->pAISystem )
-      gEnv->pAISystem->GetSmartObjectManager()->SetSmartObjectState(m_pVehicle->GetEntity(), "Exploding");        
+		if(!m_pVehicle->IsDestroyed() && !m_pVehicle->IsFlipped() && gEnv->pAISystem)
+			gEnv->pAISystem->GetSmartObjectManager()->SetSmartObjectState(m_pVehicle->GetEntity(), "Exploding");
 
-	m_pVehicle->NeedsUpdate(IVehicle::eVUF_AwakePhysics);
-  }
-  else if (!activate && m_isActive)
-  {
-    m_pVehicle->SetObjectUpdate(this, IVehicle::eVOU_NoUpdate);
-    m_pVehicle->KillTimer(m_timerId);
-    m_timerId = -1;
+		m_pVehicle->NeedsUpdate(IVehicle::eVUF_AwakePhysics);
+	}
+	else if(!activate && m_isActive)
+	{
+		m_pVehicle->SetObjectUpdate(this, IVehicle::eVOU_NoUpdate);
+		m_pVehicle->KillTimer(m_timerId);
+		m_timerId = -1;
 
-		if (gEnv->pAISystem)
-	    gEnv->pAISystem->RegisterDamageRegion(this, Sphere(ZERO, -1.0f)); // disable
-  }
+		if(gEnv->pAISystem)
+			gEnv->pAISystem->RegisterDamageRegion(this, Sphere(ZERO, -1.0f)); // disable
+	}
 
-  m_isActive = activate;
+	m_isActive = activate;
 }
 
 //------------------------------------------------------------------------
-void CVehicleDamageBehaviorBurn::OnDamageEvent(EVehicleDamageBehaviorEvent event, const SVehicleDamageBehaviorEventParams& behaviorParams)
+void CVehicleDamageBehaviorBurn::OnDamageEvent(EVehicleDamageBehaviorEvent event, const SVehicleDamageBehaviorEventParams &behaviorParams)
 {
-  if (event == eVDBE_Repair)
-  {
-    if (behaviorParams.componentDamageRatio < m_damageRatioMin)
-      Activate(false);
+	if(event == eVDBE_Repair)
+	{
+		if(behaviorParams.componentDamageRatio < m_damageRatioMin)
+			Activate(false);
 
 		m_shooterId = 0;
-  }
-	else 
+	}
+	else
 	{
-    if (behaviorParams.componentDamageRatio >= m_damageRatioMin)
-	    Activate(true);
+		if(behaviorParams.componentDamageRatio >= m_damageRatioMin)
+			Activate(true);
 
 		m_shooterId = behaviorParams.shooterId;
 	}
 }
 
 //------------------------------------------------------------------------
-void CVehicleDamageBehaviorBurn::OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams& params)
+void CVehicleDamageBehaviorBurn::OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams &params)
 {
-  switch (event)
-  {
-  case eVE_Timer:
-    if (params.iParam == m_timerId)
-      Activate(false);
-    break;
-  }
+	switch(event)
+	{
+	case eVE_Timer:
+		if(params.iParam == m_timerId)
+			Activate(false);
+
+		break;
+	}
 }
 
 //------------------------------------------------------------------------
@@ -131,34 +132,37 @@ void CVehicleDamageBehaviorBurn::Update(const float deltaTime)
 {
 	m_timeCounter -= deltaTime;
 
-	if (m_timeCounter <= 0.0f)
+	if(m_timeCounter <= 0.0f)
 	{
 		CGameRules *pGameRules = g_pGame->GetGameRules();
-		if (pGameRules && gEnv->bServer)
-		{	
+
+		if(pGameRules && gEnv->bServer)
+		{
 			Vec3 worldPos;
-			if (m_pHelper)
+
+			if(m_pHelper)
 				worldPos = m_pHelper->GetWorldSpaceTranslation();
 			else
 				worldPos = m_pVehicle->GetEntity()->GetWorldTM().GetTranslation();
 
-      SEntityProximityQuery query;
-      query.box = AABB(worldPos-Vec3(m_radius), worldPos+Vec3(m_radius));
-      gEnv->pEntitySystem->QueryProximity(query);
+			SEntityProximityQuery query;
+			query.box = AABB(worldPos-Vec3(m_radius), worldPos+Vec3(m_radius));
+			gEnv->pEntitySystem->QueryProximity(query);
 
-      IEntity* pEntity = 0;
-      
-			for (int i = 0; i < query.nCount; ++i)
-			{				
-				if ((pEntity = query.pEntities[i]) && pEntity->GetPhysics())
+			IEntity *pEntity = 0;
+
+			for(int i = 0; i < query.nCount; ++i)
+			{
+				if((pEntity = query.pEntities[i]) && pEntity->GetPhysics())
 				{
-          float damage = (pEntity->GetId() == m_pVehicle->GetEntityId()) ? m_selfDamage : m_damage;
+					float damage = (pEntity->GetId() == m_pVehicle->GetEntityId()) ? m_selfDamage : m_damage;
 
 					// SNH: need to check vertical distance here as the QueryProximity() call seems to work in 2d only
 					Vec3 pos = pEntity->GetWorldPos();
+
 					if(abs(pos.z - worldPos.z) < m_radius)
 					{
-						if (damage > 0.f)
+						if(damage > 0.f)
 						{
 							HitInfo hitInfo;
 							hitInfo.damage = damage;
@@ -169,19 +173,19 @@ void CVehicleDamageBehaviorBurn::Update(const float deltaTime)
 							hitInfo.weaponId = m_pVehicle->GetEntityId();
 							hitInfo.type = pGameRules->GetHitTypeId("fire");
 							pGameRules->ServerHit(hitInfo);
-						}   
+						}
 					}
 				}
 			}
-			
-			if (gEnv->pAISystem)
-	      gEnv->pAISystem->RegisterDamageRegion(this, Sphere(worldPos, m_radius));
+
+			if(gEnv->pAISystem)
+				gEnv->pAISystem->RegisterDamageRegion(this, Sphere(worldPos, m_radius));
 		}
 
 		m_timeCounter = m_interval;
 	}
 
-  m_pVehicle->NeedsUpdate();
+	m_pVehicle->NeedsUpdate();
 }
 
 //------------------------------------------------------------------------
@@ -194,11 +198,11 @@ void CVehicleDamageBehaviorBurn::Serialize(TSerialize ser, EEntityAspects aspect
 		ser.Value("time", m_timeCounter);
 		ser.Value("shooterId", m_shooterId);
 
-    if (ser.IsReading())
-    {
+		if(ser.IsReading())
+		{
 			if(active != m_isActive)
 				Activate(active);
-    }
+		}
 	}
 }
 

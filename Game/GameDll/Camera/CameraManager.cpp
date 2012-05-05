@@ -97,7 +97,7 @@ void CCameraManager::AddNullCam()
 	nullCam.maxYaw=30.0f;
 
 	// damping + lookahead
-	const SCVars* pGameCVars = g_pGameCVars;
+	const SCVars *pGameCVars = g_pGameCVars;
 
 	nullCam.kVel=pGameCVars->cl_tpvDeltaVelNav;		// lookahead
 	nullCam.kDist=pGameCVars->cl_tpvDeltaDistNav;	// lookahead
@@ -122,8 +122,10 @@ void CCameraManager::AddNullCam()
 bool CCameraManager::IsValidCameraId(CameraID idCamera) const
 {
 	bool bRet=false;
+
 	if(idCamera>=0 && idCamera<m_camNodes.size())
 		bRet=true;
+
 	return bRet;
 }
 
@@ -144,6 +146,7 @@ CameraID CCameraManager::AddCamera(const char *psCamName, const SCamModeSettings
 	CameraID idRet;
 
 	idRet=GetCameraIdForName(psCamName);
+
 	if(IsValidCameraId(idRet))
 	{
 		gEnv->pLog->Log("CCameraManager:AddCamera: Camera '%s' already exists!",psCamName);
@@ -152,10 +155,12 @@ CameraID CCameraManager::AddCamera(const char *psCamName, const SCamModeSettings
 	else
 	{
 		idRet=m_camNodes.size();
+
 		if(idRet>=m_camNodes.capacity())
 		{
 			m_camNodes.reserve(idRet+32);
 		}
+
 		SCamNode *pNode=new SCamNode();
 		pNode->sName=psCamName;
 		pNode->settings=settings;
@@ -171,6 +176,7 @@ CameraID CCameraManager::AddCamera(const char *psCamName, const SCamModeSettings
 bool CCameraManager::GetCameraSettings(CameraID idCamera,SCamModeSettings &settings,bool bIgnoreOverride/*=false*/) const
 {
 	bool bRet=false;
+
 	if(IsValidCameraId(idCamera))
 	{
 		settings=m_camNodes[idCamera]->settings;
@@ -182,17 +188,20 @@ bool CCameraManager::GetCameraSettings(CameraID idCamera,SCamModeSettings &setti
 			m_pCamOverrides->GetCameraOverrideSettings(settings);
 		}
 	}
+
 	return bRet;
 }
 
 bool CCameraManager::SetCameraSettings(CameraID idCamera,const SCamModeSettings &settings)
 {
 	bool bRet=false;
+
 	if(IsValidCameraId(idCamera))
 	{
 		m_camNodes[idCamera]->settings=settings;
 		bRet=true;
 	}
+
 	return bRet;
 }
 
@@ -212,7 +221,7 @@ void CCameraManager::LogActiveCameraSettings()
 	if(IsValidCameraId(m_idActive))
 	{
 		ILog *pLog=gEnv->pLog;
-		
+
 		SCamModeSettings s;
 		GetCameraSettings(m_idActive,s);
 
@@ -224,15 +233,19 @@ void CCameraManager::LogActiveCameraSettings()
 		case 	ECT_CamOrbit:
 			psLog="CamOrbit";
 			break;
+
 		case ECT_CamRear:
 			psLog="CamRear";
 			break;
+
 		case ECT_CamRefDir:
 			psLog="CamRefDir";
 			break;
+
 		case ECT_CamFollow:
 			psLog="CamFollow";
 			break;
+
 		default:
 			psLog="unknown";
 			break;
@@ -240,13 +253,13 @@ void CCameraManager::LogActiveCameraSettings()
 
 		if(g_pGameCVars->cl_cam_debug)
 		{
-			pLog->Log("Camera: CamType '%s'",psLog );
+			pLog->Log("Camera: CamType '%s'",psLog);
 
-			pLog->Log("Camera: Dist %0.3f, maxDist %0.3f",s.dist,s.maxDist );
-			pLog->Log("Camera: hOff %0.3f, vOff:%0.3f",s.hOff,s.vOff );
-			pLog->Log("Camera: FOV %0.3f",s.FOV );
-			pLog->Log("Camera: pitchOff %0.3f",s.pitchOff );
-			pLog->Log("Camera: pitchLookDownPullBack %0.3f, lookUpPushIn %0.3f",s.pitchLookDownPullBack,s.pitchLookUpPushIn );
+			pLog->Log("Camera: Dist %0.3f, maxDist %0.3f",s.dist,s.maxDist);
+			pLog->Log("Camera: hOff %0.3f, vOff:%0.3f",s.hOff,s.vOff);
+			pLog->Log("Camera: FOV %0.3f",s.FOV);
+			pLog->Log("Camera: pitchOff %0.3f",s.pitchOff);
+			pLog->Log("Camera: pitchLookDownPullBack %0.3f, lookUpPushIn %0.3f",s.pitchLookDownPullBack,s.pitchLookUpPushIn);
 			pLog->Log("Camera: maxPitch %0.3f, minPitch %0.3f",s.maxPitch,s.minPitch);
 			pLog->Log("Camera: maxYaw %0.3f",s.maxYaw);
 			pLog->Log("Camera: vRefDir (%0.3f,%0.3f,%0.3f)",s.vRefDir.x,s.vRefDir.y,s.vRefDir.z);
@@ -256,25 +269,31 @@ void CCameraManager::LogActiveCameraSettings()
 			pLog->Log("Camera: fovDamping %0.3f",s.fovDamping);
 
 			psLog="";
+
 			switch(s.collisionType)
 			{
 			case ECCT_CollisionCut:						// Cam cut pops cam in front of occluder.
 				psLog="ECCT_CollisionCut";
 				break;
+
 			case ECCT_CollisionTrackOrCut:			// Cam tracks round occluder, or cuts if needed.
 				psLog="ECCT_CollisionTrackOrCut";
 				break;
+
 			case ECCT_CollisionTrack:
 				psLog="ECCT_CollisionTrack";
 				break;
+
 			case ECCT_CollisionNone:
 				psLog="ECCT_CollisionNone";
 				break;
+
 			default:
 				psLog="unknown";
 				break;
 			}
-			pLog->Log("Camera: CollisionType '%s'",psLog );
+
+			pLog->Log("Camera: CollisionType '%s'",psLog);
 
 			pLog->Log("Camera: yawDriverP4Rate %0.3f pitchDriverP4Rate: %0.3f",s.m_fYawApplyRate,s.m_fPitchApplyRate);
 
@@ -287,29 +306,34 @@ bool CCameraManager::SetActiveCameraId(CameraID idCamera)
 {
 	//CryLogAlways("Switching camera mode");
 	bool bRet=false;
+
 	if(IsValidCameraId(idCamera))
 	{
 		if(m_idActive!=idCamera)
 		{
 			if(g_pGameCVars->cl_cam_debug)
 				gEnv->pLog->Log("Camera: Setting active camera to '%s' from '%s'",
-					GetCameraNameForId(idCamera), GetCameraNameForId(m_idActive) );
+								GetCameraNameForId(idCamera), GetCameraNameForId(m_idActive));
 
 			m_idPrev=m_idActive;
 			m_idActive=idCamera;
+
 			if(!m_pCamOverrides->GetCameraOverride()) //in cam override the new camera settings don't affect the game immediately
 				g_bChangedCamera = true;
 
 			LogActiveCameraSettings();
 		}
+
 		bRet=true;
 	}
+
 	return bRet;
 }
 
 CameraID CCameraManager::FindCameraByType(ECamTypes eType) const
 {
 	int numCamNodes = m_camNodes.size();
+
 	for(int i = 0; i < numCamNodes; ++i)
 	{
 		if(m_camNodes[i]->settings.camType == eType)
@@ -322,7 +346,8 @@ CameraID CCameraManager::FindCameraByType(ECamTypes eType) const
 CameraID CCameraManager::GetCameraIdForName(const char *psName) const
 {
 	int iCam,nCam=m_camNodes.size(),iRet;
-	for(iCam=0,iRet=-1;iCam<nCam;++iCam)
+
+	for(iCam=0,iRet=-1; iCam<nCam; ++iCam)
 	{
 		if(0==strcmp(m_camNodes[iCam]->sName.c_str(),psName))
 		{

@@ -31,7 +31,7 @@ public:
 	}
 
 	// Set up your inputs, outputs, category and description here
-	virtual void GetConfiguration(SFlowNodeConfig& config)
+	virtual void GetConfiguration(SFlowNodeConfig &config)
 	{
 		// These should correspond to entries in the EInputs enum
 		static const SInputPortConfig inputs[] =
@@ -79,7 +79,7 @@ public:
 		{
 			// Use GetPortValue<T>(portId) to retrieve an input port's value
 			auto sum = this->GetPortValue<float>(EIP_LeftSide) * this->GetPortValue<float>(EIP_RightSide);
-			
+
 			// Ports with data can be fired by passing a second parameter
 			this->Activate(EOP_Answer, sum);
 		}

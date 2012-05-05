@@ -20,8 +20,8 @@
 #include <IItemSystem.h>
 #include "ItemParamReader.h"
 
-CEquipmentSystemInterface::CEquipmentSystemInterface(CEditorGame* pEditorGame, IGameToEditorInterface *pGameToEditorInterface)
-: m_pEditorGame(pEditorGame)
+CEquipmentSystemInterface::CEquipmentSystemInterface(CEditorGame *pEditorGame, IGameToEditorInterface *pGameToEditorInterface)
+	: m_pEditorGame(pEditorGame)
 {
 	m_pIItemSystem = gEnv->pGame->GetIGameFramework()->GetIItemSystem();
 	m_pIEquipmentManager = m_pIItemSystem->GetIEquipmentManager();
@@ -35,12 +35,13 @@ CEquipmentSystemInterface::~CEquipmentSystemInterface()
 class CEquipmentSystemInterface::CIterator : public IEquipmentSystemInterface::IEquipmentItemIterator
 {
 public:
-	CIterator(CEquipmentSystemInterface* pESI, const char* type)
+	CIterator(CEquipmentSystemInterface *pESI, const char *type)
 	{
 		m_pESI  = pESI;
 		m_nRefs = 0;
 		m_type  = type;
-		if (m_type.empty())
+
+		if(m_type.empty())
 		{
 			m_mapIterCur = m_pESI->m_itemMap.begin();
 			m_mapIterEnd = m_pESI->m_itemMap.end();
@@ -49,10 +50,12 @@ public:
 		{
 			m_mapIterCur = m_pESI->m_itemMap.find(type);
 			m_mapIterEnd = m_mapIterCur;
-			if (m_mapIterEnd != m_pESI->m_itemMap.end())
+
+			if(m_mapIterEnd != m_pESI->m_itemMap.end())
 				++m_mapIterEnd;
 		}
-		if (m_mapIterCur != m_mapIterEnd)
+
+		if(m_mapIterCur != m_mapIterEnd)
 		{
 			m_itemIterCur = m_mapIterCur->second.begin();
 			m_itemIterEnd = m_mapIterCur->second.end();
@@ -64,37 +67,41 @@ public:
 	}
 	void Release()
 	{
-		if (--m_nRefs <= 0)
+		if(--m_nRefs <= 0)
 			delete this;
 	}
-	bool Next(SEquipmentItem& outItem)
+	bool Next(SEquipmentItem &outItem)
 	{
-		if (m_mapIterCur != m_mapIterEnd)
+		if(m_mapIterCur != m_mapIterEnd)
 		{
-			if (m_itemIterCur != m_itemIterEnd)
+			if(m_itemIterCur != m_itemIterEnd)
 			{
 				outItem.name = (*m_itemIterCur).c_str();
 				outItem.type = m_mapIterCur->first.c_str();
 				++m_itemIterCur;
-				if (m_itemIterCur == m_itemIterEnd)
+
+				if(m_itemIterCur == m_itemIterEnd)
 				{
 					++m_mapIterCur;
-					if (m_mapIterCur != m_mapIterEnd)
+
+					if(m_mapIterCur != m_mapIterEnd)
 					{
 						m_itemIterCur = m_mapIterCur->second.begin();
 						m_itemIterEnd = m_mapIterCur->second.end();
 					}
 				}
+
 				return true;
 			}
 		}
+
 		outItem.name = "";
 		outItem.type = "";
 		return false;
 	}
 
 	int m_nRefs;
-	CEquipmentSystemInterface* m_pESI;
+	CEquipmentSystemInterface *m_pESI;
 	string m_type;
 	TItemMap::const_iterator m_mapIterCur;
 	TItemMap::const_iterator m_mapIterEnd;
@@ -103,8 +110,8 @@ public:
 };
 
 // return iterator with all available equipment items
-IEquipmentSystemInterface::IEquipmentItemIteratorPtr 
-CEquipmentSystemInterface::CreateEquipmentItemIterator(const char* type)
+IEquipmentSystemInterface::IEquipmentItemIteratorPtr
+CEquipmentSystemInterface::CreateEquipmentItemIterator(const char *type)
 {
 	return new CIterator(this, type);
 }
@@ -115,16 +122,16 @@ void CEquipmentSystemInterface::DeleteAllEquipmentPacks()
 	m_pIEquipmentManager->DeleteAllEquipmentPacks();
 }
 
-bool CEquipmentSystemInterface::LoadEquipmentPack(const XmlNodeRef& rootNode)
+bool CEquipmentSystemInterface::LoadEquipmentPack(const XmlNodeRef &rootNode)
 {
 	return m_pIEquipmentManager->LoadEquipmentPack(rootNode);
 }
 
 namespace
 {
-	template <class Container> void ToContainer(const char** names, int nameCount, Container& container)
+	template <class Container> void ToContainer(const char **names, int nameCount, Container &container)
 	{
-		while (nameCount > 0)
+		while(nameCount > 0)
 		{
 			container.push_back(*names);
 			++names;
@@ -133,7 +140,7 @@ namespace
 	}
 }
 
-void CEquipmentSystemInterface::InitItems(IGameToEditorInterface* pGTE)
+void CEquipmentSystemInterface::InitItems(IGameToEditorInterface *pGTE)
 {
 	// Get ItemParams from ItemSystem
 	// Creates the following entries
@@ -146,15 +153,15 @@ void CEquipmentSystemInterface::InitItems(IGameToEditorInterface* pGTE)
 	// and for any weapon which has ammo
 	// "ammo_WEAPONNAME"    All Ammos for this weapon
 
-	IItemSystem* pItemSys = m_pIItemSystem;
+	IItemSystem *pItemSys = m_pIItemSystem;
 	int maxCountItems = pItemSys->GetItemParamsCount();
 	int maxAllocItems = maxCountItems+1; // allocate one more to store empty
-	const char** allItemClasses = new const char*[maxAllocItems];
-	const char** givableItemClasses = new const char*[maxAllocItems];
-	const char** selectableItemClasses = new const char*[maxAllocItems];
-	const char** allWeaponClasses = new const char*[maxAllocItems];
-	const char** givableWeaponClasses = new const char*[maxAllocItems];
-	const char** selectableWeaponClasses = new const char*[maxAllocItems];
+	const char **allItemClasses = new const char*[maxAllocItems];
+	const char **givableItemClasses = new const char*[maxAllocItems];
+	const char **selectableItemClasses = new const char*[maxAllocItems];
+	const char **allWeaponClasses = new const char*[maxAllocItems];
+	const char **givableWeaponClasses = new const char*[maxAllocItems];
+	const char **selectableWeaponClasses = new const char*[maxAllocItems];
 
 	int numAllItems = 0;
 	int numAllWeapons = 0;
@@ -166,7 +173,7 @@ void CEquipmentSystemInterface::InitItems(IGameToEditorInterface* pGTE)
 
 	// store default "---" -> "" value
 	{
-		const char* empty = "";
+		const char *empty = "";
 		selectableWeaponClasses[numSelectableWeapons++] = empty;
 		givableWeaponClasses[numGivableWeapons++] = empty;
 		allWeaponClasses[numAllWeapons++] = empty;
@@ -176,22 +183,23 @@ void CEquipmentSystemInterface::InitItems(IGameToEditorInterface* pGTE)
 		allAmmosSet.insert(empty);
 	}
 
-	for (int i=0; i<maxCountItems; ++i)
+	for(int i=0; i<maxCountItems; ++i)
 	{
-		const char* itemName = pItemSys->GetItemParamName(i);
+		const char *itemName = pItemSys->GetItemParamName(i);
 		allItemClasses[numAllItems++] = itemName;
 
-		const IItemParamsNode* pItemRootParams = pItemSys->GetItemParams(itemName);
+		const IItemParamsNode *pItemRootParams = pItemSys->GetItemParams(itemName);
 
-		if (pItemRootParams)
+		if(pItemRootParams)
 		{
 			bool givable = false;
 			bool selectable = false;
 			bool uiWeapon = false;
 			const IItemParamsNode *pChildItemParams = pItemRootParams->GetChild("params");
-			if (pChildItemParams) 
+
+			if(pChildItemParams)
 			{
-				CItemParamReader reader (pChildItemParams);
+				CItemParamReader reader(pChildItemParams);
 
 				//FIXME: the equipeable(?) flag is supposed to be used for weapons that are not givable (alien weapons)
 				//but that are still needed to be in the equipment weapon list.
@@ -204,24 +212,29 @@ void CEquipmentSystemInterface::InitItems(IGameToEditorInterface* pGTE)
 				reader.Read("ui_weapon", uiWeapon);
 			}
 
-			if (givable)
+			if(givable)
 				givableItemClasses[numGivableItems++] = itemName;
-			if (selectable)
+
+			if(selectable)
 				selectableItemClasses[numSelectableItems++] = itemName;
 
-			const IItemParamsNode* pAmmos = pItemRootParams->GetChild("ammos");
-			if (pAmmos)
+			const IItemParamsNode *pAmmos = pItemRootParams->GetChild("ammos");
+
+			if(pAmmos)
 			{
 				int maxAmmos = pAmmos->GetChildCount();
 				int numAmmos = 0;
-				const char** ammoNames = new const char*[maxAmmos];
-				for (int j=0; j<maxAmmos; ++j)
+				const char **ammoNames = new const char*[maxAmmos];
+
+				for(int j=0; j<maxAmmos; ++j)
 				{
-					const IItemParamsNode* pAmmoParams = pAmmos->GetChild(j);
-					if (stricmp(pAmmoParams->GetName(), "ammo") == 0)
+					const IItemParamsNode *pAmmoParams = pAmmos->GetChild(j);
+
+					if(stricmp(pAmmoParams->GetName(), "ammo") == 0)
 					{
-						const char* ammoName = pAmmoParams->GetAttribute("name");
-						if (ammoName)
+						const char *ammoName = pAmmoParams->GetAttribute("name");
+
+						if(ammoName)
 						{
 							ammoNames[numAmmos] = ammoName;
 							++numAmmos;
@@ -229,31 +242,38 @@ void CEquipmentSystemInterface::InitItems(IGameToEditorInterface* pGTE)
 						}
 					}
 				}
-				if (numAmmos > 0)
+
+				if(numAmmos > 0)
 				{
 					// make it a weapon when there's ammo
 					allWeaponClasses[numAllWeapons++] = itemName;
-					if (selectable)
+
+					if(selectable)
 						selectableWeaponClasses[numSelectableWeapons++] = itemName;
-					if (givable)
+
+					if(givable)
 						givableWeaponClasses[numGivableWeapons++] = itemName;
 
 					string ammoEntryName = "ammo_";
 					ammoEntryName+=itemName;
 					pGTE->SetUIEnums(ammoEntryName.c_str(), ammoNames, numAmmos);
 				}
+
 				delete[] ammoNames;
 			}
 			else
 			{
-				const char* itemClass = pItemRootParams->GetAttribute("class");
-				if (uiWeapon || (itemClass != 0 && stricmp(itemClass, "weapon") == 0))
+				const char *itemClass = pItemRootParams->GetAttribute("class");
+
+				if(uiWeapon || (itemClass != 0 && stricmp(itemClass, "weapon") == 0))
 				{
 					// make it a weapon when there's ammo
 					allWeaponClasses[numAllWeapons++] = itemName;
-					if (selectable)
+
+					if(selectable)
 						selectableWeaponClasses[numSelectableWeapons++] = itemName;
-					if (givable)
+
+					if(givable)
 						givableWeaponClasses[numGivableWeapons++] = itemName;
 				}
 			}
@@ -261,13 +281,15 @@ void CEquipmentSystemInterface::InitItems(IGameToEditorInterface* pGTE)
 	}
 
 	int numAllAmmos = 0;
-	const char** allAmmos = new const char*[allAmmosSet.size()];
-	std::set<string>::const_iterator iter (allAmmosSet.begin());
-	while (iter != allAmmosSet.end())
+	const char **allAmmos = new const char*[allAmmosSet.size()];
+	std::set<string>::const_iterator iter(allAmmosSet.begin());
+
+	while(iter != allAmmosSet.end())
 	{
 		allAmmos[numAllAmmos++] = iter->c_str();
 		++iter;
 	}
+
 	pGTE->SetUIEnums("ammos", allAmmos, numAllAmmos);
 	ToContainer(allAmmos+1, numAllAmmos-1, m_itemMap["Ammo"]);
 	delete[] allAmmos;
@@ -287,6 +309,6 @@ void CEquipmentSystemInterface::InitItems(IGameToEditorInterface* pGTE)
 	delete[] givableWeaponClasses;
 	delete[] allWeaponClasses;
 	delete[] selectableItemClasses;
-	delete[] givableItemClasses; 
+	delete[] givableItemClasses;
 	delete[] allItemClasses;
 }

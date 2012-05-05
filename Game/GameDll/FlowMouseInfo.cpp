@@ -30,10 +30,10 @@ private:
 	bool m_bFinished;
 	std::vector<EntityId>::iterator m_CurrentID;
 	std::vector<EntityId> m_Entities;
-	IRenderer* m_pRenderer;
+	IRenderer *m_pRenderer;
 
 public:
-	CFlowMouseInfoNode( SActivationInfo * pActInfo )
+	CFlowMouseInfoNode(SActivationInfo *pActInfo)
 	{
 		m_bEnabled = true;
 		m_bKeyPressed = false;
@@ -61,18 +61,18 @@ public:
 		if(GetISystem() && GetISystem()->GetIInput())
 			GetISystem()->GetIInput()->RemoveEventListener(this);
 
-		if (g_pGame && g_pGame->GetIGameFramework())
+		if(g_pGame && g_pGame->GetIGameFramework())
 			g_pGame->GetIGameFramework()->UnregisterListener(this);
 	}
 
-	IFlowNodePtr Clone( SActivationInfo * pActInfo )
+	IFlowNodePtr Clone(SActivationInfo *pActInfo)
 	{
 		return new CFlowMouseInfoNode(pActInfo);
 	}
 
-	void Serialize(SActivationInfo* pActInfo, TSerialize ser)
+	void Serialize(SActivationInfo *pActInfo, TSerialize ser)
 	{
-		if (ser.IsReading())
+		if(ser.IsReading())
 		{
 			int counter = m_iCursorCounter;
 
@@ -87,13 +87,13 @@ public:
 		ser.Value("m_iCursorCounter", m_iCursorCounter);
 		ser.Value("m_bKeyPressed", m_bKeyPressed);
 		ser.Value("m_bOnEnter", m_bOnEnter);
-		ser.Value("m_bOnLeave", m_bOnLeave);	
+		ser.Value("m_bOnLeave", m_bOnLeave);
 		ser.Value("m_EntityID", m_EntityID);
 		ser.Value("m_LastEntityID", m_LastEntityID);
 		ser.Value("m_sKey", m_sKey);
 		ser.Value("m_sRaySelection", m_sRaySelection);
 
-		if (ser.IsReading())
+		if(ser.IsReading())
 		{
 			m_actInfo = *pActInfo;
 
@@ -120,11 +120,11 @@ public:
 				Movement(true);
 			}
 
-			if (m_bEnabled && m_bKeyPressed)
+			if(m_bEnabled && m_bKeyPressed)
 			{
 				int counter = m_iCursorCounter;
 
-				while (counter > 0)
+				while(counter > 0)
 				{
 					gEnv->pHardwareMouse->IncrementCounter();
 					--counter;
@@ -167,9 +167,10 @@ public:
 		EOP_SelectedEntity
 	};
 
-	virtual void GetConfiguration(SFlowNodeConfig& config)
+	virtual void GetConfiguration(SFlowNodeConfig &config)
 	{
-		static const SInputPortConfig inputs[] = {
+		static const SInputPortConfig inputs[] =
+		{
 			InputPortConfig<bool>("Enable", false, _HELP("Enable ME")),
 			InputPortConfig<bool>("Disable", false, _HELP("Disable ME")),
 			InputPortConfig<bool>("IgnoreLinked", true, _HELP("If enabled it will add the linked vehicle to the raycast ignorelist")),
@@ -208,177 +209,185 @@ public:
 		config.SetCategory(EFLN_APPROVED);
 	}
 
-	virtual void ProcessEvent( EFlowEvent event, SActivationInfo *pActInfo )
+	virtual void ProcessEvent(EFlowEvent event, SActivationInfo *pActInfo)
 	{
-		switch (event)
+		switch(event)
 		{
 		case eFE_Initialize:
+		{
+			m_actInfo = *pActInfo;
+
+			if(gEnv->pHardwareMouse)
+				gEnv->pHardwareMouse->AddListener(this);
+
+			if(GetISystem() && GetISystem()->GetIInput())
+				GetISystem()->GetIInput()->AddEventListener(this);
+
+			m_bEnabled = false;
+			m_bNoInput = false;
+			m_bKeyPressed = false;
+
+			MouseCursor(false);
+
+			m_sKey = GetPortString(pActInfo, EIP_Key);
+
+			if(GetPortBool(&m_actInfo, EIP_EnableModalMode))
 			{
-				m_actInfo = *pActInfo;
+				m_bKeyPressed = true;
+				m_bNoInput = true;
 
-				if(gEnv->pHardwareMouse)
-					gEnv->pHardwareMouse->AddListener(this);
+				if(GetPortBool(&m_actInfo, EIP_DisableMovement))
+				{
+					Movement(false);
+				}
 
-				if(GetISystem() && GetISystem()->GetIInput())
-					GetISystem()->GetIInput()->AddEventListener(this);
+				MouseCursor(true);
+			}
+			else
+			{
+				Movement(true);
+			}
 
-				m_bEnabled = false;
-				m_bNoInput = false;
+			break;
+		}
+
+		case eFE_Activate:
+		{
+			if(IsPortActive(pActInfo, EIP_Enable))
+			{
+				if(IsPortActive(pActInfo, EIP_Enable) && !m_bEnabled)
+				{
+					m_bEnabled = true;
+
+					if(gEnv->pHardwareMouse)
+						gEnv->pHardwareMouse->AddListener(this);
+
+					if(GetISystem() && GetISystem()->GetIInput())
+						GetISystem()->GetIInput()->AddEventListener(this);
+
+					m_sKey = GetPortString(pActInfo, EIP_Key);
+				}
+
+				if(IsPortActive(pActInfo, EIP_Disable) && m_bEnabled)
+				{
+					m_bEnabled = false;
+
+					if(GetISystem() && GetISystem()->GetIInput())
+						GetISystem()->GetIInput()->RemoveEventListener(this);
+
+					if(gEnv->pHardwareMouse)
+						gEnv->pHardwareMouse->RemoveListener(this);
+				}
+			}
+
+			if(IsPortActive(pActInfo, EIP_EnableModalMode) && m_bEnabled)
+			{
+				m_bKeyPressed = true;
+				m_bNoInput = true;
+
+				if(GetPortBool(&m_actInfo, EIP_DisableMovement))
+				{
+					Movement(false);
+				}
+
+				MouseCursor(true);
+			}
+			else if(IsPortActive(pActInfo, EIP_DisableModalMode) && m_bEnabled)
+			{
 				m_bKeyPressed = false;
+				m_bNoInput = false;
 
 				MouseCursor(false);
 
-				m_sKey = GetPortString(pActInfo, EIP_Key);
-
-				if(GetPortBool(&m_actInfo, EIP_EnableModalMode))
-				{
-					m_bKeyPressed = true;
-					m_bNoInput = true;
-
-					if(GetPortBool(&m_actInfo, EIP_DisableMovement))
-					{
-						Movement(false);
-					}
-
-					MouseCursor(true);
-				}
-				else
+				if(GetPortBool(&m_actInfo, EIP_DisableMovement))
 				{
 					Movement(true);
 				}
-				break;
-			}		
-		case eFE_Activate:
+			}
+
+			if(IsPortActive(pActInfo, EIP_RaySelection) && m_bEnabled)
 			{
-				if (IsPortActive(pActInfo, EIP_Enable))
+				m_sRaySelection = GetPortString(pActInfo, EIP_RaySelection);
+			}
+
+			if(GetPortBool(pActInfo, EIP_UpdateAlways))
+			{
+				if(g_pGame && g_pGame->GetIGameFramework())
+					g_pGame->GetIGameFramework()->RegisterListener(this, "FlowNode_MouseInfo", eFLPriority_Default);
+			}
+			else
+			{
+				if(g_pGame && g_pGame->GetIGameFramework())
+					g_pGame->GetIGameFramework()->UnregisterListener(this);
+			}
+
+			break;
+		}
+
+		case eFE_Update:
+		{
+			//render selection boundaries if needed
+			if(m_bSelect && GetPortBool(pActInfo, EIP_ShowBoundaries))
+			{
+				if(IRenderAuxGeom *pGeom = m_pRenderer->GetIRenderAuxGeom())
 				{
-					if (IsPortActive(pActInfo, EIP_Enable) && !m_bEnabled)
-					{
-						m_bEnabled = true;
+					//calculate the four selection boundary points
+					Vec3 vTopLeft((float)m_vSelectPosStart.x, (float)m_vSelectPosStart.y, 0.0f);
+					Vec3 vTopRight((float)m_iMouseX, (float)m_vSelectPosStart.y,0.0f);
+					Vec3 vBottomLeft((float)m_vSelectPosStart.x, (float)m_iMouseY,0.0f);
+					Vec3 vBottomRight((float)m_iMouseX, (float)m_iMouseY,0.0f);
 
-						if(gEnv->pHardwareMouse)
-							gEnv->pHardwareMouse->AddListener(this);
+					m_pRenderer->Set2DMode(true, m_pRenderer->GetWidth(), m_pRenderer->GetHeight());
 
-						if(GetISystem() && GetISystem()->GetIInput())
-							GetISystem()->GetIInput()->AddEventListener(this);
+					//set boundary color: white
+					ColorB col(255,255,255,255);
 
-						m_sKey = GetPortString(pActInfo, EIP_Key);
-					}
-					if (IsPortActive(pActInfo, EIP_Disable) && m_bEnabled)
-					{
-						m_bEnabled = false;
+					pGeom->DrawLine(vTopLeft,col,vTopRight,col);
+					pGeom->DrawLine(vTopRight,col,vBottomRight,col);
+					pGeom->DrawLine(vTopLeft,col,vBottomLeft,col);
+					pGeom->DrawLine(vBottomLeft,col,vBottomRight,col);
 
-						if(GetISystem() && GetISystem()->GetIInput())
-							GetISystem()->GetIInput()->RemoveEventListener(this);
-
-						if(gEnv->pHardwareMouse)
-							gEnv->pHardwareMouse->RemoveListener(this);
-					}	
+					m_pRenderer->Set2DMode(false,0,0);
 				}
+			}
 
-				if (IsPortActive(pActInfo, EIP_EnableModalMode) && m_bEnabled)
+			if(m_bFinished && !m_bSelect && !GetPortBool(pActInfo, EIP_UpdateAlways))
+			{
+				//if we have sent every stored entity id to the output port, disable the updates for each frame
+				m_actInfo.pGraph->SetRegularlyUpdated(m_actInfo.myID,false);
+			}
+			else if(!m_bFinished && !m_bSelect)
+			{
+				if(m_CurrentID == m_Entities.end())
 				{
-					m_bKeyPressed = true;
-					m_bNoInput = true;
-
-					if(GetPortBool(&m_actInfo, EIP_DisableMovement))
-					{
-						Movement(false);
-					}
-
-					MouseCursor(true);
+					//we reached the end of the stored entity id's vector
+					m_bFinished = true;
 				}
-				else if (IsPortActive(pActInfo, EIP_DisableModalMode) && m_bEnabled)
-				{
-					m_bKeyPressed = false;
-					m_bNoInput = false;
-
-					MouseCursor(false);
-
-					if(GetPortBool(&m_actInfo, EIP_DisableMovement))
-					{
-						Movement(true);
-					}
-				}
-
-				if (IsPortActive(pActInfo, EIP_RaySelection) && m_bEnabled)
-				{
-					m_sRaySelection = GetPortString(pActInfo, EIP_RaySelection);
-				}
-
-				if (GetPortBool(pActInfo, EIP_UpdateAlways))
-				{
-					if (g_pGame && g_pGame->GetIGameFramework())
-						g_pGame->GetIGameFramework()->RegisterListener(this, "FlowNode_MouseInfo", eFLPriority_Default);
-				} 
 				else
 				{
-					if (g_pGame && g_pGame->GetIGameFramework())
-						g_pGame->GetIGameFramework()->UnregisterListener(this);
+					//send the current entity id to the output port
+					ActivateOutput(&m_actInfo,EOP_SelectedEntity, *m_CurrentID);
+					//increase to next id, so on the next update we will send the new entity id
+					++m_CurrentID;
 				}
-
-				break;
 			}
-		case eFE_Update:
-			{
-				//render selection boundaries if needed
-				if(m_bSelect && GetPortBool(pActInfo, EIP_ShowBoundaries))
-				{
-					if(IRenderAuxGeom* pGeom = m_pRenderer->GetIRenderAuxGeom())
-					{
-						//calculate the four selection boundary points
-						Vec3 vTopLeft((float)m_vSelectPosStart.x, (float)m_vSelectPosStart.y, 0.0f);
-						Vec3 vTopRight((float)m_iMouseX, (float)m_vSelectPosStart.y,0.0f);
-						Vec3 vBottomLeft((float)m_vSelectPosStart.x, (float)m_iMouseY,0.0f);
-						Vec3 vBottomRight((float)m_iMouseX, (float)m_iMouseY,0.0f);
 
-						m_pRenderer->Set2DMode(true, m_pRenderer->GetWidth(), m_pRenderer->GetHeight());
-
-						//set boundary color: white
-						ColorB col(255,255,255,255); 
-
-						pGeom->DrawLine(vTopLeft,col,vTopRight,col);
-						pGeom->DrawLine(vTopRight,col,vBottomRight,col);
-						pGeom->DrawLine(vTopLeft,col,vBottomLeft,col);
-						pGeom->DrawLine(vBottomLeft,col,vBottomRight,col);
-
-						m_pRenderer->Set2DMode(false,0,0);
-					}
-				}
-
-				if(m_bFinished && !m_bSelect && !GetPortBool(pActInfo, EIP_UpdateAlways))
-				{
-					//if we have sent every stored entity id to the output port, disable the updates for each frame
-					m_actInfo.pGraph->SetRegularlyUpdated(m_actInfo.myID,false);
-				}
-				else if(!m_bFinished && !m_bSelect)
-				{
-					if(m_CurrentID == m_Entities.end())
-					{
-						//we reached the end of the stored entity id's vector
-						m_bFinished = true;
-					}
-					else
-					{
-						//send the current entity id to the output port
-						ActivateOutput(&m_actInfo,EOP_SelectedEntity, *m_CurrentID);
-						//increase to next id, so on the next update we will send the new entity id
-						++m_CurrentID;
-					}	
-				}
-				break;
-			}
+			break;
+		}
 		}
 	}
 
-	virtual void GetMemoryUsage(ICrySizer * s) const
+	virtual void GetMemoryUsage(ICrySizer *s) const
 	{
 		s->Add(*this);
 	}
 
 	// IInputEventListener
-	virtual bool OnInputEventUI( const SInputEvent &event ) {return false;}
-	virtual bool OnInputEvent( const SInputEvent &rInputEvent)
+	virtual bool OnInputEventUI(const SInputEvent &event)
+	{
+		return false;
+	}
+	virtual bool OnInputEvent(const SInputEvent &rInputEvent)
 	{
 		if(!m_bEnabled)
 			return false;
@@ -488,7 +497,7 @@ public:
 			m_bAdd = false;
 		}
 
-		return false;	
+		return false;
 	}
 	// ~IInputEventListener
 
@@ -552,7 +561,7 @@ private:
 			ActivateOutput(&m_actInfo, EOP_OnEnter, true);
 
 			m_bOnEnter = true;
-			m_bOnLeave = false;	
+			m_bOnLeave = false;
 		}
 		else if(id != 0 && id != m_EntityID)
 		{
@@ -575,19 +584,19 @@ private:
 			ActivateOutput(&m_actInfo, EOP_OnLeave, true);
 
 			m_bOnEnter = false;
-			m_bOnLeave = true;		
+			m_bOnLeave = true;
 		}
 	}
 
 	void Movement(bool enable)
-	{	
+	{
 		IActionMapManager *pActionMapManager = gEnv->pGame->GetIGameFramework()->GetIActionMapManager();
 
 		if(!pActionMapManager)
 			return;
 
 		if(enable)
-		{				
+		{
 			pActionMapManager->EnableFilter("no_move", false);
 			pActionMapManager->EnableFilter("no_mouse", false);
 		}
@@ -595,7 +604,7 @@ private:
 		{
 			pActionMapManager->EnableFilter("no_move", true);
 			pActionMapManager->EnableFilter("no_mouse", true);
-		}	
+		}
 	}
 
 	void MouseCursor(bool enable)
@@ -625,16 +634,16 @@ private:
 
 		IEntityItPtr pIt = gEnv->pEntitySystem->GetEntityIterator();
 
-		while (!pIt->IsEnd())
+		while(!pIt->IsEnd())
 		{
-			if (IEntity *pEntity = pIt->Next())
+			if(IEntity *pEntity = pIt->Next())
 			{
 				//skip useless entities (gamerules, fists etc.)
 				if(IPhysicalEntity *physEnt = pEntity->GetPhysics())
 				{
 					IActor *pClientActor = g_pGame->GetIGameFramework()->GetClientActor();
 
-					if (!pClientActor)
+					if(!pClientActor)
 						return;
 
 					//skip the client actor entity
@@ -666,26 +675,26 @@ private:
 					static Vec3 pointsProjected[2];
 
 					//project the bounding box min max values to screen positions
-					for (int i=0; i<2; ++i)
+					for(int i=0; i<2; ++i)
 					{
-						m_pRenderer->ProjectToScreen(points[i].x, points[i].y, points[i].z, &pointsProjected[i].x, &pointsProjected[i].y, &pointsProjected[i].z); 
+						m_pRenderer->ProjectToScreen(points[i].x, points[i].y, points[i].z, &pointsProjected[i].x, &pointsProjected[i].y, &pointsProjected[i].z);
 						const float fWidth = (float)m_pRenderer->GetWidth();
 						const float fHeight = (float)m_pRenderer->GetHeight();
 
 						//scale projected values to the actual screen resolution
 						pointsProjected[i].x *= 0.01f * fWidth;
 						pointsProjected[i].y *= 0.01f * fHeight;
-					}	
+					}
 
-					//check if the projected bounding box min max values are fully or partly inside the screen selection 
-					if((m_vSelectPosStart.x <= pointsProjected[0].x && pointsProjected[0].x <= m_vSelectPosEnd.x) || 
-						(m_vSelectPosStart.x >= pointsProjected[0].x && m_vSelectPosEnd.x <= pointsProjected[1].x) || 
-						(m_vSelectPosStart.x <= pointsProjected[1].x && m_vSelectPosEnd.x >= pointsProjected[1].x) ||
-						(m_vSelectPosStart.x <= pointsProjected[0].x && m_vSelectPosEnd.x >= pointsProjected[1].x))
+					//check if the projected bounding box min max values are fully or partly inside the screen selection
+					if((m_vSelectPosStart.x <= pointsProjected[0].x && pointsProjected[0].x <= m_vSelectPosEnd.x) ||
+							(m_vSelectPosStart.x >= pointsProjected[0].x && m_vSelectPosEnd.x <= pointsProjected[1].x) ||
+							(m_vSelectPosStart.x <= pointsProjected[1].x && m_vSelectPosEnd.x >= pointsProjected[1].x) ||
+							(m_vSelectPosStart.x <= pointsProjected[0].x && m_vSelectPosEnd.x >= pointsProjected[1].x))
 					{
 						if((m_vSelectPosStart.y <= pointsProjected[0].y && m_vSelectPosEnd.y >= pointsProjected[0].y) ||
-							(m_vSelectPosStart.y <= pointsProjected[1].y && m_vSelectPosEnd.y >= pointsProjected[0].y) ||
-							(m_vSelectPosStart.y <= pointsProjected[1].y && m_vSelectPosEnd.y >= pointsProjected[1].y))
+								(m_vSelectPosStart.y <= pointsProjected[1].y && m_vSelectPosEnd.y >= pointsProjected[0].y) ||
+								(m_vSelectPosStart.y <= pointsProjected[1].y && m_vSelectPosEnd.y >= pointsProjected[1].y))
 						{
 							//finally we have an entity id
 							//if left or right CTRL is not pressed we can directly add every entity id, old entity id's are already deleted
@@ -707,13 +716,13 @@ private:
 	}
 
 	EntityId GetMouseEntityID(int xMouse, int yMouse)
-	{		
+	{
 		if(!gEnv->pHardwareMouse || !m_pRenderer || !gEnv->p3DEngine || !gEnv->pSystem || !gEnv->pEntitySystem || !g_pGame->GetIGameFramework())
 			return 0;
 
 		IActor *pClientActor = g_pGame->GetIGameFramework()->GetClientActor();
 
-		if (!pClientActor)
+		if(!pClientActor)
 			return 0;
 
 		yMouse = m_pRenderer->GetHeight() - yMouse;
@@ -733,7 +742,7 @@ private:
 		if(!pPhysicalEnt)
 			return 0;
 
-		static IPhysicalEntity* pSkipEnts[2];
+		static IPhysicalEntity *pSkipEnts[2];
 		pSkipEnts[0] = pPhysicalEnt;
 		int numSkipped = 1;
 
@@ -773,19 +782,19 @@ private:
 		static const unsigned int flags = rwi_stop_at_pierceable|rwi_colltype_any;
 		float  fRange = gEnv->p3DEngine->GetMaxViewDistance();
 
-		if (gEnv->pPhysicalWorld && gEnv->pPhysicalWorld->RayWorldIntersection(vPos0, vDir * fRange, queryFlags, flags, &hit, 1, pSkipEnts, numSkipped))
+		if(gEnv->pPhysicalWorld && gEnv->pPhysicalWorld->RayWorldIntersection(vPos0, vDir * fRange, queryFlags, flags, &hit, 1, pSkipEnts, numSkipped))
 		{
 			if(GetPortBool(&m_actInfo, EIP_EveryHit))
 				ActivateOutput(&m_actInfo, EOP_MouseHitPos, hit.pt);
 
-			if (IEntity *pEntity = gEnv->pEntitySystem->GetEntityFromPhysics(hit.pCollider))
+			if(IEntity *pEntity = gEnv->pEntitySystem->GetEntityFromPhysics(hit.pCollider))
 			{
 				if(!GetPortBool(&m_actInfo, EIP_EveryHit))
 					ActivateOutput(&m_actInfo, EOP_MouseHitPos, hit.pt);
 
 				return pEntity->GetId();
 			}
-		}	
+		}
 
 		return 0;
 	}
@@ -940,17 +949,17 @@ private:
 			return eKI_NP_0;
 	}
 
-	virtual void OnSaveGame(ISaveGame* pSaveGame) {}
-	virtual void OnLoadGame(ILoadGame* pLoadGame) {}
-	virtual void OnLevelEnd(const char* nextLevel) {}
-	virtual void OnActionEvent(const SActionEvent& event) {}
+	virtual void OnSaveGame(ISaveGame *pSaveGame) {}
+	virtual void OnLoadGame(ILoadGame *pLoadGame) {}
+	virtual void OnLevelEnd(const char *nextLevel) {}
+	virtual void OnActionEvent(const SActionEvent &event) {}
 	virtual void OnPostUpdate(float fDeltaTime)
 	{
 		if(!m_bEnabled)
 			return;
 
 		if(GetPortBool(&m_actInfo, EIP_UpdateAlways))
-			CheckEntitySelection();	
+			CheckEntitySelection();
 	}
 };
 

@@ -19,19 +19,19 @@ History:
 
 //------------------------------------------------------------------------
 CVehicleActionEntityAttachment::CVehicleActionEntityAttachment()
-: m_pHelper(NULL),
-	m_entityId(0),
-	m_isAttached(false),
-	m_timer(0.0f)
+	: m_pHelper(NULL),
+	  m_entityId(0),
+	  m_isAttached(false),
+	  m_timer(0.0f)
 {
 }
 
 //------------------------------------------------------------------------
 CVehicleActionEntityAttachment::~CVehicleActionEntityAttachment()
 {
-	if (m_entityId)
+	if(m_entityId)
 	{
-		IEntitySystem* pEntitySystem = gEnv->pEntitySystem;
+		IEntitySystem *pEntitySystem = gEnv->pEntitySystem;
 		assert(pEntitySystem);
 
 		pEntitySystem->RemoveEntity(m_entityId);
@@ -39,25 +39,26 @@ CVehicleActionEntityAttachment::~CVehicleActionEntityAttachment()
 }
 
 //------------------------------------------------------------------------
-bool CVehicleActionEntityAttachment::Init(IVehicle* pVehicle, const CVehicleParams& table)
+bool CVehicleActionEntityAttachment::Init(IVehicle *pVehicle, const CVehicleParams &table)
 {
 	m_pVehicle = pVehicle;
 
 	CVehicleParams entityAttachmentTable = table.findChild("EntityAttachment");
-	if (!entityAttachmentTable)
+
+	if(!entityAttachmentTable)
 		return false;
 
-	if (entityAttachmentTable.haveAttr("helper"))
+	if(entityAttachmentTable.haveAttr("helper"))
 		m_pHelper = m_pVehicle->GetHelper(entityAttachmentTable.getAttr("helper"));
 
-	if (entityAttachmentTable.haveAttr("class"))
+	if(entityAttachmentTable.haveAttr("class"))
 	{
-		IEntityClassRegistry* pClassRegistry = gEnv->pEntitySystem->GetClassRegistry();
+		IEntityClassRegistry *pClassRegistry = gEnv->pEntitySystem->GetClassRegistry();
 		assert(pClassRegistry);
 
 		m_entityClassName = entityAttachmentTable.getAttr("class");
 
-		if (IEntityClass* pEntityClass = pClassRegistry->FindClass(m_entityClassName.c_str()))
+		if(IEntityClass *pEntityClass = pClassRegistry->FindClass(m_entityClassName.c_str()))
 		{
 			SpawnEntity();
 			return true;
@@ -70,9 +71,9 @@ bool CVehicleActionEntityAttachment::Init(IVehicle* pVehicle, const CVehiclePara
 //------------------------------------------------------------------------
 void CVehicleActionEntityAttachment::Reset()
 {
-	if (m_entityId)
+	if(m_entityId)
 	{
-		IEntitySystem* pEntitySystem = gEnv->pEntitySystem;
+		IEntitySystem *pEntitySystem = gEnv->pEntitySystem;
 		assert(pEntitySystem);
 
 		pEntitySystem->RemoveEntity(m_entityId);
@@ -80,16 +81,16 @@ void CVehicleActionEntityAttachment::Reset()
 
 	SpawnEntity();
 
-	if (m_timer > 0.0f)
+	if(m_timer > 0.0f)
 		m_pVehicle->SetObjectUpdate(this, IVehicle::eVOU_NoUpdate);
 
 	m_timer = 0.0f;
 }
 
 //------------------------------------------------------------------------
-int CVehicleActionEntityAttachment::OnEvent(int eventType, SVehicleEventParams& eventParams)
+int CVehicleActionEntityAttachment::OnEvent(int eventType, SVehicleEventParams &eventParams)
 {
-	if (eventType == eVE_Hit || eventType == eVE_Destroyed)
+	if(eventType == eVE_Hit || eventType == eVE_Destroyed)
 	{
 		DetachEntity();
 	}
@@ -103,30 +104,33 @@ float g_parachuteTimeMax = 3.0f;
 //------------------------------------------------------------------------
 void CVehicleActionEntityAttachment::Update(const float deltaTime)
 {
-	if (m_isAttached)
+	if(m_isAttached)
 		return;
 
-	IEntitySystem* pEntitySystem = gEnv->pEntitySystem;
+	IEntitySystem *pEntitySystem = gEnv->pEntitySystem;
 	assert(pEntitySystem);
 
-	IEntity* pEntity = pEntitySystem->GetEntity(m_entityId);
-	if (!pEntity)
+	IEntity *pEntity = pEntitySystem->GetEntity(m_entityId);
+
+	if(!pEntity)
 		return;
 
-	IPhysicalEntity* pPhysEntity = pEntity->GetPhysics();
-	if (!pPhysEntity)
+	IPhysicalEntity *pPhysEntity = pEntity->GetPhysics();
+
+	if(!pPhysEntity)
 		return;
 
 	pe_simulation_params paramsSim;
 	float gravity;
-	
-	if (pPhysEntity->GetParams(&paramsSim))
+
+	if(pPhysEntity->GetParams(&paramsSim))
 		gravity = abs(paramsSim.gravity.z);
 	else
 		gravity = 9.82f;
 
 	pe_status_dynamics dyn;
-	if (pPhysEntity->GetStatus(&dyn))
+
+	if(pPhysEntity->GetStatus(&dyn))
 	{
 		pe_action_impulse impulse;
 		impulse.impulse  = Matrix33(pEntity->GetWorldTM()) * Vec3(0.0f, 0.0f, 1.0f) * g_parachuteForce * gravity;
@@ -138,21 +142,23 @@ void CVehicleActionEntityAttachment::Update(const float deltaTime)
 	}
 
 	m_timer -= deltaTime;
-	if (m_timer <= 0.0f || dyn.v.z >= 0.0f)
+
+	if(m_timer <= 0.0f || dyn.v.z >= 0.0f)
 		m_pVehicle->SetObjectUpdate(this, IVehicle::eVOU_NoUpdate);
 }
 
 //------------------------------------------------------------------------
 void CVehicleActionEntityAttachment::SpawnEntity()
 {
-	IEntitySystem* pEntitySystem = gEnv->pEntitySystem;
+	IEntitySystem *pEntitySystem = gEnv->pEntitySystem;
 	assert(pEntitySystem);
 
-	IEntityClassRegistry* pClassRegistry = pEntitySystem->GetClassRegistry();
+	IEntityClassRegistry *pClassRegistry = pEntitySystem->GetClassRegistry();
 	assert(pClassRegistry);
 
-	IEntityClass* pEntityClass = pClassRegistry->FindClass(m_entityClassName.c_str());
-	if (!pEntityClass)
+	IEntityClass *pEntityClass = pClassRegistry->FindClass(m_entityClassName.c_str());
+
+	if(!pEntityClass)
 		return;
 
 	char pEntityName[256];
@@ -164,8 +170,9 @@ void CVehicleActionEntityAttachment::SpawnEntity()
 	params.nFlags = ENTITY_FLAG_CLIENT_ONLY;
 	params.pClass = pEntityClass;
 
-	IEntity* pEntity = pEntitySystem->SpawnEntity(params, true);
-	if (!pEntity)
+	IEntity *pEntity = pEntitySystem->SpawnEntity(params, true);
+
+	if(!pEntity)
 	{
 		m_entityId = 0;
 		return;
@@ -184,16 +191,16 @@ void CVehicleActionEntityAttachment::SpawnEntity()
 //------------------------------------------------------------------------
 bool CVehicleActionEntityAttachment::DetachEntity()
 {
-	IEntitySystem* pEntitySystem = gEnv->pEntitySystem;
+	IEntitySystem *pEntitySystem = gEnv->pEntitySystem;
 	assert(pEntitySystem);
 
-	if (IEntity* pEntity = pEntitySystem->GetEntity(m_entityId))
+	if(IEntity *pEntity = pEntitySystem->GetEntity(m_entityId))
 	{
-		IVehicleSystem* pVehicleSystem = gEnv->pGame->GetIGameFramework()->GetIVehicleSystem();
+		IVehicleSystem *pVehicleSystem = gEnv->pGame->GetIGameFramework()->GetIVehicleSystem();
 		assert(pVehicleSystem);
 
-    // FIXME: remove this workaround, replace by e.g. buddy constraint 
-		if (IVehicle* pVehicle = pVehicleSystem->GetVehicle(m_entityId))
+		// FIXME: remove this workaround, replace by e.g. buddy constraint
+		if(IVehicle *pVehicle = pVehicleSystem->GetVehicle(m_entityId))
 		{
 			int hitType = g_pGame->GetGameRules()->GetHitTypeId("disableCollisions");
 			pVehicle->OnHit(m_pVehicle->GetEntityId(), m_pVehicle->GetEntityId(), 10.0f, Vec3(0.0f, 0.0f, 0.0f), 0.0f, hitType, false);

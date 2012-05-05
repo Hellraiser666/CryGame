@@ -3,11 +3,11 @@
 #include "Flyer.h"
 
 
-bool CFlyerMovementController::RequestMovement(CMovementRequest& movementRequest)
+bool CFlyerMovementController::RequestMovement(CMovementRequest &movementRequest)
 {
 	CFlyer::SMovementRequestParams movementRequestParams(movementRequest);
 
-	if (movementRequest.HasForcedNavigation())
+	if(movementRequest.HasForcedNavigation())
 	{
 		movementRequestParams.vMoveDir = movementRequest.GetForcedNavigation();
 		movementRequestParams.fDesiredSpeed = movementRequestParams.vMoveDir.GetLength();
@@ -19,14 +19,14 @@ bool CFlyerMovementController::RequestMovement(CMovementRequest& movementRequest
 	return true;
 }
 
-bool CFlyerMovementController::Update(float frameTime, SActorFrameMovementParams&)
+bool CFlyerMovementController::Update(float frameTime, SActorFrameMovementParams &)
 {
-	IEntity* pEntity = m_pFlyer->GetEntity();
+	IEntity *pEntity = m_pFlyer->GetEntity();
 
 	CFlyer::SBodyInfo bodyInfo;
 	m_pFlyer->GetActorInfo(bodyInfo);
 
-	SMovementState& state = m_movementState;
+	SMovementState &state = m_movementState;
 	state.pos = pEntity->GetWorldPos();
 	state.entityDirection = pEntity->GetWorldRotation() * Vec3Constants<float>::fVec3_OneY;
 	state.animationBodyDirection = state.entityDirection;

@@ -20,8 +20,8 @@ History:
 
 //---------------------------------------------
 CScope::CScope():
-m_showTimer(-1.0f),
-m_hideTimer(-1.0f)
+	m_showTimer(-1.0f),
+	m_hideTimer(-1.0f)
 {
 
 }
@@ -31,10 +31,11 @@ void CScope::Update(float frameTime, uint32 frameId)
 {
 	CIronSight::Update(frameTime, frameId);
 
-	if (m_showTimer>0.0f)
+	if(m_showTimer>0.0f)
 	{
 		m_showTimer-=frameTime;
-		if (m_showTimer<=0.0f)
+
+		if(m_showTimer<=0.0f)
 		{
 			m_showTimer=-1.0f;
 			//m_pWeapon->Hide(false);
@@ -45,10 +46,11 @@ void CScope::Update(float frameTime, uint32 frameId)
 		m_pWeapon->RequireUpdate(eIUS_Zooming);
 	}
 
-	if (m_hideTimer>0.0f)
+	if(m_hideTimer>0.0f)
 	{
 		m_hideTimer-=frameTime;
-		if (m_hideTimer<=0.0f)
+
+		if(m_hideTimer<=0.0f)
 		{
 			if(m_pWeapon->GetOwnerActor() && m_pWeapon->GetOwnerActor()->IsClient())
 			{
@@ -56,8 +58,10 @@ void CScope::Update(float frameTime, uint32 frameId)
 				//m_pWeapon->Hide(true);
 				m_pWeapon->OnZoomIn();
 				int iZoom = 0;
+
 				if(!strcmp(m_pShared->scopeParams.scope.c_str(),"scope_assault"))
 					iZoom = 1;
+
 				if(!strcmp(m_pShared->scopeParams.scope.c_str(),"scope_sniper"))
 					iZoom = 2;
 
@@ -100,7 +104,7 @@ void CScope::PatchParams(const struct IItemParamsNode *patch)
 //----------------------------------------------------------------------
 void CScope::InitSharedParams()
 {
-	CWeaponSharedParams * pWSP = m_pWeapon->GetWeaponSharedParams();
+	CWeaponSharedParams *pWSP = m_pWeapon->GetWeaponSharedParams();
 	assert(pWSP);
 
 	m_zoomParams	= pWSP->GetZoomSharedParams("ScopeData", m_zmIdx);
@@ -112,20 +116,20 @@ void CScope::CacheSharedParamsPtr()
 {
 	CIronSight::CacheSharedParamsPtr();
 
-	m_pShared			= static_cast<CScopeSharedData*>(m_zoomParams.get());
+	m_pShared			= static_cast<CScopeSharedData *>(m_zoomParams.get());
 }
 
 //------------------------------------------------------------------------
 void CScope::Activate(bool activate)
 {
-	if (!activate)
+	if(!activate)
 	{
-		if (m_zoomed || m_zoomTimer>0.0f)
+		if(m_zoomed || m_zoomTimer>0.0f)
 		{
-			if(	!strcmp(m_pShared->scopeParams.scope.c_str(),"scope_default") ||
+			if(!strcmp(m_pShared->scopeParams.scope.c_str(),"scope_default") ||
 					!strcmp(m_pShared->scopeParams.scope.c_str(),"scope_assault") ||
 					!strcmp(m_pShared->scopeParams.scope.c_str(),"scope_sniper"))
-			{				
+			{
 			}
 		}
 	}
@@ -148,10 +152,10 @@ void CScope::OnLeaveZoom()
 	m_showTimer = 0.025f;
 	m_hideTimer = -1.0f;
 
-	if(	!strcmp(m_pShared->scopeParams.scope.c_str(),"scope_default") ||
-			!strcmp(m_pShared->scopeParams.scope.c_str(),"scope_assault") ||	
+	if(!strcmp(m_pShared->scopeParams.scope.c_str(),"scope_default") ||
+			!strcmp(m_pShared->scopeParams.scope.c_str(),"scope_assault") ||
 			!strcmp(m_pShared->scopeParams.scope.c_str(),"scope_sniper"))
-	{		
+	{
 	}
 }
 
@@ -161,16 +165,17 @@ void CScope::OnZoomStep(bool zoomingIn, float t)
 	CIronSight::OnZoomStep(zoomingIn, t);
 
 	// only call the HUD when we have finished(!) zooming (t == 1.0f)
-	if (t > 0.999f)
+	if(t > 0.999f)
 	{
-	
+
 	}
 }
 
 //-------------------------------------------------------------
-void CScope::GetMemoryUsage(ICrySizer * s) const
+void CScope::GetMemoryUsage(ICrySizer *s) const
 {
 	s->Add(*this);
+
 	if(m_useCustomParams)
 	{
 		m_pShared->scopeParams.GetMemoryUsage(s);

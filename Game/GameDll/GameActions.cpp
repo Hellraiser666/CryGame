@@ -4,20 +4,20 @@
 
 #define DECL_ACTION(name) name = #name;
 CGameActions::CGameActions()
-: m_pFilterNoMove(0)
-, m_pFilterNoMouse(0)
-, m_pFilterInVehicleSuitMenu(0)
-, m_pFilterSuitMenu(0)
-, m_pFilterFreezeTime(0)
-, m_pFilterNoVehicleExit(0)
-, m_pFilterMPRadio(0)
-, m_pFilterCutscene(0)
-, m_pFilterCutsceneNoPlayer(0)
-, m_pFilterNoMapOpen(0)
-, m_pFilterNoObjectivesOpen(0)
-, m_pFilterVehicleNoSeatChangeAndExit(0)
-, m_pFilterNoConnectivity(0)
-, m_pFilterUIOnly(0)
+	: m_pFilterNoMove(0)
+	, m_pFilterNoMouse(0)
+	, m_pFilterInVehicleSuitMenu(0)
+	, m_pFilterSuitMenu(0)
+	, m_pFilterFreezeTime(0)
+	, m_pFilterNoVehicleExit(0)
+	, m_pFilterMPRadio(0)
+	, m_pFilterCutscene(0)
+	, m_pFilterCutsceneNoPlayer(0)
+	, m_pFilterNoMapOpen(0)
+	, m_pFilterNoObjectivesOpen(0)
+	, m_pFilterVehicleNoSeatChangeAndExit(0)
+	, m_pFilterNoConnectivity(0)
+	, m_pFilterUIOnly(0)
 {
 #include "GameActions.actions"
 }
@@ -43,7 +43,7 @@ void CGameActions::Init()
 
 void CGameActions::CreateFilterNoMove()
 {
-	IActionMapManager* pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
+	IActionMapManager *pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
 
 	m_pFilterNoMove = pActionMapMan->CreateActionFilter("no_move", eAFT_ActionFail);
 	m_pFilterNoMove->Filter(leanleft);
@@ -62,7 +62,7 @@ void CGameActions::CreateFilterNoMove()
 
 void CGameActions::CreateFilterNoMouse()
 {
-	IActionMapManager* pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
+	IActionMapManager *pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
 
 	m_pFilterNoMouse = pActionMapMan->CreateActionFilter("no_mouse", eAFT_ActionFail);
 	m_pFilterNoMouse->Filter(attack1);
@@ -78,7 +78,7 @@ void CGameActions::CreateFilterNoMouse()
 	m_pFilterNoMouse->Filter(medium);
 	m_pFilterNoMouse->Filter(heavy);
 	m_pFilterNoMouse->Filter(handgrenade);
-	m_pFilterNoMouse->Filter(explosive);	
+	m_pFilterNoMouse->Filter(explosive);
 	m_pFilterNoMouse->Filter(utility);
 	m_pFilterNoMouse->Filter(zoom);
 	m_pFilterNoMouse->Filter(reload);
@@ -93,7 +93,7 @@ void CGameActions::CreateFilterNoMouse()
 void CGameActions::CreateFilterInVehicleSuitMenu()
 {
 	//need when suit menu is on in a vehicle. for XBOX controller and for keyboard
-	IActionMapManager* pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
+	IActionMapManager *pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
 
 	m_pFilterInVehicleSuitMenu = pActionMapMan->CreateActionFilter("in_vehicle_suit_menu", eAFT_ActionFail);
 	m_pFilterInVehicleSuitMenu->Filter(use);
@@ -109,7 +109,7 @@ void CGameActions::CreateFilterInVehicleSuitMenu()
 
 void CGameActions::CreateFilterSuitMenu()
 {
-	IActionMapManager* pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
+	IActionMapManager *pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
 
 	m_pFilterSuitMenu = pActionMapMan->CreateActionFilter("suit_menu", eAFT_ActionFail);
 	m_pFilterSuitMenu->Filter(attack1);
@@ -125,7 +125,7 @@ void CGameActions::CreateFilterSuitMenu()
 	m_pFilterSuitMenu->Filter(medium);
 	m_pFilterSuitMenu->Filter(heavy);
 	m_pFilterSuitMenu->Filter(handgrenade);
-	m_pFilterSuitMenu->Filter(explosive);	
+	m_pFilterSuitMenu->Filter(explosive);
 	m_pFilterSuitMenu->Filter(utility);
 	m_pFilterSuitMenu->Filter(reload);
 	m_pFilterSuitMenu->Filter(use);
@@ -137,7 +137,7 @@ void CGameActions::CreateFilterSuitMenu()
 
 void CGameActions::CreateFilterFreezeTime()
 {
-	IActionMapManager* pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
+	IActionMapManager *pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
 
 	m_pFilterFreezeTime = pActionMapMan->CreateActionFilter("freezetime", eAFT_ActionPass);
 	m_pFilterFreezeTime->Filter(reload);
@@ -201,7 +201,7 @@ void CGameActions::CreateFilterFreezeTime()
 
 void CGameActions::CreateFilterNoVehicleExit()
 {
-	IActionMapManager* pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
+	IActionMapManager *pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
 
 	m_pFilterNoVehicleExit = pActionMapMan->CreateActionFilter("no_vehicle_exit", eAFT_ActionFail);
 	m_pFilterNoVehicleExit->Filter(use);
@@ -209,12 +209,12 @@ void CGameActions::CreateFilterNoVehicleExit()
 
 void CGameActions::CreateFilterMPRadio()
 {
-	IActionMapManager* pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
+	IActionMapManager *pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
 
 	m_pFilterMPRadio = pActionMapMan->CreateActionFilter("mp_radio", eAFT_ActionFail);
 	m_pFilterMPRadio->Filter(small);
 	m_pFilterMPRadio->Filter(medium);
-	m_pFilterMPRadio->Filter(heavy);	
+	m_pFilterMPRadio->Filter(heavy);
 	m_pFilterMPRadio->Filter(explosive);
 	m_pFilterMPRadio->Filter(handgrenade);
 	m_pFilterMPRadio->Filter(v_changeseat1);
@@ -227,17 +227,17 @@ void CGameActions::CreateFilterMPRadio()
 
 void CGameActions::CreateFilterCutscene()
 {
-	IActionMapManager* pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
+	IActionMapManager *pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
 
-	m_pFilterCutscene = pActionMapMan->CreateActionFilter("cutscene", eAFT_ActionFail);	
-	m_pFilterCutscene->Filter(binoculars);	
+	m_pFilterCutscene = pActionMapMan->CreateActionFilter("cutscene", eAFT_ActionFail);
+	m_pFilterCutscene->Filter(binoculars);
 	m_pFilterCutscene->Filter(leanleft);
 	m_pFilterCutscene->Filter(leanright);
 }
 
 void CGameActions::CreateFilterCutsceneNoPlayer()
 {
-	IActionMapManager* pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
+	IActionMapManager *pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
 
 	m_pFilterCutsceneNoPlayer = pActionMapMan->CreateActionFilter("cutscene_no_player", eAFT_ActionPass);
 	m_pFilterCutsceneNoPlayer->Filter(loadLastSave);
@@ -246,22 +246,22 @@ void CGameActions::CreateFilterCutsceneNoPlayer()
 
 void CGameActions::CreateFilterNoMapOpen()
 {
-	IActionMapManager* pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
+	IActionMapManager *pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
 
-	m_pFilterNoMapOpen = pActionMapMan->CreateActionFilter("no_map_open", eAFT_ActionFail);	
+	m_pFilterNoMapOpen = pActionMapMan->CreateActionFilter("no_map_open", eAFT_ActionFail);
 }
 
 void CGameActions::CreateFilterNoObjectivesOpen()
 {
-	IActionMapManager* pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
+	IActionMapManager *pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
 
-	m_pFilterNoObjectivesOpen = pActionMapMan->CreateActionFilter("no_objectives_open", eAFT_ActionFail);	
+	m_pFilterNoObjectivesOpen = pActionMapMan->CreateActionFilter("no_objectives_open", eAFT_ActionFail);
 	m_pFilterNoObjectivesOpen->Filter(scores);
 }
 
 void CGameActions::CreateFilterVehicleNoSeatChangeAndExit()
 {
-	IActionMapManager* pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
+	IActionMapManager *pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
 
 	m_pFilterVehicleNoSeatChangeAndExit = pActionMapMan->CreateActionFilter("vehicle_no_seat_change_and_exit", eAFT_ActionFail);
 	m_pFilterVehicleNoSeatChangeAndExit->Filter(v_exit);
@@ -275,17 +275,17 @@ void CGameActions::CreateFilterVehicleNoSeatChangeAndExit()
 
 void CGameActions::CreateFilterNoConnectivity()
 {
-	IActionMapManager* pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
+	IActionMapManager *pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
 
-	m_pFilterNoConnectivity = pActionMapMan->CreateActionFilter("no_connectivity", eAFT_ActionPass);	
+	m_pFilterNoConnectivity = pActionMapMan->CreateActionFilter("no_connectivity", eAFT_ActionPass);
 	m_pFilterNoConnectivity->Filter(scores);
 }
 
 void CGameActions::CreateFilterUIOnly()
 {
-	IActionMapManager* pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
+	IActionMapManager *pActionMapMan = g_pGame->GetIGameFramework()->GetIActionMapManager();
 
-	m_pFilterUIOnly = pActionMapMan->CreateActionFilter("only_ui", eAFT_ActionPass);	
+	m_pFilterUIOnly = pActionMapMan->CreateActionFilter("only_ui", eAFT_ActionPass);
 	m_pFilterUIOnly->Filter(ui_toggle_pause);
 	m_pFilterUIOnly->Filter(ui_up);
 	m_pFilterUIOnly->Filter(ui_down);

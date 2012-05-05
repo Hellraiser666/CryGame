@@ -4,7 +4,7 @@ Copyright (C), Crytek Studios, 2001-2007.
 -------------------------------------------------------------------------
 $Id$
 $DateTime$
-Description: Implements a damage behavior which gives camera shake to the 
+Description: Implements a damage behavior which gives camera shake to the
 player
 
 -------------------------------------------------------------------------
@@ -21,16 +21,16 @@ History:
 //m_damageRatio
 //------------------------------------------------------------------------
 CVehicleDamageBehaviorCameraShake::CVehicleDamageBehaviorCameraShake()
-: m_damageMult(1.0f)
+	: m_damageMult(1.0f)
 {
 }
 
 //------------------------------------------------------------------------
-bool CVehicleDamageBehaviorCameraShake::Init(IVehicle* pVehicle, const CVehicleParams& table)
+bool CVehicleDamageBehaviorCameraShake::Init(IVehicle *pVehicle, const CVehicleParams &table)
 {
 	m_pVehicle = pVehicle;
-	
-	if (gEnv->IsClient())
+
+	if(gEnv->IsClient())
 		m_pVehicle->RegisterVehicleEventListener(this, "VehicleDamageBehaviorCameraShake");
 
 	return true;
@@ -39,7 +39,7 @@ bool CVehicleDamageBehaviorCameraShake::Init(IVehicle* pVehicle, const CVehicleP
 //------------------------------------------------------------------------
 CVehicleDamageBehaviorCameraShake::~CVehicleDamageBehaviorCameraShake()
 {
-	if (gEnv->IsClient())
+	if(gEnv->IsClient())
 		m_pVehicle->UnregisterVehicleEventListener(this);
 }
 
@@ -50,26 +50,26 @@ void CVehicleDamageBehaviorCameraShake::Reset()
 }
 
 //------------------------------------------------------------------------
-void CVehicleDamageBehaviorCameraShake::OnDamageEvent(EVehicleDamageBehaviorEvent event, const SVehicleDamageBehaviorEventParams& behaviorParams)
+void CVehicleDamageBehaviorCameraShake::OnDamageEvent(EVehicleDamageBehaviorEvent event, const SVehicleDamageBehaviorEventParams &behaviorParams)
 {
-	if (event == eVDBE_Hit)
+	if(event == eVDBE_Hit)
 	{
 		m_damageMult = max(1.0f, behaviorParams.componentDamageRatio / 0.25f);
 	}
 }
 
 //------------------------------------------------------------------------
-void CVehicleDamageBehaviorCameraShake::OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams& params)
+void CVehicleDamageBehaviorCameraShake::OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams &params)
 {
-	if (!gEnv->IsClient())
+	if(!gEnv->IsClient())
 		return;
 
-	if (event == eVE_Damaged)
+	if(event == eVE_Damaged)
 	{
 		float angle = 10.0f * (m_damageMult);
 		ShakeClient(angle, 0.2f, 0.05f, 0.25f);
 	}
-	else if (event == eVE_Hit)
+	else if(event == eVE_Hit)
 	{
 		ShakeClient(5.0f, 0.10f, 0.1f, 0.05f);
 	}
@@ -78,21 +78,22 @@ void CVehicleDamageBehaviorCameraShake::OnVehicleEvent(EVehicleEvent event, cons
 //------------------------------------------------------------------------
 void CVehicleDamageBehaviorCameraShake::ShakeClient(float angle, float shift, float duration, float frequency)
 {
-	IActorSystem* pActorSystem = gEnv->pGame->GetIGameFramework()->GetIActorSystem();
+	IActorSystem *pActorSystem = gEnv->pGame->GetIGameFramework()->GetIActorSystem();
 	assert(pActorSystem);
 
 	EntityId clientId = g_pGame->GetIGameFramework()->GetClientActorId();
 
-	for (TVehicleSeatId seatId = InvalidVehicleSeatId + 1; 
-		seatId != m_pVehicle->GetLastSeatId(); seatId++)
+	for(TVehicleSeatId seatId = InvalidVehicleSeatId + 1;
+			seatId != m_pVehicle->GetLastSeatId(); seatId++)
 	{
-		if (IVehicleSeat* pSeat = m_pVehicle->GetSeatById(seatId))
+		if(IVehicleSeat *pSeat = m_pVehicle->GetSeatById(seatId))
 		{
 			EntityId passengerId = pSeat->GetPassenger();
 
-			if (passengerId == clientId)
+			if(passengerId == clientId)
 			{
-				CActor* pActor = static_cast<CActor*>(pActorSystem->GetActor(passengerId));
+				CActor *pActor = static_cast<CActor *>(pActorSystem->GetActor(passengerId));
+
 				if(pActor)
 					pActor->CameraShake(angle, shift, duration, frequency, Vec3(0.0f, 0.0f, 0.0f), 5, "VehicleDamageBehaviorCameraShake");
 			}

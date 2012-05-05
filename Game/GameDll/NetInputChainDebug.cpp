@@ -32,70 +32,79 @@ static uint64 tstamp;
 typedef NTypelist::CConstruct<float, Vec3>::TType TNetInputValueTypes;
 typedef CConfigurableVariant<TNetInputValueTypes, NTypelist::MaximumSize<TNetInputValueTypes>::value> TNetInputValue;
 
-static const char * GetEntityName()
+static const char *GetEntityName()
 {
-	IEntity * pEnt = gEnv->pEntitySystem->GetEntity(_netinputchain_debugentity);
+	IEntity *pEnt = gEnv->pEntitySystem->GetEntity(_netinputchain_debugentity);
 	assert(pEnt);
-	if (pEnt)
+
+	if(pEnt)
 		return pEnt->GetName();
 	else
 		return "<<unknown>>";
 }
 
-static void Put( const char * name, const TNetInputValue& value )
+static void Put(const char *name, const TNetInputValue &value)
 {
-	FILE * fout = 0;
-	if (dump) fout = fopen("netinput.log", "at");
+	FILE *fout = 0;
+
+	if(dump) fout = fopen("netinput.log", "at");
 
 	FILETIME tm;
 	GetSystemTimeAsFileTime(&tm);
 
-	ITextModeConsole * pTMC = gEnv->pSystem->GetITextModeConsole();
+	ITextModeConsole *pTMC = gEnv->pSystem->GetITextModeConsole();
 
-	if (lastFrame != gEnv->pRenderer->GetFrameID())
+	if(lastFrame != gEnv->pRenderer->GetFrameID())
 	{
 		ypos = 0;
 		lastFrame = gEnv->pRenderer->GetFrameID();
 		tstamp = (uint64(tm.dwHighDateTime)<<32) | tm.dwLowDateTime;
 	}
+
 	float white[] = {1,1,1,1};
 	char buf[256];
 
-	if (const Vec3 * pVec = value.GetPtr<Vec3>())
+	if(const Vec3 *pVec = value.GetPtr<Vec3>())
 	{
 		sprintf(buf, "%s: %f %f %f", name, pVec->x, pVec->y, pVec->z);
 		gEnv->pRenderer->Draw2dLabel(10.f, (float)(ypos+=20), 2.f, white, false, "%s", buf);
-		if (pTMC)
-			pTMC->PutText( 0, ypos/20, buf );
-		if (fout) fprintf(fout, "%I64d %s %s %f %f %f\n", tstamp, GetEntityName(), name, pVec->x, pVec->y, pVec->z);
+
+		if(pTMC)
+			pTMC->PutText(0, ypos/20, buf);
+
+		if(fout) fprintf(fout, "%I64d %s %s %f %f %f\n", tstamp, GetEntityName(), name, pVec->x, pVec->y, pVec->z);
 	}
-	else if (const float * pFloat = value.GetPtr<float>())
+	else if(const float *pFloat = value.GetPtr<float>())
 	{
 		sprintf(buf, "%s: %f", name, *pFloat);
 		gEnv->pRenderer->Draw2dLabel(10.f, (float)(ypos+=20), 2, white, false, "%s", buf);
-		if (pTMC)
-			pTMC->PutText( 0, ypos/20, buf );
-		if (fout) fprintf(fout, "%I64d %s %s %f\n", tstamp, GetEntityName(), name, *pFloat);
+
+		if(pTMC)
+			pTMC->PutText(0, ypos/20, buf);
+
+		if(fout) fprintf(fout, "%I64d %s %s %f\n", tstamp, GetEntityName(), name, *pFloat);
 	}
-	if (fout)
+
+	if(fout)
 		fclose(fout);
 }
 
-static void OnChangeEntity( ICVar * pVar )
+static void OnChangeEntity(ICVar *pVar)
 {
-	const char * entName = pVar->GetString();
-	if (IEntity * pEnt = gEnv->pEntitySystem->FindEntityByName(entName))
+	const char *entName = pVar->GetString();
+
+	if(IEntity *pEnt = gEnv->pEntitySystem->FindEntityByName(entName))
 		_netinputchain_debugentity = pEnt->GetId();
 	else
 		_netinputchain_debugentity = 0;
 }
 
-void NetInputChainPrint( const char * name, Vec3 val )
+void NetInputChainPrint(const char *name, Vec3 val)
 {
 	Put(name, TNetInputValue(val));
 }
 
-void NetInputChainPrint( const char * name, float val )
+void NetInputChainPrint(const char *name, float val)
 {
 	Put(name, TNetInputValue(val));
 }
@@ -108,6 +117,6 @@ void NetInputChainInitCVars()
 
 #else
 
-void NetInputChainInitCVars(){}
+void NetInputChainInitCVars() {}
 
 #endif

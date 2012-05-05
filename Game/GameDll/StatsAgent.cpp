@@ -40,7 +40,7 @@ bool CStatsAgent::s_pipeOpen = false;
 
 
 
-void CStatsAgent::CreatePipe( const ICmdLineArg* pPipeName )
+void CStatsAgent::CreatePipe(const ICmdLineArg *pPipeName)
 {
 
 
@@ -70,9 +70,9 @@ void CStatsAgent::CreatePipe( const ICmdLineArg* pPipeName )
 
 }
 
-void CStatsAgent::ClosePipe( void )
+void CStatsAgent::ClosePipe(void)
 {
-	if ( s_pipeOpen  )
+	if(s_pipeOpen)
 	{
 
 
@@ -83,9 +83,9 @@ void CStatsAgent::ClosePipe( void )
 	}
 }
 
-void CStatsAgent::Update( void )
+void CStatsAgent::Update(void)
 {
-	if ( s_pipeOpen )
+	if(s_pipeOpen)
 	{
 
 

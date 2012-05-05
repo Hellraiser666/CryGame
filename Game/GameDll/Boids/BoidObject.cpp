@@ -7,7 +7,7 @@
 //  Version:     v1.00
 //  Created:     8/2010 by Luciano Morpurgo (refactored from flock.cpp)
 //  Compilers:   Visual C++ 7.0
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -54,7 +54,7 @@
 
 
 //////////////////////////////////////////////////////////////////////////
-CBoidObject::CBoidObject( SBoidContext &bc )
+CBoidObject::CBoidObject(SBoidContext &bc)
 {
 	m_flock = 0;
 	m_entity = 0;
@@ -93,44 +93,49 @@ CBoidObject::~CBoidObject()
 }
 
 //////////////////////////////////////////////////////////////////////////
-bool CBoidObject::PlayAnimation( const char *animation,bool bLooped,float fBlendTime )
+bool CBoidObject::PlayAnimation(const char *animation,bool bLooped,float fBlendTime)
 {
 	bool playing = false;
-	if (m_object)
+
+	if(m_object)
 	{
 		CryCharAnimationParams animParams;
-		if (bLooped)
+
+		if(bLooped)
 			animParams.m_nFlags |= CA_LOOP_ANIMATION;
 
 		animParams.m_nFlags |= CA_SUPPRESS_WARNINGS;
 		animParams.m_nFlags |= CA_REMOVE_FROM_FIFO;
 
 		animParams.m_fTransTime = fBlendTime;
-		playing = m_object->GetISkeletonAnim()->StartAnimation( animation, animParams );
-		m_object->SetAnimationSpeed( 1.0f );
+		playing = m_object->GetISkeletonAnim()->StartAnimation(animation, animParams);
+		m_object->SetAnimationSpeed(1.0f);
 	}
+
 	return playing;
 }
 
 //////////////////////////////////////////////////////////////////////////
-bool CBoidObject::PlayAnimationId( int nIndex,bool bLooped,float fBlendTime )
+bool CBoidObject::PlayAnimationId(int nIndex,bool bLooped,float fBlendTime)
 {
-	if (nIndex >= 0 && nIndex < (int)m_flock->m_bc.animations.size())
-		return PlayAnimation( m_flock->m_bc.animations[nIndex],bLooped,fBlendTime );
+	if(nIndex >= 0 && nIndex < (int)m_flock->m_bc.animations.size())
+		return PlayAnimation(m_flock->m_bc.animations[nIndex],bLooped,fBlendTime);
+
 	return false;
 }
 
 //////////////////////////////////////////////////////////////////////////
-void CBoidObject::PlaySound( int nIndex )
+void CBoidObject::PlaySound(int nIndex)
 {
-	if (nIndex >= 0 && nIndex < (int)m_flock->m_bc.sounds.size())
+	if(nIndex >= 0 && nIndex < (int)m_flock->m_bc.sounds.size())
 	{
 		IEntity *pEntity = gEnv->pEntitySystem->GetEntity(m_entity);
-		if (pEntity)
+
+		if(pEntity)
 		{
-			IEntitySoundProxy* pSndProxy = (IEntitySoundProxy*)pEntity->CreateProxy(ENTITY_PROXY_SOUND);
+			IEntitySoundProxy *pSndProxy = (IEntitySoundProxy *)pEntity->CreateProxy(ENTITY_PROXY_SOUND);
 			Vec3 ofs(0,0,0),dir(FORWARD_DIRECTION);
-			pSndProxy->PlaySound( m_flock->m_bc.sounds[nIndex],ofs,dir,FLAG_SOUND_DEFAULT_3D, eSoundSemantic_Living_Entity );
+			pSndProxy->PlaySound(m_flock->m_bc.sounds[nIndex],ofs,dir,FLAG_SOUND_DEFAULT_3D, eSoundSemantic_Living_Entity);
 		}
 	}
 }
@@ -138,39 +143,45 @@ void CBoidObject::PlaySound( int nIndex )
 //////////////////////////////////////////////////////////////////////////
 int CBoidObject::GetGeometrySurfaceType()
 {
-	if (m_object)
+	if(m_object)
 	{
 		ISurfaceType *pSurfaceType = gEnv->pEntitySystem->GetBreakableManager()->GetFirstSurfaceType(m_object);
-		if (pSurfaceType)
+
+		if(pSurfaceType)
 			return pSurfaceType->GetId();
 	}
 	else
 	{
 		IEntity *pEntity = gEnv->pEntitySystem->GetEntity(m_entity);
-		if (pEntity)
+
+		if(pEntity)
 		{
 			IStatObj *pStatObj = pEntity->GetStatObj(0|ENTITY_SLOT_ACTUAL);
-			if (pStatObj)
+
+			if(pStatObj)
 			{
 				ISurfaceType *pSurfaceType = gEnv->pEntitySystem->GetBreakableManager()->GetFirstSurfaceType(pStatObj);
-				if (pSurfaceType)
+
+				if(pSurfaceType)
 					return pSurfaceType->GetId();
 			}
 		}
 	}
+
 	return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////
-void CBoidObject::OnEntityEvent( SEntityEvent &event )
+void CBoidObject::OnEntityEvent(SEntityEvent &event)
 {
-	switch (event.event)
+	switch(event.event)
 	{
 	case ENTITY_EVENT_DONE:
 		m_entity = 0;
 		m_object = 0;
 		m_pPhysics = 0;
 		break;
+
 	case ENTITY_EVENT_COLLISION:
 		OnCollision(event);
 		break;
@@ -179,38 +190,40 @@ void CBoidObject::OnEntityEvent( SEntityEvent &event )
 }
 
 //////////////////////////////////////////////////////////////////////////
-void CBoidObject::OnCollision( SEntityEvent &event )
+void CBoidObject::OnCollision(SEntityEvent &event)
 {
 	EventPhysCollision *pCollision = (EventPhysCollision *)(event.nParam[0]);
 
 	IPhysicalEntity *pPhysObject = 0;
-	if (pCollision->pEntity[0] == m_pPhysics)
+
+	if(pCollision->pEntity[0] == m_pPhysics)
 	{
 		pPhysObject = pCollision->pEntity[1];
 	}
-	else if (pCollision->pEntity[1] == m_pPhysics)
+	else if(pCollision->pEntity[1] == m_pPhysics)
 	{
 		pPhysObject = pCollision->pEntity[0];
 	}
 
 	// Get speed.
-	if (pPhysObject)
+	if(pPhysObject)
 	{
 		pe_status_dynamics dynamics;
 		pPhysObject->GetStatus(&dynamics);
-		if (dynamics.v.GetLengthFast() > 1.0f)
+
+		if(dynamics.v.GetLengthFast() > 1.0f)
 		{
 			m_physicsControlled = false;
-			Kill( m_pos,Vec3(0,0,0) );
+			Kill(m_pos,Vec3(0,0,0));
 		}
 	}
 
 }
 
 //////////////////////////////////////////////////////////////////////////
-void CBoidObject::CalcOrientation( Quat &qOrient )
+void CBoidObject::CalcOrientation(Quat &qOrient)
 {
-	if (m_physicsControlled && m_pPhysics)
+	if(m_physicsControlled && m_pPhysics)
 	{
 		pe_status_pos ppos;
 		m_pPhysics->GetStatus(&ppos);
@@ -218,63 +231,69 @@ void CBoidObject::CalcOrientation( Quat &qOrient )
 		return;
 	}
 
-	if (m_heading.IsZero())
+	if(m_heading.IsZero())
 		m_heading = Vec3Constants<float>::fVec3_OneX;;
 
 	Vec3 dir = m_heading;
-	if (m_alignHorizontally != 0)
+
+	if(m_alignHorizontally != 0)
 	{
 		dir.z *= (1.0f-m_alignHorizontally);
 	}
+
 	dir.NormalizeFast();
-	if (m_banking != 0)
-		qOrient.SetRotationVDir( dir,-m_banking*0.5f );
+
+	if(m_banking != 0)
+		qOrient.SetRotationVDir(dir,-m_banking*0.5f);
 	else
-		qOrient.SetRotationVDir( dir );
+		qOrient.SetRotationVDir(dir);
 }
 
 //////////////////////////////////////////////////////////////////////////
-void CBoidObject::Render( SRendParams &rp,CCamera &cam,SBoidContext &bc )
+void CBoidObject::Render(SRendParams &rp,CCamera &cam,SBoidContext &bc)
 {
 
 }
 
 //////////////////////////////////////////////////////////////////////////
-inline float AngleBetweenVectors( const Vec3 &v1,const Vec3 &v2 )
+inline float AngleBetweenVectors(const Vec3 &v1,const Vec3 &v2)
 {
 	float a = acos_tpl(v1.Dot(v2));
 	Vec3 r = v1.Cross(v2);
-	if (r.z < 0)
+
+	if(r.z < 0)
 		a = -a;
+
 	return a;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void CBoidObject::ClampSpeed(SBoidContext& bc, float dt)
+void CBoidObject::ClampSpeed(SBoidContext &bc, float dt)
 {
-	if (m_speed > bc.MaxSpeed)
+	if(m_speed > bc.MaxSpeed)
 		m_speed = bc.MaxSpeed;
-	if (m_speed < bc.MinSpeed)
+
+	if(m_speed < bc.MinSpeed)
 		m_speed = bc.MinSpeed;
 }
 
 //////////////////////////////////////////////////////////////////////////
-void CBoidObject::CalcMovement( float dt,SBoidContext &bc,bool banking )
+void CBoidObject::CalcMovement(float dt,SBoidContext &bc,bool banking)
 {
 	// Calc movement with current velocity.
 	Vec3 prevAccel(0,0,0);
 
-	if (banking)
+	if(banking)
 	{
-		if (m_currentAccel.x != 0 && m_currentAccel.y != 0 && m_currentAccel.z != 0)
+		if(m_currentAccel.x != 0 && m_currentAccel.y != 0 && m_currentAccel.z != 0)
 			prevAccel = m_currentAccel.GetNormalized();
 		else
 			banking = false;
 	}
 
 	m_currentAccel = m_currentAccel*bc.fSmoothFactor + m_accel*(1.0f - bc.fSmoothFactor);
-	
+
 	Vec3 velocity = m_heading*m_speed;
 	m_pos = m_pos + velocity*dt;
 	velocity = velocity + m_currentAccel*dt;
@@ -282,15 +301,18 @@ void CBoidObject::CalcMovement( float dt,SBoidContext &bc,bool banking )
 
 //	ClampSpeed(bc,dt);
 
-	if (fabs(m_speed) > 0.0001f)
+	if(fabs(m_speed) > 0.0001f)
 	{
 		Vec3 newHeading = velocity;// * (1.0f/m_speed); // Normalized velocity vector is our heading.
 		newHeading.NormalizeFast();
-		if (bc.fMaxTurnRatio)
+
+		if(bc.fMaxTurnRatio)
 		{
 			float fHeadingSmothFactor = bc.fMaxTurnRatio * bc.fSmoothFactor;
-			if (fHeadingSmothFactor > 1.0f)
+
+			if(fHeadingSmothFactor > 1.0f)
 				fHeadingSmothFactor = 1.0f;
+
 			m_heading = newHeading*fHeadingSmothFactor + m_heading*(1.0f - fHeadingSmothFactor);
 		}
 		else
@@ -299,19 +321,21 @@ void CBoidObject::CalcMovement( float dt,SBoidContext &bc,bool banking )
 		}
 	}
 
-/*
-	if (m_speed > bc.MaxSpeed)
-		m_speed = bc.MaxSpeed;
-	if (m_speed < bc.MinSpeed)
-		m_speed = bc.MinSpeed;
-*/
+	/*
+		if (m_speed > bc.MaxSpeed)
+			m_speed = bc.MaxSpeed;
+		if (m_speed < bc.MinSpeed)
+			m_speed = bc.MinSpeed;
+	*/
 	ClampSpeed(bc,dt);
 
-	if (banking)
+	if(banking)
 	{
 		Vec3 sideDir = m_heading.Cross(Vec3(0,0,1));
-		if (sideDir.IsZero())
+
+		if(sideDir.IsZero())
 			sideDir = m_heading.Cross(Vec3(0,1,0));
+
 //		Vec3 v = m_currentAccel.GetLength();
 		m_bankingTrg = prevAccel.Dot(sideDir.GetNormalized());
 	}
@@ -342,16 +366,16 @@ void CBoidObject::CalcMovement( float dt,SBoidContext &bc,bool banking )
 
 void CBoidObject::UpdateAnimationSpeed(SBoidContext &bc)
 {
-	if (m_object && fabs(m_speed) > 0.0001f)
+	if(m_object && fabs(m_speed) > 0.0001f)
 	{
 		//float animSpeed = ((m_speed - bc.MinSpeed)/ (bc.MaxSpeed - bc.MinSpeed + 0.1f )) * bc.MaxAnimationSpeed;
 		float animSpeed = m_speed * bc.MaxAnimationSpeed;
-		m_object->SetAnimationSpeed( animSpeed );
+		m_object->SetAnimationSpeed(animSpeed);
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////
-void CBoidObject::CalcFlockBehavior( SBoidContext &bc,Vec3 &vAlignment,Vec3 &vCohesion,Vec3 &vSeparation )
+void CBoidObject::CalcFlockBehavior(SBoidContext &bc,Vec3 &vAlignment,Vec3 &vCohesion,Vec3 &vSeparation)
 {
 	// Vector of sight between boids.
 	Vec3 sight;
@@ -369,10 +393,12 @@ void CBoidObject::CalcFlockBehavior( SBoidContext &bc,Vec3 &vAlignment,Vec3 &vCo
 	int numMates = 0;
 
 	int numBoids = m_flock->GetBoidsCount();
-	for (int i = 0; i < numBoids; i++)
+
+	for(int i = 0; i < numBoids; i++)
 	{
 		CBoidObject *boid = m_flock->GetBoid(i);
-		if (boid == this) // skip myself.
+
+		if(boid == this)  // skip myself.
 			continue;
 
 		sight = boid->m_pos - m_pos;
@@ -381,10 +407,10 @@ void CBoidObject::CalcFlockBehavior( SBoidContext &bc,Vec3 &vAlignment,Vec3 &vCo
 
 		// Check if this boid is in our range of sight.
 		// And If this neighbor is in our field of view.
-		if (dist2 < MaxAttractDistance2 && m_heading.Dot(sight) > bc.cosFovAngle)
+		if(dist2 < MaxAttractDistance2 && m_heading.Dot(sight) > bc.cosFovAngle)
 		{
 			// Separation from other boids.
-			if (dist2 < MinAttractDistance2)
+			if(dist2 < MinAttractDistance2)
 			{
 				// Boid too close, distract from him.
 				float w = (1.0f - dist2/MinAttractDistance2);
@@ -400,7 +426,8 @@ void CBoidObject::CalcFlockBehavior( SBoidContext &bc,Vec3 &vAlignment,Vec3 &vCo
 			avgNeighborsCenter += boid->m_pos;
 		}
 	}
-	if (numMates > 0)
+
+	if(numMates > 0)
 	{
 		avgAlignment = avgAlignment * (1.0f/numMates);
 		//float avgSpeed = avgAlignment.GetLength();
@@ -411,14 +438,14 @@ void CBoidObject::CalcFlockBehavior( SBoidContext &bc,Vec3 &vAlignment,Vec3 &vCo
 		Vec3 cohesionDir = avgNeighborsCenter - m_pos;
 
 		float sqrDist = cohesionDir.IsZeroFast() ? 0: Boid::Normalize_fast(cohesionDir);
-		float w = MaxAttractDistance2 != MinAttractDistance2 ? 
-			(sqrDist - MinAttractDistance2)/(MaxAttractDistance2 - MinAttractDistance2) : 0;
+		float w = MaxAttractDistance2 != MinAttractDistance2 ?
+				  (sqrDist - MinAttractDistance2)/(MaxAttractDistance2 - MinAttractDistance2) : 0;
 		vCohesion = cohesionDir*w;
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////
-void CBoidObject::Physicalize( SBoidContext &bc )
+void CBoidObject::Physicalize(SBoidContext &bc)
 {
 	pe_params_particle ppart;
 	//ppart.gravity = Vec3(0,0,0);
@@ -431,7 +458,8 @@ void CBoidObject::Physicalize( SBoidContext &bc )
 	ppart.surface_idx = GetGeometrySurfaceType();
 
 	IEntity *pEntity = gEnv->pEntitySystem->GetEntity(m_entity);
-	if (pEntity)
+
+	if(pEntity)
 	{
 		SEntityPhysicalizeParams params;
 		params.pParticle = &ppart;
@@ -442,15 +470,16 @@ void CBoidObject::Physicalize( SBoidContext &bc )
 }
 
 //////////////////////////////////////////////////////////////////////////
-void CBoidObject::CreateRigidBox( SBoidContext &bc,const Vec3 &boxSize,float mass,float density )
+void CBoidObject::CreateRigidBox(SBoidContext &bc,const Vec3 &boxSize,float mass,float density)
 {
-	if (m_pPhysics)
+	if(m_pPhysics)
 	{
 		m_pPhysics = 0;
 	}
 
 	Vec3 orgVelocity = m_speed*m_heading;
-	if (m_pPhysics && m_pPhysics->GetType() == PE_PARTICLE)
+
+	if(m_pPhysics && m_pPhysics->GetType() == PE_PARTICLE)
 	{
 		pe_params_particle pparams;
 		m_pPhysics->GetParams(&pparams);
@@ -458,7 +487,7 @@ void CBoidObject::CreateRigidBox( SBoidContext &bc,const Vec3 &boxSize,float mas
 	}
 
 	Quat q(IDENTITY);
-	CalcOrientation( q);
+	CalcOrientation(q);
 
 	pe_params_pos bodypos;
 	bodypos.pos = m_pos;
@@ -466,15 +495,18 @@ void CBoidObject::CreateRigidBox( SBoidContext &bc,const Vec3 &boxSize,float mas
 	bodypos.scale = m_scale;
 
 	IEntity *pEntity = gEnv->pEntitySystem->GetEntity(m_entity);
-	if (!pEntity)
+
+	if(!pEntity)
 		return;
 
 	SEntityPhysicalizeParams entityPhysParams;
 	entityPhysParams.type = PE_RIGID;
-	pEntity->Physicalize( entityPhysParams );
+	pEntity->Physicalize(entityPhysParams);
 	m_pPhysics =  pEntity->GetPhysics();
-	if (!m_pPhysics)
+
+	if(!m_pPhysics)
 		return;
+
 	m_pPhysics->SetParams(&bodypos);
 
 	pe_params_flags pf;
@@ -486,20 +518,23 @@ void CBoidObject::CreateRigidBox( SBoidContext &bc,const Vec3 &boxSize,float mas
 	geomBox.center.Set(0,0,0);
 	geomBox.size = boxSize;
 	geomBox.bOriented = 0;
-	IGeometry *pGeom = bc.physics->GetGeomManager()->CreatePrimitive( primitives::box::type,&geomBox );
-	phys_geometry *physGeom = bc.physics->GetGeomManager()->RegisterGeometry( pGeom );
+	IGeometry *pGeom = bc.physics->GetGeomManager()->CreatePrimitive(primitives::box::type,&geomBox);
+	phys_geometry *physGeom = bc.physics->GetGeomManager()->RegisterGeometry(pGeom);
 	pGeom->Release();
 
 	pe_geomparams partpos;
 	partpos.pos.Set(0,0,0);
-	if (mass > 0)
+
+	if(mass > 0)
 		partpos.mass = mass; // some fish mass.
-	if (density > 0)
+
+	if(density > 0)
 		partpos.density = density;
+
 	partpos.surface_idx = GetGeometrySurfaceType();
 
-	m_pPhysics->AddGeometry( physGeom,&partpos,0 );
-	bc.physics->GetGeomManager()->UnregisterGeometry( physGeom );
+	m_pPhysics->AddGeometry(physGeom,&partpos,0);
+	bc.physics->GetGeomManager()->UnregisterGeometry(physGeom);
 
 	pe_simulation_params symparams;
 	symparams.damping = 0.3f;
@@ -512,33 +547,35 @@ void CBoidObject::CreateRigidBox( SBoidContext &bc,const Vec3 &boxSize,float mas
 	pb.waterResistance = 1000;
 	pb.waterPlane.n.Set(0,0,1);
 	//pb.waterPlane.origin.set(0,0,gEnv->p3DEngine->GetWaterLevel(&m_center));
-	pb.waterPlane.origin.Set( 0,0,bc.waterLevel );
+	pb.waterPlane.origin.Set(0,0,bc.waterLevel);
 	m_pPhysics->SetParams(&pb);
 
 	// Set original velocity on physics.
 	pe_action_set_velocity psetvel;
 	psetvel.v = orgVelocity;
-	m_pPhysics->Action( &psetvel );
+	m_pPhysics->Action(&psetvel);
 }
 
 //////////////////////////////////////////////////////////////////////////
-void CBoidObject::CreateArticulatedCharacter( SBoidContext &bc,const Vec3 &size,float mass )
+void CBoidObject::CreateArticulatedCharacter(SBoidContext &bc,const Vec3 &size,float mass)
 {
 	Vec3 orgVelocity = m_speed*m_heading;
-	if (m_pPhysics && m_pPhysics->GetType() == PE_PARTICLE)
+
+	if(m_pPhysics && m_pPhysics->GetType() == PE_PARTICLE)
 	{
 		pe_params_particle pparams;
 		m_pPhysics->GetParams(&pparams);
 		orgVelocity = pparams.velocity*pparams.heading;
 	}
 
-	if (m_pPhysics)
+	if(m_pPhysics)
 	{
 		m_pPhysics = 0;
 	}
 
 	IEntity *pEntity = gEnv->pEntitySystem->GetEntity(m_entity);
-	if (!pEntity)
+
+	if(!pEntity)
 		return;
 
 	Quat q(IDENTITY);
@@ -555,10 +592,10 @@ void CBoidObject::CreateArticulatedCharacter( SBoidContext &bc,const Vec3 &size,
 	entityPhysParams.nSlot = 0;
 	entityPhysParams.mass = mass;
 	entityPhysParams.nLod = 1;
-	pEntity->Physicalize( entityPhysParams );
+	pEntity->Physicalize(entityPhysParams);
 
 	// After physicalization reset entity slot matrix if present.
-	if (!bc.vEntitySlotOffset.IsZero())
+	if(!bc.vEntitySlotOffset.IsZero())
 	{
 		Matrix34 tmIdent;
 		tmIdent.SetIdentity();
@@ -566,8 +603,10 @@ void CBoidObject::CreateArticulatedCharacter( SBoidContext &bc,const Vec3 &size,
 	}
 
 	m_pPhysics =  pEntity->GetPhysics();
-	if (!m_pPhysics)
+
+	if(!m_pPhysics)
 		return;
+
 	m_pPhysics->SetParams(&bodypos);
 
 	//m_pPhysics =  m_object->RelinquishCharacterPhysics();
@@ -575,7 +614,7 @@ void CBoidObject::CreateArticulatedCharacter( SBoidContext &bc,const Vec3 &size,
 	pe_params_flags pf;
 	pf.flagsOR = pef_never_affect_triggers|pef_never_break;
 	m_pPhysics->SetParams(&pf);
-	
+
 	pe_params_articulated_body pab;
 	pab.bGrounded = 0;
 	pab.bCheckCollisions = 1;
@@ -593,13 +632,13 @@ void CBoidObject::CreateArticulatedCharacter( SBoidContext &bc,const Vec3 &size,
 	pb.waterResistance = 1000;
 	pb.waterPlane.n.Set(0,0,1);
 	//pb.waterPlane.origin.set(0,0,gEnv->p3DEngine->GetWaterLevel(&m_center));
-	pb.waterPlane.origin.Set( 0,0,bc.waterLevel );
+	pb.waterPlane.origin.Set(0,0,bc.waterLevel);
 	m_pPhysics->SetParams(&pb);
 
 	// Set original velocity on ragdoll.
 	pe_action_set_velocity psetvel;
 	psetvel.v = orgVelocity;
-	m_pPhysics->Action( &psetvel );
+	m_pPhysics->Action(&psetvel);
 
 	pe_params_part pp;
 	pp.flagsColliderOR=pp.flagsColliderAND = geom_colltype_debris;
@@ -612,7 +651,7 @@ void CBoidObject::UpdateCollisionInfo()
 {
 	Vec3 vPos = m_pos + m_heading*0.5f;
 	Vec3 vDir = m_heading*GetCollisionDistance();
-	
+
 	m_collisionInfo.QueueRaycast(m_entity,vPos,vDir);
 
 	m_collisionInfo.UpdateTime();
@@ -625,15 +664,17 @@ float CBoidObject::GetCollisionDistance()
 }
 
 
-void CBoidObject::DisplayCharacter(bool bEnable) // passed as parameter - avoid redundancy in class member 
+void CBoidObject::DisplayCharacter(bool bEnable) // passed as parameter - avoid redundancy in class member
 {
-	IEntity* pMyEntity = gEnv->pEntitySystem->GetEntity(m_entity);
+	IEntity *pMyEntity = gEnv->pEntitySystem->GetEntity(m_entity);
+
 	if(!pMyEntity)
 		return;
 
 	if(bEnable)
 	{
 		m_displayChr = 1;
+
 		if(pMyEntity->IsSlotValid(eSlot_Chr))
 			pMyEntity->SetSlotFlags(eSlot_Chr,pMyEntity->GetSlotFlags(eSlot_Chr) | ENTITY_SLOT_RENDER);
 
@@ -643,6 +684,7 @@ void CBoidObject::DisplayCharacter(bool bEnable) // passed as parameter - avoid 
 	else
 	{
 		m_displayChr = 0;
+
 		if(pMyEntity->IsSlotValid(eSlot_Chr))
 			pMyEntity->SetSlotFlags(eSlot_Chr,pMyEntity->GetSlotFlags(eSlot_Chr) & ~ENTITY_SLOT_RENDER);
 
@@ -652,28 +694,29 @@ void CBoidObject::DisplayCharacter(bool bEnable) // passed as parameter - avoid 
 }
 /////////////////////////////////////////////////////////////
 
-void CBoidObject::UpdateDisplay(SBoidContext& bc)
+void CBoidObject::UpdateDisplay(SBoidContext &bc)
 {
 	if(bc.animationMaxDistanceSq ==0)
 		return;
 
-	Vec3 cameraPos( gEnv->pRenderer->GetCamera().GetPosition());
+	Vec3 cameraPos(gEnv->pRenderer->GetCamera().GetPosition());
 	Vec3 cameraDir(gEnv->pRenderer->GetCamera().GetMatrix().GetColumn1());
 
 	float  dot = (m_pos - cameraPos).Dot(cameraDir);
 
-	float distSq = Distance::Point_PointSq(cameraPos,m_pos );
+	float distSq = Distance::Point_PointSq(cameraPos,m_pos);
+
 	if(m_displayChr)
 	{
-		if(dot < 0 || distSq > bc.animationMaxDistanceSq )
+		if(dot < 0 || distSq > bc.animationMaxDistanceSq)
 		{
 			DisplayCharacter(false);
 		}
 	}
 	else
 	{
-		if(dot > 0 && distSq <= bc.animationMaxDistanceSq )
-		{	
+		if(dot > 0 && distSq <= bc.animationMaxDistanceSq)
+		{
 			// show animated character
 			DisplayCharacter(true);
 		}

@@ -4,7 +4,7 @@ Copyright (C), Crytek Studios, 2001-2004.
 -------------------------------------------------------------------------
 CryWatch.cpp
 
-Description: 
+Description:
 	- basic onscreen watch
 	- in game.dll till it matures and can be moved into the engine
 
@@ -33,10 +33,11 @@ static float GetWatchTextYPos()
 {
 	int frame = gEnv->pRenderer->GetFrameID(false);
 
-	if (s_watchTextLastPrintedDuringFrame == frame)
+	if(s_watchTextLastPrintedDuringFrame == frame)
 	{
 		s_watchTextYPos += g_pGameCVars->watch_text_render_size * g_pGameCVars->watch_text_render_lineSpacing;
-		if( s_watchTextYPos + (g_pGameCVars->watch_text_render_size * g_pGameCVars->watch_text_render_lineSpacing) > gEnv->pRenderer->GetHeight() )
+
+		if(s_watchTextYPos + (g_pGameCVars->watch_text_render_size * g_pGameCVars->watch_text_render_lineSpacing) > gEnv->pRenderer->GetHeight())
 		{
 			s_watchTextYPos = GetISystem()->GetIConsole()->GetStatus() ? (gEnv->pRenderer->GetHeight() * 0.5f + 5.f) : g_pGameCVars->watch_text_render_start_pos_y;;
 			s_watchTextXPos += s_max_width_this_col + 15;
@@ -53,19 +54,21 @@ static float GetWatchTextYPos()
 	return s_watchTextYPos;
 }
 
-int CryWatchFunc (const char * message)
+int CryWatchFunc(const char *message)
 {
 	// Fran: we need these guards for the testing framework to work
-	if (gEnv && gEnv->pRenderer && g_pGameCVars && g_pGameCVars->watch_enabled)
+	if(gEnv && gEnv->pRenderer && g_pGameCVars && g_pGameCVars->watch_enabled)
 	{
 		float color[4] = {1,1,1,1};
-		IFFont* pFont = gEnv->pCryFont->GetFont("default");
+		IFFont *pFont = gEnv->pCryFont->GetFont("default");
 		float xscale = g_pGameCVars->watch_text_render_size*g_pGameCVars->watch_text_render_fxscale;
 		STextDrawContext ctx;
 		ctx.SetSize(Vec2(xscale, xscale));
 		float width = pFont->GetTextSize(message, true, ctx).x;
-		if( width>s_max_width_this_col )
+
+		if(width>s_max_width_this_col)
 			s_max_width_this_col = width;
+
 		float yPos = GetWatchTextYPos(); // also updates s_watchTextXPos
 		gEnv->pRenderer->Draw2dLabel(g_pGameCVars->watch_text_render_start_pos_x+s_watchTextXPos, yPos, g_pGameCVars->watch_text_render_size, color, false, "%s", message);
 		return 1;
@@ -78,7 +81,7 @@ int CryWatchFunc (const char * message)
 // Lingering 3D watches...
 //======================================================================================
 
-struct SLingeringWatch3D 
+struct SLingeringWatch3D
 {
 	char m_text[16];
 	float m_timeLeft;
@@ -91,11 +94,11 @@ struct SLingeringWatch3D
 static SLingeringWatch3D s_lingeringWatch3D[MAX_LINGERING_WATCH_3D];
 static int s_lingeringWatch3D_num = 0;
 
-void CryWatch3DAdd(const char * text, const Vec3 & posIn, float lifetime, const Vec3 * velocity, float gravity)
+void CryWatch3DAdd(const char *text, const Vec3 &posIn, float lifetime, const Vec3 *velocity, float gravity)
 {
-	if (text && text[0])
+	if(text && text[0])
 	{
-		SLingeringWatch3D * slot = & s_lingeringWatch3D[s_lingeringWatch3D_num];
+		SLingeringWatch3D *slot = & s_lingeringWatch3D[s_lingeringWatch3D_num];
 		s_lingeringWatch3D_num = (s_lingeringWatch3D_num + 1) % MAX_LINGERING_WATCH_3D;
 		cry_strncpy(slot->m_text, text, sizeof(slot->m_text));
 		slot->m_timeLeft = lifetime;
@@ -107,20 +110,20 @@ void CryWatch3DAdd(const char * text, const Vec3 & posIn, float lifetime, const 
 
 void CryWatch3DReset()
 {
-	memset (& s_lingeringWatch3D, 0, sizeof(s_lingeringWatch3D));
+	memset(& s_lingeringWatch3D, 0, sizeof(s_lingeringWatch3D));
 }
 
 void CryWatch3DTick(float dt)
 {
-	for (int i = 0; i < MAX_LINGERING_WATCH_3D; ++ i)
+	for(int i = 0; i < MAX_LINGERING_WATCH_3D; ++ i)
 	{
-		if (s_lingeringWatch3D[i].m_text[0])
+		if(s_lingeringWatch3D[i].m_text[0])
 		{
 			float fadeaway = min(1.f, s_lingeringWatch3D[i].m_timeLeft);
 			const float col[] = {1.f, 1.f, 1.f, fadeaway};
 			gEnv->pRenderer->DrawLabelEx(s_lingeringWatch3D[i].m_pos, 3.f, col, false, true, s_lingeringWatch3D[i].m_text);
 
-			if (s_lingeringWatch3D[i].m_timeLeft > dt)
+			if(s_lingeringWatch3D[i].m_timeLeft > dt)
 			{
 				s_lingeringWatch3D[i].m_timeLeft -= dt;
 				s_lingeringWatch3D[i].m_pos += s_lingeringWatch3D[i].m_vel * dt;

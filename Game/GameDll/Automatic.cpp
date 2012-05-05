@@ -41,18 +41,19 @@ void CAutomatic::Update(float frameTime, uint32 frameId)
 {
 	CSingle::Update(frameTime, frameId);
 
-	if (m_firing && CanFire(false))
+	if(m_firing && CanFire(false))
 		m_firing = Shoot(true);
 }
 
 //------------------------------------------------------------------------
 void CAutomatic::StopFire()
 {
-	if (m_zoomtimeout > 0.0f)
+	if(m_zoomtimeout > 0.0f)
 	{
 		CActor *pActor = m_pWeapon->GetOwnerActor();
 		CScreenEffects *pSE = pActor?pActor->GetScreenEffects():NULL;
-		if (pSE)
+
+		if(pSE)
 		{
 			pSE->ResetBlendGroup(CScreenEffects::eSFX_GID_ZoomIn);
 
@@ -69,6 +70,7 @@ void CAutomatic::StopFire()
 			IBlendType *blend		= CBlendType<CLinearBlend>::Create(CLinearBlend(1.0f));
 			pSE->StartBlend(fov, blend, speed, CScreenEffects::eSFX_GID_ZoomOut);
 		}
+
 		m_zoomtimeout = 0.0f;
 	}
 
@@ -91,10 +93,11 @@ const char *CAutomatic::GetType() const
 }
 
 //---------------------------------------------------
-void CAutomatic::GetMemoryUsage(ICrySizer * s) const
+void CAutomatic::GetMemoryUsage(ICrySizer *s) const
 {
 	s->Add(*this);
 	CSingle::GetMemoryUsage(s);
+
 	if(m_useCustomParams)
 		m_pShared->automaticactions.GetMemoryUsage(s);
 }
@@ -128,7 +131,7 @@ void CAutomatic::PatchParams(const struct IItemParamsNode *patch)
 //------------------------------------------------------------------
 void CAutomatic::InitSharedParams()
 {
-	CWeaponSharedParams * pWSP = m_pWeapon->GetWeaponSharedParams();
+	CWeaponSharedParams *pWSP = m_pWeapon->GetWeaponSharedParams();
 	assert(pWSP);
 
 	m_fireParams	= pWSP->GetFireSharedParams("AutomaticData", m_fmIdx);
@@ -139,5 +142,5 @@ void CAutomatic::CacheSharedParamsPtr()
 {
 	CSingle::CacheSharedParamsPtr();
 
-	m_pShared			= static_cast<CAutomaticSharedData*>(m_fireParams.get());
+	m_pShared			= static_cast<CAutomaticSharedData *>(m_fireParams.get());
 }

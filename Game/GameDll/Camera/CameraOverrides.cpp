@@ -21,11 +21,11 @@ History:
 #include "CameraInputHelper.h"
 
 CCameraOverrides::CCameraOverrides() :
-m_trackedEntityId(0),
-m_fLookAtHOff(0.0f),
-m_fTrackingDistance(0.5f),
-m_camOverrideType(ECO_NONE),
-m_fFadeOutCoverMode(0.0f)
+	m_trackedEntityId(0),
+	m_fLookAtHOff(0.0f),
+	m_fTrackingDistance(0.5f),
+	m_camOverrideType(ECO_NONE),
+	m_fFadeOutCoverMode(0.0f)
 {
 
 }
@@ -47,6 +47,7 @@ void CCameraOverrides::Update()
 			SCamModeSettings camSettings;
 			bool foundCam = g_pGame->GetCameraManager()->GetCameraSettings(curCam, camSettings, true);
 			m_overrideSettings.InterpolateTo(camSettings, m_fFadeOutCoverMode);
+
 			//terminate
 			if(m_fFadeOutCoverMode <= 0.0f)
 				m_camOverrideType &= ~ECO_LOWCOVER;
@@ -66,6 +67,7 @@ void CCameraOverrides::SetTrackEntityOverride(bool active)
 	CameraID curCam = g_pGame->GetCameraManager()->GetActiveCameraId();
 	SCamModeSettings camSettings;
 	bool foundCam = g_pGame->GetCameraManager()->GetCameraSettings(curCam, camSettings);
+
 	if(foundCam)
 	{
 		camSettings.dist = m_fTrackingDistance;
@@ -91,6 +93,7 @@ void CCameraOverrides::SetLowCoverOverride(bool active)
 	CameraID curCam = g_pGame->GetCameraManager()->GetActiveCameraId();
 	SCamModeSettings camSettings;
 	bool foundCam = g_pGame->GetCameraManager()->GetCameraSettings(curCam, camSettings);
+
 	if(foundCam)
 	{
 		SCamModeSettings targetSettings = camSettings;
@@ -129,6 +132,7 @@ void CCameraOverrides::SetLookAtOverride(const Vec3 &camPos, IEntity *pTarget, I
 		CameraID curCam = g_pGame->GetCameraManager()->GetActiveCameraId();
 		SCamModeSettings camSettings;
 		bool foundCam = g_pGame->GetCameraManager()->GetCameraSettings(curCam, camSettings);
+
 		if(foundCam)
 		{
 			//get lookAt position at the center of the entity
@@ -140,6 +144,7 @@ void CCameraOverrides::SetLookAtOverride(const Vec3 &camPos, IEntity *pTarget, I
 			//compute looking direction
 			Vec3 camDir = targetPos - camPos;
 			float targetDistance = camDir.len();
+
 			if(targetDistance < 0.001f)
 			{
 				targetDistance = 0.001f;
@@ -157,6 +162,7 @@ void CCameraOverrides::SetLookAtOverride(const Vec3 &camPos, IEntity *pTarget, I
 				Vec3 vTargetDir = targetPos - pHero->GetEntity()->GetWorldPos();
 				vTargetDir.NormalizeSafe();
 				Vec3 vCrossDir = vTargetDir.Cross(camDir);
+
 				if(m_fLookAtHOff == 0.0f)
 				{
 					if(vCrossDir.z < 0.0f) //init offset
@@ -216,6 +222,7 @@ void CCameraOverrides::SetZoomOverride(bool active, float fov, float fovDamping)
 	CameraID curCam = g_pGame->GetCameraManager()->GetActiveCameraId();
 	SCamModeSettings camSettings;
 	bool foundCam = g_pGame->GetCameraManager()->GetCameraSettings(curCam, camSettings, true);
+
 	if(foundCam)
 	{
 		camSettings.FOV = fov;

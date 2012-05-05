@@ -22,10 +22,11 @@ namespace Graphics
 	{
 		stl::free_container(m_colorGradientsToLoad);
 
-		for (std::vector<LoadedColorGradient>::iterator it = m_currentGradients.begin(), itEnd = m_currentGradients.end(); it != itEnd; ++ it)
+		for(std::vector<LoadedColorGradient>::iterator it = m_currentGradients.begin(), itEnd = m_currentGradients.end(); it != itEnd; ++ it)
 		{
-			LoadedColorGradient& cg = *it;
-			if (cg.m_layer.m_texID >= 0)
+			LoadedColorGradient &cg = *it;
+
+			if(cg.m_layer.m_texID >= 0)
 			{
 				GetColorGradingController().UnloadColorChart(cg.m_layer.m_texID);
 			}
@@ -45,19 +46,21 @@ namespace Graphics
 			int numLoaded = (int)m_currentGradients.size();
 			int numGradients = numToLoad + numLoaded;
 			serializer.Value("ColorGradientCount", numGradients);
+
 			if(serializer.IsWriting())
 			{
 				for(int i=0; i<numToLoad; ++i)
 				{
-					LoadingColorGradient& gradient = m_colorGradientsToLoad[i];
+					LoadingColorGradient &gradient = m_colorGradientsToLoad[i];
 					serializer.BeginGroup("ColorGradient");
 					serializer.Value("FilePath", gradient.m_filePath);
 					serializer.Value("FadeInTime", gradient.m_fadeInTimeInSeconds);
 					serializer.EndGroup();
 				}
+
 				for(int i=0; i<numLoaded; ++i)
 				{
-					LoadedColorGradient& gradient = m_currentGradients[i];
+					LoadedColorGradient &gradient = m_currentGradients[i];
 					serializer.BeginGroup("ColorGradient");
 					serializer.Value("FilePath", gradient.m_filePath);
 					serializer.Value("BlendAmount", gradient.m_layer.m_blendAmount);
@@ -70,6 +73,7 @@ namespace Graphics
 			else
 			{
 				m_currentGradients.reserve(numGradients);
+
 				for(int i=0; i<numGradients; ++i)
 				{
 					serializer.BeginGroup("ColorGradient");
@@ -90,14 +94,16 @@ namespace Graphics
 					serializer.EndGroup();
 				}
 			}
+
 			serializer.EndGroup();
 		}
 	}
 
-	void CColorGradientManager::TriggerFadingColorGradient(const string& filePath, const float fadeInTimeInSeconds)
+	void CColorGradientManager::TriggerFadingColorGradient(const string &filePath, const float fadeInTimeInSeconds)
 	{
 		const unsigned int numGradients = (int) m_currentGradients.size();
-		for (unsigned int currentGradientIndex = 0; currentGradientIndex < numGradients; ++currentGradientIndex)
+
+		for(unsigned int currentGradientIndex = 0; currentGradientIndex < numGradients; ++currentGradientIndex)
 		{
 			m_currentGradients[currentGradientIndex].FreezeMaximumBlendAmount();
 		}
@@ -108,7 +114,7 @@ namespace Graphics
 	void CColorGradientManager::UpdateForThisFrame(const float frameTimeInSeconds)
 	{
 		RemoveZeroWeightedLayers();
-		
+
 		LoadGradients();
 
 		FadeInLastLayer(frameTimeInSeconds);
@@ -119,7 +125,7 @@ namespace Graphics
 
 	void CColorGradientManager::FadeInLastLayer(const float frameTimeInSeconds)
 	{
-		if (m_currentGradients.empty())
+		if(m_currentGradients.empty())
 		{
 			return;
 		}
@@ -129,14 +135,15 @@ namespace Graphics
 
 	void CColorGradientManager::FadeOutCurrentLayers()
 	{
-		if (m_currentGradients.size() <= 1u)
+		if(m_currentGradients.size() <= 1u)
 		{
 			return;
 		}
 
 		const unsigned int numberofFadingOutGradients = (int) m_currentGradients.size() - 1;
 		const float fadingInLayerBlendAmount = m_currentGradients[numberofFadingOutGradients].m_layer.m_blendAmount;
-		for (unsigned int index = 0; index < numberofFadingOutGradients; ++index)
+
+		for(unsigned int index = 0; index < numberofFadingOutGradients; ++index)
 		{
 			m_currentGradients[index].FadeOut(fadingInLayerBlendAmount);
 		}
@@ -146,18 +153,18 @@ namespace Graphics
 	{
 		std::vector<LoadedColorGradient>::iterator currentGradient = m_currentGradients.begin();
 
-		while (currentGradient != m_currentGradients.end())
+		while(currentGradient != m_currentGradients.end())
 		{
-			if (currentGradient->m_layer.m_blendAmount == 0.0f)
+			if(currentGradient->m_layer.m_blendAmount == 0.0f)
 			{
 				GetColorGradingController().UnloadColorChart(currentGradient->m_layer.m_texID);
 
 				currentGradient = m_currentGradients.erase(currentGradient);
 			}
-      else
-      {
-        ++currentGradient;
-      }
+			else
+			{
+				++currentGradient;
+			}
 		}
 	}
 
@@ -167,13 +174,14 @@ namespace Graphics
 
 		const unsigned int numberOfFadingInGradients = (int) m_currentGradients.size();
 		thisFrameLayers.reserve(numberOfFadingInGradients + thisFrameLayers.size());
-		for (unsigned int index = 0; index < numberOfFadingInGradients; ++index)
+
+		for(unsigned int index = 0; index < numberOfFadingInGradients; ++index)
 		{
 			thisFrameLayers.push_back(m_currentGradients[index].m_layer);
 		}
 
 		const uint32 numLayers = (uint32) thisFrameLayers.size();
-		const SColorChartLayer* pLayers = numLayers ? &thisFrameLayers.front() : 0;
+		const SColorChartLayer *pLayers = numLayers ? &thisFrameLayers.front() : 0;
 		GetColorGradingController().SetLayers(pLayers, numLayers);
 	}
 
@@ -181,34 +189,35 @@ namespace Graphics
 	{
 		const unsigned int numGradientsToLoad = (int) m_colorGradientsToLoad.size();
 		m_currentGradients.reserve(numGradientsToLoad +  m_currentGradients.size());
-		for (unsigned int index = 0; index < numGradientsToLoad; ++index)
+
+		for(unsigned int index = 0; index < numGradientsToLoad; ++index)
 		{
 			LoadedColorGradient loadedGradient = m_colorGradientsToLoad[index].Load(GetColorGradingController());
-			
+
 			m_currentGradients.push_back(loadedGradient);
 		}
 
 		m_colorGradientsToLoad.clear();
 	}
 
-	IColorGradingController& CColorGradientManager::GetColorGradingController()
+	IColorGradingController &CColorGradientManager::GetColorGradingController()
 	{
 		return *gEnv->pRenderer->GetIColorGradingController();
 	}
 
-	CColorGradientManager::LoadedColorGradient::LoadedColorGradient(const string& filePath, const SColorChartLayer& layer, const float fadeInTimeInSeconds)
-	: m_filePath(filePath)
-	, m_layer(layer)
-	, m_fadeInTimeInSeconds(fadeInTimeInSeconds)
-	, m_elapsedTime(0.0f)
-	, m_maximumBlendAmount(1.0f)
+	CColorGradientManager::LoadedColorGradient::LoadedColorGradient(const string &filePath, const SColorChartLayer &layer, const float fadeInTimeInSeconds)
+		: m_filePath(filePath)
+		, m_layer(layer)
+		, m_fadeInTimeInSeconds(fadeInTimeInSeconds)
+		, m_elapsedTime(0.0f)
+		, m_maximumBlendAmount(1.0f)
 	{
 
 	}
 
 	void CColorGradientManager::LoadedColorGradient::FadeIn(const float frameTimeInSeconds)
 	{
-		if (m_fadeInTimeInSeconds == 0.0f)
+		if(m_fadeInTimeInSeconds == 0.0f)
 		{
 			m_layer.m_blendAmount = 1.0f;
 
@@ -222,7 +231,7 @@ namespace Graphics
 		m_layer.m_blendAmount = min(blendAmount, 1.0f);
 	}
 
-	void CColorGradientManager::LoadedColorGradient::FadeOut( const float blendAmountOfFadingInGradient )
+	void CColorGradientManager::LoadedColorGradient::FadeOut(const float blendAmountOfFadingInGradient)
 	{
 		m_layer.m_blendAmount = m_maximumBlendAmount * (1.0f - blendAmountOfFadingInGradient);
 	}
@@ -232,14 +241,14 @@ namespace Graphics
 		m_maximumBlendAmount = m_layer.m_blendAmount;
 	}
 
-	CColorGradientManager::LoadingColorGradient::LoadingColorGradient(const string& filePath, const float fadeInTimeInSeconds)
-	: m_filePath(filePath)
-	, m_fadeInTimeInSeconds(fadeInTimeInSeconds)
+	CColorGradientManager::LoadingColorGradient::LoadingColorGradient(const string &filePath, const float fadeInTimeInSeconds)
+		: m_filePath(filePath)
+		, m_fadeInTimeInSeconds(fadeInTimeInSeconds)
 	{
 
 	}
 
-	Graphics::CColorGradientManager::LoadedColorGradient CColorGradientManager::LoadingColorGradient::Load(IColorGradingController& colorGradingController) const
+	Graphics::CColorGradientManager::LoadedColorGradient CColorGradientManager::LoadingColorGradient::Load(IColorGradingController &colorGradingController) const
 	{
 		const int textureID = colorGradingController.LoadColorChart(m_filePath);
 

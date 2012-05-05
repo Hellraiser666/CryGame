@@ -18,8 +18,8 @@ History:
 
 //------------------------------------------------------------------------
 CRocket::CRocket()
-: m_launchLoc(0,0,0),
-	m_safeExplosion(0)
+	: m_launchLoc(0,0,0),
+	  m_safeExplosion(0)
 {
 }
 
@@ -27,7 +27,7 @@ CRocket::CRocket()
 CRocket::~CRocket()
 {
 	//LAW might be dropped automatically (to be sure that works in MP too)
-	if(CWeapon* pWeapon = GetWeapon())
+	if(CWeapon *pWeapon = GetWeapon())
 	{
 		if(pWeapon->IsAutoDroppable())
 			pWeapon->AutoDrop();
@@ -37,21 +37,23 @@ CRocket::~CRocket()
 //------------------------------------------------------------------------
 void CRocket::HandleEvent(const SGameObjectEvent &event)
 {
-	if (m_destroying)
+	if(m_destroying)
 		return;
 
 	CProjectile::HandleEvent(event);
 
-	if (!gEnv->bServer || IsDemoPlayback())
+	if(!gEnv->bServer || IsDemoPlayback())
 		return;
 
-	if (event.event == eGFE_OnCollision)
-	{		
+	if(event.event == eGFE_OnCollision)
+	{
 		EventPhysCollision *pCollision = (EventPhysCollision *)event.ptr;
-		if (m_safeExplosion>0.0f)
+
+		if(m_safeExplosion>0.0f)
 		{
 			float dp2=(m_launchLoc-GetEntity()->GetWorldPos()).len2();
-			if (dp2<=m_safeExplosion*m_safeExplosion)
+
+			if(dp2<=m_safeExplosion*m_safeExplosion)
 				return;
 		}
 
@@ -62,12 +64,12 @@ void CRocket::HandleEvent(const SGameObjectEvent &event)
 			gEnv->pPhysicalWorld->GetSurfaceParameters(pCollision->idmat[1], bouncy, friction, pierceabilityMat);
 
 			pe_params_particle params;
-			
+
 			if(pCollision->pEntity[0]->GetParams(&params)==0)
 				SetDefaultParticleParams(&params);
-			
+
 			if((params.velocity>1.0f) && (pCollision->idmat[1] != CBullet::GetWaterMaterialId())
-				&& (!pCollision->pEntity[1] || (pCollision->pEntity[1]->GetType() != PE_LIVING && pCollision->pEntity[1]->GetType() != PE_ARTICULATED)))
+					&& (!pCollision->pEntity[1] || (pCollision->pEntity[1]->GetType() != PE_LIVING && pCollision->pEntity[1]->GetType() != PE_ARTICULATED)))
 			{
 				if(pierceabilityMat>params.iPierceability)
 					return;
@@ -75,9 +77,9 @@ void CRocket::HandleEvent(const SGameObjectEvent &event)
 
 		}
 
-    IEntity* pTarget = pCollision->iForeignData[1]==PHYS_FOREIGN_ID_ENTITY ? (IEntity*)pCollision->pForeignData[1] : 0;
+		IEntity *pTarget = pCollision->iForeignData[1]==PHYS_FOREIGN_ID_ENTITY ? (IEntity *)pCollision->pForeignData[1] : 0;
 
-    Explode(true, true, pCollision->pt, pCollision->n, pCollision->vloc[0], pTarget?pTarget->GetId():0);
+		Explode(true, true, pCollision->pt, pCollision->n, pCollision->vloc[0], pTarget?pTarget->GetId():0);
 	}
 }
 
@@ -90,7 +92,7 @@ void CRocket::Launch(const Vec3 &pos, const Vec3 &dir, const Vec3 &velocity, flo
 
 	m_safeExplosion = GetParam("safeexplosion", m_safeExplosion);
 
-	if(CWeapon* pWeapon = GetWeapon())
+	if(CWeapon *pWeapon = GetWeapon())
 	{
 		if(pWeapon->IsAutoDroppable())
 			pWeapon->AddFiredRocket();

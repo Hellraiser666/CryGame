@@ -25,7 +25,7 @@ History:
 
 
 #include "IRenderer.h"
-#include "IRenderAuxGeom.h"	
+#include "IRenderAuxGeom.h"
 
 
 //std::vector<Vec3> g_points;
@@ -53,7 +53,7 @@ void CMelee::Init(IWeapon *pWeapon, const struct IItemParamsNode *params, uint32
 	InitSharedParams();
 	CacheSharedParamsPtr();
 
-	if (params)
+	if(params)
 		ResetParams(params);
 
 	m_attacking = false;
@@ -67,54 +67,59 @@ void CMelee::Init(IWeapon *pWeapon, const struct IItemParamsNode *params, uint32
 //------------------------------------------------------------------------
 void CMelee::Update(float frameTime, uint32 frameId)
 {
-	FUNCTION_PROFILER( GetISystem(), PROFILE_GAME );
+	FUNCTION_PROFILER(GetISystem(), PROFILE_GAME);
 
 	bool requireUpdate = false;
-	
-	if (m_attacking)
+
+	if(m_attacking)
 	{
 		requireUpdate = true;
-		if (m_delayTimer>0.0f)
+
+		if(m_delayTimer>0.0f)
 		{
 			m_delayTimer-=frameTime;
-			if (m_delayTimer<=0.0f)
+
+			if(m_delayTimer<=0.0f)
 				m_delayTimer=0.0f;
 		}
 		else
 		{
-			if (!m_attacked)
+			if(!m_attacked)
 			{
 				m_attacked = true;
 
 				CActor *pActor = m_pWeapon->GetOwnerActor();
+
 				if(!pActor)
 					return;
 
 				Vec3 pos(ZERO);
 				Vec3 dir(ZERO);
-				IMovementController * pMC = pActor->GetMovementController();
-				if (!pMC)
+				IMovementController *pMC = pActor->GetMovementController();
+
+				if(!pMC)
 					return;
 
 				float strength = 1.0f;//pActor->GetActorStrength();
-				
+
 				SMovementState info;
 				pMC->GetMovementState(info);
 				pos = info.eyePosition;
 				dir = info.eyeDirection;
-				if (!PerformRayTest(pos, dir, strength, false))
+
+				if(!PerformRayTest(pos, dir, strength, false))
 					if(!PerformCylinderTest(pos, dir, strength, false))
 						ApplyCameraShake(false);
 
 				m_ignoredEntity = 0;
 				m_meleeScale = 1.0f;
-				
+
 				m_pWeapon->RequestMeleeAttack(m_pWeapon->GetMeleeFireMode()==this, pos, dir);
 			}
 		}
 	}
 
-	if (requireUpdate)
+	if(requireUpdate)
 		m_pWeapon->RequireUpdate(eIUS_FireMode);
 }
 
@@ -154,7 +159,7 @@ void CMelee::PatchParams(const struct IItemParamsNode *patch)
 //----------------------------------------------------------------------
 void CMelee::InitSharedParams()
 {
-	CWeaponSharedParams * pWSP = m_pWeapon->GetWeaponSharedParams();
+	CWeaponSharedParams *pWSP = m_pWeapon->GetWeaponSharedParams();
 	assert(pWSP);
 
 	m_fireParams	= pWSP->GetFireSharedParams("MeleeData", m_fmIdx);
@@ -163,7 +168,7 @@ void CMelee::InitSharedParams()
 //-----------------------------------------------------------------------
 void CMelee::CacheSharedParamsPtr()
 {
-	m_pShared			= static_cast<CMeleeSharedData*>(m_fireParams.get());
+	m_pShared			= static_cast<CMeleeSharedData *>(m_fireParams.get());
 }
 
 //------------------------------------------------------------------------
@@ -203,21 +208,21 @@ struct CMelee::StopAttackingAction
 
 void CMelee::StartFire()
 {
-	if (!CanFire())
+	if(!CanFire())
 		return;
 
-	//Prevent fists melee exploit 
-	if ((m_pWeapon->GetEntity()->GetClass() == CItem::sFistsClass) && m_pWeapon->IsBusy())
+	//Prevent fists melee exploit
+	if((m_pWeapon->GetEntity()->GetClass() == CItem::sFistsClass) && m_pWeapon->IsBusy())
 		return;
 
-	CActor* pOwner = m_pWeapon->GetOwnerActor();
+	CActor *pOwner = m_pWeapon->GetOwnerActor();
 
 	if(pOwner)
 	{
 		if(pOwner->GetStance()==STANCE_PRONE)
 			return;
 
-		if(SPlayerStats* stats = static_cast<SPlayerStats*>(pOwner->GetActorStats()))
+		if(SPlayerStats *stats = static_cast<SPlayerStats *>(pOwner->GetActorStats()))
 		{
 			if(stats->bLookingAtFriendlyAI)
 				return;
@@ -231,7 +236,7 @@ void CMelee::StartFire()
 
 	bool isClient = pOwner?pOwner->IsClient():false;
 
-	if (g_pGameCVars->bt_end_melee && isClient)
+	if(g_pGameCVars->bt_end_melee && isClient)
 		g_pGame->GetBulletTime()->Activate(false);
 
 
@@ -245,13 +250,13 @@ void CMelee::StartFire()
 
 	m_pWeapon->PlayAction(m_pShared->meleeactions.attack.c_str(), 0, false, CItem::eIPAF_Default|CItem::eIPAF_CleanBlending, speedOverride);
 	m_pWeapon->SetBusy(true);
-	
-	m_beginPos = m_pWeapon->GetSlotHelperPos( eIGS_FirstPerson, m_pShared->meleeparams.helper.c_str(), true);
-	m_pWeapon->GetScheduler()->TimerAction(m_pWeapon->GetCurrentAnimationTime( eIGS_FirstPerson), CSchedulerAction<StopAttackingAction>::Create(this), true);
+
+	m_beginPos = m_pWeapon->GetSlotHelperPos(eIGS_FirstPerson, m_pShared->meleeparams.helper.c_str(), true);
+	m_pWeapon->GetScheduler()->TimerAction(m_pWeapon->GetCurrentAnimationTime(eIGS_FirstPerson), CSchedulerAction<StopAttackingAction>::Create(this), true);
 
 	m_delayTimer = m_pShared->meleeparams.delay;
-	
-	if (g_pGameCVars->dt_enable && m_delayTimer < g_pGameCVars->dt_time)
+
+	if(g_pGameCVars->dt_enable && m_delayTimer < g_pGameCVars->dt_time)
 		m_delayTimer = g_pGameCVars->dt_time;
 
 	m_durationTimer = m_pShared->meleeparams.duration;
@@ -288,16 +293,18 @@ void CMelee::NetShoot(const Vec3 &hit, int ph)
 void CMelee::NetShootEx(const Vec3 &pos, const Vec3 &dir, const Vec3 &vel, const Vec3 &hit, float extra, int ph)
 {
 	CActor *pActor = m_pWeapon->GetOwnerActor();
+
 	if(!pActor)
 		return;
 
-	IMovementController * pMC = pActor->GetMovementController();
-	if (!pMC)
+	IMovementController *pMC = pActor->GetMovementController();
+
+	if(!pMC)
 		return;
 
 	float strength = 1.0f;//pActor->GetActorStrength();
 
-	if (!PerformRayTest(pos, dir, strength, true))
+	if(!PerformRayTest(pos, dir, strength, true))
 		if(!PerformCylinderTest(pos, dir, strength, true))
 			ApplyCameraShake(false);
 
@@ -330,16 +337,18 @@ bool CMelee::PerformRayTest(const Vec3 &pos, const Vec3 &dir, float strength, bo
 	//===================OffHand melee (also in PerformCylincerTest)===================
 	if(m_ignoredEntity && (n>0))
 	{
-		if(IEntity* pHeldObject = gEnv->pEntitySystem->GetEntity(m_ignoredEntity))
+		if(IEntity *pHeldObject = gEnv->pEntitySystem->GetEntity(m_ignoredEntity))
 		{
 			IPhysicalEntity *pHeldObjectPhysics = pHeldObject->GetPhysics();
+
 			if(pHeldObjectPhysics==hit.pCollider)
 				return false;
 		}
 	}
+
 	//=================================================================================
 
-	if (n>0)
+	if(n>0)
 	{
 		Hit(&hit, dir, strength, remote);
 		Impulse(hit.pt, dir, hit.n, hit.pCollider, hit.partid, hit.ipart, hit.surface_idx, strength);
@@ -357,13 +366,13 @@ bool CMelee::PerformCylinderTest(const Vec3 &pos, const Vec3 &dir, float strengt
 
 	if(m_ignoredEntity)
 		pHeldObject = gEnv->pEntitySystem->GetEntity(m_ignoredEntity);
-		
+
 	primitives::cylinder cyl;
 	cyl.r = 0.25f;
 	cyl.axis = dir;
 	cyl.hh = m_pShared->meleeparams.range/2.0f;
 	cyl.center = pos + dir.normalized()*cyl.hh;
-	
+
 	float n = 0.0f;
 	geom_contact *contacts;
 	intersection_params params;
@@ -371,9 +380,9 @@ bool CMelee::PerformCylinderTest(const Vec3 &pos, const Vec3 &dir, float strengt
 	params.bStopAtFirstTri = false;
 	params.bNoBorder = true;
 	params.bNoAreaContacts = true;
-	n = gEnv->pPhysicalWorld->PrimitiveWorldIntersection(primitives::cylinder::type, &cyl, Vec3(ZERO), 
-		ent_rigid|ent_sleeping_rigid|ent_independent|ent_static|ent_terrain|ent_water, &contacts, 0,
-		geom_colltype0|geom_colltype_foliage|geom_colltype_player, &params, 0, 0, &pIgnore, pIgnore?1:0, lockContacts);
+	n = gEnv->pPhysicalWorld->PrimitiveWorldIntersection(primitives::cylinder::type, &cyl, Vec3(ZERO),
+			ent_rigid|ent_sleeping_rigid|ent_independent|ent_static|ent_terrain|ent_water, &contacts, 0,
+			geom_colltype0|geom_colltype_foliage|geom_colltype_player, &params, 0, 0, &pIgnore, pIgnore?1:0, lockContacts);
 
 	int ret = (int)n;
 
@@ -381,18 +390,21 @@ bool CMelee::PerformCylinderTest(const Vec3 &pos, const Vec3 &dir, float strengt
 	geom_contact *closestc = 0;
 	geom_contact *currentc = contacts;
 
-	for (int i=0; i<ret; i++)
+	for(int i=0; i<ret; i++)
 	{
 		geom_contact *contact = currentc;
-		if (contact)
+
+		if(contact)
 		{
 			IPhysicalEntity *pCollider = gEnv->pPhysicalWorld->GetPhysicalEntityById(contact->iPrim[0]);
-			if (pCollider)
+
+			if(pCollider)
 			{
 				IEntity *pEntity = gEnv->pEntitySystem->GetEntityFromPhysics(pCollider);
-				if (pEntity)
+
+				if(pEntity)
 				{
-					if ((pEntity == pOwner)||(pHeldObject && (pEntity == pHeldObject)))
+					if((pEntity == pOwner)||(pHeldObject && (pEntity == pHeldObject)))
 					{
 						++currentc;
 						continue;
@@ -400,17 +412,19 @@ bool CMelee::PerformCylinderTest(const Vec3 &pos, const Vec3 &dir, float strengt
 				}
 
 				float distSq = (pos-currentc->pt).len2();
-				if (distSq < closestdSq)
+
+				if(distSq < closestdSq)
 				{
 					closestdSq = distSq;
 					closestc = contact;
 				}
 			}
 		}
+
 		++currentc;
 	}
-  
-	if (closestc)
+
+	if(closestc)
 	{
 		IPhysicalEntity *pCollider = gEnv->pPhysicalWorld->GetPhysicalEntityById(closestc->iPrim[0]);
 
@@ -428,21 +442,23 @@ void CMelee::Hit(const Vec3 &pt, const Vec3 &dir, const Vec3 &normal, IPhysicalE
 	IEntity *pTarget = gEnv->pEntitySystem->GetEntityFromPhysics(pCollider);
 
 	// Report punch to AI system.
-	// The AI notification must come before the game rules are 
+	// The AI notification must come before the game rules are
 	// called so that the death handler in AIsystem understands that the hit
 	// came from the player.
-	
+
 	bool ok = true;
+
 	if(pTarget)
 	{
 		CActor *pActor = m_pWeapon->GetOwnerActor();
+
 		if(!gEnv->bMultiplayer && pActor && pActor->IsPlayer())
 		{
-			if (IActor* pAITarget = g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pTarget->GetId()))
+			if(IActor *pAITarget = g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pTarget->GetId()))
 			{
-				if (IAIObject* pAITargetObject = pTarget->GetAI())
+				if(IAIObject *pAITargetObject = pTarget->GetAI())
 				{
-					if (pAITargetObject->IsFriendly(pActor->GetEntity()->GetAI(), false))
+					if(pAITargetObject->IsFriendly(pActor->GetEntity()->GetAI(), false))
 					{
 						ok = false;
 						m_noImpulse = true;
@@ -456,8 +472,8 @@ void CMelee::Hit(const Vec3 &pt, const Vec3 &dir, const Vec3 &normal, IPhysicalE
 			CGameRules *pGameRules = g_pGame->GetGameRules();
 
 			HitInfo info(m_pWeapon->GetOwnerId(), pTarget->GetId(), m_pWeapon->GetEntityId(),
-				m_pShared->meleeparams.damage*damageScale*m_meleeScale, 0.0f, pGameRules->GetHitMaterialIdFromSurfaceId(surfaceIdx), partId,
-				pGameRules->GetHitTypeId(m_pShared->meleeparams.hit_type.c_str()), pt, dir, normal);
+						 m_pShared->meleeparams.damage*damageScale*m_meleeScale, 0.0f, pGameRules->GetHitMaterialIdFromSurfaceId(surfaceIdx), partId,
+						 pGameRules->GetHitTypeId(m_pShared->meleeparams.hit_type.c_str()), pt, dir, normal);
 
 			info.remote = remote;
 
@@ -468,10 +484,11 @@ void CMelee::Hit(const Vec3 &pt, const Vec3 &dir, const Vec3 &normal, IPhysicalE
 	// play effects
 	if(ok)
 	{
-		if(IMaterialEffects* pMaterialEffects = gEnv->pGame->GetIGameFramework()->GetIMaterialEffects())
+		if(IMaterialEffects *pMaterialEffects = gEnv->pGame->GetIGameFramework()->GetIMaterialEffects())
 		{
 			TMFXEffectId effectId = pMaterialEffects->GetEffectId("melee", surfaceIdx);
-			if (effectId != InvalidEffectId)
+
+			if(effectId != InvalidEffectId)
 			{
 				SMFXRunTimeEffectParams params;
 				params.pos = pt;
@@ -497,24 +514,24 @@ void CMelee::Impulse(const Vec3 &pt, const Vec3 &dir, const Vec3 &normal, IPhysi
 		return;
 	}
 
-	if (pCollider && m_pShared->meleeparams.impulse>0.001f)
+	if(pCollider && m_pShared->meleeparams.impulse>0.001f)
 	{
 		bool strengthMode = false;
-		CPlayer *pPlayer = (CPlayer *)m_pWeapon->GetOwnerActor();		
+		CPlayer *pPlayer = (CPlayer *)m_pWeapon->GetOwnerActor();
 
 		pe_status_dynamics dyn;
 
-		if (!pCollider->GetStatus(&dyn))
+		if(!pCollider->GetStatus(&dyn))
 		{
 			if(strengthMode)
 				impulseScale *= 3.0f;
 		}
 		else
 			impulseScale *= clamp((dyn.mass * 0.01f), 1.0f, 15.0f);
-		
+
 		//[kirill] add impulse to phys proxy - to make sure it's applied to cylinder as well (not only skeleton) - so that entity gets pushed
 		// if no pEntity - do it old way
-		IEntity * pEntity = (IEntity*) pCollider->GetForeignData(PHYS_FOREIGN_ID_ENTITY);
+		IEntity *pEntity = (IEntity *) pCollider->GetForeignData(PHYS_FOREIGN_ID_ENTITY);
 
 		if(gEnv->bMultiplayer && pEntity)
 		{
@@ -526,30 +543,34 @@ void CMelee::Impulse(const Vec3 &pt, const Vec3 &dir, const Vec3 &normal, IPhysi
 		{
 			bool crapDollFilter = false;
 #ifdef CRAPDOLLS
-			static IEntityClass* pDeadBodyClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass("DeadBody");
-			if (pEntity->GetClass() == pDeadBodyClass)
-				crapDollFilter = true;
-#endif //CRAPDOLLS
-			if (!crapDollFilter)
-			{
-				IEntityPhysicalProxy* pPhysicsProxy = (IEntityPhysicalProxy*)pEntity->GetProxy(ENTITY_PROXY_PHYSICS);
-				CActor* pActor = (CActor*)g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pEntity->GetId());
+			static IEntityClass *pDeadBodyClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass("DeadBody");
 
-				if (pActor)
+			if(pEntity->GetClass() == pDeadBodyClass)
+				crapDollFilter = true;
+
+#endif //CRAPDOLLS
+
+			if(!crapDollFilter)
+			{
+				IEntityPhysicalProxy *pPhysicsProxy = (IEntityPhysicalProxy *)pEntity->GetProxy(ENTITY_PROXY_PHYSICS);
+				CActor *pActor = (CActor *)g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pEntity->GetId());
+
+				if(pActor)
 				{
-					SActorStats* pAS = pActor->GetActorStats();
-					if (pAS && pAS->isRagDoll)
+					SActorStats *pAS = pActor->GetActorStats();
+
+					if(pAS && pAS->isRagDoll)
 					{
 						//marcok: talk to me before touching this
 						impulseScale = 1.0f; //jan: melee impulses were scaled down, I made sure it still "barely moves"
 #ifdef CRAPDOLLS
-							crapDollFilter = true;
+						crapDollFilter = true;
 #endif //CRAPDOLLS
 					}
 				}
 
-				// scale impulse up a bit for player 
-				if (!crapDollFilter)
+				// scale impulse up a bit for player
+				if(!crapDollFilter)
 					pPhysicsProxy->AddImpulse(partId, pt, dir*m_pShared->meleeparams.impulse*impulseScale*m_meleeScale, true, 1.f);
 			}
 		}
@@ -580,7 +601,7 @@ void CMelee::Impulse(const Vec3 &pt, const Vec3 &dir, const Vec3 &normal, IPhysi
 		collision.idmat[0] = invId;
 		collision.n = normal;
 		collision.pt = pt;
-	
+
 		// scar bullet
 		// m = 0.0125
 		// v = 800
@@ -592,18 +613,19 @@ void CMelee::Impulse(const Vec3 &pt, const Vec3 &dir, const Vec3 &normal, IPhysi
 
 		// [marco] Check if an object. Should take lots of time to break stuff if not in nanosuit strength mode;
 		// and still creates a very low impulse for stuff that might depend on receiving an impulse.
-		IRenderNode *pBrush = (IRenderNode*)pCollider->GetForeignData(PHYS_FOREIGN_ID_STATIC);
-		
+		IRenderNode *pBrush = (IRenderNode *)pCollider->GetForeignData(PHYS_FOREIGN_ID_STATIC);
+
 		collision.vSelf = (v.normalized()*speed*m_meleeScale);
 		collision.v = Vec3(0,0,0);
 		collision.pCollider = pCollider;
 
 		IEntity *pOwner = m_pWeapon->GetOwner();
-		if (pOwner && pOwner->GetCharacter(0) && pOwner->GetCharacter(0)->GetISkeletonPose()->GetCharacterPhysics())
+
+		if(pOwner && pOwner->GetCharacter(0) && pOwner->GetCharacter(0)->GetISkeletonPose()->GetCharacterPhysics())
 		{
-			if (ISkeletonPose *pSkeletonPose=pOwner->GetCharacter(0)->GetISkeletonPose())
+			if(ISkeletonPose *pSkeletonPose=pOwner->GetCharacter(0)->GetISkeletonPose())
 			{
-				if (pSkeletonPose && pSkeletonPose->GetCharacterPhysics())
+				if(pSkeletonPose && pSkeletonPose->GetCharacterPhysics())
 					pSkeletonPose->GetCharacterPhysics()->Action(&collision);
 			}
 
@@ -615,12 +637,13 @@ void CMelee::Impulse(const Vec3 &pt, const Vec3 &dir, const Vec3 &normal, IPhysi
 void CMelee::Hit(geom_contact *contact, const Vec3 &dir, float damageScale, bool remote)
 {
 	CActor *pOwner = m_pWeapon->GetOwnerActor();
-	if (!pOwner)
+
+	if(!pOwner)
 		return;
 
 	Vec3 view(0.0f, 1.0f, 0.0f);
 
-	if (IMovementController *pMC = pOwner->GetMovementController())
+	if(IMovementController *pMC = pOwner->GetMovementController())
 	{
 		SMovementState state;
 		pMC->GetMovementState(state);
@@ -634,16 +657,16 @@ void CMelee::Hit(geom_contact *contact, const Vec3 &dir, float damageScale, bool
 	Vec3 normal=contact->n;
 	Vec3 ndir=dir;
 
-	if (backface)
+	if(backface)
 	{
-		if (away)
+		if(away)
 			normal = -normal;
 		else
 			ndir = -dir;
 	}
 	else
 	{
-		if (!away)
+		if(!away)
 		{
 			ndir = -dir;
 			normal = -normal;
@@ -667,9 +690,10 @@ void CMelee::ApplyCameraShake(bool hit)
 	// Add some camera shake for client even if not hitting
 	if(m_pWeapon->GetOwnerActor() && m_pWeapon->GetOwnerActor()->IsClient())
 	{
-		if(CScreenEffects* pScreenEffects = m_pWeapon->GetOwnerActor()->GetScreenEffects())
+		if(CScreenEffects *pScreenEffects = m_pWeapon->GetOwnerActor()->GetScreenEffects())
 		{
 			float rotateTime;
+
 			if(!hit)
 			{
 				rotateTime = g_pGameCVars->hr_rotateTime*1.25f;
@@ -683,10 +707,11 @@ void CMelee::ApplyCameraShake(bool hit)
 		}
 	}
 }
-void CMelee::GetMemoryUsage( ICrySizer * s ) const
+void CMelee::GetMemoryUsage(ICrySizer *s) const
 {
 	s->Add(*this);
 	s->Add(m_name);
+
 	if(m_useCustomParams)
 	{
 		m_pShared->meleeparams.GetMemoryUsage(s);

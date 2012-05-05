@@ -17,10 +17,11 @@ History:
 #include "Game.h"
 
 //------------------------------------------------------------------------
-CItem *CItem::AddAccessory(const ItemString& name)
+CItem *CItem::AddAccessory(const ItemString &name)
 {
 	SAccessoryParams *pAccessoryParams=GetAccessoryParams(name);
-	if (!pAccessoryParams)
+
+	if(!pAccessoryParams)
 	{
 		GameWarning("Trying to add unknown accessory '%s' to item '%s'!", name.c_str(), GetEntity()->GetName());
 		return 0;
@@ -35,30 +36,34 @@ CItem *CItem::AddAccessory(const ItemString& name)
 	params.sName = namebuf;
 	params.nFlags = ENTITY_FLAG_NO_PROXIMITY | ENTITY_FLAG_CASTSHADOW;
 
-	if (pAccessoryParams->client_only)
+	if(pAccessoryParams->client_only)
 		params.nFlags |= ENTITY_FLAG_CLIENT_ONLY;
 
-	if (!params.pClass)
+	if(!params.pClass)
 	{
 		GameWarning("Trying to add unknown accessory '%s' to item '%s'!", name.c_str(), GetEntity()->GetName());
 		return 0;
 	}
 
 	EntityId accId=0;
-	if (IEntity *pEntity = m_pEntitySystem->SpawnEntity(params))
+
+	if(IEntity *pEntity = m_pEntitySystem->SpawnEntity(params))
 		accId=pEntity->GetId();
 
 	m_accessories.insert(TAccessoryMap::value_type(name, accId));
-	if (accId)
+
+	if(accId)
 		return static_cast<CItem *>(m_pItemSystem->GetItem(accId));
+
 	return 0;
 }
 
 //------------------------------------------------------------------------
-void CItem::RemoveAccessory(const ItemString& name)
+void CItem::RemoveAccessory(const ItemString &name)
 {
 	TAccessoryMap::iterator it = m_accessories.find(CONST_TEMPITEM_STRING(name));
-	if (it != m_accessories.end())
+
+	if(it != m_accessories.end())
 	{
 		m_pEntitySystem->RemoveEntity(it->second);
 		m_accessories.erase(it);
@@ -106,7 +111,7 @@ struct CItem::AttachAction
 struct CItem::DetachAction
 {
 	DetachAction(CItem *pAccessory, SAccessoryParams *pParams)
-	: accessory(pAccessory), params(pParams) {};
+		: accessory(pAccessory), params(pParams) {};
 	void execute(CItem *item)
 	{
 		accessory->OnAttach(false);
@@ -114,7 +119,7 @@ struct CItem::DetachAction
 		accessory->GetEntity()->DetachThis(0);
 		accessory->SetParentId(0);
 		accessory->Hide(true);
-		ItemString accName (accessory->GetEntity()->GetClass()->GetName());
+		ItemString accName(accessory->GetEntity()->GetClass()->GetName());
 		item->RemoveAccessory(accName);
 		item->SetBusy(false);
 		item->AccessoriesChanged();
@@ -124,35 +129,36 @@ struct CItem::DetachAction
 	SAccessoryParams *params;
 };
 
-void CItem::AttachAccessory(const ItemString& name, bool attach, bool noanim, bool force, bool initialSetup)
+void CItem::AttachAccessory(const ItemString &name, bool attach, bool noanim, bool force, bool initialSetup)
 {
-	if (!force && IsBusy())
+	if(!force && IsBusy())
 		return;
 
 	bool anim = !noanim && m_stats.fp;
 	SAccessoryParams *params = GetAccessoryParams(name);
-	if (!params)
+
+	if(!params)
 		return;
-	
-	if (attach)
+
+	if(attach)
 	{
-		if (!IsAccessoryHelperFree(params->attach_helper))
+		if(!IsAccessoryHelperFree(params->attach_helper))
 			return;
 
-		if (CItem *pAccessory = AddAccessory(name))
+		if(CItem *pAccessory = AddAccessory(name))
 		{
 			pAccessory->Physicalize(false, false);
 			pAccessory->SetViewMode(m_stats.viewmode);
 
-			if (!initialSetup)
+			if(!initialSetup)
 				pAccessory->m_bonusAccessoryAmmo.clear();
-			
+
 			SetCharacterAttachment(eIGS_FirstPerson, params->attach_helper, pAccessory->GetEntity(), eIGS_FirstPerson, 0);
 			SetBusy(true);
 
 			AttachAction action(pAccessory, params);
-			
-			if (anim)
+
+			if(anim)
 			{
 				PlayAction(params->attach_action, 0, false, eIPAF_Default|eIPAF_NoBlend);
 				m_scheduler.TimerAction(GetCurrentAnimationTime(eIGS_FirstPerson), CSchedulerAction<AttachAction>::Create(action), false);
@@ -164,11 +170,11 @@ void CItem::AttachAccessory(const ItemString& name, bool attach, bool noanim, bo
 	}
 	else
 	{
-		if (CItem *pAccessory = GetAccessory(name))
+		if(CItem *pAccessory = GetAccessory(name))
 		{
 			DetachAction action(pAccessory, params);
 
-			if (anim)
+			if(anim)
 			{
 				StopLayer(params->attach_layer, eIPAF_Default|eIPAF_NoBlend);
 				PlayAction(params->detach_action, 0, false, eIPAF_Default|eIPAF_NoBlend);
@@ -192,10 +198,11 @@ void CItem::AttachAccessory(const ItemString& name, bool attach, bool noanim, bo
 	bool isDualWield = IsDualWieldMaster();
 	CItem *dualWield = 0;
 
-	if (isDualWield)
+	if(isDualWield)
 	{
 		IItem *slave = GetDualWieldSlave();
-		if (slave && slave->GetIWeapon())
+
+		if(slave && slave->GetIWeapon())
 			dualWield = static_cast<CItem *>(slave);
 		else
 			isDualWield = false;
@@ -207,23 +214,24 @@ void CItem::AttachAccessory(const ItemString& name, bool attach, bool noanim, bo
 	//////////////////////////////////////////////////////////////
 
 	//Luciano - send game event
-	g_pGame->GetIGameFramework()->GetIGameplayRecorder()->Event(GetOwner(), GameplayEvent(eGE_AttachedAccessory, name, (float)attach, (void*)GetEntityId()));
+	g_pGame->GetIGameFramework()->GetIGameplayRecorder()->Event(GetOwner(), GameplayEvent(eGE_AttachedAccessory, name, (float)attach, (void *)GetEntityId()));
 
 }
 
 //------------------------------------------------------------------------
-void CItem::AttachAccessoryPlaceHolder(const ItemString& name, bool attach)
+void CItem::AttachAccessoryPlaceHolder(const ItemString &name, bool attach)
 {
 	const SAccessoryParams *params = GetAccessoryParams(name);
-	if (!params)
+
+	if(!params)
 		return;
 
 	CItem *pPlaceHolder = GetAccessoryPlaceHolder(name);
 
-	if (!pPlaceHolder)
+	if(!pPlaceHolder)
 		return;
 
-	if (attach)
+	if(attach)
 	{
 		SetCharacterAttachment(eIGS_FirstPerson, params->attach_helper, pPlaceHolder->GetEntity(), eIGS_FirstPerson, 0);
 		PlayLayer(params->attach_layer, eIPAF_FirstPerson, false);
@@ -236,48 +244,52 @@ void CItem::AttachAccessoryPlaceHolder(const ItemString& name, bool attach)
 }
 
 //------------------------------------------------------------------------
-CItem *CItem::GetAccessoryPlaceHolder(const ItemString& name)
+CItem *CItem::GetAccessoryPlaceHolder(const ItemString &name)
 {
 	IInventory *pInventory = GetActorInventory(GetOwnerActor());
-	if (!pInventory)
+
+	if(!pInventory)
 		return 0;
 
-	IEntityClass* pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(name);
+	IEntityClass *pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(name);
 	int slotId = pInventory->FindNext(pClass, 0, -1, false);
-	if (slotId >= 0)
+
+	if(slotId >= 0)
 		return static_cast<CItem *>(m_pItemSystem->GetItem(pInventory->GetItem(slotId)));
 
 	return 0;
 }
 
 //------------------------------------------------------------------------
-CItem *CItem::GetAccessory(const ItemString& name)
+CItem *CItem::GetAccessory(const ItemString &name)
 {
 	TAccessoryMap::iterator it = m_accessories.find(CONST_TEMPITEM_STRING(name));
-	if (it != m_accessories.end())
+
+	if(it != m_accessories.end())
 		return static_cast<CItem *>(m_pItemSystem->GetItem(it->second));
-	
+
 	return 0;
 }
 
 //------------------------------------------------------------------------
-CItem::SAccessoryParams *CItem::GetAccessoryParams(const ItemString& name)
+CItem::SAccessoryParams *CItem::GetAccessoryParams(const ItemString &name)
 {
 	TAccessoryParamsMap::iterator it = m_sharedparams->accessoryparams.find(CONST_TEMPITEM_STRING(name));
-	if (it != m_sharedparams->accessoryparams.end())
+
+	if(it != m_sharedparams->accessoryparams.end())
 		return &it->second;
 
 	return 0;
 }
 
 //------------------------------------------------------------------------
-bool CItem::IsAccessoryHelperFree(const ItemString& helper)
+bool CItem::IsAccessoryHelperFree(const ItemString &helper)
 {
-	for (TAccessoryMap::iterator it = m_accessories.begin(); it != m_accessories.end(); ++it)
+	for(TAccessoryMap::iterator it = m_accessories.begin(); it != m_accessories.end(); ++it)
 	{
 		SAccessoryParams *params = GetAccessoryParams(it->first);
-		
-		if (!params || params->attach_helper == helper)
+
+		if(!params || params->attach_helper == helper)
 			return false;
 	}
 
@@ -289,14 +301,16 @@ void CItem::InitialSetup()
 {
 	if(!(GetISystem()->IsSerializingFile() && GetGameObject()->IsJustExchanging()))
 	{
-		if (IsServer())
+		if(IsServer())
 		{
 			TInitialSetupMap::iterator initSetupIter = m_initialSetup.find(CONST_TEMPITEM_STRING(m_currentInitialSetup.c_str()));
-			if (initSetupIter != m_initialSetup.end())
+
+			if(initSetupIter != m_initialSetup.end())
 			{
 				const TInitialSetup &initSetup = initSetupIter->second;
 				TInitialSetup::const_iterator it = initSetup.begin();
 				TInitialSetup::const_iterator itEnd = initSetup.end();
+
 				for(; it != itEnd; ++it)
 				{
 					//if (!IsClient())
@@ -312,17 +326,17 @@ void CItem::InitialSetup()
 //------------------------------------------------------------------------
 void CItem::ReAttachAccessories()
 {
-	for (TAccessoryMap::iterator it = m_accessories.begin(); it != m_accessories.end(); ++it)
+	for(TAccessoryMap::iterator it = m_accessories.begin(); it != m_accessories.end(); ++it)
 		ReAttachAccessory(it->first);
 }
 
 //------------------------------------------------------------------------
-void CItem::ReAttachAccessory(const ItemString& name)
+void CItem::ReAttachAccessory(const ItemString &name)
 {
 	CItem *pAccessory = GetAccessory(name);
 	SAccessoryParams *params = GetAccessoryParams(name);
 
-	if (pAccessory && params)
+	if(pAccessory && params)
 	{
 		SetCharacterAttachment(eIGS_FirstPerson, params->attach_helper.c_str(), pAccessory->GetEntity(), eIGS_FirstPerson, 0);
 
@@ -340,7 +354,8 @@ void CItem::ReAttachAccessory(const ItemString& name)
 //------------------------------------------------------------------------
 void CItem::ReAttachAccessory(EntityId id)
 {
-	IEntity* pEntity = gEnv->pEntitySystem->GetEntity(id);
+	IEntity *pEntity = gEnv->pEntitySystem->GetEntity(id);
+
 	if(pEntity)
 	{
 		ItemString className = pEntity->GetClass()->GetName();
@@ -355,40 +370,44 @@ void CItem::AccessoriesChanged()
 }
 
 //------------------------------------------------------------------------
-void CItem::SwitchAccessory(const ItemString& accessory)
+void CItem::SwitchAccessory(const ItemString &accessory)
 {
 	GetGameObject()->InvokeRMI(SvRequestAttachAccessory(), RequestAttachAccessoryParams(accessory), eRMI_ToServer);
 }
 
 //------------------------------------------------------------------------
-void CItem::DoSwitchAccessory(const ItemString& inAccessory)
+void CItem::DoSwitchAccessory(const ItemString &inAccessory)
 {
-	const ItemString& accessory = (inAccessory == g_pItemStrings->SCARSleepAmmo) ? g_pItemStrings->SCARTagAmmo : inAccessory;
+	const ItemString &accessory = (inAccessory == g_pItemStrings->SCARSleepAmmo) ? g_pItemStrings->SCARTagAmmo : inAccessory;
 
 	SAccessoryParams *params = GetAccessoryParams(accessory);
 	bool attached = false;
-	if (params)
+
+	if(params)
 	{
 		ItemString replacing;
-		for (TAccessoryMap::iterator it = m_accessories.begin(); it != m_accessories.end(); it++)
+
+		for(TAccessoryMap::iterator it = m_accessories.begin(); it != m_accessories.end(); it++)
 		{
 			SAccessoryParams *p = GetAccessoryParams(it->first);
 
-			if (p && p->attach_helper == params->attach_helper)
+			if(p && p->attach_helper == params->attach_helper)
 			{
 				replacing = it->first;
 				attached = true;
 			}
 		}
-		if (attached)
+
+		if(attached)
 		{
 			AttachAccessory(replacing, false, true, true);
-			if (accessory != replacing)
+
+			if(accessory != replacing)
 				AttachAccessory(accessory, true, true, true);
 		}
 	}
 
-	if (!attached)
+	if(!attached)
 		AttachAccessory(accessory, true, true, true);
 }
 
@@ -402,7 +421,7 @@ public:
 		attach = _attach;
 	}
 
-	virtual ~ScheduleAttachClassItem() 
+	virtual ~ScheduleAttachClassItem()
 	{
 
 	}
@@ -417,26 +436,27 @@ private:
 	bool attach;
 };
 
-void CItem::ScheduleAttachAccessory(const ItemString& accessoryName, bool attach)
+void CItem::ScheduleAttachAccessory(const ItemString &accessoryName, bool attach)
 {
 	GetScheduler()->ScheduleAction(CSchedulerAction<ScheduleAttachClassItem>::Create(ScheduleAttachClassItem(accessoryName, attach)));
 }
 
 //------------------------------------------------------------------------
-const char *CItem::CurrentAttachment(const ItemString& attachmentPoint)
+const char *CItem::CurrentAttachment(const ItemString &attachmentPoint)
 {
-	for (TAccessoryMap::iterator it = m_accessories.begin(); it != m_accessories.end(); it++)
+	for(TAccessoryMap::iterator it = m_accessories.begin(); it != m_accessories.end(); it++)
 	{
 		SAccessoryParams *params= GetAccessoryParams(it->first);
 
-		if (params && params->attach_helper == attachmentPoint)
+		if(params && params->attach_helper == attachmentPoint)
 			return it->first.c_str();
 	}
+
 	return 0;
 }
 
 //------------------------------------------------------------------------
-void CItem::ResetAccessoriesScreen(CActor* pOwner)
+void CItem::ResetAccessoriesScreen(CActor *pOwner)
 {
 	m_modifying = false;
 	m_transitioning = false;
@@ -446,7 +466,7 @@ void CItem::ResetAccessoriesScreen(CActor* pOwner)
 	if(pOwner && pOwner->IsClient())
 	{
 		if(m_sharedparams->params.update_hud)
-		{		
+		{
 		}
 	}
 }
@@ -454,10 +474,11 @@ void CItem::ResetAccessoriesScreen(CActor* pOwner)
 //-----------------------------------------------------------------------
 void CItem::PatchInitialSetup()
 {
-	const char* temp = NULL;
+	const char *temp = NULL;
 	// check if the initial setup accessories has been overridden in the level
 	SmartScriptTable props;
-	if (GetEntity()->GetScriptTable() && GetEntity()->GetScriptTable()->GetValue("Properties", props))
+
+	if(GetEntity()->GetScriptTable() && GetEntity()->GetScriptTable()->GetValue("Properties", props))
 	{
 		if(props->GetValue("initialSetup",temp) && temp !=NULL && temp[0]!=0)
 		{
@@ -475,7 +496,7 @@ void CItem::PatchInitialSetup()
 		string::size_type lastPos = m_properties.initialSetup.find_first_not_of(",", 0);
 		string::size_type pos = m_properties.initialSetup.find_first_of(",", lastPos);
 
-		while (string::npos != pos || string::npos != lastPos)
+		while(string::npos != pos || string::npos != lastPos)
 		{
 			//Add to initial setup
 			const char *name = m_properties.initialSetup.substr(lastPos, pos - lastPos).c_str();
@@ -483,19 +504,20 @@ void CItem::PatchInitialSetup()
 
 			lastPos = m_properties.initialSetup.find_first_not_of(",", pos);
 			pos = m_properties.initialSetup.find_first_of(",", lastPos);
-		}		
+		}
 	}
 }
 
 //------------------------------------------------------------------------
 void CItem::OnAttach(bool attach)
 {
-	if (attach && m_parentId)
+	if(attach && m_parentId)
 	{
-		if (CItem *pParent=static_cast<CItem *>(m_pItemSystem->GetItem(m_parentId)))
+		if(CItem *pParent=static_cast<CItem *>(m_pItemSystem->GetItem(m_parentId)))
 		{
 			const SStats &stats=pParent->GetStats();
-			if (stats.mounted)
+
+			if(stats.mounted)
 			{
 				pParent->ForceSkinning(true);
 				PlayAction(m_idleAnimation[eIGS_FirstPerson], 0, true);

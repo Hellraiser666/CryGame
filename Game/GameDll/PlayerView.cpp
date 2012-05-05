@@ -77,12 +77,12 @@ void CPlayerView::ViewPreProcess(const CPlayer &rPlayer,SViewParams &viewParams,
 		m_in.lastPos=viewParams.position;
 		m_in.lastQuat=viewParams.rotation;
 		m_in.defaultFov= g_pGameCVars->cl_fov;
-		
+
 		m_in.frameTime=min(gEnv->pTimer->GetFrameTime(),0.1f);
-		
+
 		m_in.pCharacter = rPlayer.GetEntity()->GetCharacter(0);
 		m_in.pVehicle=rPlayer.GetLinkedVehicle();
-		
+
 		m_in.bIsGrabbing=false;
 		/*if (rPlayer.m_grabStats.grabId>0)
 		{
@@ -91,19 +91,19 @@ void CPlayerView::ViewPreProcess(const CPlayer &rPlayer,SViewParams &viewParams,
 			viewParams.nearplane = 0.1f;
 			// *****
 		}*/
-		
+
 		m_in.stats_isRagDoll=rPlayer.m_stats.isRagDoll;
 		m_in.stats_isStandingUp=rPlayer.m_stats.isStandingUp;
 		m_in.stats_isFrozen=rPlayer.m_stats.isFrozen.Value();
 		m_in.stats_isShattered=rPlayer.m_stats.isShattered.Value();
 		m_in.stats_followCharacterHead=rPlayer.m_stats.followCharacterHead.Value();
-		m_in.stats_flatSpeed=rPlayer.m_stats.speedFlat;	
+		m_in.stats_flatSpeed=rPlayer.m_stats.speedFlat;
 		m_in.stats_leanAmount=rPlayer.m_stats.leanAmount;
-		m_in.stats_inAir=rPlayer.m_stats.inAir;	
+		m_in.stats_inAir=rPlayer.m_stats.inAir;
 		m_in.stats_inWater=rPlayer.m_stats.inWaterTimer;
 		m_in.stats_headUnderWater = (rPlayer.m_stats.headUnderWaterTimer > 0.0f);
 		m_io.stats_jumped=rPlayer.m_stats.jumped;
-		m_in.stats_firstPersonBody=rPlayer.m_stats.firstPersonBody.Value();	
+		m_in.stats_firstPersonBody=rPlayer.m_stats.firstPersonBody.Value();
 		m_in.stats_onGround=rPlayer.m_stats.onGround;
 		m_io.stats_landed=rPlayer.m_stats.landed;
 		m_in.stats_velocity=rPlayer.m_stats.velocity;
@@ -113,64 +113,65 @@ void CPlayerView::ViewPreProcess(const CPlayer &rPlayer,SViewParams &viewParams,
 		m_in.stats_onLadder=rPlayer.m_stats.isOnLadder;
 		m_in.bLookingAtFriendlyAI = rPlayer.m_stats.bLookingAtFriendlyAI;
 		m_in.bIsGrabbed = rPlayer.m_stats.isGrabbed;
-	
+
 		m_in.params_viewFoVScale=rPlayer.m_params.viewFoVScale;
 		m_in.params_viewPivot=rPlayer.m_params.viewPivot;
 		m_in.params_viewDistance=rPlayer.m_params.viewDistance;
 		m_in.params_weaponInertiaMultiplier=rPlayer.m_params.weaponInertiaMultiplier;
 		m_in.params_hudAngleOffset=rPlayer.m_params.hudAngleOffset;
-		m_in.params_hudOffset=rPlayer.m_params.hudOffset;	
+		m_in.params_hudOffset=rPlayer.m_params.hudOffset;
 		m_in.params_viewHeightOffset=rPlayer.m_params.viewHeightOffset;
 		m_in.params_weaponBobbingMultiplier=rPlayer.m_params.weaponBobbingMultiplier;
-		
-		
+
+
 		m_io.bobMul=g_pGameCVars->cl_bob * m_in.params_weaponBobbingMultiplier;
-		
+
 		m_in.bIsThirdPerson=rPlayer.IsThirdPerson();
 		m_in.vEntityWorldPos=rPlayer.GetEntity()->GetWorldPos();
 		m_in.entityId=rPlayer.GetEntityId();
 
 		// use absolute entity matrix when frozen
-		if (rPlayer.m_stats.isFrozen.Value())
-			m_in.entityWorldMatrix=Matrix34(rPlayer.GetEntity()->GetWorldTM());	
+		if(rPlayer.m_stats.isFrozen.Value())
+			m_in.entityWorldMatrix=Matrix34(rPlayer.GetEntity()->GetWorldTM());
 		else
-			m_in.entityWorldMatrix=Matrix34(rPlayer.GetEntity()->GetSlotWorldTM(0));	
+			m_in.entityWorldMatrix=Matrix34(rPlayer.GetEntity()->GetSlotWorldTM(0));
 
 		m_in.localEyePos=rPlayer.GetLocalEyePos();
 		m_in.worldEyePos=m_in.entityWorldMatrix*m_in.localEyePos;
-		
+
 		m_in.headMtxLocal.SetIdentity();
 
-		if (m_in.stats_followCharacterHead)
+		if(m_in.stats_followCharacterHead)
 		{
 			int16 joint_id = rPlayer.GetBoneID(BONE_HEAD);
-			if (joint_id>=0)
+
+			if(joint_id>=0)
 				m_in.headMtxLocal=Matrix33(m_in.pCharacter->GetISkeletonPose()->GetAbsJointByID(joint_id).q.GetNormalized());
 		}
-	
+
 		m_in.thirdPersonDistance=g_pGameCVars->cl_tpvDist;
 		m_in.thirdPersonYaw=g_pGameCVars->cl_tpvYaw;
-		
+
 		EStance refStance((rPlayer.m_stance==STANCE_PRONE)?STANCE_PRONE:STANCE_STAND);
 		m_in.stand_MaxSpeed=rPlayer.GetStanceInfo(refStance)->maxSpeed;
-		m_in.standSpeed=rPlayer.GetStanceMaxSpeed(refStance);	
-		
+		m_in.standSpeed=rPlayer.GetStanceMaxSpeed(refStance);
+
 		m_in.health=rPlayer.GetHealth();
 		m_in.stance=rPlayer.m_stance;
 		m_in.shake= g_pGameCVars->cl_sprintShake;
 
 		m_in.deathTime = rPlayer.GetDeathTime();
 	}
-	
+
 	// SViewStateInOut -- temporaries and output
 	{
 		//--- temporaries - FirstThird shared
-		
+
 		//m_io.bUsePivot
 		//m_io.bobMul
 		//m_io.viewQuatForWeapon
 		//m_io.eyeOffsetGoal
-		
+
 		//--- temporaries - view shared
 		m_io.wAngles=Ang3(0,0,0);
 		//--- I/O
@@ -178,16 +179,16 @@ void CPlayerView::ViewPreProcess(const CPlayer &rPlayer,SViewParams &viewParams,
 		// Integ
 		//if (m_io.m_lastPos.len2()>0.01f)
 		//{
-		//	m_io.blendViewOffset = m_io.m_lastPos - rPlayer.GetEntity()->GetWorldPos(); 
+		//	m_io.blendViewOffset = m_io.m_lastPos - rPlayer.GetEntity()->GetWorldPos();
 		//	m_io.m_lastPos.Set(0,0,0);
 		//}
 	}
-	
+
 	// *****
 	viewParams.fov = m_in.defaultFov*rPlayer.m_params.viewFoVScale*(gf_PI/180.0f);
 	viewParams.nearplane = 0.0f;
 	// *****
-		
+
 	m_io.eyeOffsetViewGoal=rPlayer.GetStanceViewOffset(rPlayer.m_stance);
 
 	m_io.viewQuatFinal=rPlayer.m_viewQuatFinal;
@@ -217,7 +218,7 @@ void CPlayerView::ViewPreProcess(const CPlayer &rPlayer,SViewParams &viewParams,
 	m_in.stats_flyMode=rPlayer.m_stats.flyMode;
 	m_in.stats_spectatorMode=rPlayer.m_stats.spectatorMode;
 	m_in.stats_spectatorTarget=rPlayer.m_stats.spectatorTarget;
-	
+
 	m_io.stats_smoothViewZ=rPlayer.m_stats.smoothViewZ;
 	m_io.stats_smoothZType=rPlayer.m_stats.smoothZType;
 
@@ -234,41 +235,41 @@ void CPlayerView::ViewProcess(SViewParams &viewParams)
 {
 	if(m_in.stats_spectatorMode == 0 && m_in.stats_spectatorTarget && gEnv->bMultiplayer && m_in.health <= 0 && g_pGameCVars->g_deathCam != 0)
 	{
-			ViewFirstThirdSharedPre(viewParams);
-			ViewDeathCamTarget(viewParams);
-			ViewFirstThirdSharedPost(viewParams);
+		ViewFirstThirdSharedPre(viewParams);
+		ViewDeathCamTarget(viewParams);
+		ViewFirstThirdSharedPost(viewParams);
 	}
 	// Externally controlled first person view e.g. by animation
- 	else if ((m_in.stats_isRagDoll || m_in.stats_isFrozen || m_in.stats_isStandingUp) && !m_in.bIsThirdPerson && !m_in.stats_onLadder && m_in.pCharacter && (m_in.stats_firstPersonBody==1 || m_in.stats_followCharacterHead))
- 	{
- 		ViewFollowCharacterFirstPerson(viewParams);
- 	}
- 	else if (m_in.pVehicle)
- 	{
- 		ViewVehicle(viewParams);
- 	}
- 	else if(m_in.stats_onLadder && !m_in.bIsThirdPerson)
- 	{
- 		ViewFirstThirdSharedPre(viewParams);
- 		ViewFirstPersonOnLadder(viewParams);
- 	}
-  else if(m_in.stats_spectatorMode == CActor::eASM_Follow)
- 	{
+	else if((m_in.stats_isRagDoll || m_in.stats_isFrozen || m_in.stats_isStandingUp) && !m_in.bIsThirdPerson && !m_in.stats_onLadder && m_in.pCharacter && (m_in.stats_firstPersonBody==1 || m_in.stats_followCharacterHead))
+	{
+		ViewFollowCharacterFirstPerson(viewParams);
+	}
+	else if(m_in.pVehicle)
+	{
+		ViewVehicle(viewParams);
+	}
+	else if(m_in.stats_onLadder && !m_in.bIsThirdPerson)
+	{
 		ViewFirstThirdSharedPre(viewParams);
- 		ViewSpectatorTarget(viewParams);
+		ViewFirstPersonOnLadder(viewParams);
+	}
+	else if(m_in.stats_spectatorMode == CActor::eASM_Follow)
+	{
+		ViewFirstThirdSharedPre(viewParams);
+		ViewSpectatorTarget(viewParams);
 		ViewFirstThirdSharedPost(viewParams);
- 	}
- 	else
- 	{
- 		ViewFirstThirdSharedPre(viewParams);
- 
-		if (m_in.bIsThirdPerson || m_in.stats_isShattered || m_io.bUsePivot)
- 			ViewThirdPerson(viewParams);
- 		else
- 			ViewFirstPerson(viewParams);
- 
- 		ViewFirstThirdSharedPost(viewParams);
- 	}
+	}
+	else
+	{
+		ViewFirstThirdSharedPre(viewParams);
+
+		if(m_in.bIsThirdPerson || m_in.stats_isShattered || m_io.bUsePivot)
+			ViewThirdPerson(viewParams);
+		else
+			ViewFirstPerson(viewParams);
+
+		ViewFirstThirdSharedPost(viewParams);
+	}
 }
 
 //--------------------------------------------------------------------------
@@ -304,13 +305,13 @@ void CPlayerView::ViewPostProcess(CPlayer &rPlayer,SViewParams &viewParams)
 	//rPlayer.m_lastPos=m_io.m_lastPos;
 
 	rPlayer.m_viewQuat=m_io.viewQuat;
-	assert( rPlayer.m_viewQuat.IsValid() );
+	assert(rPlayer.m_viewQuat.IsValid());
 
 	//FIXME:updating the baseMatrix due being in a vehicle or having a first person animations playing has to be moved somewhere else
 	rPlayer.m_baseQuat=m_io.baseQuat;
-	assert( rPlayer.m_baseQuat.IsValid() );
+	assert(rPlayer.m_baseQuat.IsValid());
 
-		if (!rPlayer.IsTimeDemo())
+	if(!rPlayer.IsTimeDemo())
 	{
 		rPlayer.m_viewQuatFinal=m_io.viewQuatFinal;
 	}
@@ -352,7 +353,7 @@ void CPlayerView::ViewFirstThirdSharedPre(SViewParams &viewParams)
 
 	m_io.viewQuatForWeapon=m_io.viewQuatFinal;
 
-	if (g_pGameCVars->cl_camModify != 0)
+	if(g_pGameCVars->cl_camModify != 0)
 	{
 		float t = gEnv->pTimer->GetFrameStartTime().GetSeconds();
 		Ang3 orientation(m_io.viewQuatFinal);
@@ -373,28 +374,32 @@ void CPlayerView::ViewFirstThirdSharedPre(SViewParams &viewParams)
 
 void CPlayerView::ViewFirstThirdSharedPost(SViewParams &viewParams)
 {
-	//--- Update the eye offset and apply 
+	//--- Update the eye offset and apply
 	{
 		// Blend towards the goal eye offset
 		float stanceTransitionSpeed = g_pGameCVars->g_stanceTransitionSpeed;
-		if (m_in.stance == STANCE_PRONE)
+
+		if(m_in.stance == STANCE_PRONE)
 			stanceTransitionSpeed = 8;
+
 		Interpolate(m_io.eyeOffsetView, m_io.eyeOffsetViewGoal, stanceTransitionSpeed, m_in.frameTime);
 
 		//apply eye offset
-		if (!m_io.bUsePivot)
+		if(!m_io.bUsePivot)
 		{
 			//apply some more offset to the view
 			viewParams.position += m_io.baseQuat * m_io.eyeOffsetView;
 
-			if (m_in.stats_firstPersonBody==2)
+			if(m_in.stats_firstPersonBody==2)
 			{
 				float lookDown(m_io.viewQuatFinal.GetColumn1() * m_io.baseQuat.GetColumn2());
 				float forwardOffset(0.0f);
-				if (m_in.stance == STANCE_STAND)
+
+				if(m_in.stance == STANCE_STAND)
 					forwardOffset = 0.15f;
 
 				viewParams.position += m_io.viewQuatFinal.GetColumn1() * max(-lookDown,0.0f) * forwardOffset + m_io.viewQuatFinal.GetColumn2() * max(-lookDown,0.0f) * 0.0f;
+
 				//Grabbed by the Hunter
 				if(m_in.bIsGrabbed && !m_in.bIsThirdPerson)
 					viewParams.position = m_in.entityWorldMatrix.TransformPoint(m_io.eyeOffsetView);
@@ -402,11 +407,11 @@ void CPlayerView::ViewFirstThirdSharedPost(SViewParams &viewParams)
 		}
 	}
 
-  if(g_pGameCVars->g_detachCamera!=0)
-  {
-      viewParams.position = m_in.lastPos;
-      viewParams.rotation = m_in.lastQuat;
-  }
+	if(g_pGameCVars->g_detachCamera!=0)
+	{
+		viewParams.position = m_in.lastPos;
+		viewParams.rotation = m_in.lastQuat;
+	}
 
 	//--- Weapon orientation
 	//FIXME: this should be done in the player update anyway.
@@ -421,10 +426,10 @@ void CPlayerView::ViewFirstThirdSharedPost(SViewParams &viewParams)
 		m_io.wAngles = Ang3(wQuat);
 	}
 
-	//smooth out the view elevation		
-	if (m_in.stats_inAir < 0.1f && !m_in.stats_flyMode && !m_in.stats_spectatorMode && !m_io.bUsePivot)
+	//smooth out the view elevation
+	if(m_in.stats_inAir < 0.1f && !m_in.stats_flyMode && !m_in.stats_spectatorMode && !m_io.bUsePivot)
 	{
-		if (m_io.stats_smoothZType!=1)
+		if(m_io.stats_smoothZType!=1)
 		{
 			m_io.stats_smoothViewZ = viewParams.position.z;
 			m_io.stats_smoothZType = 1;
@@ -435,7 +440,7 @@ void CPlayerView::ViewFirstThirdSharedPost(SViewParams &viewParams)
 	}
 	else
 	{
-		if (m_io.stats_smoothZType==1)
+		if(m_io.stats_smoothZType==1)
 		{
 			m_io.stats_smoothViewZ = m_in.lastPos.z - m_io.stats_smoothViewZ;
 			m_io.stats_smoothZType = 2;
@@ -449,13 +454,13 @@ void CPlayerView::ViewFirstThirdSharedPost(SViewParams &viewParams)
 
 void CPlayerView::ViewThirdPerson(SViewParams &viewParams)
 {
-	if (m_in.thirdPersonYaw>0.001f)
+	if(m_in.thirdPersonYaw>0.001f)
 	{
 		viewParams.rotation *= Quat::CreateRotationXYZ(Ang3(0,0,m_in.thirdPersonYaw * gf_PI/180.0f));
 		m_io.viewQuatFinal = viewParams.rotation;
 	}
 
-	if (g_pGameCVars->goc_enable)
+	if(g_pGameCVars->goc_enable)
 	{
 		//Vec3 target(g_pGameCVars->goc_targetx, g_pGameCVars->goc_targety, g_pGameCVars->goc_targetz);
 		//static Vec3 current(target);
@@ -463,8 +468,8 @@ void CPlayerView::ViewThirdPerson(SViewParams &viewParams)
 		//Interpolate(current, target, 5.0f, m_in.frameTime);
 
 		// make sure we don't clip through stuff that much
-		
-		//smooth transition when you start looking from top (to floor). 
+
+		//smooth transition when you start looking from top (to floor).
 		//clamp is nesseary or you may end up without player character on screen!
 		//unfortunetly it work only in one direction top or bottom ;(
 		float targetZ = clamp(g_pGameCVars->goc_targetz - static_cast<float>(gEnv->pRenderer->GetCamera().GetAngles().y), g_pGameCVars->goc_targetz, g_pGameCVars->goc_targetTopz);
@@ -474,13 +479,14 @@ void CPlayerView::ViewThirdPerson(SViewParams &viewParams)
 		Vec3 offsetX(0,0,0);
 		Vec3 offsetY(0,0,0);
 		Vec3 offsetZ(0,0,0);
-		
+
 		//+targetZ
 		Vec3 target(g_pGameCVars->goc_targetx, g_pGameCVars->goc_targety, targetZ);
 		//but maybe is not bad thing, bottom need diffrent offsets anyway to compensate from collisions
 		Vec3 targetBottom(g_pGameCVars->goc_targetBottomx, bottomTargetY, bottomTargetZ);
-		
+
 		static Vec3 current(target);
+
 		//there must be if-else or we won't be able to pick up right offset
 		if(gEnv->pRenderer->GetCamera().GetAngles().y >= g_pGameCVars->goc_positionBottom)
 		{
@@ -495,44 +501,48 @@ void CPlayerView::ViewThirdPerson(SViewParams &viewParams)
 		offsetY = m_io.viewQuatFinal.GetColumn1() * (current.y-0.25f);
 		offsetZ = m_io.viewQuatFinal.GetColumn2() * current.z;
 
-		IActor* pActor = g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(m_in.entityId);
-		if (pActor)
+		IActor *pActor = g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(m_in.entityId);
+
+		if(pActor)
 		{
-			static ray_hit hit;	
-			IPhysicalEntity* pSkipEntities[10];
+			static ray_hit hit;
+			IPhysicalEntity *pSkipEntities[10];
 			int nSkip = 0;
-			IItem* pItem = pActor->GetCurrentItem();
-			if (pItem)
+			IItem *pItem = pActor->GetCurrentItem();
+
+			if(pItem)
 			{
-				CWeapon* pWeapon = (CWeapon*)pItem->GetIWeapon();
-				if (pWeapon)
+				CWeapon *pWeapon = (CWeapon *)pItem->GetIWeapon();
+
+				if(pWeapon)
 					nSkip = CSingle::GetSkipEntities(pWeapon, pSkipEntities, 10);
 			}
 
 			float oldLen = offsetY.len();
 
 			Vec3 start = m_io.baseQuat * m_io.eyeOffsetView + viewParams.position+offsetX+offsetZ;
-			if (gEnv->pPhysicalWorld->RayWorldIntersection(start, offsetY, ent_static|ent_terrain|ent_rigid,
-				rwi_ignore_noncolliding | rwi_stop_at_pierceable, &hit, 1, pSkipEntities, nSkip))
+
+			if(gEnv->pPhysicalWorld->RayWorldIntersection(start, offsetY, ent_static|ent_terrain|ent_rigid,
+					rwi_ignore_noncolliding | rwi_stop_at_pierceable, &hit, 1, pSkipEntities, nSkip))
 			{
 				offsetY = hit.pt - start;
 				current.y = current.y * (hit.dist/oldLen);
 			}
 		}
-		
-		//viewParams.position += m_io.viewQuatFinal.GetColumn0() * current.x;		// right 
+
+		//viewParams.position += m_io.viewQuatFinal.GetColumn0() * current.x;		// right
 		//viewParams.position += m_io.viewQuatFinal.GetColumn1() * current.y;	// back
 		//viewParams.position += m_io.viewQuatFinal.GetColumn2() * current.z;	// up
 		viewParams.position += offsetX + offsetY + offsetZ;
 	}
 	else
 	{
-	if (m_io.bUsePivot)			
-		viewParams.position += m_io.viewQuatFinal.GetColumn1() * m_in.params_viewDistance + m_io.viewQuatFinal.GetColumn2() * (0.25f + m_in.params_viewHeightOffset);
-	else
+		if(m_io.bUsePivot)
+			viewParams.position += m_io.viewQuatFinal.GetColumn1() * m_in.params_viewDistance + m_io.viewQuatFinal.GetColumn2() * (0.25f + m_in.params_viewHeightOffset);
+		else
 		{
-		viewParams.position += m_io.viewQuatFinal.GetColumn1() * -m_in.thirdPersonDistance + m_io.viewQuatFinal.GetColumn2() * (0.25f + m_in.params_viewHeightOffset);
-}
+			viewParams.position += m_io.viewQuatFinal.GetColumn1() * -m_in.thirdPersonDistance + m_io.viewQuatFinal.GetColumn2() * (0.25f + m_in.params_viewHeightOffset);
+		}
 	}
 }
 
@@ -555,16 +565,16 @@ void CPlayerView::ViewThirdPerson(SViewParams &viewParams)
 // jump/land spring effect. Adjust the eye and weapon pos as required.
 void CPlayerView::FirstPersonJump(SViewParams &viewParams,Vec3 &weaponOffset, Ang3 &weaponAngleOffset)
 {
-	if (m_in.stats_onGround)
+	if(m_in.stats_onGround)
 	{
-		if (m_io.stats_landed)
+		if(m_io.stats_landed)
 		{
 			m_io.eyeOffsetViewGoal.z -= (m_in.stance == STANCE_PRONE)?0.1f:0.3f;
 			weaponOffset -= m_io.baseQuat.GetColumn2() * 0.125f;
 			weaponAngleOffset.x += 3.0f;
 		}
 
-		if (m_in.stats_onGround>0.1f)
+		if(m_in.stats_onGround>0.1f)
 			m_io.stats_landed = false;
 	}
 }
@@ -572,326 +582,347 @@ void CPlayerView::FirstPersonJump(SViewParams &viewParams,Vec3 &weaponOffset, An
 //
 // Extract the various modifiers out into their own function.
 //
-// Aim is to make the code easier to understand and modify, as 
+// Aim is to make the code easier to understand and modify, as
 // well as to ease the addition of new modifiers.
 //
 void CPlayerView::ViewFirstPerson(SViewParams &viewParams)
 {
-		//headbob
-		Ang3 angOffset(0,0,0);
-		Vec3 weaponOffset(0,0,0);
-		Ang3 weaponAngleOffset(0,0,0);
+	//headbob
+	Ang3 angOffset(0,0,0);
+	Vec3 weaponOffset(0,0,0);
+	Ang3 weaponAngleOffset(0,0,0);
 
-		// jump/land spring effect. Adjust the eye and weapon pos as required.
-		FirstPersonJump(viewParams,weaponOffset,weaponAngleOffset);
+	// jump/land spring effect. Adjust the eye and weapon pos as required.
+	FirstPersonJump(viewParams,weaponOffset,weaponAngleOffset);
 
-		//float standSpeed(GetStanceMaxSpeed(STANCE_STAND));
+	//float standSpeed(GetStanceMaxSpeed(STANCE_STAND));
 
-		Vec3 vSpeed(0,0,0);
-		if (m_in.standSpeed>0.001f)
-			vSpeed = (m_in.stats_velocity / m_in.standSpeed);
+	Vec3 vSpeed(0,0,0);
 
-		float vSpeedLen(vSpeed.len());
-		if (vSpeedLen>1.5f)
-			vSpeed = vSpeed / vSpeedLen * 1.5f;
+	if(m_in.standSpeed>0.001f)
+		vSpeed = (m_in.stats_velocity / m_in.standSpeed);
 
-		float speedMul(0);
-		if (m_in.standSpeed>0.001f)
-			speedMul=(m_in.stats_flatSpeed / m_in.standSpeed * 1.1f);
+	float vSpeedLen(vSpeed.len());
 
-		speedMul = min(1.5f,speedMul);
+	if(vSpeedLen>1.5f)
+		vSpeed = vSpeed / vSpeedLen * 1.5f;
 
-		bool crawling(m_in.stance==STANCE_PRONE /*&& m_in.stats_flatSpeed>0.1f*/ && m_in.stats_onGround>0.1f);
-		bool weaponZoomed = false;
-		bool weaponZooming = false;
+	float speedMul(0);
 
-		//Not crawling while in zoom mode
-		IActor *owner = gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(m_in.entityId);
-		if(owner && owner->IsPlayer())
+	if(m_in.standSpeed>0.001f)
+		speedMul=(m_in.stats_flatSpeed / m_in.standSpeed * 1.1f);
+
+	speedMul = min(1.5f,speedMul);
+
+	bool crawling(m_in.stance==STANCE_PRONE /*&& m_in.stats_flatSpeed>0.1f*/ && m_in.stats_onGround>0.1f);
+	bool weaponZoomed = false;
+	bool weaponZooming = false;
+
+	//Not crawling while in zoom mode
+	IActor *owner = gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(m_in.entityId);
+
+	if(owner && owner->IsPlayer())
+	{
+		IItem *pItem = owner->GetCurrentItem();
+
+		if(pItem)
 		{
-			IItem *pItem = owner->GetCurrentItem();
-			if(pItem)
+			CWeapon *pWeapon = static_cast<CWeapon *>(pItem->GetIWeapon());
+
+			if(pWeapon)
 			{
-				CWeapon *pWeapon = static_cast<CWeapon*>(pItem->GetIWeapon());
-				if(pWeapon)
-				{
-					weaponZoomed = pWeapon->IsZoomed();
-					weaponZooming = pWeapon->IsZoomingInOrOut();
-					if(weaponZoomed||weaponZooming)
-						crawling = false;
-				}
+				weaponZoomed = pWeapon->IsZoomed();
+				weaponZooming = pWeapon->IsZoomingInOrOut();
+
+				if(weaponZoomed||weaponZooming)
+					crawling = false;
 			}
 		}
-	
-		// On the ground.
-		if (m_in.stats_inAir < 0.1f /*&& m_in.stats_inWater < 0.1f*/)
+	}
+
+	// On the ground.
+	if(m_in.stats_inAir < 0.1f /*&& m_in.stats_inWater < 0.1f*/)
+	{
+		//--- Bobbing.
+		// bobCycle is a speed varying time step running (looping) from 0 to 1
+		// this feeds into a sin eqn creating a double horizontal figure of 8.
+		// ( a lissajous figure with the vertical freq twice the horz freq ).
+
+		// To tweak the total speed of the curve:
+
+		// To tweak the effect speed has on the curve:
+		float kSpeedToBobFactor=1.15f;//0.9f
+		// To tweak the width of the bob:
+		float kBobWidth=0.1f;
+		// To tweak the height of the bob:
+		float kBobHeight=0.05f;
+		// To tweak the scale of strafing lag: (may need to manually adjust the strafing angle offsets as well.)
+		const float kStrafeHorzScale=0.05f;
+
+		kBobWidth = 0.15f;
+		kBobHeight = 0.06f;
+
+		m_io.stats_bobCycle += m_in.frameTime * kSpeedToBobFactor * speedMul;// * (m_in.bSprinting?1.25f:1.0f);
+
+		//if player is standing set the bob to rest. (bobCycle reaches 1.0f within 1 second)
+		if(speedMul < 0.1f)
+			m_io.stats_bobCycle = min(m_io.stats_bobCycle + m_in.frameTime * 1.0f,1.0f);
+
+		// bobCycle loops between 0 and 1
+		if(m_io.stats_bobCycle>1.0f)
+			m_io.stats_bobCycle = m_io.stats_bobCycle - 1.0f;
+
+		if(crawling)
+			kBobWidth *= 2.0f * speedMul;
+		else if(m_in.bSprinting)
+			kBobWidth *= 1.25f * speedMul;
+
+		//set the bob offset
+		Vec3 bobDir(cry_sinf(m_io.stats_bobCycle*gf_PI*2.0f)*kBobWidth*speedMul,0,cry_sinf(m_io.stats_bobCycle*gf_PI*4.0f)*kBobHeight*speedMul);
+
+		//not the bob offset for the weapon
+		bobDir *= 0.25f;
+
+		//if player is strafing shift a bit the weapon on left/right
+		if(speedMul > 0.01f)
 		{
-			//--- Bobbing.
-			// bobCycle is a speed varying time step running (looping) from 0 to 1 
-			// this feeds into a sin eqn creating a double horizontal figure of 8.
-			// ( a lissajous figure with the vertical freq twice the horz freq ).
+			// right vector dot speed vector
+			float dot(m_io.viewQuatFinal.GetColumn0() * vSpeed);
 
-			// To tweak the total speed of the curve:
+			bobDir.x -= dot * kStrafeHorzScale;	// the faster we move right, the more the gun lags to the left and vice versa
 
-			// To tweak the effect speed has on the curve:
-			float kSpeedToBobFactor=1.15f;//0.9f
-			// To tweak the width of the bob:
-			float kBobWidth=0.1f;
-			// To tweak the height of the bob:
-			float kBobHeight=0.05f;
-			// To tweak the scale of strafing lag: (may need to manually adjust the strafing angle offsets as well.)
-			const float kStrafeHorzScale=0.05f;
-
-			kBobWidth = 0.15f;
-			kBobHeight = 0.06f;
-
-			m_io.stats_bobCycle += m_in.frameTime * kSpeedToBobFactor * speedMul;// * (m_in.bSprinting?1.25f:1.0f);
-
-			//if player is standing set the bob to rest. (bobCycle reaches 1.0f within 1 second)
-			if (speedMul < 0.1f)
-				m_io.stats_bobCycle = min(m_io.stats_bobCycle + m_in.frameTime * 1.0f,1.0f);
-
-			// bobCycle loops between 0 and 1
-			if (m_io.stats_bobCycle>1.0f)
-				m_io.stats_bobCycle = m_io.stats_bobCycle - 1.0f;
-
-			if (crawling)
-				kBobWidth *= 2.0f * speedMul;
-			else if (m_in.bSprinting)
-				kBobWidth *= 1.25f * speedMul;
-
-			//set the bob offset
-			Vec3 bobDir(cry_sinf(m_io.stats_bobCycle*gf_PI*2.0f)*kBobWidth*speedMul,0,cry_sinf(m_io.stats_bobCycle*gf_PI*4.0f)*kBobHeight*speedMul);
-						
-			//not the bob offset for the weapon
-			bobDir *= 0.25f;
-			//if player is strafing shift a bit the weapon on left/right
-			if (speedMul > 0.01f)
-			{
-				// right vector dot speed vector
-				float dot(m_io.viewQuatFinal.GetColumn0() * vSpeed);
-
-				bobDir.x -= dot * kStrafeHorzScale;	// the faster we move right, the more the gun lags to the left and vice versa
-
-				//tweak the right strafe for weapon laser
-				if (dot>0.0f)
-					weaponAngleOffset.z += dot * 1.5f;	// kStrafeHorzScale
-				else
-					weaponAngleOffset.z -= dot * 2.0f;	// kStrafeHorzScale
-
-				weaponAngleOffset.y += dot * 5.0f;		// kStrafeHorzScale
-			}
-			//CryLogAlways("bobDir.z: %f", bobDir.z);
-			if (bobDir.z < 0.0f)
-			{
-				bobDir.x *= 1.0f;
-				bobDir.y *= 1.0f;
-				bobDir.z *= 0.35f;
-				speedMul *= 0.65f;
-			}
+			//tweak the right strafe for weapon laser
+			if(dot>0.0f)
+				weaponAngleOffset.z += dot * 1.5f;	// kStrafeHorzScale
 			else
-				bobDir.z *= 1.85f;
+				weaponAngleOffset.z -= dot * 2.0f;	// kStrafeHorzScale
 
-			//CryLogAlways("bobDir.z: %f after", bobDir.z);
-			weaponOffset += m_io.viewQuatFinal * bobDir;
-			weaponOffset -= m_io.baseQuat.GetColumn2() * 0.035f * speedMul;
+			weaponAngleOffset.y += dot * 5.0f;		// kStrafeHorzScale
+		}
 
-			weaponAngleOffset.y += cry_sinf(m_io.stats_bobCycle*gf_PI*2.0f) * speedMul * -1.5f;
-			if (crawling)
-				weaponAngleOffset.y *= 3.0f;
+		//CryLogAlways("bobDir.z: %f", bobDir.z);
+		if(bobDir.z < 0.0f)
+		{
+			bobDir.x *= 1.0f;
+			bobDir.y *= 1.0f;
+			bobDir.z *= 0.35f;
+			speedMul *= 0.65f;
+		}
+		else
+			bobDir.z *= 1.85f;
 
-			weaponAngleOffset.x += speedMul * 1.5f;
-			if (crawling)
-				weaponAngleOffset.z += cry_sinf(m_io.stats_bobCycle*gf_PI*2.0f) * speedMul * 3.0f;
+		//CryLogAlways("bobDir.z: %f after", bobDir.z);
+		weaponOffset += m_io.viewQuatFinal * bobDir;
+		weaponOffset -= m_io.baseQuat.GetColumn2() * 0.035f * speedMul;
 
-			//FIXME: viewAngles must include all the view offsets, otherwise aiming wont be precise.
-			angOffset.x += cry_sinf(m_io.stats_bobCycle*gf_PI*4.0f)*0.7f*speedMul;
+		weaponAngleOffset.y += cry_sinf(m_io.stats_bobCycle*gf_PI*2.0f) * speedMul * -1.5f;
 
-			if (crawling)
-			{
-				angOffset.x *= 2.5f;
-				angOffset.y += cry_sinf(m_io.stats_bobCycle*gf_PI*2.0f)*1.25f*speedMul;
-				angOffset.z -= cry_sinf(m_io.stats_bobCycle*gf_PI*2.0f)*2.5f*speedMul;
+		if(crawling)
+			weaponAngleOffset.y *= 3.0f;
 
-			}
-			else if (m_in.bSprinting)
-			{
-				angOffset.x *= 2.5f;
-				angOffset.y += cry_sinf(m_io.stats_bobCycle*gf_PI*2.0f)*1.0f*speedMul;
-				angOffset.z -= cry_sinf(m_io.stats_bobCycle*gf_PI*2.0f)*2.25f*speedMul;
-			}
-			else if(m_in.stance==STANCE_CROUCH && !weaponZoomed && !weaponZooming)
-			{
-				weaponOffset.z   += 0.035f;
-				weaponOffset.y   -= m_io.viewQuatFinal.GetColumn1().y * 0.03f;
-			}
-			else if(m_in.stance==STANCE_CROUCH && weaponZooming)
-			{
-				weaponOffset.z	-= 0.07f;
-				weaponOffset.y	+=  m_io.viewQuatFinal.GetColumn1().y * 0.06f;
-			}
-			else
-			{
-				//angOffset.x *= 2.25f;
-				//angOffset.y += cry_sinf(m_io.stats_bobCycle*gf_PI*2.0f)*0.5f*speedMul;
-				//angOffset.z -= cry_sinf(m_io.stats_bobCycle*gf_PI*2.0f)*1.125f*speedMul;
-			}
+		weaponAngleOffset.x += speedMul * 1.5f;
+
+		if(crawling)
+			weaponAngleOffset.z += cry_sinf(m_io.stats_bobCycle*gf_PI*2.0f) * speedMul * 3.0f;
+
+		//FIXME: viewAngles must include all the view offsets, otherwise aiming wont be precise.
+		angOffset.x += cry_sinf(m_io.stats_bobCycle*gf_PI*4.0f)*0.7f*speedMul;
+
+		if(crawling)
+		{
+			angOffset.x *= 2.5f;
+			angOffset.y += cry_sinf(m_io.stats_bobCycle*gf_PI*2.0f)*1.25f*speedMul;
+			angOffset.z -= cry_sinf(m_io.stats_bobCycle*gf_PI*2.0f)*2.5f*speedMul;
+
+		}
+		else if(m_in.bSprinting)
+		{
+			angOffset.x *= 2.5f;
+			angOffset.y += cry_sinf(m_io.stats_bobCycle*gf_PI*2.0f)*1.0f*speedMul;
+			angOffset.z -= cry_sinf(m_io.stats_bobCycle*gf_PI*2.0f)*2.25f*speedMul;
+		}
+		else if(m_in.stance==STANCE_CROUCH && !weaponZoomed && !weaponZooming)
+		{
+			weaponOffset.z   += 0.035f;
+			weaponOffset.y   -= m_io.viewQuatFinal.GetColumn1().y * 0.03f;
+		}
+		else if(m_in.stance==STANCE_CROUCH && weaponZooming)
+		{
+			weaponOffset.z	-= 0.07f;
+			weaponOffset.y	+=  m_io.viewQuatFinal.GetColumn1().y * 0.06f;
 		}
 		else
 		{
-			m_io.stats_bobCycle = 0;
-
-			//while flying offset a bit the weapon model by the player speed	
-			if (m_in.stats_velocity.len2()>0.001f)
-			{				
-				float dotFwd(m_io.viewQuatFinal.GetColumn1() * vSpeed);
-				float dotSide(m_io.viewQuatFinal.GetColumn0() * vSpeed);
-				float dotUp(m_io.viewQuatFinal.GetColumn2() * vSpeed);
-
-				weaponOffset += m_io.viewQuatFinal * Vec3(dotSide * -0.05f,dotFwd * -0.035f,dotUp * -0.05f);
-
-				weaponAngleOffset.x += dotUp * 2.0f;
-				weaponAngleOffset.y += dotSide * 5.0f;
-				weaponAngleOffset.z -= dotSide * 2.0f;
-			}
+			//angOffset.x *= 2.25f;
+			//angOffset.y += cry_sinf(m_io.stats_bobCycle*gf_PI*2.0f)*0.5f*speedMul;
+			//angOffset.z -= cry_sinf(m_io.stats_bobCycle*gf_PI*2.0f)*1.125f*speedMul;
 		}
+	}
+	else
+	{
+		m_io.stats_bobCycle = 0;
 
-		//add some inertia to weapon due view direction change.
-		float deltaDotSide(m_io.vFPWeaponLastDirVec * m_io.viewQuatFinal.GetColumn0());
-		float deltaDotUp(m_io.vFPWeaponLastDirVec * m_io.viewQuatFinal.GetColumn2());
-
-		weaponOffset += m_io.viewQuatFinal * Vec3(deltaDotSide * 0.1f + m_in.stats_leanAmount * 0.05f,0,deltaDotUp * 0.1f - fabs(m_in.stats_leanAmount) * 0.05f) * m_in.params_weaponInertiaMultiplier;
-
-		weaponAngleOffset.x -= deltaDotUp * 5.0f * m_in.params_weaponInertiaMultiplier;
-		weaponAngleOffset.z += deltaDotSide * 5.0f * m_in.params_weaponInertiaMultiplier;
-		weaponAngleOffset.y += deltaDotSide * 5.0f * m_in.params_weaponInertiaMultiplier;
-
-		if(m_in.stats_leanAmount<0.0f)
-			weaponAngleOffset.y += m_in.stats_leanAmount * 5.0f;
-
-		//the weapon model tries to stay parallel to the terrain when the player is freefalling/parachuting
-
-		if (m_in.stats_inWater > 0.0f)
-			weaponOffset -= m_io.viewQuat.GetColumn2() * 0.15f;
-
-		if (m_in.stats_inWater>0.1f && !m_in.stats_headUnderWater)
+		//while flying offset a bit the weapon model by the player speed
+		if(m_in.stats_velocity.len2()>0.001f)
 		{
-			Ang3 offset(m_io.viewQuatFinal);
-			offset.z = 0;
-			if (offset.x<0.0f)
-				offset.x = 0;
+			float dotFwd(m_io.viewQuatFinal.GetColumn1() * vSpeed);
+			float dotSide(m_io.viewQuatFinal.GetColumn0() * vSpeed);
+			float dotUp(m_io.viewQuatFinal.GetColumn2() * vSpeed);
 
-			weaponAngleOffset -= offset*(180.0f/gf_PI)*0.75f;
+			weaponOffset += m_io.viewQuatFinal * Vec3(dotSide * -0.05f,dotFwd * -0.035f,dotUp * -0.05f);
+
+			weaponAngleOffset.x += dotUp * 2.0f;
+			weaponAngleOffset.y += dotSide * 5.0f;
+			weaponAngleOffset.z -= dotSide * 2.0f;
 		}
-		else if (m_io.stats_inFreefall)
+	}
+
+	//add some inertia to weapon due view direction change.
+	float deltaDotSide(m_io.vFPWeaponLastDirVec * m_io.viewQuatFinal.GetColumn0());
+	float deltaDotUp(m_io.vFPWeaponLastDirVec * m_io.viewQuatFinal.GetColumn2());
+
+	weaponOffset += m_io.viewQuatFinal * Vec3(deltaDotSide * 0.1f + m_in.stats_leanAmount * 0.05f,0,deltaDotUp * 0.1f - fabs(m_in.stats_leanAmount) * 0.05f) * m_in.params_weaponInertiaMultiplier;
+
+	weaponAngleOffset.x -= deltaDotUp * 5.0f * m_in.params_weaponInertiaMultiplier;
+	weaponAngleOffset.z += deltaDotSide * 5.0f * m_in.params_weaponInertiaMultiplier;
+	weaponAngleOffset.y += deltaDotSide * 5.0f * m_in.params_weaponInertiaMultiplier;
+
+	if(m_in.stats_leanAmount<0.0f)
+		weaponAngleOffset.y += m_in.stats_leanAmount * 5.0f;
+
+	//the weapon model tries to stay parallel to the terrain when the player is freefalling/parachuting
+
+	if(m_in.stats_inWater > 0.0f)
+		weaponOffset -= m_io.viewQuat.GetColumn2() * 0.15f;
+
+	if(m_in.stats_inWater>0.1f && !m_in.stats_headUnderWater)
+	{
+		Ang3 offset(m_io.viewQuatFinal);
+		offset.z = 0;
+
+		if(offset.x<0.0f)
+			offset.x = 0;
+
+		weaponAngleOffset -= offset*(180.0f/gf_PI)*0.75f;
+	}
+	else if(m_io.stats_inFreefall)
+	{
+		Ang3 offset(m_io.viewQuatFinal);
+		offset.z = 0;
+
+		weaponAngleOffset -= offset*(180.0f/gf_PI)*0.5f;
+	}
+	//same thing with crawling
+	else if(crawling)
+	{
+		//FIXME:to optimize, looks like a bit too expensive
+		Vec3 forward(m_io.viewQuatFinal.GetColumn1());
+		Vec3 up(m_io.baseQuat.GetColumn2());
+		Vec3 right(-(up % forward));
+
+		Matrix33 mat;
+		mat.SetFromVectors(right,up%right,up);
+		mat.OrthonormalizeFast();
+
+		Ang3 offset(m_io.viewQuatFinal.GetInverted() * Quat(mat));
+
+		weaponAngleOffset += offset*(180.0f/gf_PI)*0.5f;
+
+		float lookDown(m_io.viewQuatFinal.GetColumn1() * m_io.baseQuat.GetColumn2());
+		weaponOffset += m_io.baseQuat * Vec3(0,-0.5f*max(-lookDown,0.0f),-0.05f);
+
+		float scale = 0.5f;;
+
+		if(weaponAngleOffset.x>0.0f)
 		{
-			Ang3 offset(m_io.viewQuatFinal);
-			offset.z = 0;
-
-			weaponAngleOffset -= offset*(180.0f/gf_PI)*0.5f;
+			scale = min(0.5f,weaponAngleOffset.x/15.0f);
+			weaponAngleOffset.x *= scale;
 		}
-		//same thing with crawling
-		else if (crawling)
+		else
 		{
-			//FIXME:to optimize, looks like a bit too expensive
-			Vec3 forward(m_io.viewQuatFinal.GetColumn1());
-			Vec3 up(m_io.baseQuat.GetColumn2());
-			Vec3 right(-(up % forward));
-
-			Matrix33 mat;
-			mat.SetFromVectors(right,up%right,up);
-			mat.OrthonormalizeFast();
-
-			Ang3 offset(m_io.viewQuatFinal.GetInverted() * Quat(mat));
-
-			weaponAngleOffset += offset*(180.0f/gf_PI)*0.5f;
-
-			float lookDown(m_io.viewQuatFinal.GetColumn1() * m_io.baseQuat.GetColumn2());
-			weaponOffset += m_io.baseQuat * Vec3(0,-0.5f*max(-lookDown,0.0f),-0.05f);
-
-			float scale = 0.5f;;
-			if(weaponAngleOffset.x>0.0f)
-			{
-				scale = min(0.5f,weaponAngleOffset.x/15.0f);
-				weaponAngleOffset.x *= scale;
-			}
-			else
-			{
-				scale = min(0.5f,-weaponAngleOffset.x/20.0f);
-				weaponAngleOffset *= (1.0f-scale);
-				weaponOffset *= scale;
-			}
-			if(vSpeedLen>0.1f)
-				weaponAngleOffset += Ang3(-8.0f,0,-12.5f);
-			
-		}
-		else if (m_in.bSprinting && vSpeedLen>0.5f)
-		{
-			weaponAngleOffset += Ang3(-20.0f,0,10.0f);
-			weaponOffset += m_io.viewQuatFinal * Vec3(0.0f, -.01f, .1f);
-		}
-		else if (m_in.bLookingAtFriendlyAI && !weaponZooming && !weaponZoomed)
-		{
-			weaponAngleOffset += Ang3(-15.0f,0,8.0f);
-			weaponOffset += m_io.viewQuatFinal * Vec3(0.0f, -.01f, .05f);
+			scale = min(0.5f,-weaponAngleOffset.x/20.0f);
+			weaponAngleOffset *= (1.0f-scale);
+			weaponOffset *= scale;
 		}
 
-		//apply some multipliers
-		weaponOffset *= m_in.params_weaponBobbingMultiplier;
-		angOffset *= m_io.bobMul * 0.25f;
-		if (m_io.bobMul*m_io.bobMul!=1.0f)
-		{
-			weaponOffset *= m_io.bobMul;
-			weaponAngleOffset *= m_io.bobMul;
-		}
+		if(vSpeedLen>0.1f)
+			weaponAngleOffset += Ang3(-8.0f,0,-12.5f);
 
-		float bobSpeedMult(1.0f);
-		if(m_in.stats_inWater>0.1)
-			bobSpeedMult = 0.75f;
+	}
+	else if(m_in.bSprinting && vSpeedLen>0.5f)
+	{
+		weaponAngleOffset += Ang3(-20.0f,0,10.0f);
+		weaponOffset += m_io.viewQuatFinal * Vec3(0.0f, -.01f, .1f);
+	}
+	else if(m_in.bLookingAtFriendlyAI && !weaponZooming && !weaponZoomed)
+	{
+		weaponAngleOffset += Ang3(-15.0f,0,8.0f);
+		weaponOffset += m_io.viewQuatFinal * Vec3(0.0f, -.01f, .05f);
+	}
+
+	//apply some multipliers
+	weaponOffset *= m_in.params_weaponBobbingMultiplier;
+	angOffset *= m_io.bobMul * 0.25f;
+
+	if(m_io.bobMul*m_io.bobMul!=1.0f)
+	{
+		weaponOffset *= m_io.bobMul;
+		weaponAngleOffset *= m_io.bobMul;
+	}
+
+	float bobSpeedMult(1.0f);
+
+	if(m_in.stats_inWater>0.1)
+		bobSpeedMult = 0.75f;
+
 //		m_io.viewQuatForWeapon *= Quat::CreateRotationXYZ(Ang3(rx,ry,rz));
-		
-		Interpolate(m_io.vFPWeaponOffset,weaponOffset,3.95f*bobSpeedMult,m_in.frameTime);
-		Interpolate(m_io.vFPWeaponAngleOffset,weaponAngleOffset,10.0f*bobSpeedMult,m_in.frameTime);
-		Interpolate(m_io.vFPWeaponLastDirVec,m_io.viewQuatFinal.GetColumn1(),5.0f*bobSpeedMult,m_in.frameTime);
 
-		Interpolate(m_io.angleOffset,angOffset,10.0f,m_in.frameTime,0.002f);
-		if(weaponZooming)
+	Interpolate(m_io.vFPWeaponOffset,weaponOffset,3.95f*bobSpeedMult,m_in.frameTime);
+	Interpolate(m_io.vFPWeaponAngleOffset,weaponAngleOffset,10.0f*bobSpeedMult,m_in.frameTime);
+	Interpolate(m_io.vFPWeaponLastDirVec,m_io.viewQuatFinal.GetColumn1(),5.0f*bobSpeedMult,m_in.frameTime);
+
+	Interpolate(m_io.angleOffset,angOffset,10.0f,m_in.frameTime,0.002f);
+
+	if(weaponZooming)
+	{
+		m_io.vFPWeaponLastDirVec = m_io.viewQuatFinal.GetColumn1();
+		m_io.vFPWeaponOffset.Set(0.0f,0.0f,0.0f);
+		m_io.vFPWeaponAngleOffset.Set(0.0f,0.0f,0.0f);
+		m_io.bobOffset.Set(0.0f,0.0f,0.0f);
+	}
+
+	if(m_in.bSprinting)
+	{
+		float headBobScale = (m_in.stats_flatSpeed / m_in.standSpeed);
+		headBobScale = min(1.0f, headBobScale);
+
+		m_io.bobOffset = m_io.vFPWeaponOffset * 2.5f * g_pGameCVars->cl_headBob * headBobScale;
+		float bobLenSq = m_io.bobOffset.GetLengthSquared();
+		float bobLenLimit = g_pGameCVars->cl_headBobLimit;
+
+		if(bobLenSq > bobLenLimit*bobLenLimit)
 		{
-			m_io.vFPWeaponLastDirVec = m_io.viewQuatFinal.GetColumn1();
-			m_io.vFPWeaponOffset.Set(0.0f,0.0f,0.0f);
-			m_io.vFPWeaponAngleOffset.Set(0.0f,0.0f,0.0f);
-			m_io.bobOffset.Set(0.0f,0.0f,0.0f);
+			float bobLen = sqrt_tpl(bobLenSq);
+			m_io.bobOffset *= bobLenLimit/bobLen;
 		}
 
-		if (m_in.bSprinting)
-		{
-			float headBobScale = (m_in.stats_flatSpeed / m_in.standSpeed);
-			headBobScale = min(1.0f, headBobScale);
-
-			m_io.bobOffset = m_io.vFPWeaponOffset * 2.5f * g_pGameCVars->cl_headBob * headBobScale;
-			float bobLenSq = m_io.bobOffset.GetLengthSquared();
-			float bobLenLimit = g_pGameCVars->cl_headBobLimit;
-			if (bobLenSq > bobLenLimit*bobLenLimit)
-			{
-				float bobLen = sqrt_tpl(bobLenSq);
-				m_io.bobOffset *= bobLenLimit/bobLen;
-			}
-			viewParams.position += m_io.bobOffset;
-		}
+		viewParams.position += m_io.bobOffset;
+	}
 }
 
 void CPlayerView::ViewVehicle(SViewParams &viewParams)
 {
-	if (m_in.pVehicle)
+	if(m_in.pVehicle)
 	{
 		m_in.pVehicle->UpdateView(viewParams, m_in.entityId);
-		viewParams.viewID = 2;		
+		viewParams.viewID = 2;
 	}
 }
 
 void CPlayerView::ViewSpectatorTarget(SViewParams &viewParams)
 {
-	CActor* pTarget = (CActor*)g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(m_in.stats_spectatorTarget);
+	CActor *pTarget = (CActor *)g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(m_in.stats_spectatorTarget);
+
 	if(!pTarget)
 		return;
 
@@ -899,12 +930,12 @@ void CPlayerView::ViewSpectatorTarget(SViewParams &viewParams)
 
 	Vec3 worldPos = worldTM.GetTranslation();
 	worldPos.z += 1.5f;
-	
+
 	Ang3 worldAngles = Ang3::GetAnglesXYZ(Matrix33(worldTM));
 	float rot = worldAngles.z;// + m_rot;
 	float distance = 3;//(m_defaultDistance != 0) ? m_defaultDistance : m_distance;
 
-	if(IVehicle* pVehicle = pTarget->GetLinkedVehicle())
+	if(IVehicle *pVehicle = pTarget->GetLinkedVehicle())
 	{
 		AABB vehicleBox;
 		pVehicle->GetEntity()->GetLocalBounds(vehicleBox);
@@ -921,8 +952,10 @@ void CPlayerView::ViewSpectatorTarget(SViewParams &viewParams)
 	goal.z = targetBounds.max.z;
 	static float defaultOffset = 0.75f;
 	float offset = defaultOffset;
+
 	if(pTarget->GetLinkedVehicle())
 		offset = 2.0f;
+
 	goal.z += pTarget->GetEntity()->GetWorldPos().z + offset;
 
 	// store / interpolate the offset, not the world pos (reduces percieved jitter in vehicles)
@@ -932,17 +965,19 @@ void CPlayerView::ViewSpectatorTarget(SViewParams &viewParams)
 	static EntityId lastSpectatorTarget(m_in.stats_spectatorTarget);
 
 	// do a ray cast to check for camera intersection
-	static ray_hit hit;	
-	IPhysicalEntity* pSkipEntities[10];
+	static ray_hit hit;
+	IPhysicalEntity *pSkipEntities[10];
 	int nSkip = 0;
-	IItem* pItem = pTarget->GetCurrentItem();
-	if (pItem)
+	IItem *pItem = pTarget->GetCurrentItem();
+
+	if(pItem)
 	{
-		CWeapon* pWeapon = (CWeapon*)pItem->GetIWeapon();
-		if (pWeapon)
+		CWeapon *pWeapon = (CWeapon *)pItem->GetIWeapon();
+
+		if(pWeapon)
 			nSkip = CSingle::GetSkipEntities(pWeapon, pSkipEntities, 10);
 	}
-	else if(IVehicle* pVehicle = pTarget->GetLinkedVehicle())
+	else if(IVehicle *pVehicle = pTarget->GetLinkedVehicle())
 	{
 		// vehicle drivers don't seem to have current items, so need to add the vehicle itself here
 		nSkip = pVehicle->GetSkipEntities(pSkipEntities, 10);
@@ -956,9 +991,9 @@ void CPlayerView::ViewSpectatorTarget(SViewParams &viewParams)
 	sphere.center = worldPos;
 	sphere.r = wallSafeDistance;
 
-	geom_contact *pContact = 0;          
+	geom_contact *pContact = 0;
 	float hitDist = gEnv->pPhysicalWorld->PrimitiveWorldIntersection(sphere.type, &sphere, dir, ent_static|ent_terrain|ent_rigid|ent_sleeping_rigid,
-		&pContact, 0, (geom_colltype_player<<rwi_colltype_bit) | rwi_stop_at_pierceable, 0, 0, 0, pSkipEntities, nSkip);
+					&pContact, 0, (geom_colltype_player<<rwi_colltype_bit) | rwi_stop_at_pierceable, 0, 0, 0, pSkipEntities, nSkip);
 
 	// even when we have contact, keep the camera the same height above the target
 	float minHeightDiff = dir.z;
@@ -966,7 +1001,7 @@ void CPlayerView::ViewSpectatorTarget(SViewParams &viewParams)
 	if(hitDist > 0 && pContact)
 	{
 		goal = worldPos + (hitDist * dir.GetNormalizedSafe());
-		
+
 		if(goal.z - worldPos.z < minHeightDiff)
 		{
 			// can't move the camera far enough away from the player in this direction. Try moving it directly up a bit
@@ -976,16 +1011,17 @@ void CPlayerView::ViewSpectatorTarget(SViewParams &viewParams)
 			sphere.center -= dir.GetNormalizedSafe() * 0.05f;
 
 			float newHitDist = gEnv->pPhysicalWorld->PrimitiveWorldIntersection(sphere.type, &sphere, Vec3(0,0,minHeightDiff), ent_static|ent_terrain|ent_rigid|ent_sleeping_rigid,
-				&pContact, 0, (geom_colltype_player<<rwi_colltype_bit) | rwi_stop_at_pierceable, 0, 0, 0, pSkipEntities, nSkip);
+							   &pContact, 0, (geom_colltype_player<<rwi_colltype_bit) | rwi_stop_at_pierceable, 0, 0, 0, pSkipEntities, nSkip);
 
 			float raiseDist = minHeightDiff - (goal.z - worldPos.z) - wallSafeDistance;
+
 			if(newHitDist != 0)
 			{
 				raiseDist = MIN(minHeightDiff, newHitDist);
 			}
-			
+
 			raiseDist = MAX(0.0f, raiseDist);
-			
+
 			goal.z += raiseDist;
 			worldPos.z += raiseDist*0.8f;
 		}
@@ -993,6 +1029,7 @@ void CPlayerView::ViewSpectatorTarget(SViewParams &viewParams)
 
 	int thisFrameId = gEnv->pRenderer->GetFrameID();
 	static int frameNo(thisFrameId);
+
 	if(thisFrameId - frameNo > 5)
 	{
 		// reset positions
@@ -1000,6 +1037,7 @@ void CPlayerView::ViewSpectatorTarget(SViewParams &viewParams)
 		entPos = worldPos;
 		position = goal;
 	}
+
 	if(lastSpectatorTarget != m_in.stats_spectatorTarget)
 	{
 		viewOffset = goal - worldPos;
@@ -1007,7 +1045,9 @@ void CPlayerView::ViewSpectatorTarget(SViewParams &viewParams)
 		position = goal;
 		lastSpectatorTarget = m_in.stats_spectatorTarget;
 	}
+
 	frameNo = thisFrameId;
+
 	if(pTarget->GetLinkedVehicle())
 	{
 		Interpolate(viewOffset, goal-worldPos, 5.0f, viewParams.frameTime);
@@ -1022,6 +1062,7 @@ void CPlayerView::ViewSpectatorTarget(SViewParams &viewParams)
 
 		if(camPosChange.GetLengthSquared() > 100.0f)
 			position = goal;
+
 		if(entPosChange.GetLengthSquared() > 100.0f)
 			entPos = worldPos;
 
@@ -1032,14 +1073,15 @@ void CPlayerView::ViewSpectatorTarget(SViewParams &viewParams)
 
 	Matrix33 rotation = Matrix33::CreateRotationVDir((entPos - viewParams.position).GetNormalizedSafe());
 
-	viewParams.rotation = GetQuatFromMat33(rotation);	
+	viewParams.rotation = GetQuatFromMat33(rotation);
 	m_io.bUsePivot = true;
 	m_io.stats_bobCycle = 0.0;
 }
 
 void CPlayerView::ViewDeathCamTarget(SViewParams &viewParams)
 {
-	CActor* pTarget = (CActor*)g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(m_in.stats_spectatorTarget);
+	CActor *pTarget = (CActor *)g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(m_in.stats_spectatorTarget);
+
 	if(!pTarget)
 		return;
 
@@ -1050,7 +1092,8 @@ void CPlayerView::ViewDeathCamTarget(SViewParams &viewParams)
 	camPos.z += offset;
 
 	float heightOffset = 1.5f;
-	const SStanceInfo* pSI = pTarget->GetStanceInfo(pTarget->GetStance());
+	const SStanceInfo *pSI = pTarget->GetStanceInfo(pTarget->GetStance());
+
 	if(pSI)
 	{
 		heightOffset = pSI->viewOffset.z;
@@ -1073,6 +1116,7 @@ void CPlayerView::ViewDeathCamTarget(SViewParams &viewParams)
 		oldTargetPos = targetPos;
 		oldFOVScale = 1.0f;
 	}
+
 	// if target changed, reset positions
 	if(lastSpectatorTarget != m_in.stats_spectatorTarget)
 	{
@@ -1081,12 +1125,14 @@ void CPlayerView::ViewDeathCamTarget(SViewParams &viewParams)
 		lastSpectatorTarget = m_in.stats_spectatorTarget;
 		oldFOVScale = 1.0f;
 	}
+
 	frameNo = thisFrameId;
 
 	// slight zoom after 2s
 	float timeNow = gEnv->pTimer->GetCurrTime();
 	float distSq = (targetPos - camPos).GetLengthSquared();
 	float scale = 1.0f;
+
 	if(timeNow - m_in.deathTime > 1.0f && distSq > 2500.0f)
 	{
 		// 1.0f at 50m, 0.3f at 100m+
@@ -1097,29 +1143,32 @@ void CPlayerView::ViewDeathCamTarget(SViewParams &viewParams)
 	Interpolate(oldCamPos, camPos, 5.0f, viewParams.frameTime);
 	Interpolate(oldTargetPos, targetPos, 5.0f, viewParams.frameTime);
 	Interpolate(oldFOVScale, scale, 0.5f, viewParams.frameTime);
-	
+
 	viewParams.position = oldCamPos;
 	Vec3 dir = (oldTargetPos - oldCamPos).GetNormalizedSafe();
-	Matrix33 rotation = Matrix33::CreateRotationVDir(dir);	
+	Matrix33 rotation = Matrix33::CreateRotationVDir(dir);
 	dir.z = 0.0f;
 
 	// quick ray check to make sure there's not a wall in the way...
-	IActor* pActor = g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(m_in.entityId);
-	if (pActor)
+	IActor *pActor = g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(m_in.entityId);
+
+	if(pActor)
 	{
-		static ray_hit hit;	
-		IPhysicalEntity* pSkipEntities[10];
+		static ray_hit hit;
+		IPhysicalEntity *pSkipEntities[10];
 		int nSkip = 0;
-		IItem* pItem = pActor->GetCurrentItem();
-		if (pItem)
+		IItem *pItem = pActor->GetCurrentItem();
+
+		if(pItem)
 		{
-			CWeapon* pWeapon = (CWeapon*)pItem->GetIWeapon();
-			if (pWeapon)
+			CWeapon *pWeapon = (CWeapon *)pItem->GetIWeapon();
+
+			if(pWeapon)
 				nSkip = CSingle::GetSkipEntities(pWeapon, pSkipEntities, 10);
 		}
 
-		if (gEnv->pPhysicalWorld->RayWorldIntersection(viewParams.position, -dir, ent_static|ent_terrain|ent_rigid,
-			rwi_ignore_noncolliding | rwi_stop_at_pierceable, &hit, 1, pSkipEntities, nSkip))
+		if(gEnv->pPhysicalWorld->RayWorldIntersection(viewParams.position, -dir, ent_static|ent_terrain|ent_rigid,
+				rwi_ignore_noncolliding | rwi_stop_at_pierceable, &hit, 1, pSkipEntities, nSkip))
 		{
 			dir.zero();
 		}
@@ -1128,7 +1177,7 @@ void CPlayerView::ViewDeathCamTarget(SViewParams &viewParams)
 	viewParams.position -= dir;
 
 	viewParams.fov = m_in.defaultFov*oldFOVScale*(gf_PI/180.0f);;
-	viewParams.rotation = GetQuatFromMat33(rotation);	
+	viewParams.rotation = GetQuatFromMat33(rotation);
 	m_io.bUsePivot = true;
 	m_io.stats_bobCycle = 0.0;
 }
@@ -1142,10 +1191,10 @@ void CPlayerView::ViewFollowCharacterFirstPerson(SViewParams &viewParams)
 	viewParams.nearplane = 0.1f;
 	viewParams.position = m_in.entityWorldMatrix *m_in.localEyePos;
 
-	if (m_in.stats_isRagDoll)
+	if(m_in.stats_isRagDoll)
 		viewParams.position.z += 0.05f;
 
-	if (m_in.stats_followCharacterHead)
+	if(m_in.stats_followCharacterHead)
 		viewParams.rotation = Quat(Matrix33(m_in.entityWorldMatrix)*m_in.headMtxLocal*Matrix33::CreateRotationY(gf_PI*0.5f));
 }
 
@@ -1153,7 +1202,7 @@ void CPlayerView::ViewFollowCharacterFirstPerson(SViewParams &viewParams)
 void CPlayerView::ViewExternalControlPostProcess(CPlayer &rPlayer,SViewParams &viewParams)
 {
 	// update the player rotation if view control is taken from somewhere else
-	if (m_in.health>0 && (/*m_in.pVehicle || */m_in.stats_followCharacterHead))
+	if(m_in.health>0 && (/*m_in.pVehicle || */m_in.stats_followCharacterHead))
 	{
 		Vec3 forward = viewParams.rotation.GetColumn1().GetNormalizedSafe();
 		Vec3 up = Vec3(0,0,1);
@@ -1166,7 +1215,7 @@ void CPlayerView::ViewExternalControlPostProcess(CPlayer &rPlayer,SViewParams &v
 	}
 }
 
-void CPlayerView::ViewFirstPersonOnLadder(SViewParams & viewParams)
+void CPlayerView::ViewFirstPersonOnLadder(SViewParams &viewParams)
 {
 
 	viewParams.viewID = 3;
@@ -1178,7 +1227,7 @@ void CPlayerView::ViewFirstPersonOnLadder(SViewParams & viewParams)
 	if(g_pGameCVars->pl_debug_ladders!=0)
 		viewParams.position = m_in.entityWorldMatrix * (m_in.localEyePos + Vec3(0.1f,-g_pGameCVars->cl_tpvDist,-0.3f));
 
-	
+
 	m_io.viewQuat = m_io.viewQuatFinal = viewParams.rotation;
 
 	if(g_pGameCVars->g_detachCamera!=0)
@@ -1202,18 +1251,20 @@ void CPlayerView::FirstPersonWeaponPostProcess(CPlayer &rPlayer,SViewParams &vie
 // Shake the view as requested
 void CPlayerView::ViewShakePostProcess(CPlayer &rPlayer,SViewParams &viewParams)
 {
-	if (rPlayer.m_stats.inFreefall.Value())
+	if(rPlayer.m_stats.inFreefall.Value())
 	{
 		IView *pView = g_pGame->GetIGameFramework()->GetIViewSystem()->GetViewByEntityId(rPlayer.GetEntityId());
-		if (pView)
+
+		if(pView)
 		{
 			float dot(0.1f * min(19.0f,5.0f + max(0.0f,rPlayer.m_stats.velocity*viewParams.rotation.GetColumn1())));
-			if (rPlayer.m_stats.inFreefall.Value()==2)
+
+			if(rPlayer.m_stats.inFreefall.Value()==2)
 				dot *= 0.5f;
 
 			//float white[4] = {1,1,1,1};
 			//gEnv->pRenderer->Draw2dLabel( 100, 50, 2, white, false, "dot:%f vel:%f", dot, rPlayer.m_stats.velocity.len() );
-			
+
 			pView->SetViewShake(Ang3(0.0005f,0.001f,0.0005f)*dot,Vec3(0.003f,0.0f,0.003f)*dot,0.3f,0.015f,1.0f,2);
 		}
 	}
@@ -1258,19 +1309,21 @@ void CPlayerView::HandsPostProcess(CPlayer &rPlayer,SViewParams &viewParams)
 {
 	//for testing sake
 	float nearPlaneOverride(g_pGameCVars->cl_nearPlane);
-	if (nearPlaneOverride > 0.001f)
+
+	if(nearPlaneOverride > 0.001f)
 		viewParams.nearplane = nearPlaneOverride;
 
 	//FIXME:find a better place?
 	// Convention: if Player has a renderable object in slot 2 then it's the first person hands.
-	if (rPlayer.GetEntity()->GetSlotFlags(2) & ENTITY_SLOT_RENDER)
+	if(rPlayer.GetEntity()->GetSlotFlags(2) & ENTITY_SLOT_RENDER)
 	{
 		Matrix34 handsMtx(rPlayer.m_viewQuatFinal * Quat::CreateRotationZ(gf_PI));
 		handsMtx.SetTranslation(viewParams.position);
 
 		rPlayer.GetEntity()->SetSlotLocalTM(2,rPlayer.GetEntity()->GetWorldTM().GetInverted() * handsMtx);
 		ICharacterInstance *pHands = rPlayer.GetEntity()->GetCharacter(2);
-		if (pHands)
+
+		if(pHands)
 		{
 			QuatT renderLocation = QuatT(handsMtx);
 			pHands->GetISkeletonPose()->SetForceSkeletonUpdate(5);

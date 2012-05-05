@@ -21,74 +21,74 @@ History:
 
 //------------------------------------------------------------------------
 CVehicleWeapon::CVehicleWeapon()
-: m_pVehicle(0)
-, m_pPart(0)
-, m_timeToUpdate(0.0f)
-, m_dtWaterLevelCheck(0.f)
-, m_pOwnerSeat(NULL)
-, m_pSeatUser(NULL)
-{  
+	: m_pVehicle(0)
+	, m_pPart(0)
+	, m_timeToUpdate(0.0f)
+	, m_dtWaterLevelCheck(0.f)
+	, m_pOwnerSeat(NULL)
+	, m_pSeatUser(NULL)
+{
 }
 
 //------------------------------------------------------------------------
-bool CVehicleWeapon::Init( IGameObject * pGameObject )
+bool CVehicleWeapon::Init(IGameObject *pGameObject)
 {
-  if (!CWeapon::Init(pGameObject))
-    return false;
+	if(!CWeapon::Init(pGameObject))
+		return false;
 
 	m_properties.mounted=true;
 
-  return true;
+	return true;
 }
 
 //------------------------------------------------------------------------
-void CVehicleWeapon::PostInit( IGameObject * pGameObject )
+void CVehicleWeapon::PostInit(IGameObject *pGameObject)
 {
-  CWeapon::PostInit(pGameObject); 
+	CWeapon::PostInit(pGameObject);
 }
 
 //------------------------------------------------------------------------
 void CVehicleWeapon::Reset()
 {
-  CWeapon::Reset();
+	CWeapon::Reset();
 }
 
 //------------------------------------------------------------------------
 void CVehicleWeapon::MountAtEntity(EntityId entityId, const Vec3 &pos, const Ang3 &angles)
 {
-  CWeapon::MountAtEntity(entityId, pos, angles);  
+	CWeapon::MountAtEntity(entityId, pos, angles);
 }
 
 //------------------------------------------------------------------------
 void CVehicleWeapon::StartUse(EntityId userId)
 {
-	if (m_ownerId && userId != m_ownerId)
-		return; 
+	if(m_ownerId && userId != m_ownerId)
+		return;
 
-  if (GetEntity()->GetParent())
-  { 
-    m_pVehicle = gEnv->pGame->GetIGameFramework()->GetIVehicleSystem()->GetVehicle(GetEntity()->GetParent()->GetId());
-    assert(m_pVehicle && "Using VehicleWeapons on non-vehicles may lead to unexpected behavior.");
+	if(GetEntity()->GetParent())
+	{
+		m_pVehicle = gEnv->pGame->GetIGameFramework()->GetIVehicleSystem()->GetVehicle(GetEntity()->GetParent()->GetId());
+		assert(m_pVehicle && "Using VehicleWeapons on non-vehicles may lead to unexpected behavior.");
 
-    if (m_pVehicle)
-    {   
-      m_pPart = m_pVehicle->GetWeaponParentPart(GetEntityId()); 
-      m_pOwnerSeat = m_pVehicle->GetWeaponParentSeat(GetEntityId());
-      m_pSeatUser = m_pVehicle->GetSeatForPassenger(userId);
-    }
-  }
-  
+		if(m_pVehicle)
+		{
+			m_pPart = m_pVehicle->GetWeaponParentPart(GetEntityId());
+			m_pOwnerSeat = m_pVehicle->GetWeaponParentSeat(GetEntityId());
+			m_pSeatUser = m_pVehicle->GetSeatForPassenger(userId);
+		}
+	}
+
 	SetOwnerId(userId);
-  Select(true);	
+	Select(true);
 	m_stats.used = true;
 
 	EnableUpdate(true, eIUS_General);
 	RequireUpdate(eIUS_General);
 
-  if (OutOfAmmo(false))
-    Reload(false);
+	if(OutOfAmmo(false))
+		Reload(false);
 
-  UseManualBlending(true);
+	UseManualBlending(true);
 
 	LowerWeapon(false);
 
@@ -99,19 +99,19 @@ void CVehicleWeapon::StartUse(EntityId userId)
 //------------------------------------------------------------------------
 void CVehicleWeapon::StopUse(EntityId userId)
 {
-	if (m_ownerId && userId != m_ownerId)
+	if(m_ownerId && userId != m_ownerId)
 		return;
 
 	SendMusicLogicEvent(eMUSICLOGICEVENT_WEAPON_UNMOUNT);
- 
-  Select(false);  	
-  m_stats.used = false;	
 
-  UseManualBlending(false);
+	Select(false);
+	m_stats.used = false;
 
-  SetOwnerId(0);
+	UseManualBlending(false);
 
-  EnableUpdate(false);
+	SetOwnerId(0);
+
+	EnableUpdate(false);
 
 	if(IsZoomed() || IsZoomingInOrOut())
 	{
@@ -125,163 +125,163 @@ void CVehicleWeapon::StopUse(EntityId userId)
 //------------------------------------------------------------------------
 void CVehicleWeapon::StartFire()
 {
-  if (!CheckWaterLevel())
-    return;
+	if(!CheckWaterLevel())
+		return;
 
 	if(!CanFire())
 		return;
 
-  CWeapon::StartFire();
+	CWeapon::StartFire();
 }
 
 //------------------------------------------------------------------------
-void CVehicleWeapon::Update( SEntityUpdateContext& ctx, int update)
+void CVehicleWeapon::Update(SEntityUpdateContext &ctx, int update)
 {
-  CWeapon::Update(ctx, update);
+	CWeapon::Update(ctx, update);
 
 	if(update==eIUS_General)
-  { 
-    if (m_fm && m_fm->IsFiring())
-    {
-      m_dtWaterLevelCheck -= ctx.fFrameTime;      
-      
-      if (m_dtWaterLevelCheck <= 0.f)
-      { 
-        if (!CheckWaterLevel())        
-          StopFire();          
-        
-        m_dtWaterLevelCheck = 2.0f;
-      }
-    }
-    
+	{
+		if(m_fm && m_fm->IsFiring())
+		{
+			m_dtWaterLevelCheck -= ctx.fFrameTime;
+
+			if(m_dtWaterLevelCheck <= 0.f)
+			{
+				if(!CheckWaterLevel())
+					StopFire();
+
+				m_dtWaterLevelCheck = 2.0f;
+			}
+		}
+
 		CheckForFriendlyAI(ctx.fFrameTime);
 		CheckForFriendlyPlayers(ctx.fFrameTime);
-  }
+	}
 }
 
 //------------------------------------------------------------------------
 bool CVehicleWeapon::CheckWaterLevel() const
 {
-  // if not submerged at all, skip water level check
-  if (m_pVehicle && m_pVehicle->GetStatus().submergedRatio < 0.01f)
-    return true;
-  
-  if (gEnv->p3DEngine->IsUnderWater(GetEntity()->GetWorldPos()))
-    return false;
+	// if not submerged at all, skip water level check
+	if(m_pVehicle && m_pVehicle->GetStatus().submergedRatio < 0.01f)
+		return true;
 
-  return true;
+	if(gEnv->p3DEngine->IsUnderWater(GetEntity()->GetWorldPos()))
+		return false;
+
+	return true;
 }
 
 //------------------------------------------------------------------------
-void CVehicleWeapon::SetAmmoCount(IEntityClass* pAmmoType, int count)
-{ 
-  IActor* pOwner = GetOwnerActor();
-  
-  if (pOwner && !pOwner->IsPlayer() && count < m_ammo[pAmmoType])
-    return;
-  
-  CWeapon::SetAmmoCount(pAmmoType, count);    
-}
-
-//------------------------------------------------------------------------
-void CVehicleWeapon::SetInventoryAmmoCount(IEntityClass* pAmmoType, int count)
+void CVehicleWeapon::SetAmmoCount(IEntityClass *pAmmoType, int count)
 {
-  IActor* pOwner = GetOwnerActor();
+	IActor *pOwner = GetOwnerActor();
 
-  if (pOwner && !pOwner->IsPlayer() && m_pVehicle)
-  {
-    if (count < m_pVehicle->GetAmmoCount(pAmmoType))
-      return;
-  }
+	if(pOwner && !pOwner->IsPlayer() && count < m_ammo[pAmmoType])
+		return;
 
-  CWeapon::SetInventoryAmmoCount(pAmmoType, count);
+	CWeapon::SetAmmoCount(pAmmoType, count);
 }
 
 //------------------------------------------------------------------------
-bool CVehicleWeapon::FilterView(SViewParams& viewParams)
-{ 
-  if (m_pOwnerSeat != m_pSeatUser)
-    return false;
+void CVehicleWeapon::SetInventoryAmmoCount(IEntityClass *pAmmoType, int count)
+{
+	IActor *pOwner = GetOwnerActor();
 
-  if (m_camerastats.animating && !m_camerastats.helper.empty())
-  { 
-    viewParams.position = GetSlotHelperPos(eIGS_FirstPerson, m_camerastats.helper, true);
-    viewParams.rotation = Quat(GetSlotHelperRotation(eIGS_FirstPerson, m_camerastats.helper, true));    
-    viewParams.blend = false;
-    
-    if (g_pGameCVars->v_debugMountedWeapon)
-    { 
-      Vec3 local = GetSlotHelperPos(eIGS_FirstPerson, m_camerastats.helper, false, true);
-      Vec3 entity = GetSlotHelperPos(eIGS_FirstPerson, m_camerastats.helper, false, false);
-                 
-      float color[] = {1,1,1,1};      
-      gEnv->pRenderer->Draw2dLabel(50,400,1.3f,color,false,"cam_pos local(%.3f %.3f %.3f), entity(%.3f %.3f %.3f)", local.x, local.y, local.z, entity.x, entity.y, entity.z);
-      
-      Ang3 angLocal(GetSlotHelperRotation(eIGS_FirstPerson, m_camerastats.helper, false, true));
-      Ang3 angEntity(GetSlotHelperRotation(eIGS_FirstPerson, m_camerastats.helper, false, true));      
+	if(pOwner && !pOwner->IsPlayer() && m_pVehicle)
+	{
+		if(count < m_pVehicle->GetAmmoCount(pAmmoType))
+			return;
+	}
 
-      gEnv->pRenderer->Draw2dLabel(50,420,1.3f,color,false,"cam_rot local(%.3f %.3f %.3f), entity(%.3f %.3f %.3f)", angLocal.x, angLocal.y, angLocal.z, angEntity.x, angEntity.y, angEntity.z);
-    }
-        
-    return true;
-  }
-
-  return false;
+	CWeapon::SetInventoryAmmoCount(pAmmoType, count);
 }
 
 //------------------------------------------------------------------------
-bool CVehicleWeapon::GetAimBlending(OldBlendSpace& params)
-{   
+bool CVehicleWeapon::FilterView(SViewParams &viewParams)
+{
+	if(m_pOwnerSeat != m_pSeatUser)
+		return false;
+
+	if(m_camerastats.animating && !m_camerastats.helper.empty())
+	{
+		viewParams.position = GetSlotHelperPos(eIGS_FirstPerson, m_camerastats.helper, true);
+		viewParams.rotation = Quat(GetSlotHelperRotation(eIGS_FirstPerson, m_camerastats.helper, true));
+		viewParams.blend = false;
+
+		if(g_pGameCVars->v_debugMountedWeapon)
+		{
+			Vec3 local = GetSlotHelperPos(eIGS_FirstPerson, m_camerastats.helper, false, true);
+			Vec3 entity = GetSlotHelperPos(eIGS_FirstPerson, m_camerastats.helper, false, false);
+
+			float color[] = {1,1,1,1};
+			gEnv->pRenderer->Draw2dLabel(50,400,1.3f,color,false,"cam_pos local(%.3f %.3f %.3f), entity(%.3f %.3f %.3f)", local.x, local.y, local.z, entity.x, entity.y, entity.z);
+
+			Ang3 angLocal(GetSlotHelperRotation(eIGS_FirstPerson, m_camerastats.helper, false, true));
+			Ang3 angEntity(GetSlotHelperRotation(eIGS_FirstPerson, m_camerastats.helper, false, true));
+
+			gEnv->pRenderer->Draw2dLabel(50,420,1.3f,color,false,"cam_rot local(%.3f %.3f %.3f), entity(%.3f %.3f %.3f)", angLocal.x, angLocal.y, angLocal.z, angEntity.x, angEntity.y, angEntity.z);
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+//------------------------------------------------------------------------
+bool CVehicleWeapon::GetAimBlending(OldBlendSpace &params)
+{
 	/*
-  float anglemin=0.f, anglemax=0.f;
-  if (m_pPart && m_pPart->GetRotationLimits(0, anglemin, anglemax))
-  { 
-    if (!(anglemin == 0.f && anglemax == 0.f)) // no limits
-    {
-      Ang3 angles( m_pPart->GetLocalTM(true) );
+	float anglemin=0.f, anglemax=0.f;
+	if (m_pPart && m_pPart->GetRotationLimits(0, anglemin, anglemax))
+	{
+	if (!(anglemin == 0.f && anglemax == 0.f)) // no limits
+	{
+	  Ang3 angles( m_pPart->GetLocalTM(true) );
 
-      float limit = isneg(angles.x) ? anglemin : anglemax;
-      float ratio = (limit != 0.f) ? min(1.f, angles.x/limit) : 0.f;
+	  float limit = isneg(angles.x) ? anglemin : anglemax;
+	  float ratio = (limit != 0.f) ? min(1.f, angles.x/limit) : 0.f;
 
-      params.m_turn = sgn(angles.x) * ratio;
-      
-      return true;
-    }
-  }
+	  params.m_turn = sgn(angles.x) * ratio;
+
+	  return true;
+	}
+	}
 	*/
 
-  return false;
+	return false;
 }
 
 //---------------------------------------------------------------------------
-void CVehicleWeapon::UpdateIKMounted(IActor* pActor, const Vec3& vGunXAxis)
+void CVehicleWeapon::UpdateIKMounted(IActor *pActor, const Vec3 &vGunXAxis)
 {
-  // only apply IK when the weapons user is in the weapons owner seat
-  if (m_pSeatUser == m_pOwnerSeat)
-    CWeapon::UpdateIKMounted(pActor,vGunXAxis);
+	// only apply IK when the weapons user is in the weapons owner seat
+	if(m_pSeatUser == m_pOwnerSeat)
+		CWeapon::UpdateIKMounted(pActor,vGunXAxis);
 }
 
 //------------------------------------------------------------------------
 void CVehicleWeapon::AttachArms(bool attach, bool shadow)
 {
-  if (attach && m_pSeatUser != m_pOwnerSeat)
-    return;
+	if(attach && m_pSeatUser != m_pOwnerSeat)
+		return;
 
-  CWeapon::AttachArms(attach, shadow);
+	CWeapon::AttachArms(attach, shadow);
 }
 
 //------------------------------------------------------------------------
 bool CVehicleWeapon::CanZoom() const
 {
-  if (!CWeapon::CanZoom())
-    return false;
+	if(!CWeapon::CanZoom())
+		return false;
 
-  if (m_pSeatUser != m_pOwnerSeat)
-    return false;
+	if(m_pSeatUser != m_pOwnerSeat)
+		return false;
 
-  IActor* pActor = GetOwnerActor();
+	IActor *pActor = GetOwnerActor();
 
-  return pActor && pActor->IsThirdPerson();
+	return pActor && pActor->IsThirdPerson();
 }
 
 //---------------------------------------------------------------------
@@ -291,28 +291,31 @@ void CVehicleWeapon::UpdateFPView(float frameTime)
 
 	if(GetOwnerId() && m_pVehicle && (m_pVehicle->GetCurrentWeaponId(GetOwnerId(), true) != GetEntityId())) //only update primary weapon
 		UpdateCrosshair(frameTime);
-	if (m_fm)
+
+	if(m_fm)
 		m_fm->UpdateFPView(frameTime);
-	if (m_zm)
+
+	if(m_zm)
 		m_zm->UpdateFPView(frameTime);
 }
 
 //---------------------------------------------------------------------------
 void CVehicleWeapon::CheckForFriendlyAI(float frameTime)
 {
-	if (m_pVehicle)
+	if(m_pVehicle)
 	{
-		if (CActor* pOwnerActor = GetOwnerActor())
+		if(CActor *pOwnerActor = GetOwnerActor())
 		{
-			if (pOwnerActor->IsPlayer() && !gEnv->bMultiplayer)
+			if(pOwnerActor->IsPlayer() && !gEnv->bMultiplayer)
 			{
 				m_timeToUpdate -= frameTime;
-				if (m_timeToUpdate > 0.f)
+
+				if(m_timeToUpdate > 0.f)
 					return;
 
 				m_timeToUpdate = 0.15f;
 
-				if (IMovementController* pMC = pOwnerActor->GetMovementController())
+				if(IMovementController *pMC = pOwnerActor->GetMovementController())
 				{
 					SMovementState info;
 					pMC->GetMovementState(info);
@@ -321,34 +324,34 @@ void CVehicleWeapon::CheckForFriendlyAI(float frameTime)
 
 					// Try ray hit
 					ray_hit rayhit;
-					IPhysicalEntity* pSkipEnts[10];
-					int nSkip = CSingle::GetSkipEntities(this, pSkipEnts, 10);	
+					IPhysicalEntity *pSkipEnts[10];
+					int nSkip = CSingle::GetSkipEntities(this, pSkipEnts, 10);
 
 					int intersect = gEnv->pPhysicalWorld->RayWorldIntersection(info.weaponPosition, info.aimDirection * 150.f, ent_all,
-						rwi_stop_at_pierceable | rwi_colltype_any, &rayhit, 1, pSkipEnts, nSkip);
+									rwi_stop_at_pierceable | rwi_colltype_any, &rayhit, 1, pSkipEnts, nSkip);
 
-					if (intersect && rayhit.pCollider)
+					if(intersect && rayhit.pCollider)
 					{
-						if (IEntity* pLookAtEntity = m_pEntitySystem->GetEntityFromPhysics(rayhit.pCollider))
+						if(IEntity *pLookAtEntity = m_pEntitySystem->GetEntityFromPhysics(rayhit.pCollider))
 						{
-							if (EntityId lookAtEntityId = pLookAtEntity->GetId())
+							if(EntityId lookAtEntityId = pLookAtEntity->GetId())
 							{
-								IAIObject* pLookAtAIObject = pLookAtEntity->GetAI();
-								IEntity* pOwnerEntity = pOwnerActor->GetEntity();
+								IAIObject *pLookAtAIObject = pLookAtEntity->GetAI();
+								IEntity *pOwnerEntity = pOwnerActor->GetEntity();
 
-								if (pOwnerEntity && pLookAtAIObject && (lookAtEntityId != GetEntityId()))
+								if(pOwnerEntity && pLookAtAIObject && (lookAtEntityId != GetEntityId()))
 								{
-									if (IVehicle* pVehicle = gEnv->pGame->GetIGameFramework()->GetIVehicleSystem()->GetVehicle(lookAtEntityId))
+									if(IVehicle *pVehicle = gEnv->pGame->GetIGameFramework()->GetIVehicleSystem()->GetVehicle(lookAtEntityId))
 									{
-										if (pVehicle->HasFriendlyPassenger(pOwnerEntity))
+										if(pVehicle->HasFriendlyPassenger(pOwnerEntity))
 										{
 											LowerWeapon(true);
 											StopFire();	// Just in case
 										}
 									}
-									else 
+									else
 									{
-										if (pLookAtAIObject->IsFriendly(pOwnerEntity->GetAI(), false))
+										if(pLookAtAIObject->IsFriendly(pOwnerEntity->GetAI(), false))
 										{
 											LowerWeapon(true);
 											StopFire();	// Just in case
@@ -358,13 +361,15 @@ void CVehicleWeapon::CheckForFriendlyAI(float frameTime)
 								else
 								{
 									// Special case (Animated objects), check for script table value "bNoFriendlyFire"
-									if (IScriptTable* pScriptTable = pLookAtEntity->GetScriptTable())
+									if(IScriptTable *pScriptTable = pLookAtEntity->GetScriptTable())
 									{
 										SmartScriptTable props;
-										if (pScriptTable->GetValue("Properties", props))
+
+										if(pScriptTable->GetValue("Properties", props))
 										{
 											int isFriendly;
-											if (props->GetValue("bNoFriendlyFire", isFriendly) && (isFriendly != 0))
+
+											if(props->GetValue("bNoFriendlyFire", isFriendly) && (isFriendly != 0))
 											{
 												LowerWeapon(true);
 												StopFire();	// Just in case
@@ -384,34 +389,35 @@ void CVehicleWeapon::CheckForFriendlyAI(float frameTime)
 //---------------------------------------------------------------------------
 void CVehicleWeapon::CheckForFriendlyPlayers(float frameTime)
 {
-	CActor* pOwner = GetOwnerActor();
+	CActor *pOwner = GetOwnerActor();
 
 	if(pOwner && pOwner->IsPlayer() && gEnv->bMultiplayer)
 	{
 		m_timeToUpdate-=frameTime;
+
 		if(m_timeToUpdate>0.0f)
 			return;
 
 		m_timeToUpdate = 0.15f;
 
-		if(IMovementController* pMC = pOwner->GetMovementController())
+		if(IMovementController *pMC = pOwner->GetMovementController())
 		{
 			SMovementState info;
 			pMC->GetMovementState(info);
 
 			ray_hit rayhit;
-			IPhysicalEntity* pSkipEnts[10];
-			int nSkip = CSingle::GetSkipEntities(this, pSkipEnts, 10);	
+			IPhysicalEntity *pSkipEnts[10];
+			int nSkip = CSingle::GetSkipEntities(this, pSkipEnts, 10);
 
 			int intersect = gEnv->pPhysicalWorld->RayWorldIntersection(info.weaponPosition, info.aimDirection * 150.0f, ent_all,
-				rwi_stop_at_pierceable|rwi_colltype_any, &rayhit, 1, pSkipEnts, nSkip);
+							rwi_stop_at_pierceable|rwi_colltype_any, &rayhit, 1, pSkipEnts, nSkip);
 
-			IEntity* pLookAtEntity = NULL;
+			IEntity *pLookAtEntity = NULL;
 
 			if(intersect && rayhit.pCollider)
 				pLookAtEntity = m_pEntitySystem->GetEntityFromPhysics(rayhit.pCollider);
 
 			bool bFriendly = false;
 		}
-	}		
+	}
 }

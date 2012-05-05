@@ -21,10 +21,10 @@ History:
 
 //------------------------------------------------------------------------
 CCharge::CCharge()
-: m_charged(0)
-, m_chId(0)
-, m_chlightId(0)
-, m_chTimer(0.0f)
+	: m_charged(0)
+	, m_chId(0)
+	, m_chlightId(0)
+	, m_chTimer(0.0f)
 {
 }
 
@@ -36,21 +36,24 @@ CCharge::~CCharge()
 //----------------------------------------"--------------------------------
 void CCharge::Update(float frameTime, uint32 frameId)
 {
-	if (m_charging)
+	if(m_charging)
 	{
-		if (m_chargeTimer>0.0f)
+		if(m_chargeTimer>0.0f)
 		{
 			m_chargeTimer -= frameTime;
-			if (m_chargeTimer<=0.0f)
+
+			if(m_chargeTimer<=0.0f)
 			{
 				m_charged++;
-				if (m_charged >= m_pShared->chargeparams.max_charges)
+
+				if(m_charged >= m_pShared->chargeparams.max_charges)
 				{
 					m_charging = false;
 					m_charged = m_pShared->chargeparams.max_charges;
-					if (!m_pShared->chargeparams.shoot_on_stop)
+
+					if(!m_pShared->chargeparams.shoot_on_stop)
 					{
-						if (m_firing)
+						if(m_firing)
 							ChargedShoot();
 					}
 				}
@@ -61,7 +64,7 @@ void CCharge::Update(float frameTime, uint32 frameId)
 	}
 	else
 	{
-		if (!m_pShared->chargeparams.shoot_on_stop)
+		if(!m_pShared->chargeparams.shoot_on_stop)
 		{
 			CAutomatic::Update(frameTime, frameId);
 		}
@@ -72,13 +75,15 @@ void CCharge::Update(float frameTime, uint32 frameId)
 	}
 
 	// update spinup effect
-	if (m_chTimer>0.0f)
+	if(m_chTimer>0.0f)
 	{
 		m_chTimer -= frameTime;
-		if (m_chTimer <= 0.0f)
+
+		if(m_chTimer <= 0.0f)
 		{
 			m_chTimer = 0.0f;
-			if (m_chId)
+
+			if(m_chId)
 				ChargeEffect(false);
 		}
 
@@ -123,7 +128,7 @@ void CCharge::PatchParams(const struct IItemParamsNode *patch)
 //------------------------------------------------------------------
 void CCharge::InitSharedParams()
 {
-	CWeaponSharedParams * pWSP = m_pWeapon->GetWeaponSharedParams();
+	CWeaponSharedParams *pWSP = m_pWeapon->GetWeaponSharedParams();
 	assert(pWSP);
 
 	m_fireParams	= pWSP->GetFireSharedParams("ChargeData", m_fmIdx);
@@ -134,7 +139,7 @@ void CCharge::CacheSharedParamsPtr()
 {
 	CAutomatic::CacheSharedParamsPtr();
 
-	m_pShared			= static_cast<CChargeSharedData*>(m_fireParams.get());
+	m_pShared			= static_cast<CChargeSharedData *>(m_fireParams.get());
 }
 
 //------------------------------------------------------------------------
@@ -152,12 +157,13 @@ void CCharge::Activate(bool activate)
 //------------------------------------------------------------------------
 void CCharge::StopFire()
 {
-	if (m_pShared->chargeparams.shoot_on_stop)
+	if(m_pShared->chargeparams.shoot_on_stop)
 	{
-		if (m_charged > 0)
+		if(m_charged > 0)
 		{
 			ChargedShoot();
 		}
+
 		m_pWeapon->PlayAction(m_pShared->chargeactions.uncharge.c_str());
 		m_charged = 0;
 		m_charging = false;
@@ -172,7 +178,7 @@ bool CCharge::Shoot(bool resetAnimation, bool autoreload /* =true */, bool noSou
 {
 	m_autoreload = autoreload;
 
-	if (!m_charged)
+	if(!m_charged)
 	{
 		m_charging = true;
 		m_chargeTimer = m_pShared->chargeparams.time;
@@ -180,7 +186,7 @@ bool CCharge::Shoot(bool resetAnimation, bool autoreload /* =true */, bool noSou
 
 		ChargeEffect(true);
 	}
-	else if (!m_charging && m_firing)
+	else if(!m_charging && m_firing)
 		ChargedShoot();
 
 	m_pWeapon->RequireUpdate(eIUS_FireMode);
@@ -207,16 +213,16 @@ void CCharge::ChargeEffect(bool attach)
 	m_chId=0;
 	m_chlightId=0;
 
-	if (attach)
+	if(attach)
 	{
 		int slot = m_pWeapon->GetStats().fp ? eIGS_FirstPerson : eIGS_ThirdPerson;
 		int id = m_pWeapon->GetStats().fp ? 0 : 1;
 
-		m_chId = m_pWeapon->AttachEffect(slot, 0, true, m_pShared->chargeeffect.effect[id].c_str(), 
-			m_pShared->chargeeffect.helper[id].c_str(), Vec3(0,0,0), Vec3(0,1,0), 1.0f, false);
+		m_chId = m_pWeapon->AttachEffect(slot, 0, true, m_pShared->chargeeffect.effect[id].c_str(),
+										 m_pShared->chargeeffect.helper[id].c_str(), Vec3(0,0,0), Vec3(0,1,0), 1.0f, false);
 
 		m_chlightId = m_pWeapon->AttachLight(slot, 0, true, m_pShared->chargeeffect.light_radius[id], m_pShared->chargeeffect.light_color[id], 1.0f, 0, 0,
-			m_pShared->chargeeffect.light_helper[id].c_str());
+											 m_pShared->chargeeffect.light_helper[id].c_str());
 
 		m_chTimer = (float)(m_pShared->chargeeffect.time[id]);
 
@@ -224,10 +230,11 @@ void CCharge::ChargeEffect(bool attach)
 }
 
 //-----------------------------------------------
-void CCharge::GetMemoryUsage(ICrySizer * s) const
+void CCharge::GetMemoryUsage(ICrySizer *s) const
 {
-	s->Add(*this); 
+	s->Add(*this);
 	CAutomatic::GetMemoryUsage(s);
+
 	if(m_useCustomParams)
 	{
 		m_pShared->chargeeffect.GetMemoryUsage(s);

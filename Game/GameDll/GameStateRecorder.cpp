@@ -30,44 +30,44 @@
 #include <IAgent.h>
 #include <IAIObjectManager.h>
 
-// avoid fake mistakes when health is raising progressively 
+// avoid fake mistakes when health is raising progressively
 // there can be small mismatches due to time-dependent health regeneration
 #define CHECK_MISMATCH(cur,rec,thr) (cur < rec-thr || cur > rec+thr)
 
 
 ///////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
-bool IsAmmoPickup(CItem* pItem) 
+bool IsAmmoPickup(CItem *pItem)
 {
 	return strcmp(pItem->GetEntity()->GetClass()->GetName(), "CustomAmmoPickup")==0;
 }
 
 ///////////////////////////////////////////////////////////////////////
-bool IsAmmoPickup(const char* className) 
+bool IsAmmoPickup(const char *className)
 {
 	return strcmp(className, "CustomAmmoPickup")==0;
 }
 
 ///////////////////////////////////////////////////////////////////////
-bool IsGrenade(const char* className)
+bool IsGrenade(const char *className)
 {
 	return className && (!strcmp(className,"OffhandGrenade") ||
-				!strcmp(className,"OffhandSmoke") ||
-				!strcmp(className,"OffhandFlashbang") ||
-				!strcmp(className,"OffhandNanoDistuptor"));
+						 !strcmp(className,"OffhandSmoke") ||
+						 !strcmp(className,"OffhandFlashbang") ||
+						 !strcmp(className,"OffhandNanoDistuptor"));
 }
 
 ///////////////////////////////////////////////////////////////////////
-bool IsAmmoGrenade(const char* className)
+bool IsAmmoGrenade(const char *className)
 {
 	return className && (!strcmp(className,"explosivegrenade") ||
-			!strcmp(className,"flashbang") ||
-			!strcmp(className,"smokegrenade") ||
-			!strcmp(className,"empgrenade"));
+						 !strcmp(className,"flashbang") ||
+						 !strcmp(className,"smokegrenade") ||
+						 !strcmp(className,"empgrenade"));
 }
 
 ///////////////////////////////////////////////////////////////////////
-CGameStateRecorder::CGameStateRecorder() 
+CGameStateRecorder::CGameStateRecorder()
 {
 	m_mode = GPM_Disabled;
 	m_bRecording = false;
@@ -76,9 +76,9 @@ CGameStateRecorder::CGameStateRecorder()
 	m_currentFrame = 0;
 	m_pSingleActor = NULL;
 	//m_pRecordGameEventFtor = new RecordGameEventFtor(this);
-	m_demo_actorInfo = REGISTER_STRING( "demo_actor_info","player",0,"name of actor which game state info is displayed" );
-	m_demo_actorFilter = REGISTER_STRING( "demo_actor_filter","player",0,"name of actor which game state is recorded ('player','all',<entity name>" );
-	REGISTER_CVAR2( "demo_force_game_state",&m_demo_forceGameState,2,0,"Forces game state values into game while playing timedemo: only health and suit energy (1) or all (2)" );
+	m_demo_actorInfo = REGISTER_STRING("demo_actor_info","player",0,"name of actor which game state info is displayed");
+	m_demo_actorFilter = REGISTER_STRING("demo_actor_filter","player",0,"name of actor which game state is recorded ('player','all',<entity name>");
+	REGISTER_CVAR2("demo_force_game_state",&m_demo_forceGameState,2,0,"Forces game state values into game while playing timedemo: only health and suit energy (1) or all (2)");
 
 }
 
@@ -91,14 +91,16 @@ CGameStateRecorder::~CGameStateRecorder()
 void CGameStateRecorder::Release()
 {
 //	if(m_pRecordGameEventFtor)
-		//delete m_pRecordGameEventFtor;
-	IConsole* pConsole = gEnv->pConsole;
+	//delete m_pRecordGameEventFtor;
+	IConsole *pConsole = gEnv->pConsole;
+
 	if(pConsole)
 	{
-		pConsole->UnregisterVariable( "demo_force_game_state", true );
-		pConsole->UnregisterVariable( "demo_actor_info", true );
-		pConsole->UnregisterVariable( "demo_actor_filter", true );
+		pConsole->UnregisterVariable("demo_force_game_state", true);
+		pConsole->UnregisterVariable("demo_actor_info", true);
+		pConsole->UnregisterVariable("demo_actor_filter", true);
 	}
+
 	delete this;
 }
 
@@ -107,6 +109,7 @@ void CGameStateRecorder::Enable(bool bEnable, bool bRecording)
 {
 	m_bRecording = bRecording;
 	m_bEnable = bEnable;
+
 	//m_mode = mode;
 	if(!bEnable)
 		m_mode = GPM_Disabled;
@@ -117,7 +120,7 @@ void CGameStateRecorder::Enable(bool bEnable, bool bRecording)
 
 		//CActor *pActor = static_cast<CActor *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
 		//if(pActor && !pActor->GetSpectatorMode() && pActor->IsPlayer() && ((CPlayer*)pActor)->GetNanoSuit())
-			//((CPlayer*)pActor)->GetNanoSuit()->AddListener(this);
+		//((CPlayer*)pActor)->GetNanoSuit()->AddListener(this);
 
 	}
 	else
@@ -126,23 +129,24 @@ void CGameStateRecorder::Enable(bool bEnable, bool bRecording)
 
 		//CActor *pActor = static_cast<CActor *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
 		//if(pActor && !pActor->GetSpectatorMode() && pActor->IsPlayer() && ((CPlayer*)pActor)->GetNanoSuit())
-			//((CPlayer*)pActor)->GetNanoSuit()->RemoveListener(this);
+		//((CPlayer*)pActor)->GetNanoSuit()->RemoveListener(this);
 	}
-	
+
 	if(m_bEnable)
 		StartSession();
 }
 
 
 ////////////////////////////////////////////////////////////////////////////
-void CGameStateRecorder::AddActorToStats(const CActor* pActor)
+void CGameStateRecorder::AddActorToStats(const CActor *pActor)
 {
 	if(m_bRecording)
 		DumpWholeGameState(pActor);
 	else
 	{
-		IEntity* pEntity = pActor->GetEntity();
+		IEntity *pEntity = pActor->GetEntity();
 		EntityId id;
+
 		if(pEntity && (id=pEntity->GetId()))
 		{
 			m_GameStates.insert(std::make_pair(id,SActorGameState()));
@@ -157,14 +161,15 @@ void CGameStateRecorder::StartSession()
 	m_itSingleActorGameState = m_GameStates.end();
 	m_IgnoredEvents.clear();
 
-	const char* filterName = m_demo_actorFilter->GetString();
+	const char *filterName = m_demo_actorFilter->GetString();
 	// send game events to record the initial game state
-/*	if(m_mode)
-	{
-		CActor *pActor = static_cast<CActor *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
-*/
-		
+	/*	if(m_mode)
+		{
+			CActor *pActor = static_cast<CActor *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
+	*/
+
 	m_pSingleActor = GetActorOfName(filterName);
+
 	if(m_pSingleActor)// && !pActor->GetSpectatorMode() && pActor->IsPlayer())
 	{
 		m_mode = GPM_SingleActor;
@@ -172,33 +177,39 @@ void CGameStateRecorder::StartSession()
 		m_itSingleActorGameState = m_GameStates.begin();// position of requested actor's id (player by default)
 	}
 //	}
-	else if (!strcmpi(filterName,"all"))
+	else if(!strcmpi(filterName,"all"))
 	{
-		IAIObjectManager* pAIObjMgr = gEnv->pAISystem->GetAIObjectManager();
+		IAIObjectManager *pAIObjMgr = gEnv->pAISystem->GetAIObjectManager();
 
 		m_mode = GPM_AllActors;
 		{
 			AutoAIObjectIter it(pAIObjMgr->GetFirstAIObject(OBJFILTER_TYPE, AIOBJECT_ACTOR));
+
 			for(; it->GetObject(); it->Next())
 			{
-				IAIObject* pObject = it->GetObject();
+				IAIObject *pObject = it->GetObject();
+
 				if(pObject)
 				{
-					CActor* pActor = static_cast<CActor *>(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pObject->GetEntityID()));
+					CActor *pActor = static_cast<CActor *>(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pObject->GetEntityID()));
+
 					if(pActor)
 						AddActorToStats(pActor);
 				}
 			}
 		}
-		
+
 		{
 			AutoAIObjectIter it(pAIObjMgr->GetFirstAIObject(OBJFILTER_TYPE, AIOBJECT_VEHICLE));
+
 			for(; it->GetObject(); it->Next())
 			{
-				IAIObject* pObject = it->GetObject();
+				IAIObject *pObject = it->GetObject();
+
 				if(pObject)
 				{
-					CActor* pActor = static_cast<CActor *>(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pObject->GetEntityID()));
+					CActor *pActor = static_cast<CActor *>(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pObject->GetEntityID()));
+
 					if(pActor)
 						AddActorToStats(pActor);
 				}
@@ -208,30 +219,33 @@ void CGameStateRecorder::StartSession()
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void CGameStateRecorder::DumpWholeGameState(const CActor* pActor)
+void CGameStateRecorder::DumpWholeGameState(const CActor *pActor)
 {
 	GameplayEvent event;
-	IEntity* pEntity = pActor->GetEntity();
-	
+	IEntity *pEntity = pActor->GetEntity();
+
 	// health
 	float health = (float)pActor->GetHealth();
 	event.event = eGE_HealthChanged;
 	event.value = health;
 	SendGamePlayEvent(pEntity,event);
-	
+
 	// Inventory
-	CInventory *pInventory = (CInventory*)(pActor->GetInventory());
+	CInventory *pInventory = (CInventory *)(pActor->GetInventory());
+
 	if(!pInventory)
 		return;
 
 	int count = pInventory->GetCount();
+
 	for(int i=0; i<count; ++i)
 	{
 		EntityId itemId = pInventory->GetItem(i);
-		
-		CItem* pItem=NULL;
+
+		CItem *pItem=NULL;
 		TItemName itemName = GetItemName(itemId,&pItem);
-		if(pItem && itemName)	
+
+		if(pItem && itemName)
 		{
 			event.event = eGE_ItemPickedUp;
 			event.description = itemName;
@@ -244,11 +258,13 @@ void CGameStateRecorder::DumpWholeGameState(const CActor* pActor)
 				event.value = 1; // for initialization
 				SendGamePlayEvent(pEntity,event);
 			}
-			
-			CWeapon* pWeapon = (CWeapon*)(pItem->GetIWeapon());
+
+			CWeapon *pWeapon = (CWeapon *)(pItem->GetIWeapon());
+
 			if(pWeapon)
 			{
-				IEntityClass* pItemClass = pWeapon->GetEntity()->GetClass();
+				IEntityClass *pItemClass = pWeapon->GetEntity()->GetClass();
+
 				if(pItemClass && !strcmpi(pItemClass->GetName(),"binoculars"))
 					continue; // no fire mode or ammo recorded for binocular (which is a weapon)
 
@@ -259,16 +275,18 @@ void CGameStateRecorder::DumpWholeGameState(const CActor* pActor)
 				event.value = (float)fireModeIdx;
 				event.description = itemName;
 				SendGamePlayEvent(pEntity,event);
+
 				// count ammo
 				for(SWeaponAmmo weaponAmmo = pWeapon->GetFirstAmmo(); weaponAmmo.pAmmoClass ; weaponAmmo = pWeapon->GetNextAmmo())
 				{
-					const char* ammoClass;
+					const char *ammoClass;
+
 					if(weaponAmmo.pAmmoClass && (ammoClass = weaponAmmo.pAmmoClass->GetName()))
 					{
 						event.event = eGE_AmmoCount;
 						event.value = (float)weaponAmmo.count;
-						event.extra = (void*)ammoClass;
-						event.description = (const char*)itemName;
+						event.extra = (void *)ammoClass;
+						event.description = (const char *)itemName;
 						SendGamePlayEvent(pEntity,event);
 					}
 				}
@@ -280,10 +298,12 @@ void CGameStateRecorder::DumpWholeGameState(const CActor* pActor)
 
 	for(int i=0; i< count; i++)
 	{
-		const char* accessory = pInventory->GetAccessory(i);
-		if(accessory != 0 && strlen(accessory))	
+		const char *accessory = pInventory->GetAccessory(i);
+
+		if(accessory != 0 && strlen(accessory))
 		{
-			IEntityClass* pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(accessory);
+			IEntityClass *pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(accessory);
+
 			if(pClass)
 			{
 				TItemName classItem = pClass->GetName();
@@ -297,12 +317,14 @@ void CGameStateRecorder::DumpWholeGameState(const CActor* pActor)
 
 	int nInvAmmo = pInventory->GetAmmoPackCount();
 	pInventory->AmmoIteratorFirst();
+
 	for(int j=0 ; !pInventory->AmmoIteratorEnd(); j++, pInventory->AmmoIteratorNext())
 	{
-		const IEntityClass* pAmmoClass = pInventory->AmmoIteratorGetClass();
+		const IEntityClass *pAmmoClass = pInventory->AmmoIteratorGetClass();
+
 		if(pAmmoClass)
 		{
-			const char* ammoClassName = pAmmoClass->GetName();
+			const char *ammoClassName = pAmmoClass->GetName();
 			int ammoCount = pInventory->AmmoIteratorGetCount();
 			GameplayEvent newEvent;
 			newEvent.event = eGE_AmmoPickedUp;
@@ -321,32 +343,33 @@ void CGameStateRecorder::Update()
 	{
 		switch(m_mode)
 		{
-			case GPM_SingleActor:
+		case GPM_SingleActor:
+		{
+			//CActor *pActor = static_cast<CActor *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
+			//if(pActor && !pActor->GetSpectatorMode() && pActor->IsPlayer())
+			if(m_pSingleActor)
+			{
+				float health = (float)m_pSingleActor->GetHealth();
+
+				if(m_itSingleActorGameState != m_GameStates.end())
 				{
-					//CActor *pActor = static_cast<CActor *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
-					//if(pActor && !pActor->GetSpectatorMode() && pActor->IsPlayer())
-					if(m_pSingleActor)
+					SActorGameState &playerState = m_itSingleActorGameState->second;
+					//if( health!= playerState.health)
 					{
-						float health = (float)m_pSingleActor->GetHealth();
-						if(m_itSingleActorGameState != m_GameStates.end())
-						{
-							SActorGameState& playerState = m_itSingleActorGameState->second;
-							//if( health!= playerState.health)
-							{
 //								playerState.health = health;
-								GameplayEvent event;
-								event.event = eGE_HealthChanged;
-								event.value = health;
-								OnGameplayEvent(m_pSingleActor->GetEntity(),event);
-							}
-						}
+						GameplayEvent event;
+						event.event = eGE_HealthChanged;
+						event.value = health;
+						OnGameplayEvent(m_pSingleActor->GetEntity(),event);
 					}
 				}
-				break;
+			}
+		}
+		break;
 
-			case GPM_AllActors:
-			default:
-				break;
+		case GPM_AllActors:
+		default:
+			break;
 		}
 	}
 }
@@ -359,13 +382,15 @@ void CGameStateRecorder::OnRecordedGameplayEvent(IEntity *pEntity, const Gamepla
 	m_currentFrame = currentFrame;
 
 	int demo_forceGameState = 0;
+
 	if(!bRecording)
 	{
-		ICVar *pVar = gEnv->pConsole->GetCVar( "demo_force_game_state" );
+		ICVar *pVar = gEnv->pConsole->GetCVar("demo_force_game_state");
+
 		if(pVar)
 			demo_forceGameState = pVar->GetIVal();
 	}
-	
+
 	if(!pEntity || !(id = pEntity->GetId()))
 		return;
 
@@ -376,433 +401,484 @@ void CGameStateRecorder::OnRecordedGameplayEvent(IEntity *pEntity, const Gamepla
 			return;
 		}
 
-		TGameStates::iterator itActor = m_GameStates.find(id);
+	TGameStates::iterator itActor = m_GameStates.find(id);
+
 	if(itActor == m_GameStates.end())
 	{
 		m_GameStates.insert(std::make_pair(id,SActorGameState()));
 		itActor = m_GameStates.find(id);
 	}
+
 	if(itActor == m_GameStates.end())
 	{
 		GameWarning("TimeDemo:GameState: actor %s not found in records",pEntity->GetName());
 		return;
 	}
 
-	SActorGameState& gstate = itActor->second;
+	SActorGameState &gstate = itActor->second;
 
 	switch(event.event)
 	{
-		case eGE_HealthChanged: 
+	case eGE_HealthChanged:
+	{
+		gstate.health = event.value;
+
+		if(!m_bRecording)
+		{
+			CActor *pActor = (CActor *)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
+
+			if(pActor)
 			{
-				gstate.health = event.value;
-
-				if(!m_bRecording)
-				{
-					CActor *pActor = (CActor*)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
-					if(pActor)
-					{
-						if(m_bLogWarning)
-						{
-							if(CHECK_MISMATCH(pActor->GetHealth(), gstate.health,10))
-							{
-								if(!gstate.bHealthDifferent)
-								{
-									GameWarning("TimeDemo:GameState: Frame %d - Actor %s - HEALTH mismatch (%d, %d)",m_currentFrame,pEntity->GetName(), static_cast<int>(pActor->GetHealth()), static_cast<int>(gstate.health));
-									gstate.bHealthDifferent = true;
-								}
-							}
-							else
-								gstate.bHealthDifferent = false;
-						}
-
-						if( demo_forceGameState)
-							pActor->SetHealth(gstate.health);
-					}
-				}
-			}
-			break;
-
-		case eGE_WeaponFireModeChanged:
-			{
-				TItemName sel = (event.description);
-				if(sel)
-				{
-					TItemContainer& Items = gstate.Items;
-					TItemContainer::iterator iti = Items.find(sel);
-					uint8 recFireModeIdx = uint8(event.value);
-					if(iti != Items.end())
-						iti->second.fireMode = recFireModeIdx;
-
-					CActor *pActor = (CActor*)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
-					if(pActor && pActor->GetInventory())
-					{
-						IItem* pItem = pActor->GetInventory()->GetItemByName(sel);
-						CWeapon* pWeapon;
-						if(pItem && (pWeapon = (CWeapon*)(pItem->GetIWeapon())))
-						{
-
-						int fireModeIdx = pWeapon->GetCurrentFireMode();
-						if(m_bLogWarning)
-							{
-									CheckDifference(recFireModeIdx,fireModeIdx,"TimeDemo:GameState: Frame %d - Actor %s - FIRE MODE mismatch for weapon %s (rec:%d, cur:%d)",pEntity,pItem->GetEntity() ? pItem->GetEntity()->GetName() : "(null)");
-							}
-
-							if(demo_forceGameState==2 && fireModeIdx!= recFireModeIdx)
-								pWeapon->SetCurrentFireMode(recFireModeIdx);
-						}
-					}
-				}
-			}
-			break;
-
-		case eGE_WeaponReload:
-			{
-				const char* ammoType = event.description;
-				TAmmoContainer& ammoMags = gstate.AmmoMags;
-				TAmmoContainer::iterator it = ammoMags.find(ammoType);
-				if(it!=ammoMags.end())
-				{
-					it->second -= (uint16)event.value;
-				
-					CActor *pActor = (CActor*)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
-					if(pActor)
-					{
-						CInventory* pInventory = (CInventory*)(pActor->GetInventory());
-						if(pInventory)
-						{
-							{
-								IEntityClass* pAmmoClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(ammoType);
-								if(pAmmoClass)
-								{
-									if(m_bLogWarning)
-										CheckDifference(it->second,pInventory->GetAmmoCount(pAmmoClass),"TimeDemo:GameState: Frame %d - Actor %s - WEAPON RELOAD, ammo count mismatch for ammo class %s (rec:%d, cur:%d)",pEntity,ammoType);
-		
-									if(demo_forceGameState == 2)
-										pInventory->SetAmmoCount(pAmmoClass,it->second);
-								}
-							}
-						}
-					}
-				}
-			}
-			break;
-
-		case eGE_ItemSelected:
-			{
-				TItemName itemName = event.description;
-				gstate.itemSelected = itemName;
-				if(itemName)
-				{
-					if( !bRecording && (event.value > 0 || demo_forceGameState==2)) // EVENT.VALUE > 0 means initialization
-					{
-						CActor *pActor = (CActor*)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
-						if(pActor && pActor->GetInventory())
-						{
-							IItem* pItem = pActor->GetInventory()->GetItemByName(itemName);
-							if(pItem)
-								pActor->SelectItem(pItem->GetEntityId(),false);
-						}
-					}
-				}
-
 				if(m_bLogWarning)
-				{	
-					CActor *pActor = (CActor*)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
-					if(pActor)
-					{
-						IItem* pItem = pActor->GetCurrentItem();
-						const char* curItemName= pItem && pItem->GetEntity() ? pItem->GetEntity()->GetName(): NULL;
-						CheckDifferenceString(itemName,curItemName,"TimeDemo:GameState: Frame %d - Actor %s - SELECTED ITEM mismatch (rec:%s, cur:%s)",pEntity);
-					}
-				}
-				break;
-			}
-			break;
-
-		case eGE_ItemExchanged:
-			{
-				// prevent unwanted record/play mismatch error with current item during item exchanging
-				// two unneeded game events are sent (selecting fists)
-				m_IgnoredEvents.push_back(eGE_ItemSelected);
-				m_IgnoredEvents.push_back(eGE_ItemSelected);
-			}
-			break;
-
-		case eGE_ItemPickedUp:
-			{
-				TItemName sel = (TItemName)event.description;
-//				gstate.itemSelected = sel;
-				TItemContainer& Items = gstate.Items;
-				TItemContainer::iterator it = Items.find(sel);
-				if(it == Items.end())
 				{
-					Items.insert(std::make_pair(sel,SItemProperties()));
-					it = Items.find(sel);
-				}
-
-				if(it != Items.end())
-				{
-					it->second.count++;
-
-					CActor *pActor = (CActor*)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
-					if(pActor && !m_bRecording)
+					if(CHECK_MISMATCH(pActor->GetHealth(), gstate.health,10))
 					{
-						CInventory* pInventory = (CInventory*)(pActor->GetInventory());
-						if(pInventory)
+						if(!gstate.bHealthDifferent)
 						{
-							// just check if the item is the inventory
-							if(m_bLogWarning && !pInventory->GetItemByName(sel))
-								GameWarning("TimeDemo:GameState: Frame %d - Actor %s - Recorded PICKED UP ITEM class '%s' not found in current inventory",m_currentFrame,pEntity->GetName(),sel);
-
-							if(demo_forceGameState == 2)
-							{
-								IEntity* pItemEntity = gEnv->pEntitySystem->FindEntityByName(sel);
-								if(pItemEntity)
-									pInventory->AddItem(pItemEntity->GetId());
-								else
-									GameWarning("TimeDemo:GameState: Frame %d - Actor %s - PICKED UP ITEM entity %s not found in level",m_currentFrame,pEntity->GetName(),sel);
-							}
+							GameWarning("TimeDemo:GameState: Frame %d - Actor %s - HEALTH mismatch (%d, %d)",m_currentFrame,pEntity->GetName(), static_cast<int>(pActor->GetHealth()), static_cast<int>(gstate.health));
+							gstate.bHealthDifferent = true;
 						}
 					}
-				}
-				else if(m_bLogWarning)
-				{
-					if(!sel)
-						sel = "(null)";
-					GameWarning("TimeDemo:GameState: Frame %d - Actor %s - PICKED UP ITEM %s not found in recorded inventory",m_currentFrame,pEntity->GetName(),sel);
+					else
+						gstate.bHealthDifferent = false;
 				}
 
+				if(demo_forceGameState)
+					pActor->SetHealth(gstate.health);
 			}
-			break;
+		}
+	}
+	break;
 
-		case eGE_AmmoPickedUp:
+	case eGE_WeaponFireModeChanged:
+	{
+		TItemName sel = (event.description);
+
+		if(sel)
+		{
+			TItemContainer &Items = gstate.Items;
+			TItemContainer::iterator iti = Items.find(sel);
+			uint8 recFireModeIdx = uint8(event.value);
+
+			if(iti != Items.end())
+				iti->second.fireMode = recFireModeIdx;
+
+			CActor *pActor = (CActor *)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
+
+			if(pActor && pActor->GetInventory())
 			{
-				uint16 ammoCount = (uint16)(event.value);
-				TItemName sel = (TItemName)event.description;
-				TAmmoContainer& Ammo = gstate.AmmoMags;
+				IItem *pItem = pActor->GetInventory()->GetItemByName(sel);
+				CWeapon *pWeapon;
 
-				TAmmoContainer::iterator it = Ammo.find(sel);
-				if(it == Ammo.end())
-					Ammo.insert(std::make_pair(sel,ammoCount));
-				else
-					it->second = ammoCount;
-
-				if( !m_bRecording)
+				if(pItem && (pWeapon = (CWeapon *)(pItem->GetIWeapon())))
 				{
-					CActor *pActor = (CActor*)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
-					if(pActor)
+
+					int fireModeIdx = pWeapon->GetCurrentFireMode();
+
+					if(m_bLogWarning)
 					{
-						CInventory* pInventory = (CInventory*)(pActor->GetInventory());
-						if(pInventory)
+						CheckDifference(recFireModeIdx,fireModeIdx,"TimeDemo:GameState: Frame %d - Actor %s - FIRE MODE mismatch for weapon %s (rec:%d, cur:%d)",pEntity,pItem->GetEntity() ? pItem->GetEntity()->GetName() : "(null)");
+					}
+
+					if(demo_forceGameState==2 && fireModeIdx!= recFireModeIdx)
+						pWeapon->SetCurrentFireMode(recFireModeIdx);
+				}
+			}
+		}
+	}
+	break;
+
+	case eGE_WeaponReload:
+	{
+		const char *ammoType = event.description;
+		TAmmoContainer &ammoMags = gstate.AmmoMags;
+		TAmmoContainer::iterator it = ammoMags.find(ammoType);
+
+		if(it!=ammoMags.end())
+		{
+			it->second -= (uint16)event.value;
+
+			CActor *pActor = (CActor *)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
+
+			if(pActor)
+			{
+				CInventory *pInventory = (CInventory *)(pActor->GetInventory());
+
+				if(pInventory)
+				{
+					{
+						IEntityClass *pAmmoClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(ammoType);
+
+						if(pAmmoClass)
 						{
-							IEntityClass* pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(sel);
 							if(m_bLogWarning)
-								CheckDifference(ammoCount,pInventory->GetAmmoCount(pClass),"TimeDemo:GameState: Frame %d - Actor %s - AMMO PICKEDUP: count mismatch for ammo class %s (rec:%d, cur:%d)", pEntity,sel);
+								CheckDifference(it->second,pInventory->GetAmmoCount(pAmmoClass),"TimeDemo:GameState: Frame %d - Actor %s - WEAPON RELOAD, ammo count mismatch for ammo class %s (rec:%d, cur:%d)",pEntity,ammoType);
 
 							if(demo_forceGameState == 2)
-								pInventory->SetAmmoCount(pClass,ammoCount);
+								pInventory->SetAmmoCount(pAmmoClass,it->second);
 						}
 					}
 				}
 			}
-			break;
+		}
+	}
+	break;
 
-		case eGE_AccessoryPickedUp:
+	case eGE_ItemSelected:
+	{
+		TItemName itemName = event.description;
+		gstate.itemSelected = itemName;
+
+		if(itemName)
+		{
+			if(!bRecording && (event.value > 0 || demo_forceGameState==2))  // EVENT.VALUE > 0 means initialization
 			{
-				TItemName sel = (TItemName)event.description;
-				//				gstate.itemSelected = sel;
-				TAccessoryContainer& Accessories = gstate.Accessories;
-				TAccessoryContainer::iterator it = Accessories.find(sel);
-				if(it == Accessories.end())
+				CActor *pActor = (CActor *)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
+
+				if(pActor && pActor->GetInventory())
 				{
-					Accessories.insert(std::make_pair(sel,1));
-				}
-				else
-					it->second++;
+					IItem *pItem = pActor->GetInventory()->GetItemByName(itemName);
 
-				CActor *pActor = (CActor*)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
-				if(pActor)
-				{
-					CInventory* pInventory = (CInventory*)(pActor->GetInventory());
-					if(pInventory)
-					{
-						IEntityClass* pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(sel);
-						
-						if(m_bLogWarning && !pInventory->HasAccessory(pClass))
-							GameWarning("TimeDemo:GameState: Frame %d - Actor %s - ACCESSORY PICKEDUP %s not found in current inventory", m_currentFrame, pEntity->GetName(),sel ? sel:"(null)");
-
-						if(demo_forceGameState == 2 && pClass)					
-							pInventory->AddAccessory(pClass);// doesn't actually add it if it's there already
-
-					}
+					if(pItem)
+						pActor->SelectItem(pItem->GetEntityId(),false);
 				}
 			}
-			break;
+		}
 
-		case eGE_ItemDropped:
+		if(m_bLogWarning)
+		{
+			CActor *pActor = (CActor *)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
+
+			if(pActor)
 			{
-				TItemName sel = (TItemName)event.description;
-				//gstate.itemSelected = sel;
-				TItemContainer& Items = gstate.Items;
-				TItemContainer::iterator it = Items.find(sel);
-				if(it != Items.end())
+				IItem *pItem = pActor->GetCurrentItem();
+				const char *curItemName= pItem && pItem->GetEntity() ? pItem->GetEntity()->GetName(): NULL;
+				CheckDifferenceString(itemName,curItemName,"TimeDemo:GameState: Frame %d - Actor %s - SELECTED ITEM mismatch (rec:%s, cur:%s)",pEntity);
+			}
+		}
+
+		break;
+	}
+	break;
+
+	case eGE_ItemExchanged:
+	{
+		// prevent unwanted record/play mismatch error with current item during item exchanging
+		// two unneeded game events are sent (selecting fists)
+		m_IgnoredEvents.push_back(eGE_ItemSelected);
+		m_IgnoredEvents.push_back(eGE_ItemSelected);
+	}
+	break;
+
+	case eGE_ItemPickedUp:
+	{
+		TItemName sel = (TItemName)event.description;
+//				gstate.itemSelected = sel;
+		TItemContainer &Items = gstate.Items;
+		TItemContainer::iterator it = Items.find(sel);
+
+		if(it == Items.end())
+		{
+			Items.insert(std::make_pair(sel,SItemProperties()));
+			it = Items.find(sel);
+		}
+
+		if(it != Items.end())
+		{
+			it->second.count++;
+
+			CActor *pActor = (CActor *)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
+
+			if(pActor && !m_bRecording)
+			{
+				CInventory *pInventory = (CInventory *)(pActor->GetInventory());
+
+				if(pInventory)
 				{
-					it->second.count--;
-					if(it->second.count<=0)
-						Items.erase(it);
+					// just check if the item is the inventory
+					if(m_bLogWarning && !pInventory->GetItemByName(sel))
+						GameWarning("TimeDemo:GameState: Frame %d - Actor %s - Recorded PICKED UP ITEM class '%s' not found in current inventory",m_currentFrame,pEntity->GetName(),sel);
 
 					if(demo_forceGameState == 2)
 					{
-						CActor *pActor = (CActor*)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
-						if(pActor)
+						IEntity *pItemEntity = gEnv->pEntitySystem->FindEntityByName(sel);
+
+						if(pItemEntity)
+							pInventory->AddItem(pItemEntity->GetId());
+						else
+							GameWarning("TimeDemo:GameState: Frame %d - Actor %s - PICKED UP ITEM entity %s not found in level",m_currentFrame,pEntity->GetName(),sel);
+					}
+				}
+			}
+		}
+		else if(m_bLogWarning)
+		{
+			if(!sel)
+				sel = "(null)";
+
+			GameWarning("TimeDemo:GameState: Frame %d - Actor %s - PICKED UP ITEM %s not found in recorded inventory",m_currentFrame,pEntity->GetName(),sel);
+		}
+
+	}
+	break;
+
+	case eGE_AmmoPickedUp:
+	{
+		uint16 ammoCount = (uint16)(event.value);
+		TItemName sel = (TItemName)event.description;
+		TAmmoContainer &Ammo = gstate.AmmoMags;
+
+		TAmmoContainer::iterator it = Ammo.find(sel);
+
+		if(it == Ammo.end())
+			Ammo.insert(std::make_pair(sel,ammoCount));
+		else
+			it->second = ammoCount;
+
+		if(!m_bRecording)
+		{
+			CActor *pActor = (CActor *)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
+
+			if(pActor)
+			{
+				CInventory *pInventory = (CInventory *)(pActor->GetInventory());
+
+				if(pInventory)
+				{
+					IEntityClass *pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(sel);
+
+					if(m_bLogWarning)
+						CheckDifference(ammoCount,pInventory->GetAmmoCount(pClass),"TimeDemo:GameState: Frame %d - Actor %s - AMMO PICKEDUP: count mismatch for ammo class %s (rec:%d, cur:%d)", pEntity,sel);
+
+					if(demo_forceGameState == 2)
+						pInventory->SetAmmoCount(pClass,ammoCount);
+				}
+			}
+		}
+	}
+	break;
+
+	case eGE_AccessoryPickedUp:
+	{
+		TItemName sel = (TItemName)event.description;
+		//				gstate.itemSelected = sel;
+		TAccessoryContainer &Accessories = gstate.Accessories;
+		TAccessoryContainer::iterator it = Accessories.find(sel);
+
+		if(it == Accessories.end())
+		{
+			Accessories.insert(std::make_pair(sel,1));
+		}
+		else
+			it->second++;
+
+		CActor *pActor = (CActor *)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
+
+		if(pActor)
+		{
+			CInventory *pInventory = (CInventory *)(pActor->GetInventory());
+
+			if(pInventory)
+			{
+				IEntityClass *pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(sel);
+
+				if(m_bLogWarning && !pInventory->HasAccessory(pClass))
+					GameWarning("TimeDemo:GameState: Frame %d - Actor %s - ACCESSORY PICKEDUP %s not found in current inventory", m_currentFrame, pEntity->GetName(),sel ? sel:"(null)");
+
+				if(demo_forceGameState == 2 && pClass)
+					pInventory->AddAccessory(pClass);// doesn't actually add it if it's there already
+
+			}
+		}
+	}
+	break;
+
+	case eGE_ItemDropped:
+	{
+		TItemName sel = (TItemName)event.description;
+		//gstate.itemSelected = sel;
+		TItemContainer &Items = gstate.Items;
+		TItemContainer::iterator it = Items.find(sel);
+
+		if(it != Items.end())
+		{
+			it->second.count--;
+
+			if(it->second.count<=0)
+				Items.erase(it);
+
+			if(demo_forceGameState == 2)
+			{
+				CActor *pActor = (CActor *)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
+
+				if(pActor)
+				{
+					CInventory *pInventory = (CInventory *)(pActor->GetInventory());
+
+					if(pInventory)
+					{
+						IEntityClass *pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(sel);
+
+						if(pClass)
 						{
-							CInventory* pInventory = (CInventory*)(pActor->GetInventory());
-							if(pInventory)
-							{
-								IEntityClass* pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(sel);
-								if(pClass)
-								{
-									EntityId itemId = pInventory->GetItemByClass(pClass);
-									if(itemId)
-										pInventory->RemoveItem(itemId);
-								}
-							}
+							EntityId itemId = pInventory->GetItemByClass(pClass);
+
+							if(itemId)
+								pInventory->RemoveItem(itemId);
 						}
 					}
 				}
-				else
-					GameWarning("TimeDemo:GameState: Frame %d - Actor %s - ITEM DROPPED, wrong item selected (%s)",m_currentFrame,pEntity->GetName(),sel);
 			}
-			break;
+		}
+		else
+			GameWarning("TimeDemo:GameState: Frame %d - Actor %s - ITEM DROPPED, wrong item selected (%s)",m_currentFrame,pEntity->GetName(),sel);
+	}
+	break;
 
-		case eGE_AmmoCount: 
+	case eGE_AmmoCount:
+	{
+		TItemContainer &Items = gstate.Items;
+		TItemName itemClassDesc = event.description;
+		TItemContainer::iterator it = Items.find(itemClassDesc);
+
+		if(it != Items.end())
+		{
+			SItemProperties &item = it->second;
+			const char *ammoClassDesc = (const char *)(event.extra);
+
+			if(ammoClassDesc)
 			{
-				TItemContainer& Items = gstate.Items;
-				TItemName itemClassDesc = event.description;
-				TItemContainer::iterator it = Items.find(itemClassDesc);
-				if(it != Items.end())
+				string szAmmoClassDesc(ammoClassDesc);
+				bool bAmmoMag = IsAmmoGrenade(ammoClassDesc);
+				TAmmoContainer &itemAmmo = bAmmoMag ? gstate.AmmoMags : item.Ammo;
+
+				if(itemAmmo.find(szAmmoClassDesc)==itemAmmo.end())
+					itemAmmo.insert(std::make_pair(szAmmoClassDesc,int(event.value)));
+				else
+					itemAmmo[szAmmoClassDesc] = (uint16)event.value;
+
+				if(!bRecording && (m_bLogWarning || demo_forceGameState==2))
 				{
-					SItemProperties& item = it->second;
-					const char* ammoClassDesc = (const char*)(event.extra);
-					if(ammoClassDesc)
+					CActor *pActor = (CActor *)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
+
+					if(pActor)
 					{
-						string szAmmoClassDesc(ammoClassDesc);
-						bool bAmmoMag = IsAmmoGrenade(ammoClassDesc);
-						TAmmoContainer& itemAmmo = bAmmoMag ? gstate.AmmoMags : item.Ammo;
+						CInventory *pInventory = (CInventory *)(pActor->GetInventory());
 
-						if(itemAmmo.find(szAmmoClassDesc)==itemAmmo.end())
-							itemAmmo.insert(std::make_pair(szAmmoClassDesc,int(event.value)));
-						else
-							itemAmmo[szAmmoClassDesc] = (uint16)event.value;
-
-						if(!bRecording && (m_bLogWarning || demo_forceGameState==2))
+						if(pInventory)
 						{
-							CActor *pActor = (CActor*)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
-							if(pActor)
+							IItem *pItem = pInventory->GetItemByName(itemClassDesc);
+
+							if(pItem)
 							{
-								CInventory* pInventory = (CInventory*)(pActor->GetInventory());
-								if(pInventory)
+								CWeapon *pWeapon = (CWeapon *)(pItem->GetIWeapon());
+
+								if(pWeapon)
 								{
-									IItem* pItem = pInventory->GetItemByName(itemClassDesc);
+									IEntityClass *pAmmoClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(ammoClassDesc);
 
-									if(pItem)
+									if(pAmmoClass)
 									{
-										CWeapon* pWeapon = (CWeapon*)(pItem->GetIWeapon());
-										if(pWeapon)
+										if(m_bLogWarning)
 										{
-											IEntityClass* pAmmoClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(ammoClassDesc);
-											if(pAmmoClass)
-											{
-												if(m_bLogWarning)
-												{
-													int curAmmoCount = (bAmmoMag ? pInventory->GetAmmoCount(pAmmoClass) : 
-														pWeapon->GetAmmoCount(pAmmoClass));
-													CheckDifference( int(event.value),curAmmoCount,"TimeDemo:GameState: Frame %d - Actor %s - AMMO COUNT mismatch for ammo class %s (rec:%d, cur:%d)",pEntity,ammoClassDesc);
-												}
-
-												if(demo_forceGameState==2)
-													pWeapon->SetAmmoCount(pAmmoClass,int(event.value));
-
-											}
+											int curAmmoCount = (bAmmoMag ? pInventory->GetAmmoCount(pAmmoClass) :
+																pWeapon->GetAmmoCount(pAmmoClass));
+											CheckDifference(int(event.value),curAmmoCount,"TimeDemo:GameState: Frame %d - Actor %s - AMMO COUNT mismatch for ammo class %s (rec:%d, cur:%d)",pEntity,ammoClassDesc);
 										}
+
+										if(demo_forceGameState==2)
+											pWeapon->SetAmmoCount(pAmmoClass,int(event.value));
+
 									}
 								}
 							}
 						}
 					}
-					else
-						GameWarning("TimeDemo:GameState: Frame %d - Actor %s - AMMO COUNT null ammoClass descriptor",m_currentFrame,pEntity->GetName());
 				}
-				else
-					GameWarning("TimeDemo:GameState: Frame %d - Actor %s - AMMO COUNT wrong item selected (%s)",m_currentFrame,pEntity->GetName(),itemClassDesc);
 			}
-			break;
+			else
+				GameWarning("TimeDemo:GameState: Frame %d - Actor %s - AMMO COUNT null ammoClass descriptor",m_currentFrame,pEntity->GetName());
+		}
+		else
+			GameWarning("TimeDemo:GameState: Frame %d - Actor %s - AMMO COUNT wrong item selected (%s)",m_currentFrame,pEntity->GetName(),itemClassDesc);
+	}
+	break;
 
-		case eGE_AttachedAccessory: 
+	case eGE_AttachedAccessory:
+	{
+		// always force attachment of accessory to the current weapon
+		// kind of a workaround, the HUD weapon modifier menu is spawned during timedemo playback
+		// but it doesn't use recorded input events
+		if(!bRecording)
+		{
+			CActor *pActor = (CActor *)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
+
+			if(pActor)
 			{
-				// always force attachment of accessory to the current weapon
-				// kind of a workaround, the HUD weapon modifier menu is spawned during timedemo playback 
-				// but it doesn't use recorded input events
-				if(!bRecording)
+				CInventory *pInventory = (CInventory *)(pActor->GetInventory());
+
+				if(pInventory)
 				{
-					CActor *pActor = (CActor*)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
+					const char *sel = event.description;
+					IEntityClass *pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(sel);
+
+					if(!sel)
+						sel = "(null)";
+
+					if(!pInventory->HasAccessory(pClass))
+					{
+						if(m_bLogWarning)
+							GameWarning("TimeDemo:GameState: Frame %d - Actor %s - ATTACHED ACCESSORY %s not found in current inventory", m_currentFrame,pEntity->GetName(),sel);
+					}
+					else
+					{
+						CItem *pCurrentItem = (CItem *)(pActor->GetCurrentItem());
+
+						if(pCurrentItem)
+							pCurrentItem->SwitchAccessory(sel);
+					}
+				}
+			}
+		}
+	}
+	break;
+
+	case eGE_EntityGrabbed:
+	{
+		if(demo_forceGameState==2)
+		{
+			TItemName itemName = event.description;
+
+			if(itemName)
+			{
+				IEntity *pGrabbedEntity = gEnv->pEntitySystem->FindEntityByName(itemName);
+
+				if(pGrabbedEntity)
+				{
+					CActor *pActor = (CActor *)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
+
 					if(pActor)
 					{
-						CInventory* pInventory = (CInventory*)(pActor->GetInventory());
-						if(pInventory)
+						IItem *pItem = GetItemOfName(pActor,itemName);
+
+						if(!pItem)
 						{
-							const char* sel = event.description;
-							IEntityClass* pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(sel);
-							if(!sel)
-								sel = "(null)";
-							if(!pInventory->HasAccessory(pClass))
-							{
-								if(m_bLogWarning)
-									GameWarning("TimeDemo:GameState: Frame %d - Actor %s - ATTACHED ACCESSORY %s not found in current inventory", m_currentFrame,pEntity->GetName(),sel);
-							}
-							else
-							{
-								CItem* pCurrentItem = (CItem*)(pActor->GetCurrentItem());
-								if(pCurrentItem)
-									pCurrentItem->SwitchAccessory(sel);
-							}
+							// it's a pickable entity, won't end up in the inventory
+							//(otherwise it would be managed by eGE_ItemPickedUp)
+							COffHand *pOffHand = static_cast<COffHand *>(pActor->GetWeaponByClass(CItem::sOffHandClass));
+
+							if(pOffHand && !pOffHand->GetPreHeldEntityId())
+								pOffHand->ForcePickUp(pGrabbedEntity->GetId());
 						}
 					}
 				}
 			}
-			break;
+		}
+	}
+	break;
 
-		case eGE_EntityGrabbed:
-			{
-				if(demo_forceGameState==2)
-				{
-					TItemName itemName = event.description;
-					if(itemName)
-					{
-						IEntity * pGrabbedEntity = gEnv->pEntitySystem->FindEntityByName(itemName);
-						if(pGrabbedEntity)
-						{
-							CActor *pActor = (CActor*)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
-							if(pActor)
-							{
-								IItem* pItem = GetItemOfName(pActor,itemName);
-								if(!pItem)
-								{
-									// it's a pickable entity, won't end up in the inventory
-									//(otherwise it would be managed by eGE_ItemPickedUp)
-									COffHand* pOffHand = static_cast<COffHand*>(pActor->GetWeaponByClass(CItem::sOffHandClass));
-									if(pOffHand && !pOffHand->GetPreHeldEntityId())
-										pOffHand->ForcePickUp(pGrabbedEntity->GetId());
-								}
-							}
-						}
-					}	
-				}
-			}
-			break;
-
-		default:
-			break;
+	default:
+		break;
 	}
 }
 
@@ -810,12 +886,15 @@ void CGameStateRecorder::OnRecordedGameplayEvent(IEntity *pEntity, const Gamepla
 void CGameStateRecorder::OnGameplayEvent(IEntity *pEntity, const GameplayEvent &event)
 {
 	EntityId id;
+
 	if(!pEntity || !(id = pEntity->GetId()))
 	{
 		GameWarning("TimeDemo:GameState::OnGamePlayEvent: Entity not found");
 		return;
 	}
-	CActor *pActor = (CActor*)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
+
+	CActor *pActor = (CActor *)(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(id));
+
 	if(!pActor)
 	{
 		GameWarning("TimeDemo:GameState::OnGamePlayEvent: Entity %s has no actor", pEntity->GetName());
@@ -827,178 +906,210 @@ void CGameStateRecorder::OnGameplayEvent(IEntity *pEntity, const GameplayEvent &
 	uint8 eType = event.event;
 
 	bool bPlayer = (pActor->IsPlayer() && m_mode);
+
 	if(bPlayer || m_mode==GPM_AllActors)
 	{
 		//items
 		switch(eType)
 		{
-			case eGE_ItemPickedUp:
-				{
-					CheckInventory(pActor,0);//,*m_pRecordGameEventFtor);
-				}
+		case eGE_ItemPickedUp:
+		{
+			CheckInventory(pActor,0);//,*m_pRecordGameEventFtor);
+		}
+		break;
+
+		case eGE_ItemDropped:
+		{
+			TItemName itemName = GetItemName(EntityId(event.extra));
+
+			if(!itemName)  //if(itemIdx < 0)
 				break;
 
-			case eGE_ItemDropped:
-				{
-					TItemName itemName = GetItemName(EntityId(event.extra));
-					if(!itemName ) //if(itemIdx < 0)
-						break;
-					event2.description = itemName;
-					SendGamePlayEvent(pEntity,event2);
-					IEntity* pItemEntity = gEnv->pEntitySystem->FindEntityByName(itemName);
-					if(!pItemEntity)
-						break;
-					IItem* pItem = g_pGame->GetIGameFramework()->GetIItemSystem()->GetItem(pItemEntity->GetId());
-					if(!pItem)
-						break;
+			event2.description = itemName;
+			SendGamePlayEvent(pEntity,event2);
+			IEntity *pItemEntity = gEnv->pEntitySystem->FindEntityByName(itemName);
 
-					IEntityClass* pItemClass = pItem->GetEntity()->GetClass();
-					if(pItemClass && !strcmpi(pItemClass->GetName(),"SOCOM"))
+			if(!pItemEntity)
+				break;
+
+			IItem *pItem = g_pGame->GetIGameFramework()->GetIItemSystem()->GetItem(pItemEntity->GetId());
+
+			if(!pItem)
+				break;
+
+			IEntityClass *pItemClass = pItem->GetEntity()->GetClass();
+
+			if(pItemClass && !strcmpi(pItemClass->GetName(),"SOCOM"))
+			{
+				IItem *pCurrentItem = pActor->GetCurrentItem();
+
+				if(pCurrentItem)
+				{
+					IEntityClass *pCurrentItemClass = pCurrentItem->GetEntity()->GetClass();
+
+					if(pCurrentItemClass && !strcmpi(pCurrentItemClass->GetName(),"SOCOM"))
 					{
-						IItem* pCurrentItem = pActor->GetCurrentItem();
-						if(pCurrentItem)
-						{
-							IEntityClass* pCurrentItemClass = pCurrentItem->GetEntity()->GetClass();
-							if(pCurrentItemClass && !strcmpi(pCurrentItemClass->GetName(),"SOCOM"))
-							{
-								GameplayEvent event3;
-								event3.event = eGE_ItemSelected;
-								TItemName currItemName = GetItemName(pCurrentItem->GetEntity()->GetId());
-								if(!currItemName)
-									break;
-								event3.value = 0;
-								event3.description = (const char*)currItemName;
-								SendGamePlayEvent(pEntity,event3);
-							}
-						}
-					}
-				}
-				break;
+						GameplayEvent event3;
+						event3.event = eGE_ItemSelected;
+						TItemName currItemName = GetItemName(pCurrentItem->GetEntity()->GetId());
 
-			case eGE_WeaponFireModeChanged:
-				{
-					TItemName itemIdx = GetItemName(EntityId(event.extra));
-					if(!itemIdx)//if(itemIdx < 0)
-						break;
-					event2.description = (const char*)itemIdx;
-					SendGamePlayEvent(pEntity,event2);
-				}
-				break;
-
-			case eGE_ItemSelected:
-				{
-					EntityId itemId = EntityId(event.extra);
-					TItemName itemIdx = GetItemName(itemId);
-					if(itemId && !itemIdx)
-						break;
-					event2.value = 0;
-					event2.description = (const char*)itemIdx;
-					SendGamePlayEvent(pEntity,event2);
-				}
-				break;
-
-			case eGE_AttachedAccessory:
-				{
-					if(!IsGrenade(event.description)) // NOT OffHandGrenade
-						SendGamePlayEvent(pEntity,event2);
-				}
-				break;
-
-			case eGE_AmmoCount:
-				{
-					const char* itemIdx = event.description;
-					if(!itemIdx)
-						break;
-
-					TGameStates::iterator itGS;
-					/*if(pActor->IsPlayer())
-						itGS = m_itSingleActorGameState;
-					else */if(pActor->GetEntity())
-						itGS = m_GameStates.find(pActor->GetEntity()->GetId());
-					else
-						break;
-
-					if(itGS == m_GameStates.end())
-						break;
-
-					SActorGameState& gstate = itGS->second;
-
-					IEntity* pItemEntity = gEnv->pEntitySystem->FindEntityByName(itemIdx);
-					if(!pItemEntity)
-						break;
-					IItem* pItem = g_pGame->GetIGameFramework()->GetIItemSystem()->GetItem(pItemEntity->GetId());
-					if(!pItem)
-						break;
-
-					CWeapon* pWeapon = (CWeapon*)(pItem->GetIWeapon());
-					if(pWeapon && pWeapon->GetEntity())
-					{
-						TItemContainer::iterator it = gstate.Items.find(itemIdx);
-						if(it==gstate.Items.end())
+						if(!currItemName)
 							break;
-						SItemProperties& recItem = it->second;
-						
-						SWeaponAmmo weaponAmmo = pWeapon->GetFirstAmmo();
-						bool bGrenade = false;
-						if(!weaponAmmo.pAmmoClass)
-						{
-							// special case for grenades
-							if(IsAmmoGrenade((const char*)(event.extra)))
-							{
-								weaponAmmo.pAmmoClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass((const char*)event.extra);
-								weaponAmmo.count = (int)event.value;
-								bGrenade = true;
-							}
-						}
-						
-						for(; weaponAmmo.pAmmoClass ; weaponAmmo = pWeapon->GetNextAmmo())
-						{
-							int ammoCount = weaponAmmo.count;
-							const char* ammoClass;
-							if(weaponAmmo.pAmmoClass && (ammoClass = weaponAmmo.pAmmoClass->GetName()))
-							{
-								TAmmoContainer& recAmmo = bGrenade? gstate.AmmoMags : recItem.Ammo;
-								if(recAmmo.find(ammoClass) == recAmmo.end())
-									recAmmo.insert(std::make_pair(ammoClass,0));
-								if(ammoCount != recAmmo[ammoClass])
-								{
-									event2.event = eGE_AmmoCount;
-									event2.value = (float)ammoCount;
-									if(event2.value < 0)
-										event2.value = 0;
-									event2.extra = (void*)ammoClass;
-									event2.description = (const char*)itemIdx;
-									SendGamePlayEvent(pEntity,event2);
-								}
-							}
-						}
-					}
 
-				}
-				break;
-
-			case eGE_EntityGrabbed:
-				{
-					EntityId entityId = EntityId(event.extra);
-					IEntity * pGrabbedEntity = gEnv->pEntitySystem->GetEntity(entityId);
-					if(pGrabbedEntity)
-					{
-						event2.description = pGrabbedEntity->GetName();
-						SendGamePlayEvent(pEntity,event2);
+						event3.value = 0;
+						event3.description = (const char *)currItemName;
+						SendGamePlayEvent(pEntity,event3);
 					}
 				}
+			}
+		}
+		break;
+
+		case eGE_WeaponFireModeChanged:
+		{
+			TItemName itemIdx = GetItemName(EntityId(event.extra));
+
+			if(!itemIdx)//if(itemIdx < 0)
 				break;
 
-			case eGE_WeaponReload:
-			case eGE_ZoomedIn:
-			case eGE_ZoomedOut:			
-			case eGE_HealthChanged:
-			case eGE_ItemExchanged:
+			event2.description = (const char *)itemIdx;
+			SendGamePlayEvent(pEntity,event2);
+		}
+		break;
+
+		case eGE_ItemSelected:
+		{
+			EntityId itemId = EntityId(event.extra);
+			TItemName itemIdx = GetItemName(itemId);
+
+			if(itemId && !itemIdx)
+				break;
+
+			event2.value = 0;
+			event2.description = (const char *)itemIdx;
+			SendGamePlayEvent(pEntity,event2);
+		}
+		break;
+
+		case eGE_AttachedAccessory:
+		{
+			if(!IsGrenade(event.description)) // NOT OffHandGrenade
 				SendGamePlayEvent(pEntity,event2);
+		}
+		break;
+
+		case eGE_AmmoCount:
+		{
+			const char *itemIdx = event.description;
+
+			if(!itemIdx)
 				break;
 
-			default:
+			TGameStates::iterator itGS;
+
+			/*if(pActor->IsPlayer())
+				itGS = m_itSingleActorGameState;
+			else */
+
+			if(pActor->GetEntity())
+				itGS = m_GameStates.find(pActor->GetEntity()->GetId());
+			else
 				break;
+
+			if(itGS == m_GameStates.end())
+				break;
+
+			SActorGameState &gstate = itGS->second;
+
+			IEntity *pItemEntity = gEnv->pEntitySystem->FindEntityByName(itemIdx);
+
+			if(!pItemEntity)
+				break;
+
+			IItem *pItem = g_pGame->GetIGameFramework()->GetIItemSystem()->GetItem(pItemEntity->GetId());
+
+			if(!pItem)
+				break;
+
+			CWeapon *pWeapon = (CWeapon *)(pItem->GetIWeapon());
+
+			if(pWeapon && pWeapon->GetEntity())
+			{
+				TItemContainer::iterator it = gstate.Items.find(itemIdx);
+
+				if(it==gstate.Items.end())
+					break;
+
+				SItemProperties &recItem = it->second;
+
+				SWeaponAmmo weaponAmmo = pWeapon->GetFirstAmmo();
+				bool bGrenade = false;
+
+				if(!weaponAmmo.pAmmoClass)
+				{
+					// special case for grenades
+					if(IsAmmoGrenade((const char *)(event.extra)))
+					{
+						weaponAmmo.pAmmoClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass((const char *)event.extra);
+						weaponAmmo.count = (int)event.value;
+						bGrenade = true;
+					}
+				}
+
+				for(; weaponAmmo.pAmmoClass ; weaponAmmo = pWeapon->GetNextAmmo())
+				{
+					int ammoCount = weaponAmmo.count;
+					const char *ammoClass;
+
+					if(weaponAmmo.pAmmoClass && (ammoClass = weaponAmmo.pAmmoClass->GetName()))
+					{
+						TAmmoContainer &recAmmo = bGrenade? gstate.AmmoMags : recItem.Ammo;
+
+						if(recAmmo.find(ammoClass) == recAmmo.end())
+							recAmmo.insert(std::make_pair(ammoClass,0));
+
+						if(ammoCount != recAmmo[ammoClass])
+						{
+							event2.event = eGE_AmmoCount;
+							event2.value = (float)ammoCount;
+
+							if(event2.value < 0)
+								event2.value = 0;
+
+							event2.extra = (void *)ammoClass;
+							event2.description = (const char *)itemIdx;
+							SendGamePlayEvent(pEntity,event2);
+						}
+					}
+				}
+			}
+
+		}
+		break;
+
+		case eGE_EntityGrabbed:
+		{
+			EntityId entityId = EntityId(event.extra);
+			IEntity *pGrabbedEntity = gEnv->pEntitySystem->GetEntity(entityId);
+
+			if(pGrabbedEntity)
+			{
+				event2.description = pGrabbedEntity->GetName();
+				SendGamePlayEvent(pEntity,event2);
+			}
+		}
+		break;
+
+		case eGE_WeaponReload:
+		case eGE_ZoomedIn:
+		case eGE_ZoomedOut:
+		case eGE_HealthChanged:
+		case eGE_ItemExchanged:
+			SendGamePlayEvent(pEntity,event2);
+			break;
+
+		default:
+			break;
 		}
 
 	}
@@ -1013,7 +1124,7 @@ void CGameStateRecorder::SendGamePlayEvent(IEntity *pEntity, const GameplayEvent
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void CGameStateRecorder::GetMemoryStatistics(ICrySizer * s)
+void CGameStateRecorder::GetMemoryStatistics(ICrySizer *s)
 {
 	SIZER_SUBCOMPONENT_NAME(s, "GameStateRecorder");
 	s->Add(*this);
@@ -1022,14 +1133,14 @@ void CGameStateRecorder::GetMemoryStatistics(ICrySizer * s)
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void CGameStateRecorder::RegisterListener(IGameplayListener* pL)
+void CGameStateRecorder::RegisterListener(IGameplayListener *pL)
 {
 	if(pL)
 		stl::push_back_unique(m_listeners,pL);
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void CGameStateRecorder::UnRegisterListener(IGameplayListener* pL)
+void CGameStateRecorder::UnRegisterListener(IGameplayListener *pL)
 {
 	stl::find_and_erase(m_listeners, pL);
 }
@@ -1042,13 +1153,13 @@ float CGameStateRecorder::RenderInfo(float y, bool bRecording)
 
 	IRenderer *pRenderer = gEnv->pRenderer;
 
-	if (bRecording)
+	if(bRecording)
 	{
 		float fColor[4] = {1,0,0,1};
-		pRenderer->Draw2dLabel( 1,y+retY, 1.3f, fColor,false," Recording game state");
+		pRenderer->Draw2dLabel(1,y+retY, 1.3f, fColor,false," Recording game state");
 		retY +=15;
 	}
-	else 
+	else
 	{
 		const float xp = 300;
 		const float xr = 400;
@@ -1057,54 +1168,58 @@ float CGameStateRecorder::RenderInfo(float y, bool bRecording)
 		float fColor[4] = {0,1,0,1};
 		float fColorWarning[4] = {1,1,0,1};
 
-		const char* actorName = m_demo_actorInfo->GetString();
+		const char *actorName = m_demo_actorInfo->GetString();
 		CActor *pActor = GetActorOfName(actorName);
+
 		if(pActor)
 		{
-			pRenderer->Draw2dLabel( 1,y+retY, 1.3f, fColor,false," Game state - Actor: %s --------------------------------------------------",pActor->GetEntity()? pActor->GetEntity()->GetName(): "(no entity)");
+			pRenderer->Draw2dLabel(1,y+retY, 1.3f, fColor,false," Game state - Actor: %s --------------------------------------------------",pActor->GetEntity()? pActor->GetEntity()->GetName(): "(no entity)");
 			retY +=15;
 
 			if(m_itSingleActorGameState != m_GameStates.end() && pActor->GetEntity() && m_itSingleActorGameState->first == pActor->GetEntity()->GetId())
 			{
-				ICVar *pVar = gEnv->pConsole->GetCVar( "demo_force_game_state" );
+				ICVar *pVar = gEnv->pConsole->GetCVar("demo_force_game_state");
+
 				if(pVar)
 				{
 					int demo_forceGameState = pVar->GetIVal();
+
 					if(demo_forceGameState)
 					{
-						pRenderer->Draw2dLabel( 1,y+retY, 1.3f, fColor,false,demo_forceGameState==1 ? 
-							" Override mode = (health, suit energy)" : " Override mode = (all)");
+						pRenderer->Draw2dLabel(1,y+retY, 1.3f, fColor,false,demo_forceGameState==1 ?
+											   " Override mode = (health, suit energy)" : " Override mode = (all)");
 						retY +=15;
 					}
 				}
 
-				pRenderer->Draw2dLabel( xp,y+retY, 1.3f, fColor,false,"Current");
-				pRenderer->Draw2dLabel( xr,y+retY, 1.3f, fColor,false,"Recorded");
+				pRenderer->Draw2dLabel(xp,y+retY, 1.3f, fColor,false,"Current");
+				pRenderer->Draw2dLabel(xr,y+retY, 1.3f, fColor,false,"Recorded");
 				retY +=15;
 
-				SActorGameState& gstate = m_itSingleActorGameState->second;
+				SActorGameState &gstate = m_itSingleActorGameState->second;
 				float recordedHealth = (float)gstate.health;
 				float health = (float)pActor->GetHealth();
 				bool bError = CHECK_MISMATCH(health, recordedHealth,10);
 
-				pRenderer->Draw2dLabel( 1,y+retY, 1.3f, fColor,false," Health:");
-				pRenderer->Draw2dLabel( xp,y+retY, 1.3f, bError? fColorWarning : fColor, false,"%d",(int)health);
-				pRenderer->Draw2dLabel( xr,y+retY, 1.3f, bError? fColorWarning : fColor, false,"%d",(int)recordedHealth);
-				retY +=15;
-				
-				// items
-				pRenderer->Draw2dLabel( 1,y+retY, 1.3f, fColor,false," Inventory ---------------------------------------------------------------------------------------");
-				retY +=15;
-				pRenderer->Draw2dLabel( xp,y+retY, 1.3f, fColor,false,"Current");
-				pRenderer->Draw2dLabel( xri,y+retY, 1.3f, fColor,false,"Recorded");
+				pRenderer->Draw2dLabel(1,y+retY, 1.3f, fColor,false," Health:");
+				pRenderer->Draw2dLabel(xp,y+retY, 1.3f, bError? fColorWarning : fColor, false,"%d",(int)health);
+				pRenderer->Draw2dLabel(xr,y+retY, 1.3f, bError? fColorWarning : fColor, false,"%d",(int)recordedHealth);
 				retY +=15;
 
-				CInventory *pInventory = (CInventory*)(pActor->GetInventory());
+				// items
+				pRenderer->Draw2dLabel(1,y+retY, 1.3f, fColor,false," Inventory ---------------------------------------------------------------------------------------");
+				retY +=15;
+				pRenderer->Draw2dLabel(xp,y+retY, 1.3f, fColor,false,"Current");
+				pRenderer->Draw2dLabel(xri,y+retY, 1.3f, fColor,false,"Recorded");
+				retY +=15;
+
+				CInventory *pInventory = (CInventory *)(pActor->GetInventory());
+
 				if(pInventory)
 				{
 					int nInvItems = pInventory->GetCount();
-						
-					TItemContainer& Items = gstate.Items;
+
+					TItemContainer &Items = gstate.Items;
 					int nRecItems = Items.size();
 					int maxItems = max(nRecItems,nInvItems);
 
@@ -1116,38 +1231,41 @@ float CGameStateRecorder::RenderInfo(float y, bool bRecording)
 					for(; i< nInvItems; i++)
 					{
 						IItem *pItem = g_pGame->GetIGameFramework()->GetIItemSystem()->GetItem(pInventory->GetItem(i));
-						if(pItem)	
+
+						if(pItem)
 						{
 							TItemName szItemName = GetItemName(pItem->GetEntityId());
 
 							TItemContainer::iterator it = Items.find(szItemName);
 							bError = it==Items.end();
-							pRenderer->Draw2dLabel( 1,y+retY, 1.3f, fColor,false," %2d)",i+1);
+							pRenderer->Draw2dLabel(1,y+retY, 1.3f, fColor,false," %2d)",i+1);
 
 							EntityId curId = pItem->GetEntityId();
 							TItemName curClass = GetItemName(curId);
-							if(equal_strings(curClass,curSelClass) )
-								pRenderer->Draw2dLabel( xp-16,y+retY, 1.3f,bSelectedError ? fColorWarning:fColor, false, "[]");
+
+							if(equal_strings(curClass,curSelClass))
+								pRenderer->Draw2dLabel(xp-16,y+retY, 1.3f,bSelectedError ? fColorWarning:fColor, false, "[]");
 
 							if(equal_strings(szItemName, gstate.itemSelected))
-								pRenderer->Draw2dLabel( xri-16,y+retY, 1.3f,bSelectedError ? fColorWarning:fColor, false, "[]");
+								pRenderer->Draw2dLabel(xri-16,y+retY, 1.3f,bSelectedError ? fColorWarning:fColor, false, "[]");
 
 							char itemName[32];
-							const char* originalItemName = pItem->GetEntity() ? pItem->GetEntity()->GetName():"(null)";
+							const char *originalItemName = pItem->GetEntity() ? pItem->GetEntity()->GetName():"(null)";
 							int length = strlen(originalItemName);
 							length = min(length,31);
 							strncpy(itemName,originalItemName,length);
 							itemName[length]=0;
-							pRenderer->Draw2dLabel( 1,y+retY, 1.3f, bError? fColorWarning : fColor, false,"     %s",itemName);
+							pRenderer->Draw2dLabel(1,y+retY, 1.3f, bError? fColorWarning : fColor, false,"     %s",itemName);
 
 							if(bError)
-								pRenderer->Draw2dLabel( xp,y+retY, 1.3f, fColorWarning, false, "Missing");
+								pRenderer->Draw2dLabel(xp,y+retY, 1.3f, fColorWarning, false, "Missing");
 							else
 							{
-								SItemProperties& recItem = it->second;
-								CWeapon *pWeapon = (CWeapon*)(pItem->GetIWeapon());
+								SItemProperties &recItem = it->second;
+								CWeapon *pWeapon = (CWeapon *)(pItem->GetIWeapon());
 
-								IEntityClass* pItemClass = pItem->GetEntity()->GetClass();
+								IEntityClass *pItemClass = pItem->GetEntity()->GetClass();
+
 								if(pItemClass && !strcmpi(pItemClass->GetName(),"binoculars"))
 									pWeapon = NULL; // no fire mode or ammo recorded for binocular (which is a weapon)
 
@@ -1156,21 +1274,25 @@ float CGameStateRecorder::RenderInfo(float y, bool bRecording)
 									int idx = 0;
 									// ammo
 									float xa = 0;
+
 									for(SWeaponAmmo weaponAmmo = pWeapon->GetFirstAmmo(); weaponAmmo.pAmmoClass ; weaponAmmo = pWeapon->GetNextAmmo())
 									{
 										int ammoCount = weaponAmmo.count;
-										const char* ammoClass;
+										const char *ammoClass;
+
 										if(weaponAmmo.pAmmoClass && (ammoClass = weaponAmmo.pAmmoClass->GetName()))
 										{
 											TAmmoContainer::iterator itAmmo = recItem.Ammo.find(ammoClass);
+
 											if(itAmmo!=recItem.Ammo.end())
 											{
 												int recAmmoCount = itAmmo->second;
 												bool bError2 = ammoCount!=recAmmoCount;
-												pRenderer->Draw2dLabel( xp+xa,y+retY, 1.3f, bError2? fColorWarning : fColor, false,"Am%d:%d",idx,ammoCount);
-												pRenderer->Draw2dLabel( xri+xa,y+retY, 1.3f, bError2? fColorWarning : fColor, false,"Am%d:%d",idx,recAmmoCount);
+												pRenderer->Draw2dLabel(xp+xa,y+retY, 1.3f, bError2? fColorWarning : fColor, false,"Am%d:%d",idx,ammoCount);
+												pRenderer->Draw2dLabel(xri+xa,y+retY, 1.3f, bError2? fColorWarning : fColor, false,"Am%d:%d",idx,recAmmoCount);
 												xa += 50;
 												++idx;
+
 												if(idx%5 ==0)
 												{
 													xa=0;
@@ -1184,16 +1306,17 @@ float CGameStateRecorder::RenderInfo(float y, bool bRecording)
 									int curFireModeIdx = pWeapon->GetCurrentFireMode();
 									int recFireModeIdx = recItem.fireMode;
 									bool bError3 = curFireModeIdx!= recFireModeIdx;
-									pRenderer->Draw2dLabel( xp+xa,y+retY, 1.3f, bError3? fColorWarning : fColor, false,"FMode:%d",curFireModeIdx);
-									pRenderer->Draw2dLabel( xri+xa,y+retY, 1.3f, bError3? fColorWarning : fColor, false,"FMode:%d",recFireModeIdx);
+									pRenderer->Draw2dLabel(xp+xa,y+retY, 1.3f, bError3? fColorWarning : fColor, false,"FMode:%d",curFireModeIdx);
+									pRenderer->Draw2dLabel(xri+xa,y+retY, 1.3f, bError3? fColorWarning : fColor, false,"FMode:%d",recFireModeIdx);
 								}
 								else
 								{
-									pRenderer->Draw2dLabel( xp,y+retY, 1.3f, fColor, false, "Ok");
+									pRenderer->Draw2dLabel(xp,y+retY, 1.3f, fColor, false, "Ok");
 								}
 							}
 
 						}
+
 						retY +=15;
 					}
 
@@ -1201,74 +1324,83 @@ float CGameStateRecorder::RenderInfo(float y, bool bRecording)
 
 					int nInvAccessories = pInventory->GetAccessoryCount();
 
-					TAccessoryContainer& Accessories = gstate.Accessories;
+					TAccessoryContainer &Accessories = gstate.Accessories;
 					int nRecAccessories = Accessories.size();
+
 					if(nRecAccessories)
 					{
-						pRenderer->Draw2dLabel( 1,y+retY, 1.3f, bError? fColorWarning : fColor, false," Accessories");
+						pRenderer->Draw2dLabel(1,y+retY, 1.3f, bError? fColorWarning : fColor, false," Accessories");
 						retY +=15;
 					}
 
 					for(int j=0 ; j< nInvAccessories; j++,i++)
 					{
-						const char* accessory = pInventory->GetAccessory(j);
-						if(accessory != 0 && strlen(accessory))	
+						const char *accessory = pInventory->GetAccessory(j);
+
+						if(accessory != 0 && strlen(accessory))
 						{
 
-							IEntityClass* pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(accessory);
+							IEntityClass *pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(accessory);
+
 							if(pClass)
 							{
 								TItemName szItemName = pClass->GetName();
 								TAccessoryContainer::iterator it = Accessories.find(szItemName);
 								bError = it==Accessories.end();
-								pRenderer->Draw2dLabel( 1,y+retY, 1.3f, fColor,false," %2d)",i+1);
+								pRenderer->Draw2dLabel(1,y+retY, 1.3f, fColor,false," %2d)",i+1);
 
 								char itemName[32];
 								int length = strlen(accessory);
 								length = min(length,31);
 								strncpy(itemName,accessory,length);
 								itemName[length]=0;
-								pRenderer->Draw2dLabel( 1,y+retY, 1.3f, bError? fColorWarning : fColor, false,"     %s",itemName);
+								pRenderer->Draw2dLabel(1,y+retY, 1.3f, bError? fColorWarning : fColor, false,"     %s",itemName);
 
 								if(bError)
-									pRenderer->Draw2dLabel( xp,y+retY, 1.3f, fColorWarning, false, "Missing");
+									pRenderer->Draw2dLabel(xp,y+retY, 1.3f, fColorWarning, false, "Missing");
 								else
-									pRenderer->Draw2dLabel( xp,y+retY, 1.3f, fColor, false, "Ok");
+									pRenderer->Draw2dLabel(xp,y+retY, 1.3f, fColor, false, "Ok");
 
 								retY +=15;
 							}
 						}
 
 					}
+
 					/// Ammo Mags
-					TAmmoContainer& Ammo = gstate.AmmoMags;
+					TAmmoContainer &Ammo = gstate.AmmoMags;
 					int nRecAmmo = Ammo.size();
 					int nInvAmmo = pInventory->GetAmmoPackCount();
+
 					if(nInvAmmo)
 					{
-						pRenderer->Draw2dLabel( 1,y+retY, 1.3f, bError? fColorWarning : fColor, false," Ammo Packs");
+						pRenderer->Draw2dLabel(1,y+retY, 1.3f, bError? fColorWarning : fColor, false," Ammo Packs");
 						retY +=15;
 					}
 
 					pInventory->AmmoIteratorFirst();
+
 					for(int j=0 ; !pInventory->AmmoIteratorEnd(); j++, pInventory->AmmoIteratorNext())
 					{
-						TAmmoContainer& Mags = gstate.AmmoMags;
-						const IEntityClass* pAmmoClass = pInventory->AmmoIteratorGetClass();
+						TAmmoContainer &Mags = gstate.AmmoMags;
+						const IEntityClass *pAmmoClass = pInventory->AmmoIteratorGetClass();
+
 						if(pAmmoClass)
 						{
 							int invAmmoCount = pInventory->AmmoIteratorGetCount();
-							const char* ammoClassName = pAmmoClass->GetName();
+							const char *ammoClassName = pAmmoClass->GetName();
 							bool bNotFound = Mags.find(ammoClassName) == Mags.end();
 							int recAmmoCount = bNotFound ? 0 :Mags[ammoClassName];
 							bError =  bNotFound || invAmmoCount!= recAmmoCount;
 
-							pRenderer->Draw2dLabel( 1,y+retY, 1.3f, bError? fColorWarning : fColor, false,"  %s:",ammoClassName);
-							pRenderer->Draw2dLabel( xp,y+retY, 1.3f, bError? fColorWarning : fColor, false,"%d",invAmmoCount);
+							pRenderer->Draw2dLabel(1,y+retY, 1.3f, bError? fColorWarning : fColor, false,"  %s:",ammoClassName);
+							pRenderer->Draw2dLabel(xp,y+retY, 1.3f, bError? fColorWarning : fColor, false,"%d",invAmmoCount);
+
 							if(bNotFound)
-								pRenderer->Draw2dLabel( xr,y+retY, 1.3f, fColorWarning, false,"NotRecd");
+								pRenderer->Draw2dLabel(xr,y+retY, 1.3f, fColorWarning, false,"NotRecd");
 							else
-								pRenderer->Draw2dLabel( xr,y+retY, 1.3f, bError? fColorWarning : fColor, false,"%d",recAmmoCount);
+								pRenderer->Draw2dLabel(xr,y+retY, 1.3f, bError? fColorWarning : fColor, false,"%d",recAmmoCount);
+
 							retY +=15;
 
 						}
@@ -1277,54 +1409,60 @@ float CGameStateRecorder::RenderInfo(float y, bool bRecording)
 			}
 			else // m_itSingleActorGameState != m_GameStates.end()
 			{
-				pRenderer->Draw2dLabel( 1,y+retY, 1.3f, fColor,false, "<<Not Recorded>>");
+				pRenderer->Draw2dLabel(1,y+retY, 1.3f, fColor,false, "<<Not Recorded>>");
 				retY +=15;
 			}
 		}
 		else // pActor
 		{
-			pRenderer->Draw2dLabel( 1,y+retY, 1.3f, fColor,false, "<<Actor %s not in the map>>",actorName ? actorName:"(no name)");
-			retY +=15;		
+			pRenderer->Draw2dLabel(1,y+retY, 1.3f, fColor,false, "<<Actor %s not in the map>>",actorName ? actorName:"(no name)");
+			retY +=15;
 		}
 
 	}
+
 	return retY;
 }
 
 ///////////////////////////////////////////////////////////////////////
-TItemName CGameStateRecorder::GetItemName(EntityId id, CItem** pItemOut)
+TItemName CGameStateRecorder::GetItemName(EntityId id, CItem **pItemOut)
 {
 	if(id)
 	{
-		CItem* pItem = (CItem*)(gEnv->pGame->GetIGameFramework()->GetIItemSystem()->GetItem(id));
+		CItem *pItem = (CItem *)(gEnv->pGame->GetIGameFramework()->GetIItemSystem()->GetItem(id));
+
 		if(pItem && pItem->GetEntity())
 		{
 			if(pItemOut)
 				*pItemOut = pItem;
+
 			return pItem->GetEntity()->GetName();
 		}
 	}
+
 	return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////
-CItem* CGameStateRecorder::GetItemOfName(CActor* pActor, TItemName itemName)
+CItem *CGameStateRecorder::GetItemOfName(CActor *pActor, TItemName itemName)
 {
-	CInventory* pInventory= (CInventory*)(pActor->GetInventory());
+	CInventory *pInventory= (CInventory *)(pActor->GetInventory());
+
 	if(pInventory && itemName)
-		return (CItem*)(pInventory->GetItemByName(itemName));
+		return (CItem *)(pInventory->GetItemByName(itemName));
 
 	return 0;
 }
 
 
 ///////////////////////////////////////////////////////////////////////
-/*template <class EventHandlerFunc> */void CGameStateRecorder::CheckInventory(CActor* pActor, IItem *pItem)//, EventHandlerFunc eventHandler)
+/*template <class EventHandlerFunc> */void CGameStateRecorder::CheckInventory(CActor *pActor, IItem *pItem)//, EventHandlerFunc eventHandler)
 {
 
 	if(pActor)
 	{
 		TGameStates::iterator itGS;
+
 		if(pActor->IsPlayer())
 			itGS = m_itSingleActorGameState;
 		else if(pActor->GetEntity())
@@ -1334,20 +1472,21 @@ CItem* CGameStateRecorder::GetItemOfName(CActor* pActor, TItemName itemName)
 
 		if(itGS != m_GameStates.end())
 		{
-			SActorGameState& gstate = itGS->second;
+			SActorGameState &gstate = itGS->second;
 
 			// items
 
-			CInventory *pInventory = (CInventory*)(pActor->GetInventory());
+			CInventory *pInventory = (CInventory *)(pActor->GetInventory());
+
 			if(pInventory)
 			{
 				bool bSingleItem = (pItem!=0);
 				int nInvItems = (bSingleItem ? 1 : pInventory->GetCount());
-				TItemContainer& Items = gstate.Items;
-				
+				TItemContainer &Items = gstate.Items;
+
 				for(int i=0; i< nInvItems; i++)
 				{
-					if(!bSingleItem) 
+					if(!bSingleItem)
 						pItem = g_pGame->GetIGameFramework()->GetIItemSystem()->GetItem(pInventory->GetItem(i));
 
 					if(pItem)
@@ -1355,6 +1494,7 @@ CItem* CGameStateRecorder::GetItemOfName(CActor* pActor, TItemName itemName)
 						TItemName szItemName = GetItemName(pItem->GetEntityId());
 
 						TItemContainer::iterator it = Items.find(szItemName);
+
 						if(it==Items.end())
 						{
 							it = (Items.insert(std::make_pair(szItemName,SItemProperties()))).first;
@@ -1365,8 +1505,9 @@ CItem* CGameStateRecorder::GetItemOfName(CActor* pActor, TItemName itemName)
 							//eventHandler(pActor,event);
 							SendGamePlayEvent(pActor->GetEntity(),event);
 
-							SItemProperties& recItem = it->second;
-							CWeapon *pWeapon = (CWeapon*)(pItem->GetIWeapon());
+							SItemProperties &recItem = it->second;
+							CWeapon *pWeapon = (CWeapon *)(pItem->GetIWeapon());
+
 							if(pWeapon)
 							{
 								// ammo
@@ -1374,35 +1515,40 @@ CItem* CGameStateRecorder::GetItemOfName(CActor* pActor, TItemName itemName)
 								{
 									int ammoCount = weaponAmmo.count;
 									string ammoClass;
+
 									if(weaponAmmo.pAmmoClass && (ammoClass = weaponAmmo.pAmmoClass->GetName()))
 									{
-										TAmmoContainer& recAmmo = recItem.Ammo;
+										TAmmoContainer &recAmmo = recItem.Ammo;
 
 										if(recAmmo.find(ammoClass) == recAmmo.end())
 											recAmmo.insert(std::make_pair(ammoClass,0));
+
 										int recAmmoCount = recAmmo[ammoClass];
+
 										if(ammoCount!=recAmmoCount)
 										{
 											GameplayEvent eventAmmoCount;
 											eventAmmoCount.event = eGE_AmmoCount;
 											eventAmmoCount.value = (float)ammoCount;
-											eventAmmoCount.extra = (void*)(ammoClass.c_str());
-											eventAmmoCount.description = (const char*)szItemName;
+											eventAmmoCount.extra = (void *)(ammoClass.c_str());
+											eventAmmoCount.description = (const char *)szItemName;
 											//eventHandler(pActor,eventFireMode);
 											SendGamePlayEvent(pActor->GetEntity(),eventAmmoCount);
 
 										}
 									}
 								}
+
 								// current fire mode
 								int curFireModeIdx = pWeapon->GetCurrentFireMode();
 								int recFireModeIdx = recItem.fireMode;
+
 								if(curFireModeIdx!= recFireModeIdx)
 								{
 									GameplayEvent eventFireMode;
 									eventFireMode.event = eGE_WeaponFireModeChanged;
 									eventFireMode.value = (float)curFireModeIdx;
-									eventFireMode.description = (const char*)szItemName;
+									eventFireMode.description = (const char *)szItemName;
 									//eventHandler(pActor,eventFireMode);
 									SendGamePlayEvent(pActor->GetEntity(),eventFireMode);
 								}
@@ -1415,19 +1561,22 @@ CItem* CGameStateRecorder::GetItemOfName(CActor* pActor, TItemName itemName)
 
 				int nInvAccessories = pInventory->GetAccessoryCount();
 
-				TAccessoryContainer& Accessories = gstate.Accessories;
+				TAccessoryContainer &Accessories = gstate.Accessories;
 				int nRecAccessories = Accessories.size();
 
 				for(int j=0 ; j< nInvAccessories; j++)
 				{
-					const char* accessory = pInventory->GetAccessory(j);
-					if(accessory != 0 && strlen(accessory))	
+					const char *accessory = pInventory->GetAccessory(j);
+
+					if(accessory != 0 && strlen(accessory))
 					{
-						IEntityClass* pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(accessory);
+						IEntityClass *pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(accessory);
+
 						if(pClass)
 						{
 							TItemName itemClass = pClass->GetName();
 							TAccessoryContainer::iterator it = Accessories.find(itemClass);
+
 							if(it==Accessories.end())
 							{
 								GameplayEvent event;
@@ -1443,18 +1592,21 @@ CItem* CGameStateRecorder::GetItemOfName(CActor* pActor, TItemName itemName)
 
 				/// Ammo
 
-				TAmmoContainer& Ammo = gstate.AmmoMags;
+				TAmmoContainer &Ammo = gstate.AmmoMags;
 				int nRecAmmo = Ammo.size();
 				int nInvAmmo = pInventory->GetAmmoPackCount();
 				pInventory->AmmoIteratorFirst();
+
 				for(int j=0 ; !pInventory->AmmoIteratorEnd(); j++, pInventory->AmmoIteratorNext())
 				{
-					TAmmoContainer& Mags = gstate.AmmoMags;
-					const IEntityClass* pAmmoClass = pInventory->AmmoIteratorGetClass();
+					TAmmoContainer &Mags = gstate.AmmoMags;
+					const IEntityClass *pAmmoClass = pInventory->AmmoIteratorGetClass();
+
 					if(pAmmoClass)
 					{
-						const char* ammoClassName = pAmmoClass->GetName();
+						const char *ammoClassName = pAmmoClass->GetName();
 						int ammoCount = pInventory->AmmoIteratorGetCount();
+
 						if(Mags.find(ammoClassName) == Mags.end() || ammoCount!= Mags[ammoClassName])
 						{
 							GameplayEvent event;
@@ -1472,7 +1624,7 @@ CItem* CGameStateRecorder::GetItemOfName(CActor* pActor, TItemName itemName)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-CActor* CGameStateRecorder::GetActorOfName( const char* name)
+CActor *CGameStateRecorder::GetActorOfName(const char *name)
 {
 	if(!strcmpi(name,"all"))
 		return NULL;
@@ -1481,10 +1633,12 @@ CActor* CGameStateRecorder::GetActorOfName( const char* name)
 		return static_cast<CActor *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
 	else
 	{
-		IEntity* pEntity = gEnv->pEntitySystem->FindEntityByName(name);
+		IEntity *pEntity = gEnv->pEntitySystem->FindEntityByName(name);
+
 		if(pEntity)
 			return static_cast<CActor *>(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pEntity->GetId()));
 	}
+
 	return NULL;
 }
 

@@ -29,34 +29,39 @@ void CPlayerFeature::PostInit(IGameObject *pGameObject)
 	pGameObject->DisablePostUpdates(this);
 	pGameObject->DisableUpdateSlot(this, eIUS_General);
 	pGameObject->DisableUpdateSlot(this, eIUS_Scheduler);
-	
+
 	GetEntity()->Activate(0);
 }
 
 //------------------------------------------------------------------------
 bool CPlayerFeature::ReadItemParams(const IItemParamsNode *root)
 {
-	if (!CItem::ReadItemParams(root))
+	if(!CItem::ReadItemParams(root))
 		return false;
 
 	m_features.resize(0);
 	m_notPickUp = false;
 
 	const IItemParamsNode *features = root->GetChild("features");
-	if (features)
+
+	if(features)
 	{
 		int n = features->GetChildCount();
-		for (int i=0; i<n; i++)
+
+		for(int i=0; i<n; i++)
 		{
 			const IItemParamsNode *feature = features->GetChild(i);
-			if (feature)
+
+			if(feature)
 			{
 				const char *name = feature->GetAttribute("name");
-				if (name && name[0])
+
+				if(name && name[0])
 					m_features.push_back(name);
-				
+
 				int noPickUp = 0;
 				feature->GetAttribute("noPickUp",noPickUp);
+
 				if(noPickUp!=0)
 					m_notPickUp = true;
 			}
@@ -72,7 +77,8 @@ void CPlayerFeature::OnReset()
 	CItem::OnReset();
 
 	CActor *pActor=GetOwnerActor();
-	for (std::vector<string>::const_iterator it=m_features.begin(); it!=m_features.end(); ++it)
+
+	for(std::vector<string>::const_iterator it=m_features.begin(); it!=m_features.end(); ++it)
 		ActivateFeature(pActor, it->c_str());
 }
 
@@ -90,16 +96,17 @@ void CPlayerFeature::OnPickedUp(EntityId pickerId, bool destroyed)
 	CItem::OnPickedUp(pickerId, destroyed);
 
 	CActor *pActor=GetActor(pickerId);
-	for (std::vector<string>::const_iterator it=m_features.begin(); it!=m_features.end(); ++it)
+
+	for(std::vector<string>::const_iterator it=m_features.begin(); it!=m_features.end(); ++it)
 		ActivateFeature(pActor, it->c_str());
 }
 
 //------------------------------------------------------------------------
 void CPlayerFeature::ActivateFeature(CActor *pActor, const char *feature)
 {
-	if (!stricmp("parachute", feature))
+	if(!stricmp("parachute", feature))
 		Parachute(pActor);
-	else if (!stricmp("dualSOCOM", feature))
+	else if(!stricmp("dualSOCOM", feature))
 		DualSOCOM(pActor);
 	else
 		CryLogAlways("%s - Unknown Player Feature '%s'...", GetEntity()->GetName(), feature);
@@ -109,7 +116,7 @@ void CPlayerFeature::ActivateFeature(CActor *pActor, const char *feature)
 //------------------------------------------------------------------------
 void CPlayerFeature::Parachute(CActor *pActor)
 {
-	if (pActor && pActor->GetActorClass()==CPlayer::GetActorClassType())
+	if(pActor && pActor->GetActorClass()==CPlayer::GetActorClassType())
 	{
 		CPlayer *pPlayer=static_cast<CPlayer *>(pActor);
 		pPlayer->EnableParachute(true);
@@ -124,12 +131,13 @@ void CPlayerFeature::DualSOCOM(CActor *pActor)
 	if(pActor && !pActor->IsPlayer())
 	{
 		IInventory *pInventory=GetActorInventory(pActor);
-		if (pInventory)
+
+		if(pInventory)
 		{
-			if (IsServer())
+			if(IsServer())
 			{
-					m_pItemSystem->GiveItem(pActor, "SOCOM", false, false,false);
-					//m_pItemSystem->SetActorItem(pActor,"SOCOM",true);
+				m_pItemSystem->GiveItem(pActor, "SOCOM", false, false,false);
+				//m_pItemSystem->SetActorItem(pActor,"SOCOM",true);
 			}
 		}
 	}

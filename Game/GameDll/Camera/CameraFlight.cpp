@@ -28,8 +28,8 @@ const static uint32 NUM_OF_RESERVED_ENTRIES = 10;
 const static float	RAY_SCAN_DISTANCE = 3.0f;
 
 CCameraFlight::CCameraFlight() :
-m_fFlightSpeed(1.0f),
-m_fMoveSpeedMps(4.0f)
+	m_fFlightSpeed(1.0f),
+	m_fMoveSpeedMps(4.0f)
 {
 	m_cameraCourse.reserve(NUM_OF_RESERVED_ENTRIES);
 	m_tempCourseA.reserve(NUM_OF_RESERVED_ENTRIES);
@@ -42,7 +42,7 @@ CCameraFlight::~CCameraFlight()
 {
 }
 
-CCameraFlight* CCameraFlight::GetInstance()
+CCameraFlight *CCameraFlight::GetInstance()
 {
 	static CCameraFlight *g_camFlight = new CCameraFlight();
 	return g_camFlight;
@@ -97,6 +97,7 @@ void CCameraFlight::SetCameraCourse(const std::vector<SCameraFlightPoint> &cPosi
 	m_tempCourseB.resize(iNumPoints);
 
 	m_cameraCourse = cPositions;
+
 	if(iNumPoints == 2)
 		m_cameraCourse.push_back(m_cameraCourse[1]);
 
@@ -149,7 +150,7 @@ void CCameraFlight::SetMoveSpeed(float fMpS /* = 4.0f */)
 void CCameraFlight::UpdateFlight(SViewParams &viewParams)
 {
 	if(m_eMovementMode != eCFM_FREE_FLIGHT &&
-		(m_fFlightProgress >= 1.0f || m_eMovementMode == eCFM_NONE || m_cameraCourse.size() < 3))
+			(m_fFlightProgress >= 1.0f || m_eMovementMode == eCFM_NONE || m_cameraCourse.size() < 3))
 	{
 		//update free fly point while not in free fly
 		m_freeFlyPoint.m_vCamPos = viewParams.position;
@@ -164,6 +165,7 @@ void CCameraFlight::UpdateFlight(SViewParams &viewParams)
 	//update ref pos
 	if(m_pRefEnt)
 		m_vRefPos = m_pRefEnt->GetWorldPos();
+
 	//if refPos2 is set, find middle
 	if(m_vRefPos2.len2() > 0.0f)
 		m_vRefPos = (m_vRefPos + m_vRefPos2) * 0.5f;
@@ -176,23 +178,28 @@ void CCameraFlight::UpdateFlight(SViewParams &viewParams)
 	case eCFM_FREE_FLIGHT:
 		targetPoint = m_freeFlyPoint;
 		break;
+
 	case eCFM_SPLINE:
 		targetPoint = GetSplinePoint(m_fFlightProgress);
 		break;
+
 	case eCFM_LINE:
 		targetPoint = GetTrackPoint(m_fFlightProgress);
 		break;
+
 	default:
 		break;
 	}
 
 	//compute new dir/pos
 	m_vLookingDirection = targetPoint.m_vCamLookAt - targetPoint.m_vCamPos;
+
 	if(m_bUseRefDir)
 	{
 		m_vLookingDirection = m_vRefDir;
 		m_qFadeOrientation = Quat::CreateRotationVDir(m_vLookingDirection, 0.0f);
 	}
+
 	m_vLookingDirection.NormalizeSafe();
 	Quat qTempDirection = Quat::CreateRotationVDir(m_vLookingDirection, 0.0f);
 	Vec3 vTempPos = targetPoint.m_vCamPos;
@@ -209,6 +216,7 @@ void CCameraFlight::UpdateFlight(SViewParams &viewParams)
 			m_vTargetFadePos = vTempPos * (1.0f - m_fFadeProgress) + viewParams.position * m_fFadeProgress;
 			//fade orientation
 			qTempDirection = Quat_tpl<float>::CreateNlerp(m_qFadeOrientation, viewParams.rotation, m_fFadeProgress);
+
 			if(m_fFadeProgress < 0.998f)
 			{
 				bFading = true;
@@ -222,6 +230,7 @@ void CCameraFlight::UpdateFlight(SViewParams &viewParams)
 			m_vTargetFadePos = viewParams.position * (1.0f - m_fFadeProgress) + vTempPos * m_fFadeProgress;
 			//fade orientation
 			qTempDirection = Quat_tpl<float>::CreateNlerp(viewParams.rotation, qTempDirection, m_fFadeProgress);
+
 			if(m_fFadeProgress < 0.998f)
 			{
 				bFading = true;
@@ -261,7 +270,7 @@ void CCameraFlight::UpdateFlight(SViewParams &viewParams)
 			m_fFlightProgress += gEnv->pTimer->GetFrameTime() * m_fFlightSpeed;
 			m_fFlightProgress = min(0.2f, m_fFlightProgress);
 		}
-		else if (!m_bPaused)
+		else if(!m_bPaused)
 			m_fFlightProgress += gEnv->pTimer->GetFrameTime() * m_fFlightSpeed;
 	}
 }
@@ -269,7 +278,7 @@ void CCameraFlight::UpdateFlight(SViewParams &viewParams)
 SCameraFlightPoint CCameraFlight::GetTrackPoint(float t)
 {
 	//clamp to 0..1 range
-	CRY_ASSERT( t >= 0.0f && t <= 1.0f );
+	CRY_ASSERT(t >= 0.0f && t <= 1.0f);
 	t = clamp(t, 0.0f, 1.0f);
 
 	float fLength = GetCourseLength();
@@ -285,6 +294,7 @@ SCameraFlightPoint CCameraFlight::GetTrackPoint(float t)
 	float fLastMoveDistance = 0.0f;
 	Vec3 vTempPos = m_cameraCourse[0].m_vCamPos;
 	Vec3 vLastLookAt = m_cameraCourse[0].m_vCamLookAt;
+
 	//compute track position for t
 	for(; iter != end; ++iter)
 	{
@@ -292,6 +302,7 @@ SCameraFlightPoint CCameraFlight::GetTrackPoint(float t)
 		Vec3 vEdge = iter->m_vCamPos - vTempPos;
 		float fEdgeDistance = vEdge.len();
 		fMoveDistance += fEdgeDistance;
+
 		if(fMoveDistance > fPositionOffset)
 		{
 			float fEdgeDelta = fPositionOffset - fLastMoveDistance;
@@ -303,6 +314,7 @@ SCameraFlightPoint CCameraFlight::GetTrackPoint(float t)
 		vLastLookAt = iter->m_vCamLookAt;
 		vTempPos = iter->m_vCamPos;
 	}
+
 	//all points are relative to m_vRefPos (which can be ZERO)
 	return m_cameraCourse[0] + m_vRefPos;
 }
@@ -313,7 +325,7 @@ SCameraFlightPoint CCameraFlight::GetSplinePoint(float t)
 		return SCameraFlightPoint();
 
 	//clamp to 0..1 range
-	CRY_ASSERT( t >= 0.0f && t <= 1.0f );
+	CRY_ASSERT(t >= 0.0f && t <= 1.0f);
 	t = clamp(t, 0.0f, 1.0f);
 
 	m_tempCourseA = m_cameraCourse;
@@ -326,10 +338,11 @@ SCameraFlightPoint CCameraFlight::GetSplinePoint(float t)
 		{
 			m_tempCourseB.push_back(m_tempCourseA[p]*(1.0f-t) + m_tempCourseA[p+1]*t);
 		}
+
 		m_tempCourseA = m_tempCourseB;
 		m_tempCourseB.clear();
 	}
-	while (m_tempCourseA.size() > 1);
+	while(m_tempCourseA.size() > 1);
 
 	//all points are relative to m_vRefPos (which can be ZERO)
 	return m_tempCourseA[0] + m_vRefPos;
@@ -349,6 +362,7 @@ float CCameraFlight::GetCourseLength() const
 	++iter;
 
 	std::vector<SCameraFlightPoint>::const_iterator end = m_cameraCourse.end();
+
 	for(; iter != end; ++iter)
 	{
 		fMoveDistance += (iter->m_vCamPos - vTempPos).len();
@@ -364,34 +378,42 @@ void CCameraFlight::DetectCollisions()
 	sph.r				= 0.15f;
 	sph.center	= m_vTargetFadePos + m_vLookingDirection * RAY_SCAN_DISTANCE;
 	CCameraRayScan *pRayScan = g_pGame->GetCameraManager()->GetCamView()->GetCamRayScan();
-	if (m_RayId == INVALID_RAY_ID)
+
+	if(m_RayId == INVALID_RAY_ID)
 	{
 		m_RayId = pRayScan->ShootRay(sph.center, -m_vLookingDirection * RAY_SCAN_DISTANCE, ent_all & ~(ent_living | ent_independent | ent_rigid), geom_colltype0);
 	}
-	const RayCastResult* pRayRes = pRayScan->GetExternalHit(m_RayId);
+
+	const RayCastResult *pRayRes = pRayScan->GetExternalHit(m_RayId);
 	const ray_hit *pHit = pRayRes->hitCount > 0 ? &pRayRes->hits[0] : NULL;
 	static int iNumHits = 0;
+
 	if(pHit && pHit->dist > 0.0f)
 	{
 		iNumHits++;
+
 		if(iNumHits > 2)
 		{
 			bool bIgnore = false;
 			IPhysicalEntity *pPhysEntity = pHit->pCollider;
+
 			if(pPhysEntity)
 			{
 				int iForeignData = pPhysEntity->GetiForeignData();
-				if (iForeignData == PHYS_FOREIGN_ID_STATIC)
+
+				if(iForeignData == PHYS_FOREIGN_ID_STATIC)
 				{
 					//check whether the hit rendernode is "vegetation"
 					void *pForeignData = pPhysEntity->GetForeignData(PHYS_FOREIGN_ID_STATIC);
-					IRenderNode * pRN = (IRenderNode*)pForeignData;
+					IRenderNode *pRN = (IRenderNode *)pForeignData;
+
 					if(pRN && pRN->GetRenderNodeType() == eERType_Vegetation)
 						bIgnore = true;
 				}
 				else if(iForeignData == PHYS_FOREIGN_ID_ENTITY)
 				{
 					IEntity *pEntity = gEnv->pEntitySystem->GetEntityFromPhysics(pPhysEntity);
+
 					if(pEntity && (pEntity == m_pRefEnt || pEntity->GetId() == LOCAL_PLAYER_ENTITY_ID))
 						bIgnore = true;
 				}
@@ -408,7 +430,7 @@ void CCameraFlight::DetectCollisions()
 	else
 		iNumHits = 0;
 
-	if (pRayRes)
+	if(pRayRes)
 	{
 		pRayScan->RemoveExternalHit(m_RayId);
 		m_RayId = INVALID_RAY_ID;

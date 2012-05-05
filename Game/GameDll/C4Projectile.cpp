@@ -4,7 +4,7 @@ Copyright (C), Crytek Studios, 2001-2007.
 -------------------------------------------------------------------------
 $Id:$
 $DateTime$
-Description:  
+Description:
 -------------------------------------------------------------------------
 History:
 - 08:06:2007   : Created by Benito G.R.
@@ -16,11 +16,11 @@ History:
 #include "GameRules.h"
 
 CC4Projectile::CC4Projectile():
-m_stuck(false),
-m_notStick(false),
-m_nConstraints(0),
-m_frozen(false),
-m_teamId(0)
+	m_stuck(false),
+	m_notStick(false),
+	m_nConstraints(0),
+	m_frozen(false),
+	m_teamId(0)
 {
 }
 
@@ -29,10 +29,11 @@ CC4Projectile::~CC4Projectile()
 {
 	if(gEnv->bMultiplayer && gEnv->bServer)
 	{
-		IActor* pOwner = g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(m_ownerId);
+		IActor *pOwner = g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(m_ownerId);
+
 		if(pOwner && pOwner->IsPlayer())
 		{
-			((CPlayer*)pOwner)->RecordExplosiveDestroyed(GetEntityId(), 2);
+			((CPlayer *)pOwner)->RecordExplosiveDestroyed(GetEntityId(), 2);
 		}
 	}
 }
@@ -40,19 +41,19 @@ CC4Projectile::~CC4Projectile()
 //------------------------------------------
 void CC4Projectile::HandleEvent(const SGameObjectEvent &event)
 {
-	if (m_destroying)
+	if(m_destroying)
 		return;
 
 	CProjectile::HandleEvent(event);
 
-	if (event.event == eGFE_OnCollision)
+	if(event.event == eGFE_OnCollision)
 	{
 		EventPhysCollision *pCollision = (EventPhysCollision *)event.ptr;
 
-		if (gEnv->bServer && !m_stuck && !m_notStick)
+		if(gEnv->bServer && !m_stuck && !m_notStick)
 			Stick(pCollision);
 	}
-	else if (event.event==eCGE_PostFreeze)
+	else if(event.event==eCGE_PostFreeze)
 		m_frozen=event.param!=0;
 }
 
@@ -63,10 +64,11 @@ void CC4Projectile::Launch(const Vec3 &pos, const Vec3 &dir, const Vec3 &velocit
 
 	if(gEnv->bMultiplayer && gEnv->bServer)
 	{
-		CActor* pOwner = GetWeapon()->GetOwnerActor();
+		CActor *pOwner = GetWeapon()->GetOwnerActor();
+
 		if(pOwner && pOwner->IsPlayer())
 		{
-			((CPlayer*)pOwner)->RecordExplosivePlaced(GetEntityId(), 2);
+			((CPlayer *)pOwner)->RecordExplosivePlaced(GetEntityId(), 2);
 		}
 	}
 }
@@ -76,7 +78,7 @@ void CC4Projectile::SetParams(EntityId ownerId, EntityId hostId, EntityId weapon
 	// if this is a team game, record which team placed this claymore...
 	if(gEnv->bServer)
 	{
-		if(CGameRules* pGameRules = g_pGame->GetGameRules())
+		if(CGameRules *pGameRules = g_pGame->GetGameRules())
 		{
 			m_teamId = pGameRules->GetTeam(ownerId);
 			pGameRules->SetTeam(m_teamId, GetEntityId());
@@ -89,15 +91,15 @@ void CC4Projectile::SetParams(EntityId ownerId, EntityId hostId, EntityId weapon
 
 void CC4Projectile::Explode(bool destroy, bool impact/* =false */, const Vec3 &pos/* =ZERO */, const Vec3 &normal/* =FORWARD_DIRECTION */, const Vec3 &vel/* =ZERO */, EntityId targetId/* =0  */)
 {
-	if (m_frozen)
+	if(m_frozen)
 		return;
 
 	CProjectile::Explode(destroy, impact, pos, normal, vel, targetId);
 }
 
-void CC4Projectile::OnHit(const HitInfo& hit)
+void CC4Projectile::OnHit(const HitInfo &hit)
 {
-	if (m_frozen)
+	if(m_frozen)
 		return;
 
 	CProjectile::OnHit(hit);
@@ -111,7 +113,7 @@ void CC4Projectile::Stick(EventPhysCollision *pCollision)
 	int trgId = 1;
 	IPhysicalEntity *pTarget = pCollision->pEntity[trgId];
 
-	if (pTarget == GetEntity()->GetPhysics())
+	if(pTarget == GetEntity()->GetPhysics())
 	{
 		trgId = 0;
 		pTarget = pCollision->pEntity[trgId];
@@ -129,14 +131,14 @@ void CC4Projectile::Stick(EventPhysCollision *pCollision)
 
 	IEntity *pTargetEntity = pTarget ? gEnv->pEntitySystem->GetEntityFromPhysics(pTarget) : 0;
 
-	if (pTarget && (!pTargetEntity || (pTargetEntity->GetId() != m_ownerId)))
+	if(pTarget && (!pTargetEntity || (pTargetEntity->GetId() != m_ownerId)))
 	{
 		//Special cases
 		if(pTargetEntity)
 		{
 			//Stick to actors using a character attachment
-			CActor *pActor = static_cast<CActor*>(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pTargetEntity->GetId()));
-			
+			CActor *pActor = static_cast<CActor *>(gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pTargetEntity->GetId()));
+
 			//Not in MP
 			if(pActor && gEnv->bMultiplayer)
 			{
@@ -150,13 +152,14 @@ void CC4Projectile::Stick(EventPhysCollision *pCollision)
 				{
 					m_notStick = true;
 					return;
-				}	
+				}
 
 				if(StickToCharacter(true,pTargetEntity))
 				{
 					GetGameObject()->SetAspectProfile(eEA_Physics, ePT_None);
 					m_stuck = true;
 				}
+
 				m_notStick = true;
 				return;
 			}
@@ -166,6 +169,7 @@ void CC4Projectile::Stick(EventPhysCollision *pCollision)
 			{
 				pe_params_part pPart;
 				pPart.ipart = 0;
+
 				if(pTarget->GetParams(&pPart) && pPart.pPhysGeom && pPart.pPhysGeom->V<0.15f)
 				{
 					m_notStick = true;
@@ -202,7 +206,7 @@ void CC4Projectile::Stick(EventPhysCollision *pCollision)
 			GetGameObject()->SetAspectProfile(eEA_Physics, ePT_None);
 
 			StickToEntity(pTargetEntity,mat);
-			
+
 			if(gEnv->bMultiplayer)
 			{
 				Quat rot(Matrix33::CreateOrientation(-pCollision->n,GetEntity()->GetWorldTM().TransformVector(Vec3(0,0,1)),gf_PI*0.5f));
@@ -216,9 +220,9 @@ void CC4Projectile::Stick(EventPhysCollision *pCollision)
 
 //---------------------------------------------------------------------
 //This function is only executed on the server
-void CC4Projectile::StickToStaticObject(EventPhysCollision *pCollision, IPhysicalEntity* pTarget)
+void CC4Projectile::StickToStaticObject(EventPhysCollision *pCollision, IPhysicalEntity *pTarget)
 {
-	//Calculate new position and orientation 
+	//Calculate new position and orientation
 	Matrix34 mat;
 	Vec3 pos = pCollision->pt+(pCollision->n*0.05f);
 	mat.SetRotation33(Matrix33::CreateOrientation(-pCollision->n,GetEntity()->GetWorldTM().TransformVector(Vec3(0,0,1)),gf_PI));
@@ -233,17 +237,18 @@ void CC4Projectile::StickToStaticObject(EventPhysCollision *pCollision, IPhysica
 	Quat rot = GetEntity()->GetWorldRotation();
 
 	if(gEnv->bMultiplayer)
-		GetGameObject()->InvokeRMI(CC4Projectile::ClSetPosition(),ProjectileStaticParams(pos,rot),eRMI_ToAllClients);}
+		GetGameObject()->InvokeRMI(CC4Projectile::ClSetPosition(),ProjectileStaticParams(pos,rot),eRMI_ToAllClients);
+}
 
 //------------------------------------------------------------------------
-void CC4Projectile::StickToEntity(IEntity* pEntity, Matrix34 &localMatrix)
-{	
+void CC4Projectile::StickToEntity(IEntity *pEntity, Matrix34 &localMatrix)
+{
 	GetEntity()->SetLocalTM(localMatrix);
 	pEntity->AttachChild(GetEntity());
 }
 
 //------------------------------------------------------------------------
-bool CC4Projectile::StickToCharacter(bool stick,IEntity* pActor)
+bool CC4Projectile::StickToCharacter(bool stick,IEntity *pActor)
 {
 	if(!pActor)
 		return false;
@@ -251,13 +256,13 @@ bool CC4Projectile::StickToCharacter(bool stick,IEntity* pActor)
 	//Check for friendly AI
 	if(pActor->GetAI())
 	{
-		if(CWeapon* pWeapon = GetWeapon())
+		if(CWeapon *pWeapon = GetWeapon())
 		{
-			if(CActor* pPlayer = pWeapon->GetOwnerActor())
+			if(CActor *pPlayer = pWeapon->GetOwnerActor())
 			{
-				if (IAIObject* pPlayerAI = pPlayer->GetEntity()->GetAI())
+				if(IAIObject *pPlayerAI = pPlayer->GetEntity()->GetAI())
 				{
-					if (pActor->GetAI()->IsFriendly(pPlayerAI, false))
+					if(pActor->GetAI()->IsFriendly(pPlayerAI, false))
 					{
 						return false;
 					}
@@ -266,7 +271,8 @@ bool CC4Projectile::StickToCharacter(bool stick,IEntity* pActor)
 		}
 	}
 
-	ICharacterInstance* pCharacter = pActor->GetCharacter(0);
+	ICharacterInstance *pCharacter = pActor->GetCharacter(0);
+
 	if(!pCharacter)
 		return false;
 
@@ -280,13 +286,14 @@ bool CC4Projectile::StickToCharacter(bool stick,IEntity* pActor)
 	c4ToChar.Normalize();
 
 	//if(c4ToChar.Dot(charOrientation)>0.0f)
-		//pAttachment = pAttachmentManager->GetInterfaceByName("c4_back");
+	//pAttachment = pAttachmentManager->GetInterfaceByName("c4_back");
 	//else
-		pAttachment = pAttachmentManager->GetInterfaceByName("c4_front");
+	pAttachment = pAttachmentManager->GetInterfaceByName("c4_front");
 
-	if (!pAttachment)
+	if(!pAttachment)
 	{
 		GameWarning("No c4 face attachment found in actor");
+
 		if(!pAttachment)
 			return false;
 	}
@@ -310,6 +317,7 @@ bool CC4Projectile::StickToCharacter(bool stick,IEntity* pActor)
 		pAttachment->ClearBinding();
 		m_stuck = false;
 	}
+
 	return true;
 
 }
@@ -330,7 +338,7 @@ IMPLEMENT_RMI(CC4Projectile, ClSetPosition)
 //-------------------------------------------------------------------------
 IMPLEMENT_RMI(CC4Projectile, ClStickToEntity)
 {
-	if(IEntity* pEntity = gEnv->pEntitySystem->GetEntity(params.targetId))
+	if(IEntity *pEntity = gEnv->pEntitySystem->GetEntity(params.targetId))
 	{
 		Matrix34 localMatrix;
 		localMatrix.SetRotation33(Matrix33(params.localRotation));

@@ -22,14 +22,14 @@ History:
 #define TRACER_FX_SLOT    1
 //------------------------------------------------------------------------
 CTracer::CTracer(const Vec3 &pos)
-: m_pos(0,0,0),
-	m_dest(0,0,0),
-	m_startingpos(pos),
-	m_age(0.0f),
-	m_lifeTime(1.5f),
-	m_entityId(0),
-	m_useGeometry(false),
-	m_geometrySlot(0)
+	: m_pos(0,0,0),
+	  m_dest(0,0,0),
+	  m_startingpos(pos),
+	  m_age(0.0f),
+	  m_lifeTime(1.5f),
+	  m_entityId(0),
+	  m_useGeometry(false),
+	  m_geometrySlot(0)
 {
 	CreateEntity();
 }
@@ -37,8 +37,9 @@ CTracer::CTracer(const Vec3 &pos)
 //------------------------------------------------------------------------
 CTracer::~CTracer()
 {
-	if (m_entityId)
+	if(m_entityId)
 		gEnv->pEntitySystem->RemoveEntity(m_entityId);
+
 	m_entityId=0;
 }
 
@@ -51,7 +52,7 @@ void CTracer::Reset(const Vec3 &pos)
 	m_age=0.0f;
 	m_lifeTime=1.5f;
 
-	if (IEntity *pEntity=gEnv->pEntitySystem->GetEntity(m_entityId))
+	if(IEntity *pEntity=gEnv->pEntitySystem->GetEntity(m_entityId))
 	{
 		pEntity->FreeSlot(TRACER_GEOM_SLOT);
 		pEntity->FreeSlot(TRACER_FX_SLOT);
@@ -61,20 +62,20 @@ void CTracer::Reset(const Vec3 &pos)
 //------------------------------------------------------------------------
 void CTracer::CreateEntity()
 {
-	if (!m_entityId)
+	if(!m_entityId)
 	{
 		SEntitySpawnParams spawnParams;
 		spawnParams.pClass = gEnv->pEntitySystem->GetClassRegistry()->GetDefaultClass();
 		spawnParams.sName = "_tracer";
 		spawnParams.nFlags = ENTITY_FLAG_NO_PROXIMITY | ENTITY_FLAG_CLIENT_ONLY | ENTITY_FLAG_NO_SAVE;
 
-		if (IEntity *pEntity=gEnv->pEntitySystem->SpawnEntity(spawnParams))
+		if(IEntity *pEntity=gEnv->pEntitySystem->SpawnEntity(spawnParams))
 			m_entityId=pEntity->GetId();
 	}
 }
 
 //------------------------------------------------------------------------
-void CTracer::GetMemoryUsage(ICrySizer * s) const
+void CTracer::GetMemoryUsage(ICrySizer *s) const
 {
 	s->Add(*this);
 }
@@ -82,11 +83,11 @@ void CTracer::GetMemoryUsage(ICrySizer * s) const
 //------------------------------------------------------------------------
 void CTracer::SetGeometry(const char *name, float scale)
 {
-	if (IEntity *pEntity=gEnv->pEntitySystem->GetEntity(m_entityId))
+	if(IEntity *pEntity=gEnv->pEntitySystem->GetEntity(m_entityId))
 	{
 		m_geometrySlot =pEntity->LoadGeometry(TRACER_GEOM_SLOT, name);
 
-		if (scale!=1.0f)
+		if(scale!=1.0f)
 		{
 			Matrix34 tm=Matrix34::CreateIdentity();
 			tm.Scale(Vec3(scale, scale, scale));
@@ -99,13 +100,15 @@ void CTracer::SetGeometry(const char *name, float scale)
 void CTracer::SetEffect(const char *name, float scale)
 {
 	IParticleEffect *pEffect = gEnv->pParticleManager->FindEffect(name);
-	if (!pEffect)
+
+	if(!pEffect)
 		return;
 
-	if (IEntity *pEntity=gEnv->pEntitySystem->GetEntity(m_entityId))
+	if(IEntity *pEntity=gEnv->pEntitySystem->GetEntity(m_entityId))
 	{
 		int slot=pEntity->LoadParticleEmitter(TRACER_FX_SLOT, pEffect,0,true);
-		if (scale!=1.0f)
+
+		if(scale!=1.0f)
 		{
 			Matrix34 tm=Matrix34::CreateIdentity();
 			tm.Scale(Vec3(scale, scale, scale));
@@ -125,12 +128,12 @@ bool CTracer::Update(float frameTime, const Vec3 &camera)
 	else
 		m_age += frameTime;
 
-	if (m_age >= m_lifeTime)
+	if(m_age >= m_lifeTime)
 		return false;
 
 	Vec3 end(m_dest);
 
-	if (((m_pos-end).len2() <= 0.25f))
+	if(((m_pos-end).len2() <= 0.25f))
 		return false;
 
 	Vec3 dp = end-m_pos;
@@ -153,12 +156,12 @@ bool CTracer::Update(float frameTime, const Vec3 &camera)
 		speed *= (0.35f + (cameraDistance/(sqrRadius*2)));
 
 	m_pos = m_pos+dir*MIN(speed*frameTime, dist);
-	
+
 	cameraDistance = (m_pos-camera).len2();
 
-	if (cameraDistance<=minDistance*minDistance)
+	if(cameraDistance<=minDistance*minDistance)
 		scaleMult=minScale;
-	else if (cameraDistance>=maxDistance*maxDistance)
+	else if(cameraDistance>=maxDistance*maxDistance)
 		scaleMult=maxScale;
 	else
 	{
@@ -180,9 +183,10 @@ void CTracer::UpdateVisual(const Vec3 &pos, const Vec3 &dir, float scale, float 
 	Matrix34 tm(Matrix33::CreateRotationVDir(dir));
 	tm.AddTranslation(pos);
 
-	if (IEntity *pEntity=gEnv->pEntitySystem->GetEntity(m_entityId))
+	if(IEntity *pEntity=gEnv->pEntitySystem->GetEntity(m_entityId))
 	{
 		pEntity->SetWorldTM(tm);
+
 		//Do not scale effects
 		if(m_useGeometry)
 		{
@@ -201,7 +205,7 @@ void CTracer::SetLifeTime(float lifeTime)
 
 //------------------------------------------------------------------------
 CTracerManager::CTracerManager()
-: m_lastFree(0)
+	: m_lastFree(0)
 {
 }
 
@@ -217,7 +221,8 @@ void CTracerManager::EmitTracer(const STracerParams &params)
 		return;
 
 	int idx=0;
-	if (m_pool.empty() && g_pGameCVars->tracer_max_count>0)
+
+	if(m_pool.empty() && g_pGameCVars->tracer_max_count>0)
 	{
 		m_pool.push_back(new CTracer(params.position));
 		idx=m_pool.size()-1;
@@ -227,21 +232,22 @@ void CTracerManager::EmitTracer(const STracerParams &params)
 		int s=m_pool.size();
 		int i=m_lastFree+1;
 
-		while (true)
+		while(true)
 		{
 			IEntity *pEntity=0;
-			if (i<(int)m_pool.size())
+
+			if(i<(int)m_pool.size())
 				pEntity=gEnv->pEntitySystem->GetEntity(m_pool[i]->m_entityId);
 
-			if (i==s)
+			if(i==s)
 				i=0;
-			else if (i==m_lastFree)
+			else if(i==m_lastFree)
 			{
 				m_pool.push_back(new CTracer(params.position));
 				idx=m_pool.size()-1;
 				break;
 			}
-			else if (pEntity && pEntity->IsHidden())
+			else if(pEntity && pEntity->IsHidden())
 			{
 				m_pool[i]->Reset(params.position);
 				idx=i;
@@ -256,12 +262,13 @@ void CTracerManager::EmitTracer(const STracerParams &params)
 
 	CTracer *tracer = m_pool[idx];
 
-	if (params.geometry && params.geometry[0])
+	if(params.geometry && params.geometry[0])
 	{
 		tracer->SetGeometry(params.geometry, 1.0f);
 		tracer->m_useGeometry = true;
 	}
-	if (params.effect && params.effect[0])
+
+	if(params.effect && params.effect[0])
 		tracer->SetEffect(params.effect, 1.0f);
 
 	tracer->SetLifeTime(params.lifetime);
@@ -270,7 +277,7 @@ void CTracerManager::EmitTracer(const STracerParams &params)
 	tracer->m_pos = params.position;
 	tracer->m_dest = params.destination;
 
-	if (IEntity *pEntity=gEnv->pEntitySystem->GetEntity(tracer->m_entityId))
+	if(IEntity *pEntity=gEnv->pEntitySystem->GetEntity(tracer->m_entityId))
 		pEntity->Hide(0);
 
 	m_actives.push_back(idx);
@@ -280,10 +287,11 @@ void CTracerManager::EmitTracer(const STracerParams &params)
 void CTracerManager::Update(float frameTime)
 {
 	IActor *pActor=g_pGame->GetIGameFramework()->GetClientActor();
-	if (!pActor)
+
+	if(!pActor)
 		return;
 
-	if (!pActor->GetMovementController())
+	if(!pActor->GetMovementController())
 		return;
 
 	SMovementState state;
@@ -293,15 +301,16 @@ void CTracerManager::Update(float frameTime)
 	m_actives.swap(m_updating);
 
 	TTracerIdVector::iterator it, end=m_updating.end();
-	for (it = m_updating.begin(); it!=end; ++it)
+
+	for(it = m_updating.begin(); it!=end; ++it)
 	{
 		CTracer *tracer = m_pool[*it];
 
-		if (tracer->Update(frameTime, state.eyePosition))
+		if(tracer->Update(frameTime, state.eyePosition))
 			m_actives.push_back(*it);
 		else
 		{
-			if (IEntity *pEntity=gEnv->pEntitySystem->GetEntity(tracer->m_entityId))
+			if(IEntity *pEntity=gEnv->pEntitySystem->GetEntity(tracer->m_entityId))
 			{
 				pEntity->Hide(1);
 				pEntity->SetWorldTM(Matrix34::CreateIdentity());
@@ -315,7 +324,7 @@ void CTracerManager::Update(float frameTime)
 //------------------------------------------------------------------------
 void CTracerManager::Reset()
 {
-	for (TTracerPool::iterator it = m_pool.begin(); it!=m_pool.end(); ++it)
+	for(TTracerPool::iterator it = m_pool.begin(); it!=m_pool.end(); ++it)
 		delete *it;
 
 	m_updating.resize(0);
@@ -323,7 +332,7 @@ void CTracerManager::Reset()
 	m_pool.resize(0);
 }
 
-void CTracerManager::GetMemoryUsage(ICrySizer * s) const
+void CTracerManager::GetMemoryUsage(ICrySizer *s) const
 {
 	SIZER_SUBCOMPONENT_NAME(s, "TracerManager");
 	s->Add(*this);
@@ -331,6 +340,6 @@ void CTracerManager::GetMemoryUsage(ICrySizer * s) const
 	s->AddContainer(m_actives);
 	s->AddContainer(m_pool);
 
-	for (size_t i=0; i<m_pool.size(); i++)
+	for(size_t i=0; i<m_pool.size(); i++)
 		m_pool[i]->GetMemoryUsage(s);
 }

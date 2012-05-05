@@ -19,7 +19,7 @@ History:
 
 namespace
 {
-	const char* g_TokenTable[SINGLETG_MAX_TARGETS] = 
+	const char *g_TokenTable[SINGLETG_MAX_TARGETS] =
 	{
 		"weapon.tacgun.target0",
 		"weapon.tacgun.target1",
@@ -37,12 +37,14 @@ CSingleTG::CSingleTG()
 
 	// create the game tokens if not present
 	IGameTokenSystem *pGameTokenSystem = gEnv->pGame->GetIGameFramework()->GetIGameTokenSystem();
+
 	if(pGameTokenSystem)
 	{
 		for(int i=0; i<SINGLETG_MAX_TARGETS; i++)
 		{
 			EntityId entityId = 0;
-			if (pGameTokenSystem->FindToken(g_TokenTable[i]) == 0)
+
+			if(pGameTokenSystem->FindToken(g_TokenTable[i]) == 0)
 				pGameTokenSystem->SetOrCreateToken(g_TokenTable[i], TFlowInputData(entityId));
 		}
 	}
@@ -58,7 +60,7 @@ void CSingleTG::CacheSharedParamsPtr()
 {
 	CSingle::CacheSharedParamsPtr();
 
-	m_pShared = static_cast<CSingleSharedData*>(m_fireParams.get());
+	m_pShared = static_cast<CSingleSharedData *>(m_fireParams.get());
 }
 
 //------------------------------------------------------------------------
@@ -79,8 +81,8 @@ void CSingleTG::UpdateFPView(float frameTime)
 
 		if(!m_bLocking)
 		{
-			CActor * pPlayer = m_pWeapon->GetOwnerActor();
-			SPlayerStats* stats = pPlayer?static_cast<SPlayerStats*>(pPlayer->GetActorStats()):NULL;
+			CActor *pPlayer = m_pWeapon->GetOwnerActor();
+			SPlayerStats *stats = pPlayer?static_cast<SPlayerStats *>(pPlayer->GetActorStats()):NULL;
 
 			if(stats && !gEnv->bMultiplayer)
 				stats->bLookingAtFriendlyAI = true;
@@ -99,15 +101,17 @@ void CSingleTG::StartFire()
 //------------------------------------------------------
 void CSingleTG::UpdateAutoAim(float frameTime)
 {
-	static IGameObjectSystem* pGameObjectSystem = gEnv->pGame->GetIGameFramework()->GetIGameObjectSystem();
+	static IGameObjectSystem *pGameObjectSystem = gEnv->pGame->GetIGameFramework()->GetIGameObjectSystem();
 
 	CActor *pOwner = m_pWeapon->GetOwnerActor();
-	if (!pOwner || !pOwner->IsPlayer())
+
+	if(!pOwner || !pOwner->IsPlayer())
 		return;
 
 	// todo: use crosshair/aiming dir
 	IMovementController *pMC = pOwner->GetMovementController();
-	if (!pMC)
+
+	if(!pMC)
 		return;
 
 	// re-get targets from gametokens
@@ -115,13 +119,15 @@ void CSingleTG::UpdateAutoAim(float frameTime)
 
 	if(m_iSerializeIgnoreUpdate) 	//workaround serialization requested by design & RnD
 	{
-		m_iSerializeIgnoreUpdate--;		
+		m_iSerializeIgnoreUpdate--;
+
 		if(m_iSerializeIgnoreUpdate <= 0)
 		{
 			m_iSerializeIgnoreUpdate = 0;
 			StartLocking(m_idSerializeTarget, 0);
 			m_fStareTime = m_fSerializeProgress;
 		}
+
 		return;
 	}
 
@@ -135,22 +141,23 @@ void CSingleTG::UpdateAutoAim(float frameTime)
 
 	ray_hit ray;
 
-	IPhysicalEntity* pSkipEnts[10];
+	IPhysicalEntity *pSkipEnts[10];
 	int nSkipEnts = GetSkipEntities(m_pWeapon, pSkipEnts, 10);
 
 	const int objects = ent_all;
 	const int flags = rwi_stop_at_pierceable|rwi_ignore_back_faces;
 
-	int result = gEnv->pPhysicalWorld->RayWorldIntersection(aimPos, aimDir * 2.f * maxDistance, 
-		objects, flags, &ray, 1, pSkipEnts, nSkipEnts);		
+	int result = gEnv->pPhysicalWorld->RayWorldIntersection(aimPos, aimDir * 2.f * maxDistance,
+				 objects, flags, &ray, 1, pSkipEnts, nSkipEnts);
 
 	bool hitValidTarget = false;
-	IEntity* pEntity = 0;
+	IEntity *pEntity = 0;
 
-	if (result && ray.pCollider)
-	{	
-		pEntity = (IEntity *)ray.pCollider->GetForeignData(PHYS_FOREIGN_ID_ENTITY);    	        
-		if (pEntity && IsValidAutoAimTarget(pEntity,ray.partid))
+	if(result && ray.pCollider)
+	{
+		pEntity = (IEntity *)ray.pCollider->GetForeignData(PHYS_FOREIGN_ID_ENTITY);
+
+		if(pEntity && IsValidAutoAimTarget(pEntity,ray.partid))
 			hitValidTarget = true;
 	}
 
@@ -162,17 +169,17 @@ void CSingleTG::UpdateAutoAim(float frameTime)
 		int value = (int)((m_fStareTime / m_pShared->fireparams.autoaim_locktime)*100.0f);
 	}
 
-	if (hitValidTarget && ray.dist <= maxDistance)
-	{	
-		if (m_bLocked)
+	if(hitValidTarget && ray.dist <= maxDistance)
+	{
+		if(m_bLocked)
 		{
-			if ((m_lockedTarget != pEntity->GetId()) && 
-				(m_lockedTarget != pEntity->UnmapAttachedChild(ray.partid)->GetId()) && m_autoaimTimeOut<=0.0f)
+			if((m_lockedTarget != pEntity->GetId()) &&
+					(m_lockedTarget != pEntity->UnmapAttachedChild(ray.partid)->GetId()) && m_autoaimTimeOut<=0.0f)
 				StartLocking(pEntity->GetId(),ray.partid);
 		}
 		else
-		{	
-			if (!m_bLocking || (m_lockedTarget!=pEntity->GetId()) && (m_lockedTarget!=pEntity->UnmapAttachedChild(ray.partid)->GetId()))
+		{
+			if(!m_bLocking || (m_lockedTarget!=pEntity->GetId()) && (m_lockedTarget!=pEntity->UnmapAttachedChild(ray.partid)->GetId()))
 				StartLocking(pEntity->GetId(),ray.partid);
 			else
 				m_fStareTime += frameTime;
@@ -186,8 +193,8 @@ void CSingleTG::UpdateAutoAim(float frameTime)
 	else
 	{
 		// check if we're looking far away from our locked target
-		if ((m_bLocked && !(ray.dist<=maxDistance && CheckAutoAimTolerance(aimPos, aimDir))) || (!m_bLocked && m_lockedTarget && m_fStareTime != 0.0f))
-		{ 
+		if((m_bLocked && !(ray.dist<=maxDistance && CheckAutoAimTolerance(aimPos, aimDir))) || (!m_bLocked && m_lockedTarget && m_fStareTime != 0.0f))
+		{
 			if(!m_pShared->fireparams.autoaim_timeout)
 			{
 				m_pWeapon->RequestUnlock();
@@ -196,16 +203,17 @@ void CSingleTG::UpdateAutoAim(float frameTime)
 		}
 	}
 
-	if (m_bLocking && !m_bLocked && m_fStareTime >= m_pShared->fireparams.autoaim_locktime && m_lockedTarget)
+	if(m_bLocking && !m_bLocked && m_fStareTime >= m_pShared->fireparams.autoaim_locktime && m_lockedTarget)
 		m_pWeapon->RequestLock(m_lockedTarget);
 	else if(m_bLocked && hitValidTarget && m_lockedTarget!=pEntity->GetId() &&
-		(m_lockedTarget != pEntity->UnmapAttachedChild(ray.partid)->GetId()))
+			(m_lockedTarget != pEntity->UnmapAttachedChild(ray.partid)->GetId()))
 		m_pWeapon->RequestLock(pEntity->GetId(),ray.partid);
-	else if (m_bLocked)
+	else if(m_bLocked)
 	{
 		// check if target still valid (can e.g. be killed)
-		pEntity = gEnv->pEntitySystem->GetEntity(m_lockedTarget);	
-		if ((pEntity && !IsValidAutoAimTarget(pEntity)) || (m_pShared->fireparams.autoaim_timeout && m_autoaimTimeOut<=0.0f))
+		pEntity = gEnv->pEntitySystem->GetEntity(m_lockedTarget);
+
+		if((pEntity && !IsValidAutoAimTarget(pEntity)) || (m_pShared->fireparams.autoaim_timeout && m_autoaimTimeOut<=0.0f))
 		{
 			m_pWeapon->RequestUnlock();
 			Unlock();
@@ -214,13 +222,13 @@ void CSingleTG::UpdateAutoAim(float frameTime)
 }
 
 //----------------------------------------------------
-bool CSingleTG::IsValidAutoAimTarget(IEntity* pEntity, int partId)
+bool CSingleTG::IsValidAutoAimTarget(IEntity *pEntity, int partId)
 {
-	for(int i=0; i<SINGLETG_MAX_TARGETS;i++)
+	for(int i=0; i<SINGLETG_MAX_TARGETS; i++)
 	{
 		if(pEntity->UnmapAttachedChild(partId)->GetId()==m_targetIds[i])
 			return true;
-		
+
 	}
 
 	return false;
@@ -230,7 +238,8 @@ bool CSingleTG::IsValidAutoAimTarget(IEntity* pEntity, int partId)
 void CSingleTG::StartLocking(EntityId targetId, int partId /*= 0*/)
 {
 	// start locking
-	IEntity* pEntity = gEnv->pEntitySystem->GetEntity(targetId);
+	IEntity *pEntity = gEnv->pEntitySystem->GetEntity(targetId);
+
 	if(!pEntity)
 		return;
 
@@ -239,9 +248,9 @@ void CSingleTG::StartLocking(EntityId targetId, int partId /*= 0*/)
 	m_bLocked = false;
 	m_fStareTime = 0.0f;
 
-	if (CActor *pActor=m_pWeapon->GetOwnerActor())
+	if(CActor *pActor=m_pWeapon->GetOwnerActor())
 	{
-		if (pActor->IsClient())
+		if(pActor->IsClient())
 		{
 		}
 	}
@@ -256,7 +265,8 @@ void CSingleTG::Unlock()
 //--------------------------------------------------
 void CSingleTG::Lock(EntityId targetId, int partId /*= 0*/)
 {
-	IEntity* pEntity = gEnv->pEntitySystem->GetEntity(targetId);
+	IEntity *pEntity = gEnv->pEntitySystem->GetEntity(targetId);
+
 	if(!pEntity)
 		return;
 
@@ -265,12 +275,13 @@ void CSingleTG::Lock(EntityId targetId, int partId /*= 0*/)
 	m_bLocked = true;
 	m_autoaimTimeOut = AUTOAIM_TIME_OUT;
 
-	if (CActor *pActor=m_pWeapon->GetOwnerActor())
+	if(CActor *pActor=m_pWeapon->GetOwnerActor())
 	{
-		if (pActor->IsClient())
+		if(pActor->IsClient())
 		{
 			_smart_ptr< ISound > pBeep = gEnv->pSoundSystem->CreateSound("Sounds/interface:hud:target_lock", 0);
-			if (pBeep)
+
+			if(pBeep)
 			{
 				pBeep->SetSemantic(eSoundSemantic_HUD);
 				pBeep->Play();
@@ -289,7 +300,7 @@ void CSingleTG::UpdateTargets()
 		for(int i=0; i<SINGLETG_MAX_TARGETS; i++)
 		{
 			EntityId entityId = 0;
-		  // next call will leave entityId unchanged if not found, but it's 0 by default
+			// next call will leave entityId unchanged if not found, but it's 0 by default
 			pGameTokenSystem->GetTokenValueAs(g_TokenTable[i], entityId);
 			m_targetIds[i] = entityId;
 		}

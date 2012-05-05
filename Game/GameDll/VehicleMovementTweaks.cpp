@@ -4,7 +4,7 @@ Copyright (C), Crytek Studios, 2001-2006.
 -------------------------------------------------------------------------
 $Id$
 $DateTime$
-Description: Implements a class which handle case (group) specific 
+Description: Implements a class which handle case (group) specific
 tweaking of values of a vehicle movement
 
 -------------------------------------------------------------------------
@@ -17,18 +17,18 @@ History:
 #include "VehicleMovementTweaks.h"
 
 //------------------------------------------------------------------------
-bool CVehicleMovementTweaks::Init(const CVehicleParams& table)
+bool CVehicleMovementTweaks::Init(const CVehicleParams &table)
 {
-  m_groups.clear();
+	m_groups.clear();
 
-	if (CVehicleParams tweakGroupsTable = table.findChild("TweakGroups"))
+	if(CVehicleParams tweakGroupsTable = table.findChild("TweakGroups"))
 	{
 		int i = 0;
 		int c = tweakGroupsTable.getChildCount();
 
 		m_groups.reserve(c);
 
-		for (; i < c; i++)
+		for(; i < c; i++)
 		{
 			CVehicleParams groupTable = tweakGroupsTable.getChild(i);
 			AddGroup(groupTable);
@@ -39,49 +39,52 @@ bool CVehicleMovementTweaks::Init(const CVehicleParams& table)
 }
 
 //------------------------------------------------------------------------
-bool CVehicleMovementTweaks::AddGroup(const CVehicleParams& table)
+bool CVehicleMovementTweaks::AddGroup(const CVehicleParams &table)
 {
 	string groupName = table.getAttr("name");
-	if (groupName.empty())
+
+	if(groupName.empty())
 		return InvalidTweakGroupId;
 
 	m_groups.resize(m_groups.size() + 1);
-	SGroup& newGroup = m_groups.back();
+	SGroup &newGroup = m_groups.back();
 
 	newGroup.name = groupName;
 	newGroup.isEnabled = false;
 
-	if (CVehicleParams tweaksTable = table.findChild("Tweaks"))
+	if(CVehicleParams tweaksTable = table.findChild("Tweaks"))
 	{
 		int i = 0;
 		int c = tweaksTable.getChildCount();
 
 		newGroup.values.reserve(c);
 
-		for (; i < c; i++)
+		for(; i < c; i++)
 		{
 			CVehicleParams tweakRef = tweaksTable.getChild(i);
-			if (tweakRef && tweakRef.getChildCount() > 0)
+
+			if(tweakRef && tweakRef.getChildCount() > 0)
 			{
-				if (tweakRef.haveAttr("name"))
+				if(tweakRef.haveAttr("name"))
 				{
 					TValueId valueId = GetValueId(tweakRef.getAttr("name"));
-					if (valueId > -1)
+
+					if(valueId > -1)
 					{
 						SGroup::SValueInGroup valueInGroup;
-						const SValue& v = m_values[valueId];
+						const SValue &v = m_values[valueId];
 
 						valueInGroup.valueId = valueId;
 						tweakRef.getAttr("value", valueInGroup.value);
 
-						if (!tweakRef.getAttr("op", valueInGroup.op))
+						if(!tweakRef.getAttr("op", valueInGroup.op))
 							valueInGroup.op = 0;
 
-						if (!v.isRestrictedToMult || v.isRestrictedToMult && valueInGroup.op == eTVO_Multiplier)
+						if(!v.isRestrictedToMult || v.isRestrictedToMult && valueInGroup.op == eTVO_Multiplier)
 							newGroup.values.push_back(valueInGroup);
 						else
-							CryLog("VehicleMovementTweaks Warning: the value <%s> can only be tweaked with a multiplyer.", 
-								tweakRef.getAttr("name"));
+							CryLog("VehicleMovementTweaks Warning: the value <%s> can only be tweaked with a multiplyer.",
+								   tweakRef.getAttr("name"));
 					}
 				}
 			}
@@ -94,27 +97,27 @@ bool CVehicleMovementTweaks::AddGroup(const CVehicleParams& table)
 }
 
 //------------------------------------------------------------------------
-void CVehicleMovementTweaks::AddValue(const char* valueName, float* pValue, bool isRestrictedToMult)
+void CVehicleMovementTweaks::AddValue(const char *valueName, float *pValue, bool isRestrictedToMult)
 {
 	m_values.resize(m_values.size() + 1);
-	SValue& newValue = m_values.back();
+	SValue &newValue = m_values.back();
 
 	newValue.name = valueName;
 	newValue.pValue = pValue;
 	newValue.defaultValue = *pValue;
 	newValue.isRestrictedToMult = isRestrictedToMult;
-  newValue.blocked = false;
+	newValue.blocked = false;
 }
 
 //------------------------------------------------------------------------
 bool CVehicleMovementTweaks::UseGroup(TTweakGroupId groupId)
 {
-	if (groupId < 0 || m_groups.size() <= groupId)
+	if(groupId < 0 || m_groups.size() <= groupId)
 		return false;
 
-	SGroup& group = m_groups[groupId];
+	SGroup &group = m_groups[groupId];
 
-	if (group.isEnabled)
+	if(group.isEnabled)
 		return false;
 
 	group.isEnabled = true;
@@ -126,15 +129,15 @@ bool CVehicleMovementTweaks::UseGroup(TTweakGroupId groupId)
 //------------------------------------------------------------------------
 bool CVehicleMovementTweaks::RevertGroup(TTweakGroupId groupId)
 {
-	SGroup& group = m_groups[groupId];
+	SGroup &group = m_groups[groupId];
 
-	if (!group.isEnabled)
+	if(!group.isEnabled)
 		return false;
 
-  group.isEnabled = false;
+	group.isEnabled = false;
 
 	ComputeGroups();
-	
+
 	return true;
 }
 
@@ -144,26 +147,26 @@ bool CVehicleMovementTweaks::RevertValues()
 	TValueVector::iterator valueIte = m_values.begin();
 	TValueVector::iterator valueEnd = m_values.end();
 
-	for (; valueIte != valueEnd; ++valueIte)
+	for(; valueIte != valueEnd; ++valueIte)
 	{
-		SValue& valueInfo = *valueIte;
+		SValue &valueInfo = *valueIte;
 		(*valueInfo.pValue) = valueInfo.defaultValue;
 	}
 
 	TGroupVector::iterator groupIte = m_groups.begin();
 	TGroupVector::iterator groupEnd = m_groups.end();
 
-  bool reverted = false;
+	bool reverted = false;
 
-	for (; groupIte != groupEnd; ++groupIte)
+	for(; groupIte != groupEnd; ++groupIte)
 	{
-		SGroup& groupInfo = *groupIte;
-		
-    if (groupInfo.isEnabled)
-    {
-      groupInfo.isEnabled = false;
-      reverted = true;
-    }    
+		SGroup &groupInfo = *groupIte;
+
+		if(groupInfo.isEnabled)
+		{
+			groupInfo.isEnabled = false;
+			reverted = true;
+		}
 	}
 
 	return reverted;
@@ -175,67 +178,67 @@ void CVehicleMovementTweaks::ComputeGroups()
 	TValueVector::iterator valueIte = m_values.begin();
 	TValueVector::iterator valueEnd = m_values.end();
 
-	for (; valueIte != valueEnd; ++valueIte)
+	for(; valueIte != valueEnd; ++valueIte)
 	{
-		SValue& valueInfo = *valueIte;
+		SValue &valueInfo = *valueIte;
 		(*valueInfo.pValue) = valueInfo.defaultValue;
 	}
 
 	TGroupVector::iterator groupIte = m_groups.begin();
 	TGroupVector::iterator groupEnd = m_groups.end();
 
-	for (; groupIte != groupEnd; ++groupIte)
+	for(; groupIte != groupEnd; ++groupIte)
 	{
-		SGroup& groupInfo = *groupIte;
+		SGroup &groupInfo = *groupIte;
 
-		if (groupInfo.isEnabled)
+		if(groupInfo.isEnabled)
 			ComputeGroup(groupInfo);
 	}
 }
 
 //------------------------------------------------------------------------
-void CVehicleMovementTweaks::ComputeGroup(const SGroup& group)
+void CVehicleMovementTweaks::ComputeGroup(const SGroup &group)
 {
 	SGroup::TValueInGroupVector::const_iterator valueInGroupIte = group.values.begin();
 	SGroup::TValueInGroupVector::const_iterator valueInGroupEnd = group.values.end();
 
-	for (; valueInGroupIte != valueInGroupEnd; ++valueInGroupIte)
+	for(; valueInGroupIte != valueInGroupEnd; ++valueInGroupIte)
 	{
-		const SGroup::SValueInGroup& v = *valueInGroupIte;
+		const SGroup::SValueInGroup &v = *valueInGroupIte;
 
-		SValue& valueInfo = m_values[v.valueId];
+		SValue &valueInfo = m_values[v.valueId];
 
-    if (valueInfo.blocked)
-      continue;
+		if(valueInfo.blocked)
+			continue;
 
-		if (v.op == eTVO_Replace)
+		if(v.op == eTVO_Replace)
 			(*valueInfo.pValue) = v.value;
-		else if (v.op == eTVO_Multiplier)
+		else if(v.op == eTVO_Multiplier)
 			(*valueInfo.pValue) *= v.value;
 	}
 }
 
 //------------------------------------------------------------------------
 void CVehicleMovementTweaks::BlockValue(TValueId valueId, bool block)
-{ 
-  assert(valueId >= 0 && valueId < m_values.size());
-    
-  m_values[valueId].blocked = block;  
+{
+	assert(valueId >= 0 && valueId < m_values.size());
+
+	m_values[valueId].blocked = block;
 }
 
 //------------------------------------------------------------------------
-CVehicleMovementTweaks::TTweakGroupId CVehicleMovementTweaks::GetGroupId(const char* name)
+CVehicleMovementTweaks::TTweakGroupId CVehicleMovementTweaks::GetGroupId(const char *name)
 {
 	TTweakGroupId groupId = 0;
 
 	TGroupVector::iterator groupIte = m_groups.begin();
 	TGroupVector::iterator groupEnd = m_groups.end();
 
-	for (; groupIte != groupEnd; ++groupIte)
+	for(; groupIte != groupEnd; ++groupIte)
 	{
-		const SGroup& g = *groupIte;
+		const SGroup &g = *groupIte;
 
-		if (g.name == name)
+		if(g.name == name)
 			return groupId;
 
 		groupId++;
@@ -245,15 +248,15 @@ CVehicleMovementTweaks::TTweakGroupId CVehicleMovementTweaks::GetGroupId(const c
 }
 
 //------------------------------------------------------------------------
-CVehicleMovementTweaks::TValueId CVehicleMovementTweaks::GetValueId(const char* name)
+CVehicleMovementTweaks::TValueId CVehicleMovementTweaks::GetValueId(const char *name)
 {
 	TValueId valueId = 0;
 
-	for (TValueVector::iterator ite = m_values.begin(); ite != m_values.end(); ++ite)
+	for(TValueVector::iterator ite = m_values.begin(); ite != m_values.end(); ++ite)
 	{
-		SValue& valueInfo = *ite;
+		SValue &valueInfo = *ite;
 
-		if (valueInfo.name == name)
+		if(valueInfo.name == name)
 			return valueId;
 
 		valueId++;
@@ -265,22 +268,22 @@ CVehicleMovementTweaks::TValueId CVehicleMovementTweaks::GetValueId(const char* 
 //------------------------------------------------------------------------
 void CVehicleMovementTweaks::Serialize(TSerialize ser, unsigned aspects)
 {
-	if (ser.GetSerializationTarget() == eST_SaveGame)
+	if(ser.GetSerializationTarget() == eST_SaveGame)
 	{
 		ser.BeginGroup("TweakGroups");
 		TGroupVector::iterator groupIte = m_groups.begin();
 		TGroupVector::iterator groupEnd = m_groups.end();
 
-		for (; groupIte != groupEnd; ++groupIte)
+		for(; groupIte != groupEnd; ++groupIte)
 		{
-			SGroup& groupInfo = *groupIte;
+			SGroup &groupInfo = *groupIte;
 
 			ser.BeginGroup(groupInfo.name);
 			ser.Value("isEnabled", groupInfo.isEnabled);
 			ser.EndGroup();
 		}
 
-		if (ser.IsReading())
+		if(ser.IsReading())
 			ComputeGroups();
 
 		ser.EndGroup();

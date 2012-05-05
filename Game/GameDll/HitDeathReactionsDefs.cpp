@@ -8,11 +8,11 @@
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-SRandomGeneratorFunct::SRandomGeneratorFunct(CMTRand_int32& pseudoRandomGenerator) : m_pseudoRandomGenerator(pseudoRandomGenerator) {} 
+SRandomGeneratorFunct::SRandomGeneratorFunct(CMTRand_int32 &pseudoRandomGenerator) : m_pseudoRandomGenerator(pseudoRandomGenerator) {}
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-void SReactionParams::GetMemoryUsage(ICrySizer* s) const
+void SReactionParams::GetMemoryUsage(ICrySizer *s) const
 {
 	s->AddObject(this, sizeof(*this));
 
@@ -33,8 +33,8 @@ void SReactionParams::GetMemoryUsage(ICrySizer* s) const
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-SReactionParams::SReactionParams() : orientationSnapAngle(0), reactionOnCollision(NO_COLLISION_REACTION), 
-flags(0), bPauseAI(true), endVelocity(ZERO)
+SReactionParams::SReactionParams() : orientationSnapAngle(0), reactionOnCollision(NO_COLLISION_REACTION),
+	flags(0), bPauseAI(true), endVelocity(ZERO)
 {
 
 }
@@ -53,18 +53,20 @@ void SReactionParams::Reset()
 	flags = 0;
 	bPauseAI = true;
 	agReaction.Reset();
-	if (reactionAnim != NULL)
+
+	if(reactionAnim != NULL)
 		reactionAnim->Reset();
+
 	reactionScriptTable = ScriptTablePtr();
 	endVelocity.zero();
 }
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-SReactionParams::SValidationParams::SValidationParams() : fMinimumSpeedAllowed(0.0f), fMaximumSpeedAllowed(FLT_MAX), 
-fMinimumDamageAllowed(0.0f), fMaximumDamageAllowed(FLT_MAX), fProbability(1.0f), 
-shotOrigin(eCD_Invalid), movementDir(eCD_Invalid), bAllowOnlyWhenUsingMountedItems(false), destructibleEvent(0),
-fMinimumDistance(0.0f), fMaximumDistance(0.0f) 
+SReactionParams::SValidationParams::SValidationParams() : fMinimumSpeedAllowed(0.0f), fMaximumSpeedAllowed(FLT_MAX),
+	fMinimumDamageAllowed(0.0f), fMaximumDamageAllowed(FLT_MAX), fProbability(1.0f),
+	shotOrigin(eCD_Invalid), movementDir(eCD_Invalid), bAllowOnlyWhenUsingMountedItems(false), destructibleEvent(0),
+	fMinimumDistance(0.0f), fMaximumDistance(0.0f)
 {
 
 }
@@ -82,7 +84,7 @@ void SReactionParams::SValidationParams::Reset()
 	fMinimumDistance = 0.0f;
 	fMaximumDistance = 0.0f;
 	allowedPartIds.clear();
-	shotOrigin = eCD_Invalid; 
+	shotOrigin = eCD_Invalid;
 	movementDir = eCD_Invalid;
 	fProbability = 1.0f;
 	allowedStances.clear();
@@ -95,7 +97,7 @@ void SReactionParams::SValidationParams::Reset()
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-void SReactionParams::SValidationParams::GetMemoryUsage(ICrySizer * s) const
+void SReactionParams::SValidationParams::GetMemoryUsage(ICrySizer *s) const
 {
 	s->AddObject(sCustomValidationFunc);
 	s->AddObject(allowedPartIds);
@@ -150,24 +152,27 @@ int	SReactionParams::SReactionAnim::GetNextReactionAnimIndex() const
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-int	SReactionParams::SReactionAnim::GetNextReactionAnimId(const IAnimationSet* pAnimSet) const
+int	SReactionParams::SReactionAnim::GetNextReactionAnimId(const IAnimationSet *pAnimSet) const
 {
 	CRY_ASSERT(pAnimSet);
 
 	const int iNextAnimIndex = GetNextReactionAnimIndex();
 
 #ifndef _RELEASE
+
 	// Paranoid check to catch logic errors (or CryAnimation releasing assets we have locked)
-	if (iNextAnimIndex >= 0)
+	if(iNextAnimIndex >= 0)
 	{
 		const bool bIsAnimLoaded = gEnv->pCharacterManager->CAF_IsLoaded(m_nextAnimCRC);
 		CRY_ASSERT_MESSAGE(bIsAnimLoaded, "This anim was expected to have finished streaming!!");
-		if (!bIsAnimLoaded)
-			CHitDeathReactionsSystem::Warning("%s was expected to have finished streaming!!", const_cast<IAnimationSet*>(pAnimSet)->GetNameByAnimID(pAnimSet->GetAnimIDByCRC(animCRCs[iNextAnimIndex])));
+
+		if(!bIsAnimLoaded)
+			CHitDeathReactionsSystem::Warning("%s was expected to have finished streaming!!", const_cast<IAnimationSet *>(pAnimSet)->GetNameByAnimID(pAnimSet->GetAnimIDByCRC(animCRCs[iNextAnimIndex])));
 	}
+
 #endif
 
-	return (iNextAnimIndex >= 0) ? pAnimSet->GetAnimIDByCRC(animCRCs[iNextAnimIndex]) : -1; 
+	return (iNextAnimIndex >= 0) ? pAnimSet->GetAnimIDByCRC(animCRCs[iNextAnimIndex]) : -1;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -177,7 +182,7 @@ void SReactionParams::SReactionAnim::OnAnimLoaded() const
 	CRY_ASSERT((m_nextAnimCRC != 0) || (m_iNextAnimIndex == -1) || !g_pGame->GetHitDeathReactionsSystem().IsStreamingEnabled());
 
 	// Release previous one
-	if (m_nextAnimCRC != 0)
+	if(m_nextAnimCRC != 0)
 	{
 		gEnv->pCharacterManager->CAF_Release(m_nextAnimCRC);
 	}
@@ -190,7 +195,7 @@ void SReactionParams::SReactionAnim::OnAnimLoaded() const
 	m_requestedAnimCRC = 0;
 
 	// Remove timer if any
-	if (m_iTimerHandle)
+	if(m_iTimerHandle)
 	{
 		gEnv->pGame->GetIGameFramework()->RemoveTimer(m_iTimerHandle);
 		m_iTimerHandle = 0;
@@ -199,25 +204,27 @@ void SReactionParams::SReactionAnim::OnAnimLoaded() const
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-void SReactionParams::SReactionAnim::RequestNextAnim(const IAnimationSet* pAnimSet) const
+void SReactionParams::SReactionAnim::RequestNextAnim(const IAnimationSet *pAnimSet) const
 {
 	CRY_ASSERT(pAnimSet);
 
 	// If we are already waiting for a requested anim to load there's no need to request a new one
-	if (m_requestedAnimCRC != 0)
+	if(m_requestedAnimCRC != 0)
 		return;
 
 	// Request loading of the next index
 	const int iAnimCRCsSize = animCRCs.size();
-	if (iAnimCRCsSize > 0)
+
+	if(iAnimCRCsSize > 0)
 	{
 		int iIndexToRequest = 0;
-		if (iAnimCRCsSize > 1)
+
+		if(iAnimCRCsSize > 1)
 		{
-			if ((m_iNextAnimIndex + 1) >= iAnimCRCsSize)
+			if((m_iNextAnimIndex + 1) >= iAnimCRCsSize)
 			{
 				// Randomly reshuffle animIDs vector
-				// [*DavidR | 22/Sep/2010] Note: We are reusing the seed previously set on 
+				// [*DavidR | 22/Sep/2010] Note: We are reusing the seed previously set on
 				// the random generator. Should be deterministic across the network.
 				// This shuffling avoids playing the same animation twice in sequence
 				SRandomGeneratorFunct randomFunctor(g_pGame->GetHitDeathReactionsSystem().GetRandomGenerator());
@@ -231,11 +238,12 @@ void SReactionParams::SReactionAnim::RequestNextAnim(const IAnimationSet* pAnimS
 		}
 
 		// Request reference
-		if (g_pGame->GetHitDeathReactionsSystem().IsStreamingEnabled())
+		if(g_pGame->GetHitDeathReactionsSystem().IsStreamingEnabled())
 		{
 			const int requestedAnimModelID = pAnimSet->GetAnimIDByCRC(animCRCs[iIndexToRequest]);
 			const uint32 requestedAnimCRC = pAnimSet->GetFilePathCRCByAnimID(requestedAnimModelID);
-			if (requestedAnimCRC != m_nextAnimCRC)
+
+			if(requestedAnimCRC != m_nextAnimCRC)
 			{
 				m_requestedAnimCRC = requestedAnimCRC;
 				gEnv->pCharacterManager->CAF_AddRef(m_requestedAnimCRC);
@@ -243,7 +251,7 @@ void SReactionParams::SReactionAnim::RequestNextAnim(const IAnimationSet* pAnimS
 				// Create a timer to poll when the asset ends streaming
 				m_iTimerHandle = gEnv->pGame->GetIGameFramework()->AddTimer(CTimeValue(0.5f), false, functor(*this, &SReactionAnim::OnTimer), NULL);
 			}
-			else if (requestedAnimCRC != 0)
+			else if(requestedAnimCRC != 0)
 			{
 				// Requested anim is the one we already have loaded. Immediate success :)
 				m_iNextAnimIndex = iIndexToRequest;
@@ -256,20 +264,20 @@ void SReactionParams::SReactionAnim::RequestNextAnim(const IAnimationSet* pAnimS
 //////////////////////////////////////////////////////////////////////////
 void SReactionParams::SReactionAnim::ReleaseRequestedAnims()
 {
-	if (m_requestedAnimCRC != 0)
+	if(m_requestedAnimCRC != 0)
 	{
 		gEnv->pCharacterManager->CAF_Release(m_requestedAnimCRC);
 		m_requestedAnimCRC = 0;
 	}
 
-	if (m_nextAnimCRC != 0)
+	if(m_nextAnimCRC != 0)
 	{
 		gEnv->pCharacterManager->CAF_Release(m_nextAnimCRC);
 		m_nextAnimCRC = 0;
 	}
 
 	// Remove the timer, since there's no need to poll for the end of the requested assets streaming
-	if (m_iTimerHandle)
+	if(m_iTimerHandle)
 	{
 		gEnv->pGame->GetIGameFramework()->RemoveTimer(m_iTimerHandle);
 		m_iTimerHandle = 0;
@@ -280,7 +288,7 @@ void SReactionParams::SReactionAnim::ReleaseRequestedAnims()
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-void SReactionParams::SReactionAnim::OnTimer(void* pUserData, IGameFramework::TimerID handler) const
+void SReactionParams::SReactionAnim::OnTimer(void *pUserData, IGameFramework::TimerID handler) const
 {
 	CRY_ASSERT(g_pGame->GetHitDeathReactionsSystem().IsStreamingEnabled());
 	CRY_ASSERT(m_requestedAnimCRC != 0);
@@ -290,18 +298,18 @@ void SReactionParams::SReactionAnim::OnTimer(void* pUserData, IGameFramework::Ti
 	UpdateRequestedAnimStatus();
 
 	// If still is not loaded, wait 0.5 seconds for the next
-	if (m_requestedAnimCRC != 0)
+	if(m_requestedAnimCRC != 0)
 	{
-		m_iTimerHandle = gEnv->pGame->GetIGameFramework()->AddTimer(CTimeValue(0.5f), false, functor(*this, &SReactionAnim::OnTimer), NULL);	
+		m_iTimerHandle = gEnv->pGame->GetIGameFramework()->AddTimer(CTimeValue(0.5f), false, functor(*this, &SReactionAnim::OnTimer), NULL);
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 void SReactionParams::SReactionAnim::UpdateRequestedAnimStatus() const
-{	
-	if (!g_pGame->GetHitDeathReactionsSystem().IsStreamingEnabled() || 
-		((m_requestedAnimCRC != 0) && gEnv->pCharacterManager->CAF_IsLoaded(m_requestedAnimCRC)))
+{
+	if(!g_pGame->GetHitDeathReactionsSystem().IsStreamingEnabled() ||
+			((m_requestedAnimCRC != 0) && gEnv->pCharacterManager->CAF_IsLoaded(m_requestedAnimCRC)))
 	{
 		OnAnimLoaded();
 	}

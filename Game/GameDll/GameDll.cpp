@@ -20,12 +20,12 @@
 
 extern "C"
 {
-	GAME_API IGame *CreateGame(IGameFramework* pGameFramework)
+	GAME_API IGame *CreateGame(IGameFramework *pGameFramework)
 	{
 		ModuleInitISystem(pGameFramework->GetISystem(),"CryGame");
 
 		static char pGameBuffer[sizeof(CGame)];
-		return new ((void*)pGameBuffer) CGame();
+		return new((void *)pGameBuffer) CGame();
 	}
 
 	GAME_API IGameStartup *CreateGameStartup()
@@ -34,7 +34,7 @@ extern "C"
 		// rely on atexit() doing the right thing; the only recourse is to
 		// have a static buffer that we use for this object
 		static char gameStartup_buffer[sizeof(CGameStartup)];
-		return new ((void*)gameStartup_buffer) CGameStartup();
+		return new((void *)gameStartup_buffer) CGameStartup();
 	}
 	GAME_API IEditorGame *CreateEditorGame()
 	{
@@ -54,27 +54,30 @@ static HMODULE s_frameworkDLL;
 
 static void CleanupFrameworkDLL()
 {
-	assert( s_frameworkDLL );
-	CryFreeLibrary( s_frameworkDLL );
+	assert(s_frameworkDLL);
+	CryFreeLibrary(s_frameworkDLL);
 	s_frameworkDLL = 0;
 }
 
-HMODULE GetFrameworkDLL(const char* binariesDir)
+HMODULE GetFrameworkDLL(const char *binariesDir)
 {
-	MEMSTAT_CONTEXT_FMT(EMemStatContextTypes::MSC_Other, 0, "Load %s",GAME_FRAMEWORK_FILENAME );
-	if (!s_frameworkDLL)
+	MEMSTAT_CONTEXT_FMT(EMemStatContextTypes::MSC_Other, 0, "Load %s",GAME_FRAMEWORK_FILENAME);
+
+	if(!s_frameworkDLL)
 	{
-		if (binariesDir && binariesDir[0])
+		if(binariesDir && binariesDir[0])
 		{
 			string dllName = PathUtil::Make(binariesDir, GAME_FRAMEWORK_FILENAME);
-			s_frameworkDLL = CryLoadLibrary(dllName.c_str());		
+			s_frameworkDLL = CryLoadLibrary(dllName.c_str());
 		}
 		else
 		{
 			s_frameworkDLL = CryLoadLibrary(GAME_FRAMEWORK_FILENAME);
 		}
-		atexit( CleanupFrameworkDLL );
+
+		atexit(CleanupFrameworkDLL);
 	}
+
 	return s_frameworkDLL;
 }
 

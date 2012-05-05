@@ -41,7 +41,7 @@
 	f(kFTVT_EntityFlags, uint32,                   true,                           "entity flags %u", val                                      ) \
 	f(kFTVT_Who,      TBitfield,           (val < BIT(FeatureTestPlayerSelectionList_numBits)), "%s", GET_PLAYER_SELECTION_TEXT(val)           ) \
 	f(kFTVT_AimAt,    EFTAimCondition,     (val >= 0 && val < kFTAC_num),          "%s",              s_featureTestAimConditionNames[val]      ) \
-
+ 
 #define FeatureTesterLog(...)       CryLog("$3[FEATURETESTER]$1 %s%s", CFeatureTester::GetContextString().c_str(), string().Format(__VA_ARGS__).c_str())
 #define FeatureTesterWarning(...)   CryLog("$3[FEATURETESTER] <WARN> %s%s", CFeatureTester::GetContextString().c_str(), string().Format(__VA_ARGS__).c_str())
 
@@ -151,13 +151,13 @@ struct SFeatureTestInstructionOrParam
 
 	FeatureTestDataTypeDetails(MAKE_FUNCTIONS)
 
-	const char * GetContentsAsString(string & strOutput) const
+	const char *GetContentsAsString(string &strOutput) const
 	{
-		switch (m_type)
+		switch(m_type)
 		{
 			FeatureTestDataTypeDetails(MAKE_CASE_STRING_OUTPUT)
 
-			default:
+		default:
 			strOutput.Format("<BAD DATA>");
 			break;
 		}
@@ -168,13 +168,13 @@ struct SFeatureTestInstructionOrParam
 
 struct SFeatureTestDataLoadWorkspace
 {
-	private:
+private:
 	SFeatureTestInstructionOrParam m_instructionBuffer[BUFFER_SIZE_FOR_READING_INSTRUCTIONS];
-	const char * m_nameOfTestBeingLoaded;
+	const char *m_nameOfTestBeingLoaded;
 	int m_count;
 	bool m_abortReadingTest;
 
-	public:
+public:
 	SFeatureTestDataLoadWorkspace()
 	{
 		m_nameOfTestBeingLoaded = NULL;
@@ -182,16 +182,28 @@ struct SFeatureTestDataLoadWorkspace
 		m_abortReadingTest = false;
 	}
 
-	ILINE int GetNumInstructions()                                             { return m_count;             }
-	ILINE const SFeatureTestInstructionOrParam * GetInstructionBuffer() const  { return m_instructionBuffer; }
-	ILINE SFeatureTestInstructionOrParam * GetInstructionBufferModifiable()    { return m_instructionBuffer; }
-	ILINE bool GetAbortReadingTest() const                                     { return m_abortReadingTest;  }
+	ILINE int GetNumInstructions()
+	{
+		return m_count;
+	}
+	ILINE const SFeatureTestInstructionOrParam *GetInstructionBuffer() const
+	{
+		return m_instructionBuffer;
+	}
+	ILINE SFeatureTestInstructionOrParam *GetInstructionBufferModifiable()
+	{
+		return m_instructionBuffer;
+	}
+	ILINE bool GetAbortReadingTest() const
+	{
+		return m_abortReadingTest;
+	}
 
 	ILINE void RewindNumInstructions(int num)
 	{
-		assert (num >= 0);
-		assert (num <= m_count);
-		assert (m_abortReadingTest);
+		assert(num >= 0);
+		assert(num <= m_count);
+		assert(m_abortReadingTest);
 		m_count = num;
 	}
 
@@ -200,9 +212,9 @@ struct SFeatureTestDataLoadWorkspace
 		m_abortReadingTest = abort;
 	}
 
-	void SetNameOfTestBeingLoaded(const char * newName)
+	void SetNameOfTestBeingLoaded(const char *newName)
 	{
-		assert ((newName == NULL) == (m_nameOfTestBeingLoaded != NULL));
+		assert((newName == NULL) == (m_nameOfTestBeingLoaded != NULL));
 		m_nameOfTestBeingLoaded = newName;
 	}
 
@@ -211,35 +223,45 @@ struct SFeatureTestDataLoadWorkspace
 
 class CFeatureTestArgumentAutoComplete : public IConsoleArgumentAutoComplete
 {
-	virtual int GetCount() const { return CFeatureTester::s_instance->m_numTests; }
-	virtual const char* GetValue( int nIndex ) const { return CFeatureTester::s_instance->m_featureTestArray[nIndex].m_testName; }
+	virtual int GetCount() const
+	{
+		return CFeatureTester::s_instance->m_numTests;
+	}
+	virtual const char *GetValue(int nIndex) const
+	{
+		return CFeatureTester::s_instance->m_featureTestArray[nIndex].m_testName;
+	}
 };
 
 class CFeatureTestFilenameAutoComplete : public IConsoleArgumentAutoComplete
 {
-	public:
+public:
 	CFeatureTestFilenameAutoComplete()
 	{
 		m_lastFrameUsed = -1;
 		m_nonConstThis = this;
 	}
 
-	private:
+private:
 	int m_lastFrameUsed;
 	std::vector<string> m_filenames;
-	CFeatureTestFilenameAutoComplete * m_nonConstThis;
+	CFeatureTestFilenameAutoComplete *m_nonConstThis;
 
 	virtual int GetCount() const
 	{
 		int curFrame = gEnv->pRenderer->GetFrameID(false);
-		if (m_lastFrameUsed != curFrame)
+
+		if(m_lastFrameUsed != curFrame)
 		{
 			m_nonConstThis->FindAllFiles(curFrame);
 		}
 
 		return m_filenames.size();
 	}
-	virtual const char* GetValue( int nIndex ) const { return m_filenames[nIndex].c_str(); }
+	virtual const char *GetValue(int nIndex) const
+	{
+		return m_filenames[nIndex].c_str();
+	}
 
 	void FindAllFiles(int curFrame)
 	{
@@ -250,26 +272,27 @@ class CFeatureTestFilenameAutoComplete : public IConsoleArgumentAutoComplete
 		_finddata_t fd;
 		intptr_t handle = pPak->FindFirst("Scripts/FeatureTests/*.xml", &fd);
 
-		if (handle > -1)
+		if(handle > -1)
 		{
 			do
 			{
 				char buffer[64];
 				size_t charsCopied = cry_copyStringUntilFindChar(buffer, fd.name, sizeof(buffer), '.');
-				if (charsCopied && 0 == stricmp(fd.name + charsCopied, "xml"))
+
+				if(charsCopied && 0 == stricmp(fd.name + charsCopied, "xml"))
 				{
 					string addThis = buffer;
 					m_filenames.push_back(addThis);
 				}
 			}
-			while (pPak->FindNext(handle, &fd) >= 0);
+			while(pPak->FindNext(handle, &fd) >= 0);
 
 			pPak->FindClose(handle);
 		}
 	}
 };
 
-CFeatureTester * CFeatureTester::s_instance = NULL;
+CFeatureTester *CFeatureTester::s_instance = NULL;
 static CFeatureTestArgumentAutoComplete s_featureTestArgumentAutoComplete;
 static CFeatureTestFilenameAutoComplete s_featureTestFilenameAutoComplete;
 
@@ -279,14 +302,14 @@ static float s_colour_testDescription[]      = {1.0f, 1.0f, 1.0f, 1.0f};
 
 struct IFeatureTestTextHandler
 {
-	virtual ~IFeatureTestTextHandler(){}
-	virtual void HandleText(const char * txt) = 0;
+	virtual ~IFeatureTestTextHandler() {}
+	virtual void HandleText(const char *txt) = 0;
 };
 
 class StTextHandler_FeatureTesterLog : public IFeatureTestTextHandler
 {
-	private:
-	virtual void HandleText(const char * txt)
+private:
+	virtual void HandleText(const char *txt)
 	{
 		FeatureTesterLog("%s", txt);
 	}
@@ -294,14 +317,14 @@ class StTextHandler_FeatureTesterLog : public IFeatureTestTextHandler
 
 class StTextHandler_BuildString : public IFeatureTestTextHandler
 {
-	public:
-	ILINE const char * GetText()
+public:
+	ILINE const char *GetText()
 	{
 		return m_string.c_str();
 	}
 
-	private:
-	virtual void HandleText(const char * txt)
+private:
+	virtual void HandleText(const char *txt)
 	{
 		m_string.append("\n").append(txt);
 	}
@@ -318,7 +341,7 @@ CFeatureTester::CFeatureTester() :
 	REGISTER_GAME_MECHANISM(CFeatureTester),
 	m_featureTestArray(NULL)
 {
-	FeatureTesterLog ("Creating feature tester instance");
+	FeatureTesterLog("Creating feature tester instance");
 
 	m_informAutoTesterOfResults = NULL;
 	m_currentTest = NULL;
@@ -345,11 +368,11 @@ CFeatureTester::CFeatureTester() :
 
 	ClearLocalPlayerAutoAim();
 
-	assert (s_instance == NULL);
+	assert(s_instance == NULL);
 	s_instance = this;
 
-	IConsole * console = GetISystem()->GetIConsole();
-	assert (console);
+	IConsole *console = GetISystem()->GetIConsole();
+	assert(console);
 
 	console->AddCommand("ft_startTest", CmdStartTest, VF_CHEAT, "FEATURE TESTER: Start a feature test");
 	console->AddCommand("ft_reload", CmdReload, VF_CHEAT, "FEATURE TESTER: Reload current feature tester data file");
@@ -365,8 +388,9 @@ CFeatureTester::~CFeatureTester()
 {
 	UnloadTestData();
 
-	IConsole * console = GetISystem()->GetIConsole();
-	if (console)
+	IConsole *console = GetISystem()->GetIConsole();
+
+	if(console)
 	{
 		console->RemoveCommand("ft_startTest");
 		console->RemoveCommand("ft_reload");
@@ -377,7 +401,7 @@ CFeatureTester::~CFeatureTester()
 
 	delete m_pFeatureTestMgr;
 
-	assert (s_instance == this);
+	assert(s_instance == this);
 	s_instance = NULL;
 }
 
@@ -385,34 +409,36 @@ CFeatureTester::~CFeatureTester()
 string CFeatureTester::GetContextString()
 {
 	string reply;
-	if (s_instance == NULL)
+
+	if(s_instance == NULL)
 	{
 		reply.Format("(No instance) ");
 	}
 	else
 	{
-		if (s_instance->m_timeSinceCurrentTestBegan > 0.f)
+		if(s_instance->m_timeSinceCurrentTestBegan > 0.f)
 		{
 			reply.Format("@%.3f ", s_instance->m_timeSinceCurrentTestBegan);
 		}
 
-		if (s_instance->m_currentTest)
+		if(s_instance->m_currentTest)
 		{
 			reply.append("(Test: ");
 
-			if (s_instance->m_iterateOverParams.m_numParams)
+			if(s_instance->m_iterateOverParams.m_numParams)
 			{
-				for (int i = 0; i < s_instance->m_iterateOverParams.m_numParams; ++ i)
+				for(int i = 0; i < s_instance->m_iterateOverParams.m_numParams; ++ i)
 				{
 					reply.append(i ? ", " : "<");
 					reply.append(s_instance->m_iterateOverParams.m_currentParams[i]);
 				}
+
 				reply.append("> ");
 			}
 
 			reply.append(s_instance->m_currentTest->m_testName);
-		
-			for (int i = 0; i < s_instance->m_runFeatureTestStack.m_count; ++ i)
+
+			for(int i = 0; i < s_instance->m_runFeatureTestStack.m_count; ++ i)
 			{
 				reply.append("=>");
 				reply.append(s_instance->m_runFeatureTestStack.m_info[i].m_calledTest->m_testName);
@@ -421,16 +447,18 @@ string CFeatureTester::GetContextString()
 			reply.append(") ");
 		}
 	}
+
 	return reply;
 }
 
 //-------------------------------------------------------------------------------
-void CFeatureTester::PreProcessCommandNode(const IItemParamsNode * node)
+void CFeatureTester::PreProcessCommandNode(const IItemParamsNode *node)
 {
 	int numCommandsInNode = node->GetChildCount();
-	for (int readCommandNum = 0; readCommandNum < numCommandsInNode; ++ readCommandNum)
+
+	for(int readCommandNum = 0; readCommandNum < numCommandsInNode; ++ readCommandNum)
 	{
-		const IItemParamsNode * cmdParams = node->GetChild(readCommandNum);
+		const IItemParamsNode *cmdParams = node->GetChild(readCommandNum);
 
 		m_singleAllocTextBlock.IncreaseSizeNeeded(cmdParams->GetAttribute("command"));
 		m_singleAllocTextBlock.IncreaseSizeNeeded(cmdParams->GetAttribute("checkpointName"));
@@ -450,16 +478,16 @@ int CFeatureTester::PreprocessTestSet(const IItemParamsNode *testsListNode)
 {
 	int numTests = 0;
 	int numNodesInThisSet = testsListNode->GetChildCount();
-	const char * setName = testsListNode->GetAttribute("setName");
+	const char *setName = testsListNode->GetAttribute("setName");
 
 	m_singleAllocTextBlock.IncreaseSizeNeeded(setName);
 
 	// Quickly run through all test data to calculate the amount of memory we need to allocate for strings
-	for (int readChildNum = 0; readChildNum < numNodesInThisSet; ++ readChildNum)
+	for(int readChildNum = 0; readChildNum < numNodesInThisSet; ++ readChildNum)
 	{
-		const IItemParamsNode * oneTest = testsListNode->GetChild(readChildNum);
+		const IItemParamsNode *oneTest = testsListNode->GetChild(readChildNum);
 
-		if (0 == stricmp (oneTest->GetName(), "FeatureTest"))
+		if(0 == stricmp(oneTest->GetName(), "FeatureTest"))
 		{
 			++ numTests;
 
@@ -472,7 +500,7 @@ int CFeatureTester::PreprocessTestSet(const IItemParamsNode *testsListNode)
 		}
 		else
 		{
-			FeatureTesterWarning ("Found unexpected tag of type '%s' while reading test set '%s'", oneTest->GetName(), setName);
+			FeatureTesterWarning("Found unexpected tag of type '%s' while reading test set '%s'", oneTest->GetName(), setName);
 		}
 	}
 
@@ -480,9 +508,9 @@ int CFeatureTester::PreprocessTestSet(const IItemParamsNode *testsListNode)
 }
 
 //-------------------------------------------------------------------------------
-void CFeatureTester::ListTestInstructions(const SFeatureTestInstructionOrParam * instruction, IFeatureTestTextHandler & textHandler) const
+void CFeatureTester::ListTestInstructions(const SFeatureTestInstructionOrParam *instruction, IFeatureTestTextHandler &textHandler) const
 {
-	assert (instruction->m_type == kFTVT_Command);
+	assert(instruction->m_type == kFTVT_Command);
 	bool doCurrentLinePtr = m_currentTestNextInstruction != NULL;
 
 	while(instruction->m_data.m_kFTVT_Command != kFTC_End)
@@ -491,24 +519,32 @@ void CFeatureTester::ListTestInstructions(const SFeatureTestInstructionOrParam *
 		string entireLine;
 		int paramsDone = 0;
 
-		do 
+		do
 		{
 			string paramText;
 			instruction->GetContentsAsString(paramText);
 
-			switch (paramsDone)
+			switch(paramsDone)
 			{
-				case 0:   entireLine.append(paramText).append(" (");    break;
-				case 1:   entireLine.append(paramText);                 break;
-				default:  entireLine.append(", ").append(paramText);    break;
+			case 0:
+				entireLine.append(paramText).append(" (");
+				break;
+
+			case 1:
+				entireLine.append(paramText);
+				break;
+
+			default:
+				entireLine.append(", ").append(paramText);
+				break;
 			}
 
 			++ paramsDone;
 			++ instruction;
 		}
-		while (instruction->m_type != kFTVT_Command);
+		while(instruction->m_type != kFTVT_Command);
 
-		if (doCurrentLinePtr && m_currentTestNextInstruction <= instruction)
+		if(doCurrentLinePtr && m_currentTestNextInstruction <= instruction)
 		{
 			padding = ">   ";
 			doCurrentLinePtr = false;
@@ -519,20 +555,20 @@ void CFeatureTester::ListTestInstructions(const SFeatureTestInstructionOrParam *
 }
 
 //-------------------------------------------------------------------------------
-bool CFeatureTester::ReadTestSet(const IItemParamsNode *testsListNode, SFeatureTestDataLoadWorkspace * loadWorkspace)
+bool CFeatureTester::ReadTestSet(const IItemParamsNode *testsListNode, SFeatureTestDataLoadWorkspace *loadWorkspace)
 {
 	bool bOk = true;
 
-	const char * setName = m_singleAllocTextBlock.StoreText(testsListNode->GetAttribute("setName"));
+	const char *setName = m_singleAllocTextBlock.StoreText(testsListNode->GetAttribute("setName"));
 	int numChildrenInThisSet = testsListNode->GetChildCount();
 
-	for (int readChildNum = 0; bOk && (readChildNum < numChildrenInThisSet); ++ readChildNum)
+	for(int readChildNum = 0; bOk && (readChildNum < numChildrenInThisSet); ++ readChildNum)
 	{
-		const IItemParamsNode * oneTest = testsListNode->GetChild(readChildNum);
+		const IItemParamsNode *oneTest = testsListNode->GetChild(readChildNum);
 
-		if (0 == stricmp (oneTest->GetName(), "FeatureTest"))
+		if(0 == stricmp(oneTest->GetName(), "FeatureTest"))
 		{
-			SFeatureTest & createTest = m_featureTestArray[m_numTests ++];
+			SFeatureTest &createTest = m_featureTestArray[m_numTests ++];
 			createTest.m_offsetIntoInstructionBuffer = loadWorkspace->GetNumInstructions();
 			createTest.m_enabled = false;
 			createTest.m_autoRunThis = false;
@@ -550,22 +586,24 @@ bool CFeatureTester::ReadTestSet(const IItemParamsNode *testsListNode, SFeatureT
 			oneTest->GetAttribute("maxTime", createTest.m_maxTime);
 			oneTest->GetAttribute("speed", createTest.m_scaleSpeed);
 
-			if (createTest.m_requirementBitfield & kFTReq_localPlayerExists)     createTest.m_requirementBitfield |= kFTReq_inLevel;
-			if (createTest.m_requirementBitfield & kFTReq_remotePlayerExists)    createTest.m_requirementBitfield |= kFTReq_inLevel;
+			if(createTest.m_requirementBitfield & kFTReq_localPlayerExists)     createTest.m_requirementBitfield |= kFTReq_inLevel;
+
+			if(createTest.m_requirementBitfield & kFTReq_remotePlayerExists)    createTest.m_requirementBitfield |= kFTReq_inLevel;
 
 			int readEnabled;
-			if (oneTest->GetAttribute("enabled", readEnabled))
+
+			if(oneTest->GetAttribute("enabled", readEnabled))
 			{
 				createTest.m_enabled = (readEnabled != 0);
 			}
 
 			loadWorkspace->SetNameOfTestBeingLoaded(createTest.m_testName);
 
-			assert (! loadWorkspace->GetAbortReadingTest());
+			assert(! loadWorkspace->GetAbortReadingTest());
 
 			bOk = LoadCommands(oneTest, createTest, loadWorkspace);
 
-			if (bOk && loadWorkspace->GetAbortReadingTest())
+			if(bOk && loadWorkspace->GetAbortReadingTest())
 			{
 				createTest.m_enabled = false;
 				loadWorkspace->RewindNumInstructions(createTest.m_offsetIntoInstructionBuffer);
@@ -575,20 +613,20 @@ bool CFeatureTester::ReadTestSet(const IItemParamsNode *testsListNode, SFeatureT
 
 			bOk = bOk && loadWorkspace->AddData_kFTVT_Command(kFTC_End);
 
-			if (bOk && createTest.m_enabled && createTest.m_owners == NULL)
+			if(bOk && createTest.m_enabled && createTest.m_owners == NULL)
 			{
 				FeatureTesterWarning("Test '%s' in set '%s' has no \"owners\" attribute", createTest.m_testName, setName);
 			}
 
-			FeatureTesterLog ("Finished reading test '%s' in set '%s': ID = #%04d, size = %d, test enabled = %s, %s, still ok = %s", createTest.m_testName, setName, m_numTests, loadWorkspace->GetNumInstructions() - createTest.m_offsetIntoInstructionBuffer, createTest.m_enabled ? "YES" : "NO", loadWorkspace->GetAbortReadingTest() ? "load aborted" : "loaded OK", bOk ? "YES" : "NO");
+			FeatureTesterLog("Finished reading test '%s' in set '%s': ID = #%04d, size = %d, test enabled = %s, %s, still ok = %s", createTest.m_testName, setName, m_numTests, loadWorkspace->GetNumInstructions() - createTest.m_offsetIntoInstructionBuffer, createTest.m_enabled ? "YES" : "NO", loadWorkspace->GetAbortReadingTest() ? "load aborted" : "loaded OK", bOk ? "YES" : "NO");
 
-			if (bOk)
+			if(bOk)
 			{
 				StTextHandler_FeatureTesterLog logWriter;
 
-				if (createTest.m_iterateOverParams)
+				if(createTest.m_iterateOverParams)
 				{
-					FeatureTesterLog ("Test '%s' will iterate over these parameters: \"%s\"", createTest.m_testName, createTest.m_iterateOverParams);
+					FeatureTesterLog("Test '%s' will iterate over these parameters: \"%s\"", createTest.m_testName, createTest.m_iterateOverParams);
 				}
 
 				FeatureTesterLog("{");
@@ -609,19 +647,20 @@ bool CFeatureTester::ReadTestSet(const IItemParamsNode *testsListNode, SFeatureT
 }
 
 //-------------------------------------------------------------------------------
-bool CFeatureTester::ConvertSwitchNodeToInstructions(const IItemParamsNode * cmdParams, SFeatureTest & createTest, SFeatureTestDataLoadWorkspace * loadWorkspace)
+bool CFeatureTester::ConvertSwitchNodeToInstructions(const IItemParamsNode *cmdParams, SFeatureTest &createTest, SFeatureTestDataLoadWorkspace *loadWorkspace)
 {
 	bool bOk = true;
 	int numCasesInSwitch = cmdParams->GetChildCount();
 	int numInstructionsAtStartOfSwitch = loadWorkspace->GetNumInstructions();
 
-	SFeatureTestInstructionOrParam * buffer = loadWorkspace->GetInstructionBufferModifiable();
+	SFeatureTestInstructionOrParam *buffer = loadWorkspace->GetInstructionBufferModifiable();
 
-	for (int caseNum = 0; bOk && (caseNum < numCasesInSwitch); ++ caseNum)
+	for(int caseNum = 0; bOk && (caseNum < numCasesInSwitch); ++ caseNum)
 	{
-		const IItemParamsNode * caseParams = cmdParams->GetChild(caseNum);
-		const char * caseType = caseParams->GetName();
-		if (0 == stricmp ("Case", caseType))
+		const IItemParamsNode *caseParams = cmdParams->GetChild(caseNum);
+		const char *caseType = caseParams->GetName();
+
+		if(0 == stricmp("Case", caseType))
 		{
 			// Add a conditional Jump instruction...
 			bOk = bOk && loadWorkspace->AddData_kFTVT_Command(kFTC_JumpIfConditionsDoNotMatch);
@@ -635,13 +674,13 @@ bool CFeatureTester::ConvertSwitchNodeToInstructions(const IItemParamsNode * cmd
 			bOk = bOk && loadWorkspace->AddData_kFTVT_Int(0);
 
 			// Fix the Jump instruction which was added above (make it point to the next instruction after the ones we just added)...
-			if (bOk)
+			if(bOk)
 			{
-				assert (buffer[writeJumpDestinationHere].GetData_kFTVT_Int() == 0);
+				assert(buffer[writeJumpDestinationHere].GetData_kFTVT_Int() == 0);
 				buffer[writeJumpDestinationHere].AddData_kFTVT_Int(loadWorkspace->GetNumInstructions());
 			}
 		}
-		else if (0 == stricmp ("Default", caseType))
+		else if(0 == stricmp("Default", caseType))
 		{
 			bOk = bOk && LoadCommands(caseParams, createTest, loadWorkspace);
 		}
@@ -652,11 +691,11 @@ bool CFeatureTester::ConvertSwitchNodeToInstructions(const IItemParamsNode * cmd
 		}
 	}
 
-	if (bOk)
+	if(bOk)
 	{
-		for (int fixInstruction = numInstructionsAtStartOfSwitch; fixInstruction < loadWorkspace->GetNumInstructions(); ++ fixInstruction)
+		for(int fixInstruction = numInstructionsAtStartOfSwitch; fixInstruction < loadWorkspace->GetNumInstructions(); ++ fixInstruction)
 		{
-			if (buffer[fixInstruction].m_type == kFTVT_Command && buffer[fixInstruction].GetData_kFTVT_Command() == kFTC_Jump && buffer[fixInstruction + 1].GetData_kFTVT_Int() == 0)
+			if(buffer[fixInstruction].m_type == kFTVT_Command && buffer[fixInstruction].GetData_kFTVT_Command() == kFTC_Jump && buffer[fixInstruction + 1].GetData_kFTVT_Int() == 0)
 			{
 				buffer[fixInstruction + 1].AddData_kFTVT_Int(loadWorkspace->GetNumInstructions());
 			}
@@ -667,27 +706,28 @@ bool CFeatureTester::ConvertSwitchNodeToInstructions(const IItemParamsNode * cmd
 }
 
 //-------------------------------------------------------------------------------
-bool CFeatureTester::LoadCommands(const IItemParamsNode * node, SFeatureTest & createTest, SFeatureTestDataLoadWorkspace * loadWorkspace)
+bool CFeatureTester::LoadCommands(const IItemParamsNode *node, SFeatureTest &createTest, SFeatureTestDataLoadWorkspace *loadWorkspace)
 {
 	int numCommandsInNode = node->GetChildCount();
 	bool bOk = true;
 
-	for (int readCommandNum = 0; bOk && (readCommandNum < numCommandsInNode); ++ readCommandNum)
+	for(int readCommandNum = 0; bOk && (readCommandNum < numCommandsInNode); ++ readCommandNum)
 	{
-		const IItemParamsNode * cmdParams = node->GetChild(readCommandNum);
-		const char * cmdName = cmdParams->GetName();
+		const IItemParamsNode *cmdParams = node->GetChild(readCommandNum);
+		const char *cmdName = cmdParams->GetName();
 		int commandIndex = -1;
 
-		FeatureTesterSpam ("Reading '%s' command", cmdName);
+		FeatureTesterSpam("Reading '%s' command", cmdName);
 
-		if (0 == stricmp("Switch", cmdName))
+		if(0 == stricmp("Switch", cmdName))
 		{
 			ConvertSwitchNodeToInstructions(cmdParams, createTest, loadWorkspace);
 		}
-		else if (AutoEnum_GetEnumValFromString(cmdName, s_featureTestCommandNames, kFTC_Num, & commandIndex))
+		else if(AutoEnum_GetEnumValFromString(cmdName, s_featureTestCommandNames, kFTC_Num, & commandIndex))
 		{
 			EFeatureTestCommand cmdID = (EFeatureTestCommand)commandIndex;
-			if (! AddInstructionAndParams(cmdID, cmdParams, loadWorkspace))
+
+			if(! AddInstructionAndParams(cmdID, cmdParams, loadWorkspace))
 			{
 				bOk = false;
 				FeatureTesterWarning("While reading feature test '%s' set '%s' instruction number %d: error while adding instruction '%s'", createTest.m_testName, createTest.m_setName, 1 + readCommandNum, cmdName);
@@ -704,52 +744,55 @@ bool CFeatureTester::LoadCommands(const IItemParamsNode * node, SFeatureTest & c
 }
 
 //-------------------------------------------------------------------------------
-void CFeatureTester::ReadSettings(const IItemParamsNode * topSettingsNode)
+void CFeatureTester::ReadSettings(const IItemParamsNode *topSettingsNode)
 {
 	int numSettingsTags = topSettingsNode->GetChildCount();
 
-	for (int i = 0; i < numSettingsTags; ++ i)
+	for(int i = 0; i < numSettingsTags; ++ i)
 	{
-		const IItemParamsNode * singleSetting = topSettingsNode->GetChild(i);
-		const char * singleSettingType = singleSetting->GetName();
+		const IItemParamsNode *singleSetting = topSettingsNode->GetChild(i);
+		const char *singleSettingType = singleSetting->GetName();
 
-		if (0 == stricmp(singleSettingType, "ListEntitiesWhenFail"))
+		if(0 == stricmp(singleSettingType, "ListEntitiesWhenFail"))
 		{
-			const char * className = singleSetting->GetAttribute("className");
-			if (className)
+			const char *className = singleSetting->GetAttribute("className");
+
+			if(className)
 			{
-				IEntityClass * theClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(className);
-				if (theClass)
+				IEntityClass *theClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(className);
+
+				if(theClass)
 				{
-					if (m_listEntityClassesWhenFail.m_num < m_listEntityClassesWhenFail.k_max)
+					if(m_listEntityClassesWhenFail.m_num < m_listEntityClassesWhenFail.k_max)
 					{
-						FeatureTesterSpam ("Will list all '%s' entities when a test fails (slot %d)", className, m_listEntityClassesWhenFail.m_num);
+						FeatureTesterSpam("Will list all '%s' entities when a test fails (slot %d)", className, m_listEntityClassesWhenFail.m_num);
 						m_listEntityClassesWhenFail.m_classPtr[m_listEntityClassesWhenFail.m_num] = theClass;
 						++ m_listEntityClassesWhenFail.m_num;
 					}
 					else
 					{
 						FeatureTesterWarning("Too many entity classes to list when a test fails; not adding '%s'", className);
+					}
 				}
-			}
 				else
 				{
 					FeatureTesterWarning("While reading settings, failed to find entity class with name '%s'", className);
 				}
-		}
+			}
 			else
 			{
 				FeatureTesterWarning("Setting of type '%s' should have a '%s' attribute", singleSettingType, "className");
 			}
 		}
-		else if (0 == stricmp(singleSettingType, "AlwaysFailWhenHit"))
+		else if(0 == stricmp(singleSettingType, "AlwaysFailWhenHit"))
 		{
-			const char * checkpointName = singleSetting->GetAttribute("checkpointName");
-			if (checkpointName)
+			const char *checkpointName = singleSetting->GetAttribute("checkpointName");
+
+			if(checkpointName)
 			{
-				if (m_checkpointsWhichAlwaysFailATest.m_num < m_checkpointsWhichAlwaysFailATest.k_max)
+				if(m_checkpointsWhichAlwaysFailATest.m_num < m_checkpointsWhichAlwaysFailATest.k_max)
 				{
-					FeatureTesterSpam ("Will fail any test if the '%s' checkpoint is hit (slot %d)", checkpointName, m_checkpointsWhichAlwaysFailATest.m_num);
+					FeatureTesterSpam("Will fail any test if the '%s' checkpoint is hit (slot %d)", checkpointName, m_checkpointsWhichAlwaysFailATest.m_num);
 					m_checkpointsWhichAlwaysFailATest.m_checkpointName[m_checkpointsWhichAlwaysFailATest.m_num] = checkpointName;
 					m_singleAllocTextBlock.IncreaseSizeNeeded(checkpointName);
 					++ m_checkpointsWhichAlwaysFailATest.m_num;
@@ -772,32 +815,32 @@ void CFeatureTester::ReadSettings(const IItemParamsNode * topSettingsNode)
 }
 
 //-------------------------------------------------------------------------------
-void CFeatureTester::LoadTestData(const char * filenameNoPathOrExtension)
+void CFeatureTester::LoadTestData(const char *filenameNoPathOrExtension)
 {
 	m_currentlyLoadedFileName = filenameNoPathOrExtension;
 
 	string filenameStr;
 	filenameStr.Format("Scripts/FeatureTests/%s.xml", filenameNoPathOrExtension);
-	const char * filename = filenameStr.c_str();
+	const char *filename = filenameStr.c_str();
 
-	FeatureTesterLog ("Loading feature test data from file '%s' i.e. '%s'", filenameNoPathOrExtension, filename);
+	FeatureTesterLog("Loading feature test data from file '%s' i.e. '%s'", filenameNoPathOrExtension, filename);
 
-	assert (m_currentTest == NULL);
-	assert (m_currentTestNextInstruction == NULL);
-	assert (m_numWatchedCheckpoints == 0);
-	assert (m_waitUntilCCCPointHit_numStillToHit == 0);
-	assert (m_numOverriddenInputs == 0);
-	assert (m_numTests == 0);
+	assert(m_currentTest == NULL);
+	assert(m_currentTestNextInstruction == NULL);
+	assert(m_numWatchedCheckpoints == 0);
+	assert(m_waitUntilCCCPointHit_numStillToHit == 0);
+	assert(m_numOverriddenInputs == 0);
+	assert(m_numTests == 0);
 
 	XmlNodeRef rootNode = gEnv->pSystem->LoadXmlFromFile(filename);
-	const char * failureReason = NULL;
-	
-	if (rootNode && 0 == strcmpi(rootNode->getTag(), "FeatureTester"))
+	const char *failureReason = NULL;
+
+	if(rootNode && 0 == strcmpi(rootNode->getTag(), "FeatureTester"))
 	{
 		std::auto_ptr<SFeatureTestDataLoadWorkspace> pLoadWorkspace(new SFeatureTestDataLoadWorkspace());
-		SFeatureTestDataLoadWorkspace& loadWorkspace = *pLoadWorkspace;
+		SFeatureTestDataLoadWorkspace &loadWorkspace = *pLoadWorkspace;
 
-		assert (loadWorkspace.GetNumInstructions() == 0);
+		assert(loadWorkspace.GetNumInstructions() == 0);
 
 		CSingleAllocTextBlock::SReuseDuplicatedStrings duplicatedStringsWorkspace[CHECK_FOR_THIS_MANY_DUPLICATED_STRINGS_WHEN_READING_XML];
 		m_singleAllocTextBlock.SetDuplicatedStringWorkspace(duplicatedStringsWorkspace, CHECK_FOR_THIS_MANY_DUPLICATED_STRINGS_WHEN_READING_XML);
@@ -808,22 +851,22 @@ void CFeatureTester::LoadTestData(const char * filenameNoPathOrExtension)
 		int numChildNodes = paramNode->GetChildCount();
 		int numTestsToRead = 0;
 
-		for (int childNodeNum = 0; childNodeNum < numChildNodes; ++ childNodeNum)
+		for(int childNodeNum = 0; childNodeNum < numChildNodes; ++ childNodeNum)
 		{
-			const IItemParamsNode * thisNode = paramNode->GetChild(childNodeNum);
-			const char * nodeName = thisNode->GetName();
+			const IItemParamsNode *thisNode = paramNode->GetChild(childNodeNum);
+			const char *nodeName = thisNode->GetName();
 
-			if (0 == stricmp (nodeName, "settings"))
+			if(0 == stricmp(nodeName, "settings"))
 			{
-				ReadSettings (thisNode);
+				ReadSettings(thisNode);
 			}
-			else if (0 == stricmp (nodeName, "tests"))
+			else if(0 == stricmp(nodeName, "tests"))
 			{
-				numTestsToRead += PreprocessTestSet (thisNode);
+				numTestsToRead += PreprocessTestSet(thisNode);
 			}
 			else
 			{
-				FeatureTesterWarning ("Found unexpected tag of type '%s' while reading '%s'", nodeName, filename);
+				FeatureTesterWarning("Found unexpected tag of type '%s' while reading '%s'", nodeName, filename);
 			}
 		}
 
@@ -834,23 +877,23 @@ void CFeatureTester::LoadTestData(const char * filenameNoPathOrExtension)
 
 		// Currently the m_checkpointsWhichAlwaysFailATest array contains pointers to text in the XML structure. Nasty!
 		// Better fix that, pronto...
-		for (int i = 0; i < m_checkpointsWhichAlwaysFailATest.m_num; ++ i)
+		for(int i = 0; i < m_checkpointsWhichAlwaysFailATest.m_num; ++ i)
 		{
-			const char * oldBuffer = m_checkpointsWhichAlwaysFailATest.m_checkpointName[i];
-			const char * newBuffer = m_singleAllocTextBlock.StoreText(oldBuffer);
-			CRY_ASSERT_TRACE (m_checkpointsWhichAlwaysFailATest.m_checkpointName[i] && 0 == strcmp(oldBuffer, newBuffer), ("Old string %p '%s' doesn't match new string %p '%s'", oldBuffer, oldBuffer, newBuffer, newBuffer));
+			const char *oldBuffer = m_checkpointsWhichAlwaysFailATest.m_checkpointName[i];
+			const char *newBuffer = m_singleAllocTextBlock.StoreText(oldBuffer);
+			CRY_ASSERT_TRACE(m_checkpointsWhichAlwaysFailATest.m_checkpointName[i] && 0 == strcmp(oldBuffer, newBuffer), ("Old string %p '%s' doesn't match new string %p '%s'", oldBuffer, oldBuffer, newBuffer, newBuffer));
 			m_checkpointsWhichAlwaysFailATest.m_checkpointName[i] = newBuffer;
 		}
 
 		// Run through all test data again and store stuff in the allocated memory
-		for (int childNodeNum = 0; failureReason == NULL && (childNodeNum < numChildNodes); ++ childNodeNum)
+		for(int childNodeNum = 0; failureReason == NULL && (childNodeNum < numChildNodes); ++ childNodeNum)
 		{
 			const IItemParamsNode *testsListNode = paramNode->GetChild(childNodeNum);
-			const char * nodeName = testsListNode->GetName();
+			const char *nodeName = testsListNode->GetName();
 
-			if (0 == stricmp (nodeName, "tests"))
+			if(0 == stricmp(nodeName, "tests"))
 			{
-				if (! ReadTestSet(testsListNode, & loadWorkspace))
+				if(! ReadTestSet(testsListNode, & loadWorkspace))
 				{
 					failureReason = "error reading a set of tests";
 				}
@@ -859,9 +902,9 @@ void CFeatureTester::LoadTestData(const char * filenameNoPathOrExtension)
 
 		paramNode->Release();
 
-		if (failureReason == NULL)
+		if(failureReason == NULL)
 		{
-			if (numTestsToRead != m_numTests)
+			if(numTestsToRead != m_numTests)
 			{
 				failureReason = numTestsToRead < m_numTests ? "read more feature tests than expected" : "read fewer feature tests than expected";
 			}
@@ -869,18 +912,18 @@ void CFeatureTester::LoadTestData(const char * filenameNoPathOrExtension)
 			{
 				// Success!
 
-				assert (m_singleBufferContainingAllInstructions == NULL);
+				assert(m_singleBufferContainingAllInstructions == NULL);
 				m_singleBufferContainingAllInstructions = new SFeatureTestInstructionOrParam[loadWorkspace.GetNumInstructions()];
 
-				if (m_singleBufferContainingAllInstructions == NULL)
+				if(m_singleBufferContainingAllInstructions == NULL)
 				{
 					failureReason = "couldn't allocate memory to store instructions";
 				}
 				else
 				{
 					size_t numBytes = loadWorkspace.GetNumInstructions() * sizeof(SFeatureTestInstructionOrParam);
-					FeatureTesterLog ("Allocated %d bytes of memory for storing %d instructions/parameters", numBytes, loadWorkspace.GetNumInstructions());
-					memcpy (m_singleBufferContainingAllInstructions, loadWorkspace.GetInstructionBuffer(), numBytes);
+					FeatureTesterLog("Allocated %d bytes of memory for storing %d instructions/parameters", numBytes, loadWorkspace.GetNumInstructions());
+					memcpy(m_singleBufferContainingAllInstructions, loadWorkspace.GetInstructionBuffer(), numBytes);
 				}
 			}
 		}
@@ -890,35 +933,36 @@ void CFeatureTester::LoadTestData(const char * filenameNoPathOrExtension)
 		failureReason = "file could not be parsed";
 	}
 
-	if (failureReason == NULL)
+	if(failureReason == NULL)
 	{
 		m_singleAllocTextBlock.Lock();
-		FeatureTesterLog ("Loaded all data for feature tester successfully!");
+		FeatureTesterLog("Loaded all data for feature tester successfully!");
 
 		// Feature tests are written assuming certain input settings are in place... make sure of these here! [TF]
 		g_pGameCVars->cl_invertController = 0;
 	}
 	else
 	{
-		FeatureTesterWarning ("Failed to load '%s': %s", filename, failureReason);
+		FeatureTesterWarning("Failed to load '%s': %s", filename, failureReason);
 		UnloadTestData();
 	}
 }
 
 //-------------------------------------------------------------------------------
-TBitfield CFeatureTester::ReadPlayerSelection(const IItemParamsNode * paramsNode)
+TBitfield CFeatureTester::ReadPlayerSelection(const IItemParamsNode *paramsNode)
 {
 	TBitfield whichPlayers = kFTPS_nobody;
-	const char * whoString = paramsNode->GetAttribute("who");
+	const char *whoString = paramsNode->GetAttribute("who");
 
-	if (whoString)
+	if(whoString)
 	{
 		whichPlayers = AutoEnum_GetBitfieldFromString(whoString, s_featureTestPlayerSelectionNames, FeatureTestPlayerSelectionList_numBits);
 	}
 	else
 	{
 		int useLocalPlayerInt = 0;
-		if (paramsNode->GetAttribute("localPlayer", useLocalPlayerInt))
+
+		if(paramsNode->GetAttribute("localPlayer", useLocalPlayerInt))
 		{
 			whichPlayers = useLocalPlayerInt ? kFTPS_localPlayer : kFTPS_firstRemotePlayer;
 		}
@@ -928,174 +972,175 @@ TBitfield CFeatureTester::ReadPlayerSelection(const IItemParamsNode * paramsNode
 }
 
 //-------------------------------------------------------------------------------
-bool CFeatureTester::AddInstructionAndParams(EFeatureTestCommand cmd, const IItemParamsNode * paramsNode, SFeatureTestDataLoadWorkspace * loadWorkspace)
+bool CFeatureTester::AddInstructionAndParams(EFeatureTestCommand cmd, const IItemParamsNode *paramsNode, SFeatureTestDataLoadWorkspace *loadWorkspace)
 {
-	assert (paramsNode);
-	assert (loadWorkspace);
+	assert(paramsNode);
+	assert(loadWorkspace);
 
 	bool bOk = loadWorkspace->AddData_kFTVT_Command(cmd);
 
-	switch (cmd)
+	switch(cmd)
 	{
-		case kFTC_MovePlayerToOtherEntity:
-		{
-			bOk &= loadWorkspace->AddData_kFTVT_Who(ReadPlayerSelection(paramsNode));
-			bOk &= loadWorkspace->AddData_kFTVT_Text(m_singleAllocTextBlock.StoreText(paramsNode->GetAttribute("className")));
+	case kFTC_MovePlayerToOtherEntity:
+	{
+		bOk &= loadWorkspace->AddData_kFTVT_Who(ReadPlayerSelection(paramsNode));
+		bOk &= loadWorkspace->AddData_kFTVT_Text(m_singleAllocTextBlock.StoreText(paramsNode->GetAttribute("className")));
 
-			// TODO: Read flags from XML instead of hardcoding!
-			uint32 requireFlags = ENTITY_FLAG_ON_RADAR;
-			uint32 skipWithFlags = 0;
-			bOk &= loadWorkspace->AddData_kFTVT_EntityFlags(requireFlags);
-			bOk &= loadWorkspace->AddData_kFTVT_EntityFlags(skipWithFlags);
+		// TODO: Read flags from XML instead of hardcoding!
+		uint32 requireFlags = ENTITY_FLAG_ON_RADAR;
+		uint32 skipWithFlags = 0;
+		bOk &= loadWorkspace->AddData_kFTVT_EntityFlags(requireFlags);
+		bOk &= loadWorkspace->AddData_kFTVT_EntityFlags(skipWithFlags);
 
-			int onTeamAsInt = 0;
-			const char * onTeamText = paramsNode->GetAttribute("onTeam");
-			bOk &= AutoEnum_GetEnumValFromString(onTeamText ? onTeamText : "anybody", s_featureTestAimConditionNames, kFTAC_num, & onTeamAsInt);
-			bOk &= loadWorkspace->AddData_kFTVT_AimAt((EFTAimCondition) onTeamAsInt);
+		int onTeamAsInt = 0;
+		const char *onTeamText = paramsNode->GetAttribute("onTeam");
+		bOk &= AutoEnum_GetEnumValFromString(onTeamText ? onTeamText : "anybody", s_featureTestAimConditionNames, kFTAC_num, & onTeamAsInt);
+		bOk &= loadWorkspace->AddData_kFTVT_AimAt((EFTAimCondition) onTeamAsInt);
 
-			// TODO: Read offset pos from XML!
-		}
-		break;
+		// TODO: Read offset pos from XML!
+	}
+	break;
 
-		case kFTC_TrySpawnPlayer:
+	case kFTC_TrySpawnPlayer:
 		bOk &= loadWorkspace->AddData_kFTVT_Who(ReadPlayerSelection(paramsNode));
 		break;
 
-		case kFTC_WaitUntilPlayerIsAlive:
-		{
-			bOk &= loadWorkspace->AddData_kFTVT_Who(ReadPlayerSelection(paramsNode));
-			float timeout = 30.f;
-			paramsNode->GetAttribute("timeout", timeout);
-			bOk &= loadWorkspace->AddData_kFTVT_Float(timeout);
-		}
-		break;
+	case kFTC_WaitUntilPlayerIsAlive:
+	{
+		bOk &= loadWorkspace->AddData_kFTVT_Who(ReadPlayerSelection(paramsNode));
+		float timeout = 30.f;
+		paramsNode->GetAttribute("timeout", timeout);
+		bOk &= loadWorkspace->AddData_kFTVT_Float(timeout);
+	}
+	break;
 
-		case kFTC_SetLocalPlayerLookAt:
-		{
-			bOk &= loadWorkspace->AddData_kFTVT_Who(ReadPlayerSelection(paramsNode));
-			bOk &= loadWorkspace->AddData_kFTVT_Text(m_singleAllocTextBlock.StoreText(paramsNode->GetAttribute("bone")));
-		}
-		break;
+	case kFTC_SetLocalPlayerLookAt:
+	{
+		bOk &= loadWorkspace->AddData_kFTVT_Who(ReadPlayerSelection(paramsNode));
+		bOk &= loadWorkspace->AddData_kFTVT_Text(m_singleAllocTextBlock.StoreText(paramsNode->GetAttribute("bone")));
+	}
+	break;
 
-		case kFTC_WaitUntilPlayerAimingAt:
-		{
-			float timeout = 30.f;
-			int targetTypeAsInt = 0;
-			bOk &= loadWorkspace->AddData_kFTVT_Who(ReadPlayerSelection(paramsNode));
-			bOk &= AutoEnum_GetEnumValFromString(paramsNode->GetAttribute("targetType"), s_featureTestAimConditionNames, kFTAC_num, & targetTypeAsInt);
-			paramsNode->GetAttribute("timeout", timeout);
-			bOk &= loadWorkspace->AddData_kFTVT_Float(timeout);
-			bOk &= loadWorkspace->AddData_kFTVT_AimAt((EFTAimCondition) targetTypeAsInt);
-		}
-		break;
+	case kFTC_WaitUntilPlayerAimingAt:
+	{
+		float timeout = 30.f;
+		int targetTypeAsInt = 0;
+		bOk &= loadWorkspace->AddData_kFTVT_Who(ReadPlayerSelection(paramsNode));
+		bOk &= AutoEnum_GetEnumValFromString(paramsNode->GetAttribute("targetType"), s_featureTestAimConditionNames, kFTAC_num, & targetTypeAsInt);
+		paramsNode->GetAttribute("timeout", timeout);
+		bOk &= loadWorkspace->AddData_kFTVT_Float(timeout);
+		bOk &= loadWorkspace->AddData_kFTVT_AimAt((EFTAimCondition) targetTypeAsInt);
+	}
+	break;
 
-		case kFTC_RunFeatureTest:
+	case kFTC_RunFeatureTest:
 		bOk &= loadWorkspace->AddData_kFTVT_Text(m_singleAllocTextBlock.StoreText(paramsNode->GetAttribute("testName")));
 		break;
 
-		case kFTC_DoConsoleCommand:
-		case kFTC_DoMenuCommand:
+	case kFTC_DoConsoleCommand:
+	case kFTC_DoMenuCommand:
 		bOk &= loadWorkspace->AddData_kFTVT_Text(m_singleAllocTextBlock.StoreText(paramsNode->GetAttribute("command")));
 		break;
 
-		case kFTC_WatchCCCPoint:
+	case kFTC_WatchCCCPoint:
 		bOk &= loadWorkspace->AddData_kFTVT_Text(m_singleAllocTextBlock.StoreText(paramsNode->GetAttribute("checkpointName")));
 		break;
 
-		case kFTC_SetResponseToHittingCCCPoint:
+	case kFTC_SetResponseToHittingCCCPoint:
+	{
+		int responseAsInt;
+		bOk &= AutoEnum_GetEnumValFromString(paramsNode->GetAttribute("response"), s_featureTestHitResponseNames, kFTCHR_num, & responseAsInt);
+		EFTCheckpointHitResponse response = (EFTCheckpointHitResponse) responseAsInt;
+		bOk &= loadWorkspace->AddData_kFTVT_Text(m_singleAllocTextBlock.StoreText(paramsNode->GetAttribute("checkpointName")));
+		bOk &= loadWorkspace->AddData_kFTVT_HitResponse((EFTCheckpointHitResponse) responseAsInt);
+
+		if(response == kFTCHR_failTest)
 		{
-			int responseAsInt;
-			bOk &= AutoEnum_GetEnumValFromString(paramsNode->GetAttribute("response"), s_featureTestHitResponseNames, kFTCHR_num, & responseAsInt);
-			EFTCheckpointHitResponse response = (EFTCheckpointHitResponse) responseAsInt;
-			bOk &= loadWorkspace->AddData_kFTVT_Text(m_singleAllocTextBlock.StoreText(paramsNode->GetAttribute("checkpointName")));
-			bOk &= loadWorkspace->AddData_kFTVT_HitResponse((EFTCheckpointHitResponse) responseAsInt);
-
-			if (response == kFTCHR_failTest)
-			{
-				const char * customMessage = m_singleAllocTextBlock.StoreText(paramsNode->GetAttribute("customMessage"));
-				bOk &= loadWorkspace->AddData_kFTVT_Text(customMessage ? customMessage : "");
-			}
-			else if (response == kFTCHR_restartTest)
-			{
-				float delay = 0.f;
-				paramsNode->GetAttribute("restartDelay", delay);
-				bOk &= loadWorkspace->AddData_kFTVT_Float(delay);
-			}
+			const char *customMessage = m_singleAllocTextBlock.StoreText(paramsNode->GetAttribute("customMessage"));
+			bOk &= loadWorkspace->AddData_kFTVT_Text(customMessage ? customMessage : "");
 		}
-		break;
-
-		case kFTC_WaitUntilHitAllExpectedCCCPoints:
+		else if(response == kFTCHR_restartTest)
 		{
-			float timeout = 10.f;
-			bOk &= paramsNode->GetAttribute("timeout", timeout);
-			bOk &= loadWorkspace->AddData_kFTVT_Float(timeout);
+			float delay = 0.f;
+			paramsNode->GetAttribute("restartDelay", delay);
+			bOk &= loadWorkspace->AddData_kFTVT_Float(delay);
 		}
-		break;
-		case kFTC_RunFlowGraphFeatureTests:
-		{
-			int reloadLevel = 1;
-			int quickload = 0;
-			float waitScheduled = 0.0f;
-			float timeout = 10.f;
-			paramsNode->GetAttribute("reloadLevel", reloadLevel);				// Optional
-			bOk &= loadWorkspace->AddData_kFTVT_Bool(reloadLevel != 0);
+	}
+	break;
 
-			paramsNode->GetAttribute("quickload", quickload);						// Optional
-			bOk &= loadWorkspace->AddData_kFTVT_Bool(quickload != 0);
+	case kFTC_WaitUntilHitAllExpectedCCCPoints:
+	{
+		float timeout = 10.f;
+		bOk &= paramsNode->GetAttribute("timeout", timeout);
+		bOk &= loadWorkspace->AddData_kFTVT_Float(timeout);
+	}
+	break;
 
-			bOk &= paramsNode->GetAttribute("waitScheduled", waitScheduled);				// Optional
-			bOk &= loadWorkspace->AddData_kFTVT_Float(waitScheduled);
+	case kFTC_RunFlowGraphFeatureTests:
+	{
+		int reloadLevel = 1;
+		int quickload = 0;
+		float waitScheduled = 0.0f;
+		float timeout = 10.f;
+		paramsNode->GetAttribute("reloadLevel", reloadLevel);				// Optional
+		bOk &= loadWorkspace->AddData_kFTVT_Bool(reloadLevel != 0);
 
-			bOk &= paramsNode->GetAttribute("timeout", timeout);				// Required
-			bOk &= loadWorkspace->AddData_kFTVT_Float(timeout);
-		}
-		break;
+		paramsNode->GetAttribute("quickload", quickload);						// Optional
+		bOk &= loadWorkspace->AddData_kFTVT_Bool(quickload != 0);
 
-		case kFTC_SetItem:
+		bOk &= paramsNode->GetAttribute("waitScheduled", waitScheduled);				// Optional
+		bOk &= loadWorkspace->AddData_kFTVT_Float(waitScheduled);
+
+		bOk &= paramsNode->GetAttribute("timeout", timeout);				// Required
+		bOk &= loadWorkspace->AddData_kFTVT_Float(timeout);
+	}
+	break;
+
+	case kFTC_SetItem:
 		bOk &= loadWorkspace->AddData_kFTVT_Text(m_singleAllocTextBlock.StoreText(paramsNode->GetAttribute("className")));
 		break;
 
-		case kFTC_SetAmmo:
-			{
-				int ammo = 0;
-				int clip = 0;
-				bOk &= paramsNode->GetAttribute("ammo", ammo);
-				bOk &= paramsNode->GetAttribute("clip", clip);
-				bOk &= loadWorkspace->AddData_kFTVT_Int(ammo);
-				bOk &= loadWorkspace->AddData_kFTVT_Int(clip);
-			}
-			break;
+	case kFTC_SetAmmo:
+	{
+		int ammo = 0;
+		int clip = 0;
+		bOk &= paramsNode->GetAttribute("ammo", ammo);
+		bOk &= paramsNode->GetAttribute("clip", clip);
+		bOk &= loadWorkspace->AddData_kFTVT_Int(ammo);
+		bOk &= loadWorkspace->AddData_kFTVT_Int(clip);
+	}
+	break;
 
-		case kFTC_OverrideButtonInput_Press:
-		case kFTC_OverrideButtonInput_Release:
+	case kFTC_OverrideButtonInput_Press:
+	case kFTC_OverrideButtonInput_Release:
 		bOk &= loadWorkspace->AddData_kFTVT_Text(m_singleAllocTextBlock.StoreText(paramsNode->GetAttribute("inputName")));
 		break;
 
-		case kFTC_OverrideAnalogInput:
-		{
-			float amount;
-			bOk &= paramsNode->GetAttribute("value", amount);
-			bOk &= loadWorkspace->AddData_kFTVT_Text(m_singleAllocTextBlock.StoreText(paramsNode->GetAttribute("inputName")));
-			bOk &= loadWorkspace->AddData_kFTVT_Float(amount);
-		}
-		break;
+	case kFTC_OverrideAnalogInput:
+	{
+		float amount;
+		bOk &= paramsNode->GetAttribute("value", amount);
+		bOk &= loadWorkspace->AddData_kFTVT_Text(m_singleAllocTextBlock.StoreText(paramsNode->GetAttribute("inputName")));
+		bOk &= loadWorkspace->AddData_kFTVT_Float(amount);
+	}
+	break;
 
-		case kFTC_Wait:
-		{
-			float duration;
-			bOk &= paramsNode->GetAttribute("duration", duration);
-			bOk &= loadWorkspace->AddData_kFTVT_Float(duration);
-		}
-		break;
+	case kFTC_Wait:
+	{
+		float duration;
+		bOk &= paramsNode->GetAttribute("duration", duration);
+		bOk &= loadWorkspace->AddData_kFTVT_Float(duration);
+	}
+	break;
 
-		case kFTC_CheckNumCCCPointHits:
-		{
-			int expectedNumHits = 0;
-			bOk &= paramsNode->GetAttribute("expectedNumHits", expectedNumHits);
-			bOk &= loadWorkspace->AddData_kFTVT_Text(m_singleAllocTextBlock.StoreText(paramsNode->GetAttribute("checkpointName")));
-			bOk &= loadWorkspace->AddData_kFTVT_Int(expectedNumHits);
-		}
-		break;
+	case kFTC_CheckNumCCCPointHits:
+	{
+		int expectedNumHits = 0;
+		bOk &= paramsNode->GetAttribute("expectedNumHits", expectedNumHits);
+		bOk &= loadWorkspace->AddData_kFTVT_Text(m_singleAllocTextBlock.StoreText(paramsNode->GetAttribute("checkpointName")));
+		bOk &= loadWorkspace->AddData_kFTVT_Int(expectedNumHits);
+	}
+	break;
 	}
 
 	return bOk;
@@ -1104,43 +1149,45 @@ bool CFeatureTester::AddInstructionAndParams(EFeatureTestCommand cmd, const IIte
 //-------------------------------------------------------------------------------
 void CFeatureTester::ClearLocalPlayerAutoAim()
 {
-	memset (& m_localPlayerAutoAimSettings, 0, sizeof(m_localPlayerAutoAimSettings));
+	memset(& m_localPlayerAutoAimSettings, 0, sizeof(m_localPlayerAutoAimSettings));
 }
 
 //-------------------------------------------------------------------------------
-void CFeatureTester::SendInputToLocalPlayer(const char * inputName, EActionActivationMode mode, float value)
+void CFeatureTester::SendInputToLocalPlayer(const char *inputName, EActionActivationMode mode, float value)
 {
 	CPlayer *pPlayer = static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
+
 	if(pPlayer && pPlayer->GetPlayerInput())
 	{
 		pPlayer->GetPlayerInput()->OnAction(inputName, mode, value);
 
-		const char * releaseName = inputName;
+		const char *releaseName = inputName;
 		bool sendHoldEventEveryFrame = false;
 
 		// TODO: Define these special cases (where the 'press' and 'release' actions have different names) in data file...
-		if (0 == strcmp(inputName, "suitmode_menu_open"))
+		if(0 == strcmp(inputName, "suitmode_menu_open"))
 		{
 			releaseName = "suitmode_menu_close";
 		}
-		else if (0 == strcmp(inputName, "attack1_xi"))
+		else if(0 == strcmp(inputName, "attack1_xi"))
 		{
 			sendHoldEventEveryFrame = true;
 		}
 
 		// Also remember what inputs we've overridden, so we can reset them to defaults when we stop the test...
 		int foundAtIndex = 0;
-		while (foundAtIndex < m_numOverriddenInputs && strcmp(releaseName, m_currentlyOverriddenInputs[foundAtIndex].m_inputName))
+
+		while(foundAtIndex < m_numOverriddenInputs && strcmp(releaseName, m_currentlyOverriddenInputs[foundAtIndex].m_inputName))
 		{
 			++ foundAtIndex;
 		}
 
-		if (! ((mode == eAAM_Always && value == 0.f) || (mode == eAAM_OnRelease)))
+		if(!((mode == eAAM_Always && value == 0.f) || (mode == eAAM_OnRelease)))
 		{
 			// Store it
-			if (foundAtIndex == m_numOverriddenInputs)
+			if(foundAtIndex == m_numOverriddenInputs)
 			{
-				if (foundAtIndex < kMaxSimultaneouslyOverriddenInputs)
+				if(foundAtIndex < kMaxSimultaneouslyOverriddenInputs)
 				{
 					m_currentlyOverriddenInputs[foundAtIndex].m_inputName = releaseName;
 					m_currentlyOverriddenInputs[foundAtIndex].m_mode = mode;
@@ -1149,15 +1196,15 @@ void CFeatureTester::SendInputToLocalPlayer(const char * inputName, EActionActiv
 				}
 				else
 				{
-					FeatureTesterWarning ("%d inputs currently overridden, can't remember '%s' too...", m_numOverriddenInputs, releaseName);
+					FeatureTesterWarning("%d inputs currently overridden, can't remember '%s' too...", m_numOverriddenInputs, releaseName);
 				}
 			}
 			else
 			{
-				assert (m_currentlyOverriddenInputs[foundAtIndex].m_mode == mode);
+				assert(m_currentlyOverriddenInputs[foundAtIndex].m_mode == mode);
 			}
 		}
-		else if (foundAtIndex < m_numOverriddenInputs)
+		else if(foundAtIndex < m_numOverriddenInputs)
 		{
 			// Remove it from the list
 			m_currentlyOverriddenInputs[foundAtIndex] = m_currentlyOverriddenInputs[-- m_numOverriddenInputs];
@@ -1166,22 +1213,22 @@ void CFeatureTester::SendInputToLocalPlayer(const char * inputName, EActionActiv
 }
 
 //-------------------------------------------------------------------------------
-const SFeatureTestInstructionOrParam * CFeatureTester::GetNextInstructionOrParam()
+const SFeatureTestInstructionOrParam *CFeatureTester::GetNextInstructionOrParam()
 {
-	assert (m_currentTestNextInstruction);
+	assert(m_currentTestNextInstruction);
 	return (m_currentTestNextInstruction++);
 }
 
 //-------------------------------------------------------------------------------
-const char * CFeatureTester::GetTextParam()
+const char *CFeatureTester::GetTextParam()
 {
-	const char * param = GetNextInstructionOrParam()->GetData_kFTVT_Text();
+	const char *param = GetNextInstructionOrParam()->GetData_kFTVT_Text();
 
-	if (param && param[0] == '%' && param[1] >= '1' && param[1] < ('1' + m_iterateOverParams.m_numParams) && param[2] == '\0')
+	if(param && param[0] == '%' && param[1] >= '1' && param[1] < ('1' + m_iterateOverParams.m_numParams) && param[2] == '\0')
 	{
 		int paramNum = param[1] - '1';
-		assert (paramNum < m_iterateOverParams.m_numParams);
-		FeatureTesterSpam ("Found text '%s' so substituting parameter %d i.e. '%s'", param, paramNum, m_iterateOverParams.m_currentParams[paramNum]);
+		assert(paramNum < m_iterateOverParams.m_numParams);
+		FeatureTesterSpam("Found text '%s' so substituting parameter %d i.e. '%s'", param, paramNum, m_iterateOverParams.m_currentParams[paramNum]);
 		param = m_iterateOverParams.m_currentParams[paramNum];
 		assert(param);
 	}
@@ -1192,7 +1239,7 @@ const char * CFeatureTester::GetTextParam()
 //-------------------------------------------------------------------------------
 void CFeatureTester::Instruction_kFTC_OverrideAnalogInput()
 {
-	const char * inputName = GetTextParam();
+	const char *inputName = GetTextParam();
 	float theValue = GetNextInstructionOrParam()->GetData_kFTVT_Float();
 	SendInputToLocalPlayer(inputName, eAAM_Always, theValue);
 }
@@ -1213,29 +1260,30 @@ void CFeatureTester::Instruction_kFTC_Fail()
 void CFeatureTester::Instruction_kFTC_JumpIfConditionsDoNotMatch()
 {
 	int toHere = GetNextInstructionOrParam()->GetData_kFTVT_Int();
-	const char * level = GetNextInstructionOrParam()->GetData_kFTVT_Text();
+	const char *level = GetNextInstructionOrParam()->GetData_kFTVT_Text();
 	bool match = true;
 
-	FeatureTesterSpam ("Doing conditional jump...");
+	FeatureTesterSpam("Doing conditional jump...");
 
-	if (level)
+	if(level)
 	{
 		string mapName = g_pGame->GetIGameFramework()->GetILevelSystem()->GetCurrentLevel()->GetLevelInfo()->GetName();
-		FeatureTesterSpam ("Checking whether level name '%s' is '%s'", mapName.c_str(), level);
-		if (0 != stricmp(mapName.c_str(), level))
+		FeatureTesterSpam("Checking whether level name '%s' is '%s'", mapName.c_str(), level);
+
+		if(0 != stricmp(mapName.c_str(), level))
 		{
 			match = false;
 		}
 	}
 
-	if (! match)
+	if(! match)
 	{
-		FeatureTesterSpam ("Something didn't match... so jumping from instruction %d to instruction %d", m_currentTestNextInstruction - m_singleBufferContainingAllInstructions, toHere);
+		FeatureTesterSpam("Something didn't match... so jumping from instruction %d to instruction %d", m_currentTestNextInstruction - m_singleBufferContainingAllInstructions, toHere);
 		m_currentTestNextInstruction = m_singleBufferContainingAllInstructions + toHere;
 	}
 	else
 	{
-		FeatureTesterSpam ("Everything matched, so not jumping from instruction %d to instruction %d", m_currentTestNextInstruction - m_singleBufferContainingAllInstructions, toHere);
+		FeatureTesterSpam("Everything matched, so not jumping from instruction %d to instruction %d", m_currentTestNextInstruction - m_singleBufferContainingAllInstructions, toHere);
 	}
 }
 
@@ -1243,7 +1291,7 @@ void CFeatureTester::Instruction_kFTC_JumpIfConditionsDoNotMatch()
 void CFeatureTester::Instruction_kFTC_Jump()
 {
 	int toHere = GetNextInstructionOrParam()->GetData_kFTVT_Int();
-	FeatureTesterSpam ("Jumping from instruction %d to instruction %d", m_currentTestNextInstruction - m_singleBufferContainingAllInstructions, toHere);
+	FeatureTesterSpam("Jumping from instruction %d to instruction %d", m_currentTestNextInstruction - m_singleBufferContainingAllInstructions, toHere);
 	m_currentTestNextInstruction = m_singleBufferContainingAllInstructions + toHere;
 }
 
@@ -1256,19 +1304,19 @@ void CFeatureTester::Instruction_kFTC_WaitSingleFrame()
 //-------------------------------------------------------------------------------
 void CFeatureTester::SetPauseStateAndTimeout(EFTPauseReason pauseReason, float timeOut)
 {
-	assert (timeOut >= 0.f);
-	assert (pauseReason != kFTPauseReason_none || timeOut == 0.f);
+	assert(timeOut >= 0.f);
+	assert(pauseReason != kFTPauseReason_none || timeOut == 0.f);
 
 	m_pause_enableCountdown = false;
 	m_pause_state = pauseReason;
 	m_pause_timeLeft = timeOut;
-	m_pause_originalTimeOut = timeOut;	
+	m_pause_originalTimeOut = timeOut;
 }
 
 //-------------------------------------------------------------------------------
-bool CFeatureTester::IsActorAliveAndPlaying(IActor * iActor)
+bool CFeatureTester::IsActorAliveAndPlaying(IActor *iActor)
 {
-	CActor * actor = (CActor*)iActor;
+	CActor *actor = (CActor *)iActor;
 	return actor && g_pGame->GetGameRules()->IsPlayerActivelyPlaying(actor->GetEntityId()) && (actor->IsClient() == false || actor->GetStance() != STANCE_NULL);
 }
 
@@ -1283,21 +1331,21 @@ void CFeatureTester::Instruction_kFTC_WaitUntilHitAllExpectedCCCPoints()
 {
 	float timeOut = GetNextInstructionOrParam()->GetData_kFTVT_Float();
 
-	if (m_waitUntilCCCPointHit_numStillToHit > 0)
+	if(m_waitUntilCCCPointHit_numStillToHit > 0)
 	{
 		SetPauseStateAndTimeout(kFTPauseReason_untilCCCPointsHit, timeOut);
-		FeatureTesterLog ("Waiting until %s %s hit (timeout = %.1f seconds)", GetListOfCheckpointsExpected().c_str(), (m_waitUntilCCCPointHit_numStillToHit == 1) ? "is" : "are", timeOut);
+		FeatureTesterLog("Waiting until %s %s hit (timeout = %.1f seconds)", GetListOfCheckpointsExpected().c_str(), (m_waitUntilCCCPointHit_numStillToHit == 1) ? "is" : "are", timeOut);
 	}
 	else
 	{
-		FeatureTesterLog ("No checkpoints still to be hit by the time we reached the WaitUntilHitAllExpectedCCCPoints instruction; continuing immediately");
+		FeatureTesterLog("No checkpoints still to be hit by the time we reached the WaitUntilHitAllExpectedCCCPoints instruction; continuing immediately");
 	}
 }
 
 //-------------------------------------------------------------------------------
 void CFeatureTester::Instruction_kFTC_ResetCCCPointHitCounters()
 {
-	for (int i = 0; i < m_numWatchedCheckpoints; ++ i)
+	for(int i = 0; i < m_numWatchedCheckpoints; ++ i)
 	{
 		m_checkpointCountArray[i].m_timesHit = 0;
 	}
@@ -1306,26 +1354,26 @@ void CFeatureTester::Instruction_kFTC_ResetCCCPointHitCounters()
 //-------------------------------------------------------------------------------
 void CFeatureTester::Instruction_kFTC_SetItem()
 {
-	const char * itemClassName = GetTextParam();
-	CActor * pClientActor = (CActor*)gEnv->pGame->GetIGameFramework()->GetClientActor();
+	const char *itemClassName = GetTextParam();
+	CActor *pClientActor = (CActor *)gEnv->pGame->GetIGameFramework()->GetClientActor();
 
 	if(pClientActor)
 	{
-		IInventory * pInventory = pClientActor->GetInventory();
-		IEntityClass* itemClassPtr = gEnv->pEntitySystem->GetClassRegistry()->FindClass(itemClassName);
+		IInventory *pInventory = pClientActor->GetInventory();
+		IEntityClass *itemClassPtr = gEnv->pEntitySystem->GetClassRegistry()->FindClass(itemClassName);
 
-		if (CheckFeatureTestFailure(itemClassPtr != NULL, "There's no class called '%s'", itemClassName))
+		if(CheckFeatureTestFailure(itemClassPtr != NULL, "There's no class called '%s'", itemClassName))
 		{
 			EntityId itemId = pInventory->GetItemByClass(itemClassPtr);
 
 			// If we fail to switch to the specified item we can try to add a new one to the player's inventory...
-			if (itemId == 0)
+			if(itemId == 0)
 			{
 				gEnv->pConsole->ExecuteString(string().Format("i_giveitem %s", itemClassName));
 				itemId = pInventory->GetItemByClass(itemClassPtr);
 			}
 
-			if (CheckFeatureTestFailure(itemId != 0, "%s isn't carrying a '%s' (and i_giveitem failed to create one)", pClientActor->GetEntity()->GetName(), itemClassName))
+			if(CheckFeatureTestFailure(itemId != 0, "%s isn't carrying a '%s' (and i_giveitem failed to create one)", pClientActor->GetEntity()->GetName(), itemClassName))
 			{
 				pClientActor->SelectItem(itemId, false);
 				SetPauseStateAndTimeout(kFTPauseReason_untilWeaponIsReadyToUse, 10.f);
@@ -1337,19 +1385,25 @@ void CFeatureTester::Instruction_kFTC_SetItem()
 //-------------------------------------------------------------------------------
 void CFeatureTester::Instruction_kFTC_SetAmmo()
 {
-	CActor * pClientActor = (CActor*)gEnv->pGame->GetIGameFramework()->GetClientActor();
-	if (!pClientActor)
-		return;
-	IInventory* pInventory = pClientActor->GetInventory();
-	if (!pInventory)
+	CActor *pClientActor = (CActor *)gEnv->pGame->GetIGameFramework()->GetClientActor();
+
+	if(!pClientActor)
 		return;
 
-	CWeapon* pCurrentWeapon = static_cast<CWeapon*>(pClientActor->GetCurrentItem()->GetIWeapon());
-	if (!pCurrentWeapon)
+	IInventory *pInventory = pClientActor->GetInventory();
+
+	if(!pInventory)
 		return;
-	IFireMode* pCurrentFireMode = pCurrentWeapon->GetFireMode(pCurrentWeapon->GetCurrentFireMode());
-	IEntityClass* pAmmoType = pCurrentFireMode ? pCurrentFireMode->GetAmmoType() : 0;
-	if (!pAmmoType)
+
+	CWeapon *pCurrentWeapon = static_cast<CWeapon *>(pClientActor->GetCurrentItem()->GetIWeapon());
+
+	if(!pCurrentWeapon)
+		return;
+
+	IFireMode *pCurrentFireMode = pCurrentWeapon->GetFireMode(pCurrentWeapon->GetCurrentFireMode());
+	IEntityClass *pAmmoType = pCurrentFireMode ? pCurrentFireMode->GetAmmoType() : 0;
+
+	if(!pAmmoType)
 		return;
 
 	int requiredAmmo = GetNextInstructionOrParam()->GetData_kFTVT_Int();
@@ -1379,13 +1433,13 @@ void CFeatureTester::Instruction_kFTC_WatchCCCPoint()
 //-------------------------------------------------------------------------------
 void CFeatureTester::Instruction_kFTC_CheckNumCCCPointHits()
 {
-	const char * checkpointName = GetTextParam();
+	const char *checkpointName = GetTextParam();
 	int expectedNumTimesHit = GetNextInstructionOrParam()->GetData_kFTVT_Int();
 	int actualNumTimesHit = 0;
 
-	for (int i = 0; i < m_numWatchedCheckpoints; ++ i)
+	for(int i = 0; i < m_numWatchedCheckpoints; ++ i)
 	{
-		if (0 == stricmp(checkpointName, m_checkpointCountArray[i].m_checkpointName))
+		if(0 == stricmp(checkpointName, m_checkpointCountArray[i].m_checkpointName))
 		{
 			actualNumTimesHit = m_checkpointCountArray[i].m_timesHit;
 			break;
@@ -1399,20 +1453,20 @@ void CFeatureTester::Instruction_kFTC_CheckNumCCCPointHits()
 //-------------------------------------------------------------------------------
 void CFeatureTester::Instruction_kFTC_SetResponseToHittingCCCPoint()
 {
-	const char * cpName = GetTextParam();
+	const char *cpName = GetTextParam();
 	EFTCheckpointHitResponse response = GetNextInstructionOrParam()->GetData_kFTVT_HitResponse();
-	SCheckpointCount * watchedCheckpoint = WatchCheckpoint(cpName);
+	SCheckpointCount *watchedCheckpoint = WatchCheckpoint(cpName);
 
-	if (CheckFeatureTestFailure(watchedCheckpoint, "Feature tester isn't watching a game code coverage checkpoint called '%s'", cpName))
+	if(CheckFeatureTestFailure(watchedCheckpoint, "Feature tester isn't watching a game code coverage checkpoint called '%s'", cpName))
 	{
 		CRY_ASSERT(watchedCheckpoint);
 		SetCheckpointHitResponse(watchedCheckpoint, response);
 
-		if (response == kFTCHR_restartTest)
+		if(response == kFTCHR_restartTest)
 		{
 			watchedCheckpoint->m_restartDelay = GetNextInstructionOrParam()->GetData_kFTVT_Float();
 		}
-		else if (response == kFTCHR_failTest)
+		else if(response == kFTCHR_failTest)
 		{
 			watchedCheckpoint->m_customMessage = GetTextParam();
 		}
@@ -1422,7 +1476,7 @@ void CFeatureTester::Instruction_kFTC_SetResponseToHittingCCCPoint()
 //-------------------------------------------------------------------------------
 void CFeatureTester::Instruction_kFTC_DoConsoleCommand()
 {
-	const char * cmd = GetTextParam();
+	const char *cmd = GetTextParam();
 	FeatureTesterLog("Current feature test '%s' is executing console command '%s'", m_currentTest->m_testName, cmd);
 
 	// TODO: Might be a good idea to add a 'defer' bool to XML...
@@ -1449,21 +1503,21 @@ void CFeatureTester::Instruction_kFTC_RunFlowGraphFeatureTests()
 //-------------------------------------------------------------------------------
 void CFeatureTester::Instruction_kFTC_RunFeatureTest()
 {
-	const char * testName = GetTextParam();
+	const char *testName = GetTextParam();
 	FeatureTesterLog("Current feature test '%s' is triggering another feature test '%s'", m_currentTest->m_testName, testName);
 
-	if (CheckFeatureTestFailure (m_runFeatureTestStack.m_count < m_runFeatureTestStack.k_stackSize, "Out of room on nested-feature-test execution stack (size=%d) when trying to run '%s'", m_runFeatureTestStack.k_stackSize, testName))
+	if(CheckFeatureTestFailure(m_runFeatureTestStack.m_count < m_runFeatureTestStack.k_stackSize, "Out of room on nested-feature-test execution stack (size=%d) when trying to run '%s'", m_runFeatureTestStack.k_stackSize, testName))
 	{
-		SFeatureTest * test = FindTestByName(testName);
+		SFeatureTest *test = FindTestByName(testName);
 
-		if (CheckFeatureTestFailure(test, "There's no feature test called '%s'", testName))
+		if(CheckFeatureTestFailure(test, "There's no feature test called '%s'", testName))
 		{
 			CRY_ASSERT(test);
 
-			SStackedTestCallInfo * newInfo = & m_runFeatureTestStack.m_info[m_runFeatureTestStack.m_count ++];
+			SStackedTestCallInfo *newInfo = & m_runFeatureTestStack.m_info[m_runFeatureTestStack.m_count ++];
 			newInfo->m_calledTest = test;
 			newInfo->m_returnToHereWhenDone = m_currentTestNextInstruction;
-			FeatureTesterSpam ("Subroutine %s (@%u) scaleSpeed=%f", test->m_testName, test->m_offsetIntoInstructionBuffer, test->m_scaleSpeed);
+			FeatureTesterSpam("Subroutine %s (@%u) scaleSpeed=%f", test->m_testName, test->m_offsetIntoInstructionBuffer, test->m_scaleSpeed);
 			gEnv->pConsole->ExecuteString(string().Format("t_scale %f", test->m_scaleSpeed), true);
 			m_currentTestNextInstruction = m_singleBufferContainingAllInstructions + test->m_offsetIntoInstructionBuffer;
 		}
@@ -1473,21 +1527,21 @@ void CFeatureTester::Instruction_kFTC_RunFeatureTest()
 //-------------------------------------------------------------------------------
 void CFeatureTester::Instruction_kFTC_DoMenuCommand()
 {
-	const char * allText = GetTextParam();
+	const char *allText = GetTextParam();
 	char stuffBeforeFirstSpace[256];
 	size_t numBytesCopied = cry_copyStringUntilFindChar(stuffBeforeFirstSpace, allText, sizeof(stuffBeforeFirstSpace), ' ');
-	const char * cmd = numBytesCopied ? stuffBeforeFirstSpace : allText;
-	const char * params = numBytesCopied ? allText + numBytesCopied : NULL;
+	const char *cmd = numBytesCopied ? stuffBeforeFirstSpace : allText;
+	const char *params = numBytesCopied ? allText + numBytesCopied : NULL;
 
-	GameWarning( "TODO: Implement this!" );
+	GameWarning("TODO: Implement this!");
 
 // 	CFlashFrontEnd * menuObject = g_pGame->GetFlashMenu();
 // 	if (CheckFeatureTestFailure(menuObject, "Can't execute menu command '%s' params '%s' - game has no menu object!", cmd, params))
 // 	{
 // 		CRY_ASSERT(menuObject);
-// 
+//
 // 		FeatureTesterLog("Current feature test '%s' is executing front-end command '%s' params '%s'", m_currentTest->m_testName, cmd, params);
-// 
+//
 // 		menuObject->HandleFSCommand(cmd, params);
 // 	}
 }
@@ -1496,52 +1550,64 @@ void CFeatureTester::Instruction_kFTC_DoMenuCommand()
 void CFeatureTester::Instruction_kFTC_MovePlayerToOtherEntity()
 {
 	TBitfield whichPlayers = GetNextInstructionOrParam()->GetData_kFTVT_Who();
-	const char * className = GetTextParam();
-	IEntityClass* classPtr = gEnv->pEntitySystem->GetClassRegistry()->FindClass(className);
+	const char *className = GetTextParam();
+	IEntityClass *classPtr = gEnv->pEntitySystem->GetClassRegistry()->FindClass(className);
 	uint32 requireFlags = GetNextInstructionOrParam()->GetData_kFTVT_EntityFlags();
 	uint32 skipWithFlags = GetNextInstructionOrParam()->GetData_kFTVT_EntityFlags();
 	EFTAimCondition onTeam = GetNextInstructionOrParam()->GetData_kFTVT_AimAt();
 
-	if (CheckFeatureTestFailure(classPtr, "There's no class by the name of '%s'", className))
+	if(CheckFeatureTestFailure(classPtr, "There's no class by the name of '%s'", className))
 	{
-		CGameRules * rules = g_pGame->GetGameRules();
+		CGameRules *rules = g_pGame->GetGameRules();
 		int i = 0;
-		for (TBitfield b = BIT(0); i < FeatureTestPlayerSelectionList_numBits; i ++, b <<= 1)
+
+		for(TBitfield b = BIT(0); i < FeatureTestPlayerSelectionList_numBits; i ++, b <<= 1)
 		{
-			if (b & whichPlayers)
+			if(b & whichPlayers)
 			{
 				CActor *pPlayer = GetPlayerForSelectionFlag(b);
 
-				if (CheckFeatureTestFailure(pPlayer, "There's no %s player", s_featureTestPlayerSelectionNames[i]))
+				if(CheckFeatureTestFailure(pPlayer, "There's no %s player", s_featureTestPlayerSelectionNames[i]))
 				{
 					CRY_ASSERT(pPlayer);
 
 					int playerTeam = rules->GetTeam(pPlayer->GetEntityId());
-					IEntity * foundEntity = NULL;
-					IEntityIt * itEntity = gEnv->pEntitySystem->GetEntityIterator();
-					if (itEntity)
+					IEntity *foundEntity = NULL;
+					IEntityIt *itEntity = gEnv->pEntitySystem->GetEntityIterator();
+
+					if(itEntity)
 					{
 						itEntity->MoveFirst();
-						while (!itEntity ->IsEnd())
+
+						while(!itEntity ->IsEnd())
 						{
-							IEntity * pEntity = itEntity->Next();
-							if (pEntity && pEntity->GetClass() == classPtr)
+							IEntity *pEntity = itEntity->Next();
+
+							if(pEntity && pEntity->GetClass() == classPtr)
 							{
 								uint32 entityFlags = pEntity->GetFlags();
 								bool hasRequiredFlags = (entityFlags & requireFlags) == requireFlags;
 								bool hasAnySkipFlags = (entityFlags & skipWithFlags) != 0;
 								bool onCorrectTeam = true;
 
-								switch (onTeam)
+								switch(onTeam)
 								{
-									case kFTAC_enemy:   onCorrectTeam = rules->GetTeam(pEntity->GetId()) != playerTeam;   break;
-									case kFTAC_friend:  onCorrectTeam = rules->GetTeam(pEntity->GetId()) == playerTeam;   break;
-									case kFTAC_nobody:  onCorrectTeam = rules->GetTeam(pEntity->GetId()) == 0;            break;
+								case kFTAC_enemy:
+									onCorrectTeam = rules->GetTeam(pEntity->GetId()) != playerTeam;
+									break;
+
+								case kFTAC_friend:
+									onCorrectTeam = rules->GetTeam(pEntity->GetId()) == playerTeam;
+									break;
+
+								case kFTAC_nobody:
+									onCorrectTeam = rules->GetTeam(pEntity->GetId()) == 0;
+									break;
 								}
 
 								FeatureTesterSpam("Entity %u: %s '%s' flags=%u%s%s%s (%.2f %.2f %.2f)%s, %s, %s", pEntity->GetId(), pEntity->GetClass()->GetName(), pEntity->GetName(), entityFlags, pEntity->IsHidden() ? ", HIDDEN" : "", pEntity->IsInvisible() ? ", INVISIBLE" : "", pEntity->IsActive() ? ", ACTIVE" : "", pEntity->GetWorldPos().x, pEntity->GetWorldPos().y, pEntity->GetWorldPos().z, hasAnySkipFlags ? ", skip" : "", hasRequiredFlags ? "suitable" : "not suitable", onCorrectTeam ? "team is OK" : "on wrong team");
 
-								if (onCorrectTeam && hasRequiredFlags && ! hasAnySkipFlags)
+								if(onCorrectTeam && hasRequiredFlags && ! hasAnySkipFlags)
 								{
 									// TODO: Perhaps if foundEntity != NULL then only set to pEntity if it's closer?
 									foundEntity = pEntity;
@@ -1551,7 +1617,7 @@ void CFeatureTester::Instruction_kFTC_MovePlayerToOtherEntity()
 						}
 					}
 
-					if (CheckFeatureTestFailure(foundEntity, "Didn't find an appropriate entity (was looking for class '%s', with flags %u but without flags %u)", className, requireFlags, skipWithFlags))
+					if(CheckFeatureTestFailure(foundEntity, "Didn't find an appropriate entity (was looking for class '%s', with flags %u but without flags %u)", className, requireFlags, skipWithFlags))
 					{
 						char command[512];
 						Vec3 moveToPos = foundEntity->GetWorldPos();
@@ -1576,15 +1642,15 @@ void CFeatureTester::Instruction_kFTC_TrySpawnPlayer()
 	TBitfield useWhichPlayer = GetNextInstructionOrParam()->GetData_kFTVT_Who();
 	IActor *pPlayer = GetPlayerForSelectionFlag(useWhichPlayer);
 
-	if (CheckFeatureTestFailure(pPlayer, "Failed to find relevant player (%s)", GET_PLAYER_SELECTION_TEXT(useWhichPlayer)))
+	if(CheckFeatureTestFailure(pPlayer, "Failed to find relevant player (%s)", GET_PLAYER_SELECTION_TEXT(useWhichPlayer)))
 	{
-		if (!IsActorAliveAndPlaying(pPlayer))
+		if(!IsActorAliveAndPlaying(pPlayer))
 		{
 			CRY_ASSERT(pPlayer);
 
-			void* pSpawningModule = NULL;
+			void *pSpawningModule = NULL;
 
-			if (CheckFeatureTestFailure(pSpawningModule, "No spawning module present"))
+			if(CheckFeatureTestFailure(pSpawningModule, "No spawning module present"))
 			{
 				CRY_ASSERT(pSpawningModule);
 
@@ -1628,16 +1694,17 @@ void CFeatureTester::Instruction_kFTC_WaitUntilPlayerAimingAt()
 void CFeatureTester::Instruction_kFTC_SetLocalPlayerLookAt()
 {
 	TBitfield targetWhichPlayer = GetNextInstructionOrParam()->GetData_kFTVT_Who();
-	const char * boneName = GetTextParam();
+	const char *boneName = GetTextParam();
 
-	CActor * actor = GetPlayerForSelectionFlag(targetWhichPlayer);
-	if (actor)
+	CActor *actor = GetPlayerForSelectionFlag(targetWhichPlayer);
+
+	if(actor)
 	{
-		if (CheckFeatureTestFailure(actor->GetEntity()->GetCharacter(0), "Can't target an actor without a character"))
+		if(CheckFeatureTestFailure(actor->GetEntity()->GetCharacter(0), "Can't target an actor without a character"))
 		{
 			int boneNumAsInt;
 			m_localPlayerAutoAimSettings.m_entityId = actor->GetEntityId();
-			m_localPlayerAutoAimSettings.m_boneId = (EBonesID) (AutoEnum_GetEnumValFromString(boneName, s_BONE_ID_NAME, BONE_ID_NUM, & boneNumAsInt) ? boneNumAsInt : -1);
+			m_localPlayerAutoAimSettings.m_boneId = (EBonesID)(AutoEnum_GetEnumValFromString(boneName, s_BONE_ID_NAME, BONE_ID_NUM, & boneNumAsInt) ? boneNumAsInt : -1);
 		}
 	}
 	else
@@ -1649,22 +1716,22 @@ void CFeatureTester::Instruction_kFTC_SetLocalPlayerLookAt()
 }
 
 //-------------------------------------------------------------------------------
-CFeatureTester::SCheckpointCount * CFeatureTester::WatchCheckpoint(const char * cpName)
+CFeatureTester::SCheckpointCount *CFeatureTester::WatchCheckpoint(const char *cpName)
 {
-	SCheckpointCount * watchedCheckpoint = FindWatchedCheckpointDataByName(cpName, m_runFeatureTestStack.m_count);
+	SCheckpointCount *watchedCheckpoint = FindWatchedCheckpointDataByName(cpName, m_runFeatureTestStack.m_count);
 
-	if (watchedCheckpoint == NULL)
+	if(watchedCheckpoint == NULL)
 	{
-		if (m_numWatchedCheckpoints < kMaxWatchedCheckpoints)
+		if(m_numWatchedCheckpoints < kMaxWatchedCheckpoints)
 		{
 			watchedCheckpoint = & m_checkpointCountArray[m_numWatchedCheckpoints];
 			++ m_numWatchedCheckpoints;
 
-			memset (watchedCheckpoint, 0, sizeof(SCheckpointCount));
+			memset(watchedCheckpoint, 0, sizeof(SCheckpointCount));
 			watchedCheckpoint->m_checkpointName = cpName;
 			watchedCheckpoint->m_stackLevelAtWhichAdded = m_runFeatureTestStack.m_count;
 			watchedCheckpoint->m_checkpointMgrHandle = gEnv->pCodeCheckpointMgr->GetCheckpointIndex(cpName);
-			const CCodeCheckpoint * checkpoint = gEnv->pCodeCheckpointMgr->GetCheckpoint(watchedCheckpoint->m_checkpointMgrHandle);
+			const CCodeCheckpoint *checkpoint = gEnv->pCodeCheckpointMgr->GetCheckpoint(watchedCheckpoint->m_checkpointMgrHandle);
 			watchedCheckpoint->m_checkpointMgrNumHitsSoFar = checkpoint ? checkpoint->HitCount() : 0u;
 		}
 		else
@@ -1677,73 +1744,78 @@ CFeatureTester::SCheckpointCount * CFeatureTester::WatchCheckpoint(const char * 
 }
 
 //-------------------------------------------------------------------------------
-void CFeatureTester::SetCheckpointHitResponse(SCheckpointCount * checkpoint, EFTCheckpointHitResponse response)
+void CFeatureTester::SetCheckpointHitResponse(SCheckpointCount *checkpoint, EFTCheckpointHitResponse response)
 {
 	assert(response < kFTCHR_num && checkpoint->m_hitResponse < kFTCHR_num);
-	if (response != checkpoint->m_hitResponse)
+
+	if(response != checkpoint->m_hitResponse)
 	{
-		FeatureTesterSpam ("Checkpoint %s hit response changing from %s to %s [%u = %s]", checkpoint->m_checkpointName, s_featureTestHitResponseNames[checkpoint->m_hitResponse], s_featureTestHitResponseNames[response], m_waitUntilCCCPointHit_numStillToHit, GetListOfCheckpointsExpected().c_str());
+		FeatureTesterSpam("Checkpoint %s hit response changing from %s to %s [%u = %s]", checkpoint->m_checkpointName, s_featureTestHitResponseNames[checkpoint->m_hitResponse], s_featureTestHitResponseNames[response], m_waitUntilCCCPointHit_numStillToHit, GetListOfCheckpointsExpected().c_str());
 
 		EFTCheckpointHitResponse oldResponse = checkpoint->m_hitResponse;
 		checkpoint->m_hitResponse = kFTCHR_nothing;
 
-		switch (oldResponse)
+		switch(oldResponse)
 		{
-			case kFTCHR_expectedNext:
-			assert (m_waitUntilCCCPointHit_numStillToHit > 0);
-			if ((-- m_waitUntilCCCPointHit_numStillToHit) == 0)
+		case kFTCHR_expectedNext:
+			assert(m_waitUntilCCCPointHit_numStillToHit > 0);
+
+			if((-- m_waitUntilCCCPointHit_numStillToHit) == 0)
 			{
-				if (m_pause_state == kFTPauseReason_untilCCCPointsHit)
+				if(m_pause_state == kFTPauseReason_untilCCCPointsHit)
 				{
 					SetPauseStateAndTimeout(kFTPauseReason_none, 0.f);
 				}
 			}
 			else
 			{
-				FeatureTesterSpam ("Still waiting for %u (%s)", m_waitUntilCCCPointHit_numStillToHit, GetListOfCheckpointsExpected().c_str());
+				FeatureTesterSpam("Still waiting for %u (%s)", m_waitUntilCCCPointHit_numStillToHit, GetListOfCheckpointsExpected().c_str());
 			}
+
 			break;
 
-			case kFTCHR_restartTest:
+		case kFTCHR_restartTest:
 			checkpoint->m_restartDelay = 0.f;
 			break;
 		}
-	
+
 		checkpoint->m_hitResponse = response;
 
-		switch (checkpoint->m_hitResponse)
+		switch(checkpoint->m_hitResponse)
 		{
-			case kFTCHR_expectedNext:
+		case kFTCHR_expectedNext:
 			++ m_waitUntilCCCPointHit_numStillToHit;
-			FeatureTesterSpam ("Ah-ha! Upping number of 'expected next' checkpoints to %d: %s", m_waitUntilCCCPointHit_numStillToHit, GetListOfCheckpointsExpected().c_str());
+			FeatureTesterSpam("Ah-ha! Upping number of 'expected next' checkpoints to %d: %s", m_waitUntilCCCPointHit_numStillToHit, GetListOfCheckpointsExpected().c_str());
 			break;
 		}
 	}
 }
 
 //-------------------------------------------------------------------------------
-bool CFeatureTester::FeatureTestFailureFunc(const char * conditionTxt, const char * messageTxt)
+bool CFeatureTester::FeatureTestFailureFunc(const char *conditionTxt, const char *messageTxt)
 {
 	string reply = messageTxt;
-	const char * testName = m_currentTest ? m_currentTest->m_testName : "N/A";
+	const char *testName = m_currentTest ? m_currentTest->m_testName : "N/A";
 
-	if (m_runFeatureTestStack.m_count > 0)
+	if(m_runFeatureTestStack.m_count > 0)
 	{
 		reply.append(" [in ");
 		reply.append(m_runFeatureTestStack.m_info[0].m_calledTest->m_testName);
 
-		for (int i = 1; i < m_runFeatureTestStack.m_count; ++ i)
+		for(int i = 1; i < m_runFeatureTestStack.m_count; ++ i)
 		{
 			reply.append("=>");
 			reply.append(m_runFeatureTestStack.m_info[i].m_calledTest->m_testName);
 		}
+
 		reply.append("]");
 	}
 
-	if (m_informAutoTesterOfResults == NULL)
+	if(m_informAutoTesterOfResults == NULL)
 	{
 		DesignerWarningFail(conditionTxt, string().Format("Feature test '%s' failed: %s", testName, reply.c_str()));
 	}
+
 	FeatureTesterLog("Aborting feature test '%s' because it failed: %s", testName, messageTxt);
 
 	StopTest(reply.c_str());
@@ -1751,21 +1823,22 @@ bool CFeatureTester::FeatureTestFailureFunc(const char * conditionTxt, const cha
 }
 
 //-------------------------------------------------------------------------------
-bool CFeatureTester::CheckPrerequisite(const SFeatureTest * test)
+bool CFeatureTester::CheckPrerequisite(const SFeatureTest *test)
 {
-	if (test->m_prerequisite)
+	if(test->m_prerequisite)
 	{
-		const SFeatureTest * prerequisiteTest = FindTestByName(test->m_prerequisite);
-		if (prerequisiteTest)
+		const SFeatureTest *prerequisiteTest = FindTestByName(test->m_prerequisite);
+
+		if(prerequisiteTest)
 		{
-			if (! prerequisiteTest->m_everPassed)
+			if(! prerequisiteTest->m_everPassed)
 			{
-				FeatureTesterLog ("Test '%s' has prerequisite '%s' which was never passed, so not running this test", test->m_testName, test->m_prerequisite);
+				FeatureTesterLog("Test '%s' has prerequisite '%s' which was never passed, so not running this test", test->m_testName, test->m_prerequisite);
 				return false;
 			}
 			else
 			{
-				FeatureTesterSpam ("Test '%s' has prerequisite '%s' which passed earlier, so we're good to go...", test->m_testName, test->m_prerequisite);
+				FeatureTesterSpam("Test '%s' has prerequisite '%s' which passed earlier, so we're good to go...", test->m_testName, test->m_prerequisite);
 			}
 		}
 		else
@@ -1779,23 +1852,24 @@ bool CFeatureTester::CheckPrerequisite(const SFeatureTest * test)
 }
 
 //-------------------------------------------------------------------------------
-void CFeatureTester::DisplayCaption(const SFeatureTest * test)
+void CFeatureTester::DisplayCaption(const SFeatureTest *test)
 {
-	IRenderer * renderer = gEnv->pRenderer;
+	IRenderer *renderer = gEnv->pRenderer;
 
-	if (renderer)
+	if(renderer)
 	{
-		assert (test);
+		assert(test);
 
 		string paramString;
 
-		if (s_instance->m_iterateOverParams.m_numParams)
+		if(s_instance->m_iterateOverParams.m_numParams)
 		{
-			for (int i = 0; i < s_instance->m_iterateOverParams.m_numParams; ++ i)
+			for(int i = 0; i < s_instance->m_iterateOverParams.m_numParams; ++ i)
 			{
 				paramString.append(i ? ", " : " <");
 				paramString.append(s_instance->m_iterateOverParams.m_currentParams[i]);
 			}
+
 			paramString.append(">");
 		}
 
@@ -1803,12 +1877,14 @@ void CFeatureTester::DisplayCaption(const SFeatureTest * test)
 		renderer->Draw2dLabel(30.f, height - 80.f, 3.f, m_currentTest ? s_colour_testName_Active : s_colour_testName_CannotStart, false, "%s%s", test->m_testName, paramString.c_str());
 		renderer->Draw2dLabel(30.f, height - 45.f, 2.f, s_colour_testDescription, false, "%s", test->m_testDescription);
 
-		ICVar * timeScaleCVar = gEnv->pConsole->GetCVar("t_Scale");
-		if (timeScaleCVar)
+		ICVar *timeScaleCVar = gEnv->pConsole->GetCVar("t_Scale");
+
+		if(timeScaleCVar)
 		{
 			renderer->Draw2dLabel(30.f, height - 100.f, 2.f, s_colour_testDescription, false, "Speed = %.1f", timeScaleCVar->GetFVal());
 		}
-		renderer->Draw2dLabel(30.f, height - 120.f, 2.f, s_colour_testDescription, false, m_informAutoTesterOfResults ? m_informAutoTesterOfResults->GetTestName() : "UNKNOWN" );
+
+		renderer->Draw2dLabel(30.f, height - 120.f, 2.f, s_colour_testDescription, false, m_informAutoTesterOfResults ? m_informAutoTesterOfResults->GetTestName() : "UNKNOWN");
 	}
 }
 
@@ -1816,37 +1892,38 @@ void CFeatureTester::DisplayCaption(const SFeatureTest * test)
 void CFeatureTester::Update(float dt)
 {
 #if 0
-	IActorSystem * pActorSystem = gEnv->pGame->GetIGameFramework()->GetIActorSystem();
+	IActorSystem *pActorSystem = gEnv->pGame->GetIGameFramework()->GetIActorSystem();
 	IActorIteratorPtr pIter = pActorSystem->CreateActorIterator();
 
-	while (IActor * iActor = pIter->Next())
+	while(IActor *iActor = pIter->Next())
 	{
-		if (! iActor->GetGameObject()->ShouldUpdate())
+		if(! iActor->GetGameObject()->ShouldUpdate())
 		{
-			CryWatch ("$4[WARNING]$o %s '%s' is not updating!", iActor->GetEntity()->GetClass()->GetName(), iActor->GetEntity()->GetName());
+			CryWatch("$4[WARNING]$o %s '%s' is not updating!", iActor->GetEntity()->GetClass()->GetName(), iActor->GetEntity()->GetName());
 		}
 	}
+
 #endif
 
-	if (gEnv->pGame->GetIGameFramework()->StartingGameContext())
+	if(gEnv->pGame->GetIGameFramework()->StartingGameContext())
 		return;
 
-	if (m_pFeatureTestMgr)
+	if(m_pFeatureTestMgr)
 		m_pFeatureTestMgr->Update(dt);
 
-	if (m_numOverriddenInputs)
+	if(m_numOverriddenInputs)
 	{
 		CPlayer *pPlayer = static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
-		IPlayerInput * playerInput = pPlayer ? pPlayer->GetPlayerInput() : NULL;
+		IPlayerInput *playerInput = pPlayer ? pPlayer->GetPlayerInput() : NULL;
 
-		if (playerInput)
+		if(playerInput)
 		{
-			for (int i = 0; i < m_numOverriddenInputs; ++ i)
+			for(int i = 0; i < m_numOverriddenInputs; ++ i)
 			{
-				SCurrentlyOverriddenInput & overriddenInput = m_currentlyOverriddenInputs[i];
-				CryWatch ("$7[FEATURETESTER]$o Overridden input '%s' mode=%d", overriddenInput.m_inputName, overriddenInput.m_mode);
+				SCurrentlyOverriddenInput &overriddenInput = m_currentlyOverriddenInputs[i];
+				CryWatch("$7[FEATURETESTER]$o Overridden input '%s' mode=%d", overriddenInput.m_inputName, overriddenInput.m_mode);
 
-				if (overriddenInput.m_sendHoldEventEveryFrame)
+				if(overriddenInput.m_sendHoldEventEveryFrame)
 				{
 					pPlayer->GetPlayerInput()->OnAction(overriddenInput.m_inputName, eAAM_OnHold, 1.f);
 				}
@@ -1856,27 +1933,27 @@ void CFeatureTester::Update(float dt)
 
 	float nonScaledDT = gEnv->pTimer->GetRealFrameTime();
 
-	if (nonScaledDT > kMaximumFrameTime)
+	if(nonScaledDT > kMaximumFrameTime)
 	{
 		nonScaledDT = kMaximumFrameTime;
 	}
 
-	if (m_currentTestNextInstruction == NULL)
+	if(m_currentTestNextInstruction == NULL)
 	{
-		if (m_nextIteration.m_test)
+		if(m_nextIteration.m_test)
 		{
 			AttemptStartTestWithTimeout(m_nextIteration.m_test, "repeat", m_nextIteration.m_charOffset, nonScaledDT);
-		}	
-		else if (m_numFeatureTestsLeftToAutoRun)
+		}
+		else if(m_numFeatureTestsLeftToAutoRun)
 		{
-			while (m_numFeatureTestsLeftToAutoRun)
+			while(m_numFeatureTestsLeftToAutoRun)
 			{
 				int i = m_numTests - m_numFeatureTestsLeftToAutoRun;
-				SFeatureTest * test = & m_featureTestArray[i];
+				SFeatureTest *test = & m_featureTestArray[i];
 
-				FeatureTesterSpam ("Test %d/%d = '%s'... %s", i + 1, m_numTests, test->m_testName, test->m_enabled ? (test->m_autoRunThis ? "needs to be run" : "being skipped") : "disabled");
+				FeatureTesterSpam("Test %d/%d = '%s'... %s", i + 1, m_numTests, test->m_testName, test->m_enabled ? (test->m_autoRunThis ? "needs to be run" : "being skipped") : "disabled");
 
-				if (! (test->m_autoRunThis && CheckPrerequisite(test)))
+				if(!(test->m_autoRunThis && CheckPrerequisite(test)))
 				{
 					-- m_numFeatureTestsLeftToAutoRun;
 				}
@@ -1889,32 +1966,33 @@ void CFeatureTester::Update(float dt)
 		}
 	}
 
-	if (m_currentTestNextInstruction)
+	if(m_currentTestNextInstruction)
 	{
-		assert (m_currentTest);
+		assert(m_currentTest);
 		DisplayCaption(m_currentTest);
 
 		m_pause_enableCountdown = (m_pause_state != kFTPauseReason_none);
 		m_abortUntilNextFrame = false;
 		m_timeSinceCurrentTestBegan += nonScaledDT;
 
-		CheckFeatureTestFailure (m_timeSinceCurrentTestBegan <= m_currentTest->m_maxTime, "Test has taken over %.2f seconds, aborting!", m_currentTest->m_maxTime);
+		CheckFeatureTestFailure(m_timeSinceCurrentTestBegan <= m_currentTest->m_maxTime, "Test has taken over %.2f seconds, aborting!", m_currentTest->m_maxTime);
 
-		if (m_localPlayerAutoAimSettings.m_entityId)
+		if(m_localPlayerAutoAimSettings.m_entityId)
 		{
-			IActor * aimAtActor = gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(m_localPlayerAutoAimSettings.m_entityId);
-			IActor * localActor = gEnv->pGame->GetIGameFramework()->GetClientActor();
-			if (aimAtActor && localActor && ! aimAtActor->IsDead() && ! localActor->IsDead())
+			IActor *aimAtActor = gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(m_localPlayerAutoAimSettings.m_entityId);
+			IActor *localActor = gEnv->pGame->GetIGameFramework()->GetClientActor();
+
+			if(aimAtActor && localActor && ! aimAtActor->IsDead() && ! localActor->IsDead())
 			{
 				Vec3 lookFromPos = localActor->GetGameObject()->GetWorldQuery()->GetPos();
 				Vec3 aimAtPos = aimAtActor->GetEntity()->GetWorldPos();
-				
-				ICVar * timeScaleCVar = gEnv->pConsole->GetCVar("t_Scale");
+
+				ICVar *timeScaleCVar = gEnv->pConsole->GetCVar("t_Scale");
 				float currentGameSpeed = timeScaleCVar ? timeScaleCVar->GetFVal() : 1.f;
 
-				if (m_localPlayerAutoAimSettings.m_boneId >= 0)
+				if(m_localPlayerAutoAimSettings.m_boneId >= 0)
 				{
-					QuatT boneTransform = ((CActor*)aimAtActor)->GetBoneTransform(m_localPlayerAutoAimSettings.m_boneId);
+					QuatT boneTransform = ((CActor *)aimAtActor)->GetBoneTransform(m_localPlayerAutoAimSettings.m_boneId);
 					aimAtPos = aimAtActor->GetEntity()->GetWorldTM() * boneTransform.t;
 				}
 
@@ -1928,8 +2006,8 @@ void CFeatureTester::Update(float dt)
 				float rotationDiff = targetRotation - currentRotation;
 				float rotateAmountYaw = ((rotationDiff < -gf_PI) ? (rotationDiff + gf_PI + gf_PI) : (rotationDiff > gf_PI) ? (rotationDiff - gf_PI - gf_PI) : rotationDiff) * (24.f / currentGameSpeed);
 				float rotateAmountPitch = (dirFromPosToTarget.z - currentLookDir.z) * (20.f / currentGameSpeed);
-				CryWatch ("Local player currentAngle=%.3f wantAngle=%.3f diff=%.3f ROTATE=%.3f",
-					currentRotation, targetRotation, rotationDiff, rotateAmountYaw);
+				CryWatch("Local player currentAngle=%.3f wantAngle=%.3f diff=%.3f ROTATE=%.3f",
+						 currentRotation, targetRotation, rotationDiff, rotateAmountYaw);
 				SendInputToLocalPlayer("xi_rotatepitch", eAAM_Always, clamp(rotateAmountPitch, -0.75f, 0.75f));
 				SendInputToLocalPlayer("xi_rotateyaw", eAAM_Always, clamp(rotateAmountYaw, -0.75f, 0.75f));
 			}
@@ -1941,163 +2019,175 @@ void CFeatureTester::Update(float dt)
 			}
 		}
 
-		while (! m_abortUntilNextFrame)
+		while(! m_abortUntilNextFrame)
 		{
 			EFTPauseReason oldPauseState = m_pause_state;
 
 			PollForNewCheckpointHits();
 
-			if (! m_abortUntilNextFrame)
+			if(! m_abortUntilNextFrame)
 			{
-				switch (m_pause_state)
+				switch(m_pause_state)
 				{
-					case kFTPauseReason_none:
-					{
-						EFeatureTestCommand cmd = GetNextInstructionOrParam()->GetData_kFTVT_Command();
+				case kFTPauseReason_none:
+				{
+					EFeatureTestCommand cmd = GetNextInstructionOrParam()->GetData_kFTVT_Command();
 
-						if (cmd >= 0 && cmd < kFTC_Num)
-						{
-							(this->*s_instructionFunctions[cmd])();
-						}
-						else
-						{
-							FeatureTestFailure("Invalid feature tester command number %u", cmd);
-						}
+					if(cmd >= 0 && cmd < kFTC_Num)
+					{
+						(this->*s_instructionFunctions[cmd])();
 					}
-					break;
-
-					case kFTPauseReason_untilWeaponIsReadyToUse:
+					else
 					{
-						CActor * pClientActor = (CActor*)gEnv->pGame->GetIGameFramework()->GetClientActor();
-						IItem * pCurrentItem = pClientActor ? pClientActor->GetCurrentItem() : NULL;
-						IWeapon* pCurrentWep = pCurrentItem ? pCurrentItem->GetIWeapon() : NULL;
-
-						if (pCurrentItem && pCurrentItem->IsBusy() == false && (!pCurrentWep || !pCurrentWep->IsReloading()))
-						{
-							SetPauseStateAndTimeout(kFTPauseReason_none, 0.f);
-						}
+						FeatureTestFailure("Invalid feature tester command number %u", cmd);
 					}
-					break;
+				}
+				break;
 
-					case kFTPauseReason_untilPlayerAimingAtEnemy:
+				case kFTPauseReason_untilWeaponIsReadyToUse:
+				{
+					CActor *pClientActor = (CActor *)gEnv->pGame->GetIGameFramework()->GetClientActor();
+					IItem *pCurrentItem = pClientActor ? pClientActor->GetCurrentItem() : NULL;
+					IWeapon *pCurrentWep = pCurrentItem ? pCurrentItem->GetIWeapon() : NULL;
+
+					if(pCurrentItem && pCurrentItem->IsBusy() == false && (!pCurrentWep || !pCurrentWep->IsReloading()))
 					{
-						int i = 0;
-						bool allOK = true;
+						SetPauseStateAndTimeout(kFTPauseReason_none, 0.f);
+					}
+				}
+				break;
 
-						for (TBitfield b = BIT(0); i < FeatureTestPlayerSelectionList_numBits; i ++, b <<= 1)
+				case kFTPauseReason_untilPlayerAimingAtEnemy:
+				{
+					int i = 0;
+					bool allOK = true;
+
+					for(TBitfield b = BIT(0); i < FeatureTestPlayerSelectionList_numBits; i ++, b <<= 1)
+					{
+						if(b & m_pausedInfo.m_waitUntilTargettingAnEnemy_whichPlayers)
 						{
-							if (b & m_pausedInfo.m_waitUntilTargettingAnEnemy_whichPlayers)
+							CActor *pPlayer = GetPlayerForSelectionFlag(b);
+							bool iAmOK = IsActorAliveAndPlaying(pPlayer);
+
+							if(iAmOK)
 							{
-								CActor *pPlayer = GetPlayerForSelectionFlag(b);
-								bool iAmOK = IsActorAliveAndPlaying(pPlayer);
+								IEntity *currentTarget = gEnv->pEntitySystem->GetEntity(pPlayer->GetCurrentTargetEntityId());
 
-								if (iAmOK)
+								switch(m_pausedInfo.m_waitUntilTargettingAnEnemy_requireTargetOfType)
 								{
-									IEntity * currentTarget = gEnv->pEntitySystem->GetEntity(pPlayer->GetCurrentTargetEntityId());
+								case kFTAC_anybody:
+									iAmOK = (currentTarget != NULL);
+									break;
 
-									switch (m_pausedInfo.m_waitUntilTargettingAnEnemy_requireTargetOfType)
-									{
-										case kFTAC_anybody: iAmOK = (currentTarget != NULL);                                                break;
-										case kFTAC_nobody:  iAmOK = (currentTarget == NULL);                                                break;
-										case kFTAC_friend:  iAmOK = (currentTarget && pPlayer->IsFriendlyEntity(currentTarget->GetId()));   break;
-										case kFTAC_enemy:   iAmOK = (currentTarget && ! pPlayer->IsFriendlyEntity(currentTarget->GetId())); break;
-									}
+								case kFTAC_nobody:
+									iAmOK = (currentTarget == NULL);
+									break;
+
+								case kFTAC_friend:
+									iAmOK = (currentTarget && pPlayer->IsFriendlyEntity(currentTarget->GetId()));
+									break;
+
+								case kFTAC_enemy:
+									iAmOK = (currentTarget && ! pPlayer->IsFriendlyEntity(currentTarget->GetId()));
+									break;
 								}
+							}
 
+							CryFixedStringT<256> strBuffer;
+							FeatureTesterSpam("Waiting for %s to be targetting %s... %s", GetActorInfoString(pPlayer, strBuffer), s_featureTestAimConditionNames[m_pausedInfo.m_waitUntilTargettingAnEnemy_requireTargetOfType], iAmOK ? "hooray!" : "hasn't happened yet");
+							allOK = allOK && iAmOK;
+						}
+					}
+
+					if(allOK)
+					{
+						SetPauseStateAndTimeout(kFTPauseReason_none, 0.f);
+					}
+				}
+				break;
+
+				case kFTPauseReason_untilPlayerIsAlive:
+				{
+					int i = 0;
+					bool allOK = true;
+
+					for(TBitfield b = BIT(0); (i < FeatureTestPlayerSelectionList_numBits) && m_currentTest; i ++, b <<= 1)
+					{
+						if(b & m_pausedInfo.m_waitUntilPlayerIsAlive_whichPlayers)
+						{
+							CActor *pPlayer = GetPlayerForSelectionFlag(b);
+
+							if(CheckFeatureTestFailure(pPlayer, "There's no %s", s_featureTestPlayerSelectionNames[i]))
+							{
+								const SPlayerStats *stats = (const SPlayerStats *) pPlayer->GetActorStats();
+								bool falling = (stats->flyMode == false) && (stats->inAir > 0.0f);
+								bool iAmOK = IsActorAliveAndPlaying(pPlayer) && (pPlayer->GetHealth() == pPlayer->GetMaxHealth()) && !falling;
 								CryFixedStringT<256> strBuffer;
-								FeatureTesterSpam("Waiting for %s to be targetting %s... %s", GetActorInfoString(pPlayer, strBuffer), s_featureTestAimConditionNames[m_pausedInfo.m_waitUntilTargettingAnEnemy_requireTargetOfType], iAmOK ? "hooray!" : "hasn't happened yet");
+								FeatureTesterLog("Waiting for %s to be at full health and not falling... %s", GetActorInfoString(pPlayer, strBuffer), iAmOK ? "hooray!" : "hasn't happened yet");
 								allOK = allOK && iAmOK;
 							}
-						}
-
-						if (allOK)
-						{
-							SetPauseStateAndTimeout(kFTPauseReason_none, 0.f);
-						}
-					}
-					break;
-
-					case kFTPauseReason_untilPlayerIsAlive:
-					{
-						int i = 0;
-						bool allOK = true;
-
-						for (TBitfield b = BIT(0); (i < FeatureTestPlayerSelectionList_numBits) && m_currentTest; i ++, b <<= 1)
-						{
-							if (b & m_pausedInfo.m_waitUntilPlayerIsAlive_whichPlayers)
+							else
 							{
-								CActor *pPlayer = GetPlayerForSelectionFlag(b);
-								if (CheckFeatureTestFailure(pPlayer, "There's no %s", s_featureTestPlayerSelectionNames[i]))
-								{
-									const SPlayerStats * stats = (const SPlayerStats *) pPlayer->GetActorStats();
-									bool falling = (stats->flyMode == false) && (stats->inAir > 0.0f);
-									bool iAmOK = IsActorAliveAndPlaying(pPlayer) && (pPlayer->GetHealth() == pPlayer->GetMaxHealth()) && !falling;
-									CryFixedStringT<256> strBuffer;
-									FeatureTesterLog("Waiting for %s to be at full health and not falling... %s", GetActorInfoString(pPlayer, strBuffer), iAmOK ? "hooray!" : "hasn't happened yet");
-									allOK = allOK && iAmOK;
-								}
-								else
-								{
-									allOK = false;
-								}
+								allOK = false;
 							}
 						}
-
-						if (allOK)
-						{
-							SetPauseStateAndTimeout(kFTPauseReason_none, 0.f);
-						}
 					}
-					break;
 
-					case kFTPauseReason_untilFGTestsComplete:
+					if(allOK)
 					{
-						if (m_pFeatureTestMgr && !m_pFeatureTestMgr->IsRunning())
-						{
-							// Test complete!
-							SetPauseStateAndTimeout(kFTPauseReason_none, 0.f);
-						}
-
-						PauseExecution();
+						SetPauseStateAndTimeout(kFTPauseReason_none, 0.f);
 					}
-					break;
+				}
+				break;
 
-					case kFTPauseReason_untilTimeHasPassed:
-					case kFTPauseReason_untilCCCPointsHit:
+				case kFTPauseReason_untilFGTestsComplete:
+				{
+					if(m_pFeatureTestMgr && !m_pFeatureTestMgr->IsRunning())
 					{
-						IActorSystem * pActorSystem = gEnv->pGame->GetIGameFramework()->GetIActorSystem();
-						IActorIteratorPtr pIter = pActorSystem->CreateActorIterator();
-
-						while (IActor * iActor = pIter->Next())
-						{
-							CryFixedStringT<256> singleLine;
-							GetActorInfoString(iActor, singleLine);
-							FeatureTesterLog("%s: %s", s_featureTestPauseReasonNames[m_pause_state], singleLine.c_str());
-						}
+						// Test complete!
+						SetPauseStateAndTimeout(kFTPauseReason_none, 0.f);
 					}
-					break;
+
+					PauseExecution();
+				}
+				break;
+
+				case kFTPauseReason_untilTimeHasPassed:
+				case kFTPauseReason_untilCCCPointsHit:
+				{
+					IActorSystem *pActorSystem = gEnv->pGame->GetIGameFramework()->GetIActorSystem();
+					IActorIteratorPtr pIter = pActorSystem->CreateActorIterator();
+
+					while(IActor *iActor = pIter->Next())
+					{
+						CryFixedStringT<256> singleLine;
+						GetActorInfoString(iActor, singleLine);
+						FeatureTesterLog("%s: %s", s_featureTestPauseReasonNames[m_pause_state], singleLine.c_str());
+					}
+				}
+				break;
 				}
 
-				if (m_pause_state != kFTPauseReason_none && oldPauseState != kFTPauseReason_none)
+				if(m_pause_state != kFTPauseReason_none && oldPauseState != kFTPauseReason_none)
 				{
 					PauseExecution();
 				}
 
-				if (m_pause_enableCountdown)
+				if(m_pause_enableCountdown)
 				{
-					if ((m_pause_timeLeft -= dt) <= 0.f)
+					if((m_pause_timeLeft -= dt) <= 0.f)
 					{
-						switch (m_pause_state)
+						switch(m_pause_state)
 						{
-							case kFTPauseReason_untilTimeHasPassed:
+						case kFTPauseReason_untilTimeHasPassed:
 							SetPauseStateAndTimeout(kFTPauseReason_none, 0.f);
 							break;
 
-							case kFTPauseReason_untilCCCPointsHit:
+						case kFTPauseReason_untilCCCPointsHit:
 							FeatureTestFailure("Timed out! Spent over %.1f seconds waiting to hit %s", m_pause_originalTimeOut, GetListOfCheckpointsExpected().c_str());
 							break;
 
-							default:
+						default:
 							FeatureTestFailure("Timed out! Spent over %.1f seconds in '%s' state", m_pause_originalTimeOut, s_featureTestPauseReasonNames[m_pause_state]);
 							break;
 						}
@@ -2106,12 +2196,12 @@ void CFeatureTester::Update(float dt)
 			}
 		}
 
-		CryWatch ("$7[FEATURETESTER]$o %sWait=%s Time=%.1f/%.1f", GetContextString().c_str(), s_featureTestPauseReasonNames[m_pause_state], m_pause_timeLeft, m_pause_originalTimeOut);
+		CryWatch("$7[FEATURETESTER]$o %sWait=%s Time=%.1f/%.1f", GetContextString().c_str(), s_featureTestPauseReasonNames[m_pause_state], m_pause_timeLeft, m_pause_originalTimeOut);
 
-		for (int i = 0; i < m_numWatchedCheckpoints; ++ i)
+		for(int i = 0; i < m_numWatchedCheckpoints; ++ i)
 		{
 			EFTCheckpointHitResponse response = m_checkpointCountArray[i].m_hitResponse;
-			CryWatch ("  $%c[%s]$%c %s#%d", response + '2', s_featureTestHitResponseNames[response], (m_checkpointCountArray[i].m_stackLevelAtWhichAdded == m_runFeatureTestStack.m_count) ? '1' : '9', m_checkpointCountArray[i].m_checkpointName, m_checkpointCountArray[i].m_stackLevelAtWhichAdded);
+			CryWatch("  $%c[%s]$%c %s#%d", response + '2', s_featureTestHitResponseNames[response], (m_checkpointCountArray[i].m_stackLevelAtWhichAdded == m_runFeatureTestStack.m_count) ? '1' : '9', m_checkpointCountArray[i].m_checkpointName, m_checkpointCountArray[i].m_stackLevelAtWhichAdded);
 		}
 	}
 }
@@ -2119,13 +2209,13 @@ void CFeatureTester::Update(float dt)
 //-------------------------------------------------------------------------------
 /* static */ void CFeatureTester::CmdStartTest(IConsoleCmdArgs *pArgs)
 {
-	if (pArgs->GetArgCount() == 2)
+	if(pArgs->GetArgCount() == 2)
 	{
-		const char * name = pArgs->GetArg(1);
+		const char *name = pArgs->GetArg(1);
 
-		SFeatureTest * test = s_instance->FindTestByName(name);
+		SFeatureTest *test = s_instance->FindTestByName(name);
 
-		if (test)
+		if(test)
 		{
 			s_instance->StartTest(test, "start", 0.f);
 		}
@@ -2136,7 +2226,7 @@ void CFeatureTester::Update(float dt)
 	}
 	else
 	{
-		for (int i = 0; i < s_instance->m_numTests; ++ i)
+		for(int i = 0; i < s_instance->m_numTests; ++ i)
 		{
 			char colourChar = s_instance->m_featureTestArray[i].m_enabled ? '5' : '9';
 			FeatureTesterLog("$%c%s$o: %s", colourChar, s_instance->m_featureTestArray[i].m_testName, s_instance->m_featureTestArray[i].m_testDescription);
@@ -2147,21 +2237,21 @@ void CFeatureTester::Update(float dt)
 //-------------------------------------------------------------------------------
 /* static */ void CFeatureTester::CmdReload(IConsoleCmdArgs *pArgs)
 {
-	if (! s_instance->m_currentlyLoadedFileName.empty())
+	if(! s_instance->m_currentlyLoadedFileName.empty())
 	{
 		s_instance->UnloadTestData();
 		s_instance->LoadTestData(s_instance->m_currentlyLoadedFileName.c_str());
 	}
 	else
 	{
-		FeatureTesterLog ("Can't reload feature tests - there's nothing currently loaded!");
+		FeatureTesterLog("Can't reload feature tests - there's nothing currently loaded!");
 	}
 }
 
 //-------------------------------------------------------------------------------
-/* static */ void CFeatureTester::CmdLoad(IConsoleCmdArgs * pArgs)
+/* static */ void CFeatureTester::CmdLoad(IConsoleCmdArgs *pArgs)
 {
-	if (pArgs->GetArgCount() == 2)
+	if(pArgs->GetArgCount() == 2)
 	{
 		s_instance->UnloadTestData();
 		s_instance->LoadTestData(pArgs->GetArg(1));
@@ -2171,86 +2261,89 @@ void CFeatureTester::Update(float dt)
 //-------------------------------------------------------------------------------
 /* static */ void CFeatureTester::CmdRunAll(IConsoleCmdArgs *pArgs)
 {
-	if (pArgs->GetArgCount() == 2)
+	if(pArgs->GetArgCount() == 2)
 	{
 		s_instance->InterruptCurrentTestIfOneIsRunning();
 
-		const char * setNames = pArgs->GetArg(1);
-		const char * parseSetNames = setNames;
+		const char *setNames = pArgs->GetArg(1);
+		const char *parseSetNames = setNames;
 		char oneSetName[64];
 		int total = 0;
 
-		for (int i = 0; i < s_instance->m_numTests; ++ i)
+		for(int i = 0; i < s_instance->m_numTests; ++ i)
 		{
 			s_instance->m_featureTestArray[i].m_autoRunThis = false;
 		}
 
-		while (parseSetNames)
+		while(parseSetNames)
 		{
 			size_t skipChars = cry_copyStringUntilFindChar(oneSetName, parseSetNames, sizeof(oneSetName), '+');
 			parseSetNames = skipChars ? (parseSetNames + skipChars) : NULL;
 			int countInThisSet = 0;
 
-			for (int i = 0; i < s_instance->m_numTests; ++ i)
+			for(int i = 0; i < s_instance->m_numTests; ++ i)
 			{
-				SFeatureTest * testData = & s_instance->m_featureTestArray[i];
-				if (testData->m_enabled && 0 == stricmp (testData->m_setName, oneSetName))
+				SFeatureTest *testData = & s_instance->m_featureTestArray[i];
+
+				if(testData->m_enabled && 0 == stricmp(testData->m_setName, oneSetName))
 				{
 					testData->m_autoRunThis = true;
 					++ countInThisSet;
 				}
 			}
 
-			FeatureTesterLog ("Number of enabled auto-tests in set '%s' = %d", oneSetName, countInThisSet);
+			FeatureTesterLog("Number of enabled auto-tests in set '%s' = %d", oneSetName, countInThisSet);
 			total += countInThisSet;
 		}
 
-		if (total > 0)
+		if(total > 0)
 		{
 			s_instance->m_numFeatureTestsLeftToAutoRun = s_instance->m_numTests;
 		}
 	}
 
-	if (s_instance->m_numFeatureTestsLeftToAutoRun == 0)
+	if(s_instance->m_numFeatureTestsLeftToAutoRun == 0)
 	{
 		static const int kMaxSetNamesToList = 32;
-		const char * setNamesDisplayed[kMaxSetNamesToList];
-		const char * cmdName = pArgs->GetArg(0);
+		const char *setNamesDisplayed[kMaxSetNamesToList];
+		const char *cmdName = pArgs->GetArg(0);
 		int numSetNamesDisplayed = 0;
 		FeatureTesterLog("Please specify which feature test set(s) to run, e.g.");
-		for (int i = 0; i < s_instance->m_numTests; ++ i)
+
+		for(int i = 0; i < s_instance->m_numTests; ++ i)
 		{
 			int j;
-			const char * mySetName = s_instance->m_featureTestArray[i].m_setName;
+			const char *mySetName = s_instance->m_featureTestArray[i].m_setName;
 
-			for (j = 0; j < numSetNamesDisplayed; ++ j)
+			for(j = 0; j < numSetNamesDisplayed; ++ j)
 			{
-				if (setNamesDisplayed[j] == mySetName)
+				if(setNamesDisplayed[j] == mySetName)
 				{
 					break;
 				}
 			}
 
-			if (j == numSetNamesDisplayed && numSetNamesDisplayed < kMaxSetNamesToList)
+			if(j == numSetNamesDisplayed && numSetNamesDisplayed < kMaxSetNamesToList)
 			{
 				setNamesDisplayed[j] = mySetName;
-				FeatureTesterLog ("  %s %s", cmdName, mySetName);
+				FeatureTesterLog("  %s %s", cmdName, mySetName);
 				++ numSetNamesDisplayed;
 			}
 		}
-		if (numSetNamesDisplayed >= 2)
+
+		if(numSetNamesDisplayed >= 2)
 		{
-			FeatureTesterLog ("  %s %s+%s", cmdName, setNamesDisplayed[0], setNamesDisplayed[1]);
+			FeatureTesterLog("  %s %s+%s", cmdName, setNamesDisplayed[0], setNamesDisplayed[1]);
 		}
 	}
 }
 
 //-------------------------------------------------------------------------------
-CFeatureTester::SFeatureTest * CFeatureTester::FindTestByName(const char * name)
+CFeatureTester::SFeatureTest *CFeatureTester::FindTestByName(const char *name)
 {
-	for (int i = 0; i < m_numTests; ++ i)
+	for(int i = 0; i < m_numTests; ++ i)
 	{
-		if (0 == stricmp(name, m_featureTestArray[i].m_testName))
+		if(0 == stricmp(name, m_featureTestArray[i].m_testName))
 		{
 			return & m_featureTestArray[i];
 		}
@@ -2262,22 +2355,22 @@ CFeatureTester::SFeatureTest * CFeatureTester::FindTestByName(const char * name)
 //-------------------------------------------------------------------------------
 void CFeatureTester::UnloadTestData()
 {
-	if (m_informAutoTesterOfResults && m_currentTest)
+	if(m_informAutoTesterOfResults && m_currentTest)
 	{
 		FeatureTestFailure("Did not finish");
 	}
 
 	InterruptCurrentTestIfOneIsRunning();
 
-	FeatureTesterLog ("Unloading all feature test data");
+	FeatureTesterLog("Unloading all feature test data");
 
-	if (m_informAutoTesterOfResults && m_singleBufferContainingAllInstructions)
+	if(m_informAutoTesterOfResults && m_singleBufferContainingAllInstructions)
 	{
-		while (m_numFeatureTestsLeftToAutoRun)
+		while(m_numFeatureTestsLeftToAutoRun)
 		{
-			SFeatureTest * test = & m_featureTestArray[m_numTests - m_numFeatureTestsLeftToAutoRun];
+			SFeatureTest *test = & m_featureTestArray[m_numTests - m_numFeatureTestsLeftToAutoRun];
 
-			if (test->m_autoRunThis)
+			if(test->m_autoRunThis)
 			{
 #if 0
 				SubmitResultToAutoTester(test, -1.f, "Did not start");
@@ -2298,7 +2391,7 @@ void CFeatureTester::UnloadTestData()
 	m_numTests = 0;
 	m_numFeatureTestsLeftToAutoRun = 0;
 	m_timeSinceCurrentTestBegan = 0.f;
-	memset (& m_nextIteration, 0, sizeof(m_nextIteration));
+	memset(& m_nextIteration, 0, sizeof(m_nextIteration));
 	m_singleAllocTextBlock.Reset();
 	m_haveJustWrittenMessageAboutUnfinishedTest = NULL;
 
@@ -2307,15 +2400,15 @@ void CFeatureTester::UnloadTestData()
 }
 
 //-------------------------------------------------------------------------------
-void CFeatureTester::RemoveWatchedCheckpointsAddedAtCurrentStackLevel(const char * reason)
+void CFeatureTester::RemoveWatchedCheckpointsAddedAtCurrentStackLevel(const char *reason)
 {
-	FeatureTesterSpam ("%s %s... removing all checkpoints of level %d [%u = %s]", m_runFeatureTestStack.m_count ? "Subroutine" : "Entire test", reason, m_runFeatureTestStack.m_count, m_waitUntilCCCPointHit_numStillToHit, GetListOfCheckpointsExpected().c_str());
+	FeatureTesterSpam("%s %s... removing all checkpoints of level %d [%u = %s]", m_runFeatureTestStack.m_count ? "Subroutine" : "Entire test", reason, m_runFeatureTestStack.m_count, m_waitUntilCCCPointHit_numStillToHit, GetListOfCheckpointsExpected().c_str());
 
-	while (m_numWatchedCheckpoints > 0 && m_checkpointCountArray[m_numWatchedCheckpoints - 1].m_stackLevelAtWhichAdded == m_runFeatureTestStack.m_count)
+	while(m_numWatchedCheckpoints > 0 && m_checkpointCountArray[m_numWatchedCheckpoints - 1].m_stackLevelAtWhichAdded == m_runFeatureTestStack.m_count)
 	{
 		SetCheckpointHitResponse(& m_checkpointCountArray[m_numWatchedCheckpoints - 1], kFTCHR_nothing);
 		-- m_numWatchedCheckpoints;
-		FeatureTesterSpam ("%s %s... no longer watching array[%d] %s#%d", m_runFeatureTestStack.m_count ? "Subroutine" : "Entire test", reason, m_numWatchedCheckpoints, m_checkpointCountArray[m_numWatchedCheckpoints].m_checkpointName, m_runFeatureTestStack.m_count);
+		FeatureTesterSpam("%s %s... no longer watching array[%d] %s#%d", m_runFeatureTestStack.m_count ? "Subroutine" : "Entire test", reason, m_numWatchedCheckpoints, m_checkpointCountArray[m_numWatchedCheckpoints].m_checkpointName, m_runFeatureTestStack.m_count);
 	}
 }
 
@@ -2324,21 +2417,21 @@ bool CFeatureTester::CompleteSubroutine()
 {
 	RemoveWatchedCheckpointsAddedAtCurrentStackLevel("completed");
 
-	if (m_runFeatureTestStack.m_count)
+	if(m_runFeatureTestStack.m_count)
 	{
 		--m_runFeatureTestStack.m_count;
-		
-		SStackedTestCallInfo * info = & m_runFeatureTestStack.m_info[m_runFeatureTestStack.m_count];
-		
-		const SFeatureTest * backToThisTest = m_currentTest;
-		
-		if (m_runFeatureTestStack.m_count > 0 && m_runFeatureTestStack.m_count < SStack::k_stackSize)
+
+		SStackedTestCallInfo *info = & m_runFeatureTestStack.m_info[m_runFeatureTestStack.m_count];
+
+		const SFeatureTest *backToThisTest = m_currentTest;
+
+		if(m_runFeatureTestStack.m_count > 0 && m_runFeatureTestStack.m_count < SStack::k_stackSize)
 		{
 			backToThisTest = m_runFeatureTestStack.m_info[m_runFeatureTestStack.m_count - 1].m_calledTest;
 		}
 
 		m_currentTestNextInstruction = info->m_returnToHereWhenDone;
-		FeatureTesterSpam ("Finished using feature test '%s' as a subroutine (wait state was %s), continuing with '%s' scaleSpeed=%f", info->m_calledTest->m_testName, s_featureTestPauseReasonNames[m_pause_state], backToThisTest->m_testName, backToThisTest->m_scaleSpeed);
+		FeatureTesterSpam("Finished using feature test '%s' as a subroutine (wait state was %s), continuing with '%s' scaleSpeed=%f", info->m_calledTest->m_testName, s_featureTestPauseReasonNames[m_pause_state], backToThisTest->m_testName, backToThisTest->m_scaleSpeed);
 		gEnv->pConsole->ExecuteString(string().Format("t_scale %f", backToThisTest->m_scaleSpeed), true);
 		SetPauseStateAndTimeout(kFTPauseReason_none, 0.f);
 		return true;
@@ -2349,34 +2442,37 @@ bool CFeatureTester::CompleteSubroutine()
 }
 
 //-------------------------------------------------------------------------------
-const char * CFeatureTester::GetActorInfoString(IActor * iActor, CryFixedStringT<256> & reply)
+const char *CFeatureTester::GetActorInfoString(IActor *iActor, CryFixedStringT<256> &reply)
 {
-	if (iActor)
+	if(iActor)
 	{
-		CActor * pActor = (CActor*) iActor;
-		IEntity * pEntity = pActor->GetEntity();
+		CActor *pActor = (CActor *) iActor;
+		IEntity *pEntity = pActor->GetEntity();
 		Vec3 pos = pEntity->GetWorldPos();
-		const Vec3 & dir = pEntity->GetForwardDir();
-		CGameRules * gameRules = g_pGame->GetGameRules();
+		const Vec3 &dir = pEntity->GetForwardDir();
+		CGameRules *gameRules = g_pGame->GetGameRules();
 		int teamNum = gameRules->GetTeam(pEntity->GetId());
-		IItem * item = pActor->GetCurrentItem();
-		SActorStats * stats = pActor->GetActorStats();
-		IGameObject * gameObject = pActor->GetGameObject();
+		IItem *item = pActor->GetCurrentItem();
+		SActorStats *stats = pActor->GetActorStats();
+		IGameObject *gameObject = pActor->GetGameObject();
 
 		CryFixedStringT<128> itemInfo;
-		if (item)
+
+		if(item)
 		{
-			IWeapon * weapon = item->GetIWeapon();
-			if (weapon)
+			IWeapon *weapon = item->GetIWeapon();
+
+			if(weapon)
 			{
 				int currentFireModeNum = weapon->GetCurrentFireMode();
-				const char * zoomedText = weapon->IsZoomingInOrOut() ? (weapon->IsZoomed() ? ", zooming out" : ", zooming in") : (weapon->IsZoomed() ? ", zoomed in" : "");
+				const char *zoomedText = weapon->IsZoomingInOrOut() ? (weapon->IsZoomed() ? ", zooming out" : ", zooming in") : (weapon->IsZoomed() ? ", zoomed in" : "");
 
-				IFireMode * currentFireModePtr = weapon->GetFireMode(currentFireModeNum);
-				if (currentFireModePtr)
+				IFireMode *currentFireModePtr = weapon->GetFireMode(currentFireModeNum);
+
+				if(currentFireModePtr)
 				{
-					IEntityClass * ammoType = currentFireModePtr->GetAmmoType();
-					const char* ammoName = ( ammoType != NULL ) ? ammoType->GetName() : "";
+					IEntityClass *ammoType = currentFireModePtr->GetAmmoType();
+					const char *ammoName = (ammoType != NULL) ? ammoType->GetName() : "";
 					itemInfo.Format(", %s:%s %d/%d+%d %s%s%s", item->GetEntity()->GetClass()->GetName(), currentFireModePtr->GetName(), currentFireModePtr->GetAmmoCount(), currentFireModePtr->GetClipSize(), weapon->GetInventoryAmmoCount(ammoType), ammoName, zoomedText, item->IsBusy() ? " BUSY" : "");
 				}
 				else
@@ -2391,33 +2487,34 @@ const char * CFeatureTester::GetActorInfoString(IActor * iActor, CryFixedStringT
 		}
 
 		CryFixedStringT<128> targetInfo;
-		IEntity * target = gEnv->pEntitySystem->GetEntity(pActor->GetCurrentTargetEntityId());
-		if (target)
+		IEntity *target = gEnv->pEntitySystem->GetEntity(pActor->GetCurrentTargetEntityId());
+
+		if(target)
 		{
 			bool friendly = pActor->IsFriendlyEntity(target->GetId()) != 0;
 			targetInfo.Format(", targeting %s %s '%s'", friendly ? "friendly" : "enemy", target->GetClass()->GetName(), target->GetName());
 		}
 
 		reply.Format("%s '%s' (%steam=%d '%s', %s%s, health=%d/%d, stance=%s, inAir=%.2f%s%s%s%s%s%s%s%s%s) pos=<%.2f %.2f %.2f> dir=<%.2f %.2f %.2f>",
-			pEntity->GetClass()->GetName(), pEntity->GetName(),
-			pActor->IsPlayer() ? "" : "NPC, ",
-			teamNum, teamNum ? gameRules->GetTeamName(teamNum) : "none",
-			pActor->IsClient() ? "client, " : "", pActor->IsDead() ? "dead" : "alive", pActor->GetHealth(), pActor->GetMaxHealth(),
-			pActor->GetStanceInfo(pActor->GetStance())->name, stats->inAir,
-			(pActor->IsPlayer() && ((SPlayerStats *)(stats))->flyMode) ? ", FLYMODE" : "",
-			stats->isRagDoll ? ", RAGDOLL" : "",
-			pEntity->GetPhysics() ? "" : ", NO PHYSICS",
-			gameObject->ShouldUpdate() ? "" : ", NOT UPDATING",
-			pEntity->IsHidden() ? ", hidden" : "",
-			pEntity->IsActive() ? "" : ", inactive",
-			pEntity->IsInvisible() ? ", invisible" : "",
-			itemInfo.c_str(),
-			targetInfo.c_str(),
-			pos.x, pos.y, pos.z, dir.x, dir.y, dir.z);
+					 pEntity->GetClass()->GetName(), pEntity->GetName(),
+					 pActor->IsPlayer() ? "" : "NPC, ",
+					 teamNum, teamNum ? gameRules->GetTeamName(teamNum) : "none",
+					 pActor->IsClient() ? "client, " : "", pActor->IsDead() ? "dead" : "alive", pActor->GetHealth(), pActor->GetMaxHealth(),
+					 pActor->GetStanceInfo(pActor->GetStance())->name, stats->inAir,
+					 (pActor->IsPlayer() && ((SPlayerStats *)(stats))->flyMode) ? ", FLYMODE" : "",
+					 stats->isRagDoll ? ", RAGDOLL" : "",
+					 pEntity->GetPhysics() ? "" : ", NO PHYSICS",
+					 gameObject->ShouldUpdate() ? "" : ", NOT UPDATING",
+					 pEntity->IsHidden() ? ", hidden" : "",
+					 pEntity->IsActive() ? "" : ", inactive",
+					 pEntity->IsInvisible() ? ", invisible" : "",
+					 itemInfo.c_str(),
+					 targetInfo.c_str(),
+					 pos.x, pos.y, pos.z, dir.x, dir.y, dir.z);
 
 		CActor::EActorSpectatorMode spectatorMode = (CActor::EActorSpectatorMode)pActor->GetSpectatorMode();
 
-		if (spectatorMode != CActor::eASM_None)
+		if(spectatorMode != CActor::eASM_None)
 		{
 			//CActor::EActorSpectatorState spectatorState = pActor->GetSpectatorState();
 			//reply.append(" [SPECTATING state=%d mode=%u]", spectatorState, spectatorMode);
@@ -2433,21 +2530,22 @@ const char * CFeatureTester::GetActorInfoString(IActor * iActor, CryFixedStringT
 }
 
 //-------------------------------------------------------------------------------
-void CFeatureTester::SubmitTestStartedMessageToAutoTester(const SFeatureTest * test)
+void CFeatureTester::SubmitTestStartedMessageToAutoTester(const SFeatureTest *test)
 {
-	if (m_informAutoTesterOfResults && test != m_haveJustWrittenMessageAboutUnfinishedTest)
+	if(m_informAutoTesterOfResults && test != m_haveJustWrittenMessageAboutUnfinishedTest)
 	{
 		string testName(test->m_setName);
 		testName.append(": ");
 		testName.append(test->m_testName);
 
-		if (test == m_currentTest && m_iterateOverParams.m_numParams)
+		if(test == m_currentTest && m_iterateOverParams.m_numParams)
 		{
-			for (int i = 0; i < m_iterateOverParams.m_numParams; ++ i)
+			for(int i = 0; i < m_iterateOverParams.m_numParams; ++ i)
 			{
 				testName.append(i ? ", " : " <");
 				testName.append(m_iterateOverParams.m_currentParams[i]);
 			}
+
 			testName.append(">");
 		}
 
@@ -2468,7 +2566,7 @@ void CFeatureTester::SubmitTestStartedMessageToAutoTester(const SFeatureTest * t
 
 		string testSuiteName;
 		testSuiteName.Format("%s: %s", m_informAutoTesterOfResults->GetTestName(), m_currentlyLoadedFileName.c_str());
-		
+
 		m_informAutoTesterOfResults->WriteResults(m_informAutoTesterOfResults->kWriteResultsFlag_unfinished, & testSuiteName, & testCase);
 
 		m_haveJustWrittenMessageAboutUnfinishedTest = test;
@@ -2476,27 +2574,28 @@ void CFeatureTester::SubmitTestStartedMessageToAutoTester(const SFeatureTest * t
 }
 
 //-------------------------------------------------------------------------------
-void CFeatureTester::SubmitResultToAutoTester(const SFeatureTest * test, float timeTaken, const char * failureMessage)
+void CFeatureTester::SubmitResultToAutoTester(const SFeatureTest *test, float timeTaken, const char *failureMessage)
 {
 	CryFixedStringT<1024> actuallySendFailureMessage;
-	CGameRules * gameRules = g_pGame->GetGameRules();
+	CGameRules *gameRules = g_pGame->GetGameRules();
 
-	if (failureMessage && failureMessage[0])
+	if(failureMessage && failureMessage[0])
 	{
 		actuallySendFailureMessage = failureMessage;
 
 		float frameRate = gEnv->pTimer->GetFrameRate();
 		char fpsMessage[32];
-		sprintf (fpsMessage, "\nFPS = %.3f", frameRate);
+		sprintf(fpsMessage, "\nFPS = %.3f", frameRate);
 		actuallySendFailureMessage.append(fpsMessage);
 
-		if (gameRules)
+		if(gameRules)
 		{
-			IActorSystem * pActorSystem = gEnv->pGame->GetIGameFramework()->GetIActorSystem();
+			IActorSystem *pActorSystem = gEnv->pGame->GetIGameFramework()->GetIActorSystem();
 			IActorIteratorPtr pIter = pActorSystem->CreateActorIterator();
 
-			ILevel * level = g_pGame->GetIGameFramework()->GetILevelSystem()->GetCurrentLevel();
-			if (level)
+			ILevel *level = g_pGame->GetIGameFramework()->GetILevelSystem()->GetCurrentLevel();
+
+			if(level)
 			{
 				actuallySendFailureMessage.append(", level = '").append(level->GetLevelInfo()->GetName()).append("' (").append(gameRules->GetEntity()->GetClass()->GetName()).append(")");
 				actuallySendFailureMessage.append(g_pGame->GetIGameFramework()->GetILevelSystem()->IsLevelLoaded() ? " loaded," : " still loading,");
@@ -2504,7 +2603,7 @@ void CFeatureTester::SubmitResultToAutoTester(const SFeatureTest * test, float t
 				//actuallySendFailureMessage.append(string().Format(" server time=%.1f", gameRules->GetServerTime() / 1000.f).c_str());
 			}
 
-			while (IActor * iActor = pIter->Next())
+			while(IActor *iActor = pIter->Next())
 			{
 				CryFixedStringT<256> singleLine;
 				GetActorInfoString(iActor, singleLine);
@@ -2512,28 +2611,30 @@ void CFeatureTester::SubmitResultToAutoTester(const SFeatureTest * test, float t
 				actuallySendFailureMessage.append("\n").append(singleLine);
 			}
 
-			for (int i = 0; i < m_listEntityClassesWhenFail.m_num; ++ i)
+			for(int i = 0; i < m_listEntityClassesWhenFail.m_num; ++ i)
 			{
-				IEntityIt* it = gEnv->pEntitySystem->GetEntityIterator();
-				while ( !it->IsEnd() )
+				IEntityIt *it = gEnv->pEntitySystem->GetEntityIterator();
+
+				while(!it->IsEnd())
 				{
-					IEntity* pEntity = it->Next();
+					IEntity *pEntity = it->Next();
+
 					if(pEntity->GetClass() == m_listEntityClassesWhenFail.m_classPtr[i])
 					{
 						string info;
 						int teamNum = gameRules->GetTeam(pEntity->GetId());
 						Vec3 pos = pEntity->GetWorldPos();
-						const Vec3 & dir = pEntity->GetForwardDir();
+						const Vec3 &dir = pEntity->GetForwardDir();
 
 						info.Format("%s '%s' (team=%d '%s'%s%s%s%s%s) pos=<%.2f %.2f %.2f> dir=<%.2f %.2f %.2f>",
-							pEntity->GetClass()->GetName(), pEntity->GetName(),
-							teamNum, teamNum ? gameRules->GetTeamName(teamNum) : "none",
-							pEntity->GetPhysics() ? ", has physics" : ", no physics",
-							(pEntity->GetFlags() & ENTITY_FLAG_ON_RADAR) ? ", on radar" : "",
-							pEntity->IsHidden() ? ", hidden" : "",
-							pEntity->IsActive() ? "" : ", inactive",
-							pEntity->IsInvisible() ? ", invisible" : "",
-							pos.x, pos.y, pos.z, dir.x, dir.y, dir.z);
+									pEntity->GetClass()->GetName(), pEntity->GetName(),
+									teamNum, teamNum ? gameRules->GetTeamName(teamNum) : "none",
+									pEntity->GetPhysics() ? ", has physics" : ", no physics",
+									(pEntity->GetFlags() & ENTITY_FLAG_ON_RADAR) ? ", on radar" : "",
+									pEntity->IsHidden() ? ", hidden" : "",
+									pEntity->IsActive() ? "" : ", inactive",
+									pEntity->IsInvisible() ? ", invisible" : "",
+									pos.x, pos.y, pos.z, dir.x, dir.y, dir.z);
 
 						FeatureTesterLog("FYI: %s", info.c_str());
 						actuallySendFailureMessage.append("\n").append(info.c_str());
@@ -2542,37 +2643,51 @@ void CFeatureTester::SubmitResultToAutoTester(const SFeatureTest * test, float t
 			}
 		}
 
-		if (test == m_currentTest)
+		if(test == m_currentTest)
 		{
 			StTextHandler_BuildString stringBuilder;
 			int numInStack = m_runFeatureTestStack.m_count;
-			const SFeatureTest * inTest = numInStack ? m_runFeatureTestStack.m_info[numInStack - 1].m_calledTest : test;
+			const SFeatureTest *inTest = numInStack ? m_runFeatureTestStack.m_info[numInStack - 1].m_calledTest : test;
 			ListTestInstructions(m_singleBufferContainingAllInstructions + inTest->m_offsetIntoInstructionBuffer, stringBuilder);
 			actuallySendFailureMessage.append(stringBuilder.GetText());
 		}
 
-		for (int i = 0; i < m_numWatchedCheckpoints; ++ i)
+		for(int i = 0; i < m_numWatchedCheckpoints; ++ i)
 		{
 			CryFixedStringT<32> msg;
-			switch (m_checkpointCountArray[i].m_timesHit)
+
+			switch(m_checkpointCountArray[i].m_timesHit)
 			{
-				case 0:  msg = "never been hit"; break;
-				case 1:  msg = "been hit once"; break;
-				case 2:  msg = "been hit twice"; break;
-				default: msg.Format("been hit %d times", m_checkpointCountArray[i].m_timesHit); break;
+			case 0:
+				msg = "never been hit";
+				break;
+
+			case 1:
+				msg = "been hit once";
+				break;
+
+			case 2:
+				msg = "been hit twice";
+				break;
+
+			default:
+				msg.Format("been hit %d times", m_checkpointCountArray[i].m_timesHit);
+				break;
 			}
+
 			int stackLevel = m_checkpointCountArray[i].m_stackLevelAtWhichAdded;
-			assert (stackLevel <= m_runFeatureTestStack.m_count);
-			const SFeatureTest * stackTest = stackLevel ? m_runFeatureTestStack.m_info[stackLevel - 1].m_calledTest : m_currentTest;
-			assert (stackTest);
+			assert(stackLevel <= m_runFeatureTestStack.m_count);
+			const SFeatureTest *stackTest = stackLevel ? m_runFeatureTestStack.m_info[stackLevel - 1].m_calledTest : m_currentTest;
+			assert(stackTest);
 			actuallySendFailureMessage.append("\n").append(stackTest->m_testName).append(": '").append(m_checkpointCountArray[i].m_checkpointName).append("' has ").append(msg);
 		}
 
-		if (m_saveScreenshotWhenFail && gEnv->pRenderer && m_informAutoTesterOfResults)
+		if(m_saveScreenshotWhenFail && gEnv->pRenderer && m_informAutoTesterOfResults)
 		{
 			CryFixedStringT<256> screenShotFileName;
 			screenShotFileName.Format("featureTestFailureImages/%s_%s/%s_%s", m_currentlyLoadedFileName.c_str(), m_informAutoTesterOfResults->GetTestName(), test->m_setName, test->m_testName);
-			if (gEnv->pRenderer->ScreenShot(screenShotFileName.c_str()))
+
+			if(gEnv->pRenderer->ScreenShot(screenShotFileName.c_str()))
 			{
 				actuallySendFailureMessage.append("\nScreenshot saved to: ").append(screenShotFileName);
 			}
@@ -2581,19 +2696,20 @@ void CFeatureTester::SubmitResultToAutoTester(const SFeatureTest * test, float t
 		failureMessage = actuallySendFailureMessage.c_str();
 	}
 
-	if (m_informAutoTesterOfResults)
+	if(m_informAutoTesterOfResults)
 	{
 		string testName(test->m_setName);
 		testName.append(": ");
 		testName.append(test->m_testName);
 
-		if (test == m_currentTest && m_iterateOverParams.m_numParams)
+		if(test == m_currentTest && m_iterateOverParams.m_numParams)
 		{
-			for (int i = 0; i < m_iterateOverParams.m_numParams; ++ i)
+			for(int i = 0; i < m_iterateOverParams.m_numParams; ++ i)
 			{
 				testName.append(i ? ", " : " <");
 				testName.append(m_iterateOverParams.m_currentParams[i]);
 			}
+
 			testName.append(">");
 		}
 
@@ -2608,24 +2724,24 @@ void CFeatureTester::SubmitResultToAutoTester(const SFeatureTest * test, float t
 }
 
 //-------------------------------------------------------------------------------
-void CFeatureTester::DoneWithTest(const SFeatureTest * doneWithThisTest, const char * actionName)
+void CFeatureTester::DoneWithTest(const SFeatureTest *doneWithThisTest, const char *actionName)
 {
-	if (m_numFeatureTestsLeftToAutoRun)
+	if(m_numFeatureTestsLeftToAutoRun)
 	{
-		if (doneWithThisTest == & m_featureTestArray[m_numTests - m_numFeatureTestsLeftToAutoRun])
+		if(doneWithThisTest == & m_featureTestArray[m_numTests - m_numFeatureTestsLeftToAutoRun])
 		{
-			if (doneWithThisTest->m_autoRunThis == false)
+			if(doneWithThisTest->m_autoRunThis == false)
 			{
-				FeatureTesterWarning ("Expected %s to be marked as running automatically and it's not!", doneWithThisTest->m_testName);
+				FeatureTesterWarning("Expected %s to be marked as running automatically and it's not!", doneWithThisTest->m_testName);
 			}
 
-			FeatureTesterLog ("%s %s so reducing 'num tests left to run' value from %d to %d", actionName, doneWithThisTest->m_testName, m_numFeatureTestsLeftToAutoRun, m_numFeatureTestsLeftToAutoRun - 1);
+			FeatureTesterLog("%s %s so reducing 'num tests left to run' value from %d to %d", actionName, doneWithThisTest->m_testName, m_numFeatureTestsLeftToAutoRun, m_numFeatureTestsLeftToAutoRun - 1);
 			m_featureTestArray[m_numTests - m_numFeatureTestsLeftToAutoRun].m_autoRunThis = false;
 			-- m_numFeatureTestsLeftToAutoRun;
 		}
 		else
 		{
-			FeatureTesterWarning ("Apparently we're done with %s even though the current auto-run test is %s", doneWithThisTest->m_testName, m_featureTestArray[m_numTests - m_numFeatureTestsLeftToAutoRun].m_testName);
+			FeatureTesterWarning("Apparently we're done with %s even though the current auto-run test is %s", doneWithThisTest->m_testName, m_featureTestArray[m_numTests - m_numFeatureTestsLeftToAutoRun].m_testName);
 		}
 	}
 
@@ -2633,25 +2749,25 @@ void CFeatureTester::DoneWithTest(const SFeatureTest * doneWithThisTest, const c
 }
 
 //-------------------------------------------------------------------------------
-void CFeatureTester::StopTest(const char * failureMessage)
+void CFeatureTester::StopTest(const char *failureMessage)
 {
-	CRY_ASSERT_TRACE (m_currentTest, ("Should only call StopTest function when there's a test running!"));
-	CRY_ASSERT_TRACE (m_currentTestNextInstruction, ("Should only call StopTest function when there's a test running!"));
+	CRY_ASSERT_TRACE(m_currentTest, ("Should only call StopTest function when there's a test running!"));
+	CRY_ASSERT_TRACE(m_currentTestNextInstruction, ("Should only call StopTest function when there's a test running!"));
 
-	if (failureMessage)
+	if(failureMessage)
 	{
 		SubmitResultToAutoTester(m_currentTest, m_timeSinceCurrentTestBegan, failureMessage);
 
-		if (failureMessage[0] == '\0')
+		if(failureMessage[0] == '\0')
 		{
 			FeatureTesterLog("Test '%s' complete!", m_currentTest->m_testName);
-			SFeatureTest * nonConstTestPtr = const_cast<SFeatureTest*>(m_currentTest);
+			SFeatureTest *nonConstTestPtr = const_cast<SFeatureTest *>(m_currentTest);
 			nonConstTestPtr->m_everPassed = true;
 		}
 
-		if (m_iterateOverParams.m_nextIterationCharOffset)
+		if(m_iterateOverParams.m_nextIterationCharOffset)
 		{
-			FeatureTesterLog ("Test '%s' is finished (%s) but has further parameters so will restart soon!", m_currentTest->m_testName, failureMessage[0] ? failureMessage : "OK");
+			FeatureTesterLog("Test '%s' is finished (%s) but has further parameters so will restart soon!", m_currentTest->m_testName, failureMessage[0] ? failureMessage : "OK");
 			m_nextIteration.m_test = m_currentTest;
 			m_nextIteration.m_charOffset = m_iterateOverParams.m_nextIterationCharOffset;
 		}
@@ -2672,27 +2788,29 @@ void CFeatureTester::StopTest(const char * failureMessage)
 	ClearLocalPlayerAutoAim();
 	PauseExecution();
 
-	for (int i = 0; i < m_iterateOverParams.m_numParams; ++ i)
+	for(int i = 0; i < m_iterateOverParams.m_numParams; ++ i)
 	{
-		assert (m_iterateOverParams.m_currentParams[i]);
-		SAFE_DELETE_ARRAY (m_iterateOverParams.m_currentParams[i]);
+		assert(m_iterateOverParams.m_currentParams[i]);
+		SAFE_DELETE_ARRAY(m_iterateOverParams.m_currentParams[i]);
 	}
+
 	memset(& m_iterateOverParams, 0, sizeof(m_iterateOverParams));
 
 	// Revert all inputs which are currently overridden by this feature test...
 	CPlayer *pPlayer = static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
+
 	if(pPlayer && pPlayer->GetPlayerInput())
 	{
-		for (int i = 0; i < m_numOverriddenInputs; ++ i)
+		for(int i = 0; i < m_numOverriddenInputs; ++ i)
 		{
-			SCurrentlyOverriddenInput & overriddenInput = m_currentlyOverriddenInputs[i];
+			SCurrentlyOverriddenInput &overriddenInput = m_currentlyOverriddenInputs[i];
 
 			EActionActivationMode currentMode = overriddenInput.m_mode;
 			FeatureTesterSpam("Test finished while '%s' is still being overridden (mode 0x%x) - reverting it now!", overriddenInput.m_inputName, currentMode);
 			CRY_ASSERT_TRACE(currentMode == eAAM_OnPress || currentMode == eAAM_Always, ("Unexpected mode 0x%x", currentMode));
 
 			EActionActivationMode stopMode = (currentMode == eAAM_OnPress) ? eAAM_OnRelease : eAAM_Always;
-			const char * releaseName = overriddenInput.m_inputName;
+			const char *releaseName = overriddenInput.m_inputName;
 			pPlayer->GetPlayerInput()->OnAction(releaseName, stopMode, 0.f);
 		}
 	}
@@ -2703,34 +2821,35 @@ void CFeatureTester::StopTest(const char * failureMessage)
 //-------------------------------------------------------------------------------
 void CFeatureTester::InterruptCurrentTestIfOneIsRunning()
 {
-	if (m_currentTest)
+	if(m_currentTest)
 	{
 		FeatureTesterLog("Test '%s' interrupted!", m_currentTest->m_testName);
 		StopTest(NULL);
-		assert (m_currentTestNextInstruction == NULL);
+		assert(m_currentTestNextInstruction == NULL);
 	}
 }
 
 //-------------------------------------------------------------------------------
-void CFeatureTester::SendTextMessageToRemoteClients(const char * msg)
+void CFeatureTester::SendTextMessageToRemoteClients(const char *msg)
 {
-	if (gEnv->bServer && g_pGame->GetGameRules())
+	if(gEnv->bServer && g_pGame->GetGameRules())
 	{
 		g_pGame->GetGameRules()->SendTextMessage(eTextMessageServer, msg, eRMI_ToRemoteClients);
 	}
 }
 
 //-------------------------------------------------------------------------------
-void CFeatureTester::AttemptStartTestWithTimeout(const SFeatureTest * test, const char * actionName, int offsetIntoIterationList, float dt)
+void CFeatureTester::AttemptStartTestWithTimeout(const SFeatureTest *test, const char *actionName, int offsetIntoIterationList, float dt)
 {
-	const char * failReason = StartTest(test, actionName, 0.f, offsetIntoIterationList);
+	const char *failReason = StartTest(test, actionName, 0.f, offsetIntoIterationList);
 
-	if (failReason)
+	if(failReason)
 	{
 		DisplayCaption(test);
 		m_timeSinceCurrentTestBegan += dt;
 		string listOfFlags = AutoEnum_GetStringFromBitfield(test->m_requirementBitfield, s_featureTestRequirementNames, FeatureTestRequirementList_numBits);
-		if (m_timeSinceCurrentTestBegan > test->m_maxTime)
+
+		if(m_timeSinceCurrentTestBegan > test->m_maxTime)
 		{
 			SubmitResultToAutoTester(test, m_timeSinceCurrentTestBegan, string().Format("Did not start - %s (failed to meet requirements \"%s\" for over %.3f seconds)", failReason, listOfFlags.c_str(), test->m_maxTime));
 			m_timeSinceCurrentTestBegan = 0.f;
@@ -2746,53 +2865,53 @@ void CFeatureTester::AttemptStartTestWithTimeout(const SFeatureTest * test, cons
 }
 
 //-------------------------------------------------------------------------------
-const char * CFeatureTester::StartTest(const SFeatureTest * test, const char * actionName, float delay, int offsetIntoIterationList)
+const char *CFeatureTester::StartTest(const SFeatureTest *test, const char *actionName, float delay, int offsetIntoIterationList)
 {
 	InterruptCurrentTestIfOneIsRunning();
 
-	assert (test);
-	assert (m_numWatchedCheckpoints == 0);
+	assert(test);
+	assert(m_numWatchedCheckpoints == 0);
 
-	const char * failReason = NULL;
+	const char *failReason = NULL;
 	TBitfield requirements = test->m_requirementBitfield;
 
-	if (requirements & kFTReq_inLevel)
+	if(requirements & kFTReq_inLevel)
 	{
-		CGameRules * rules = g_pGame->GetGameRules();
+		CGameRules *rules = g_pGame->GetGameRules();
 		failReason = rules ? NULL : "there are no game rules set";
 
-		if (failReason == NULL && (requirements & kFTReq_localPlayerExists))
+		if(failReason == NULL && (requirements & kFTReq_localPlayerExists))
 		{
-			IActor * pActor = gEnv->pGame->GetIGameFramework()->GetClientActor();
-			CPlayer * pPlayer = (pActor && pActor->IsPlayer()) ? (static_cast<CPlayer *>(pActor)) : NULL;
-			IPlayerInput * inputs = pPlayer ? pPlayer->GetPlayerInput() : NULL;
+			IActor *pActor = gEnv->pGame->GetIGameFramework()->GetClientActor();
+			CPlayer *pPlayer = (pActor && pActor->IsPlayer()) ? (static_cast<CPlayer *>(pActor)) : NULL;
+			IPlayerInput *inputs = pPlayer ? pPlayer->GetPlayerInput() : NULL;
 
 			failReason = (pActor == NULL)   ? "there's no local actor" :
-			             (pPlayer == NULL)  ? "local actor isn't a player" :
-			             (inputs == NULL)   ? "local player has no player input class" :
-									 NULL;
+						 (pPlayer == NULL)  ? "local actor isn't a player" :
+						 (inputs == NULL)   ? "local player has no player input class" :
+						 NULL;
 		}
 
-		if (failReason == NULL && (requirements & kFTReq_remotePlayerExists))
+		if(failReason == NULL && (requirements & kFTReq_remotePlayerExists))
 		{
-			IActor * remotePlayer = GetNthNonLocalActor(0);
+			IActor *remotePlayer = GetNthNonLocalActor(0);
 			failReason = remotePlayer ? NULL : "there's no remote player";
 		}
 	}
-	else if ((requirements & kFTReq_noLevelLoaded) && g_pGame->GetGameRules())
+	else if((requirements & kFTReq_noLevelLoaded) && g_pGame->GetGameRules())
 	{
 		failReason = "a level is loaded";
 	}
 
-	if (failReason == NULL)
+	if(failReason == NULL)
 	{
 		gEnv->pConsole->ExecuteString(string().Format("t_scale %f", test->m_scaleSpeed), true);
 		m_currentTest = test;
 		PauseExecution();
-		assert (m_singleBufferContainingAllInstructions != NULL);
+		assert(m_singleBufferContainingAllInstructions != NULL);
 		m_currentTestNextInstruction = m_singleBufferContainingAllInstructions + test->m_offsetIntoInstructionBuffer;
 
-		if (delay > 0.f)
+		if(delay > 0.f)
 		{
 			SetPauseStateAndTimeout(kFTPauseReason_untilTimeHasPassed, delay);
 			FeatureTesterLog("Test '%s' will %s in %.1f seconds!", test->m_testName, actionName, delay);
@@ -2803,13 +2922,13 @@ const char * CFeatureTester::StartTest(const SFeatureTest * test, const char * a
 			FeatureTesterLog("Test '%s' %sed!", test->m_testName, actionName);
 		}
 
-		assert (m_iterateOverParams.m_numParams == 0);
-		assert (m_iterateOverParams.m_nextIterationCharOffset == 0);
+		assert(m_iterateOverParams.m_numParams == 0);
+		assert(m_iterateOverParams.m_nextIterationCharOffset == 0);
 
-		if (test->m_iterateOverParams)
+		if(test->m_iterateOverParams)
 		{
-			assert (offsetIntoIterationList < (int)strlen(test->m_iterateOverParams));
-			const char * paramsStartHere = test->m_iterateOverParams + offsetIntoIterationList;
+			assert(offsetIntoIterationList < (int)strlen(test->m_iterateOverParams));
+			const char *paramsStartHere = test->m_iterateOverParams + offsetIntoIterationList;
 			char curParams[256];
 			size_t readChars = cry_copyStringUntilFindChar(curParams, paramsStartHere, sizeof(curParams), ';');
 			FeatureTesterLog("Test '%s' has parameter list '%s', this time using '%s'", test->m_testName, test->m_iterateOverParams, curParams);
@@ -2821,7 +2940,7 @@ const char * CFeatureTester::StartTest(const SFeatureTest * test, const char * a
 				++ m_iterateOverParams.m_numParams;
 			}
 
-			if (readChars)
+			if(readChars)
 			{
 				m_iterateOverParams.m_nextIterationCharOffset = offsetIntoIterationList + readChars;
 			}
@@ -2835,11 +2954,11 @@ const char * CFeatureTester::StartTest(const SFeatureTest * test, const char * a
 
 		SubmitTestStartedMessageToAutoTester(test);
 
-		for (int i = 0; i < m_checkpointsWhichAlwaysFailATest.m_num; ++ i)
+		for(int i = 0; i < m_checkpointsWhichAlwaysFailATest.m_num; ++ i)
 		{
-			const char * cpName = m_checkpointsWhichAlwaysFailATest.m_checkpointName[i];
-			SCheckpointCount * watchedCheckpoint = WatchCheckpoint(cpName);
-			assert (watchedCheckpoint);
+			const char *cpName = m_checkpointsWhichAlwaysFailATest.m_checkpointName[i];
+			SCheckpointCount *watchedCheckpoint = WatchCheckpoint(cpName);
+			assert(watchedCheckpoint);
 			SetCheckpointHitResponse(watchedCheckpoint, kFTCHR_failTest);
 			watchedCheckpoint->m_customMessage = "Shouldn't have hit this checkpoint at ANY TIME during this entire suite of tests!";
 		}
@@ -2848,18 +2967,18 @@ const char * CFeatureTester::StartTest(const SFeatureTest * test, const char * a
 	{
 		FeatureTesterLog("Test '%s' didn't %s because %s", test->m_testName, actionName, failReason);
 		unsigned int blinker = (unsigned int)(m_timeSinceCurrentTestBegan * 3.f);
-		CryWatch ("$4%s can't %s: %s $%c(timeout=%.1f/%.1f)", test->m_testName, actionName, failReason, (blinker & 1) ? '9' : 'o', m_timeSinceCurrentTestBegan, test->m_maxTime);
+		CryWatch("$4%s can't %s: %s $%c(timeout=%.1f/%.1f)", test->m_testName, actionName, failReason, (blinker & 1) ? '9' : 'o', m_timeSinceCurrentTestBegan, test->m_maxTime);
 	}
 
 	return failReason;
 }
 
 //-------------------------------------------------------------------------------
-CFeatureTester::SCheckpointCount * CFeatureTester::FindWatchedCheckpointDataByName(const char * name, int stackLevel)
+CFeatureTester::SCheckpointCount *CFeatureTester::FindWatchedCheckpointDataByName(const char *name, int stackLevel)
 {
-	for (int i = 0; i < m_numWatchedCheckpoints; ++ i)
+	for(int i = 0; i < m_numWatchedCheckpoints; ++ i)
 	{
-		if ((stackLevel == m_checkpointCountArray[i].m_stackLevelAtWhichAdded) && (0 == stricmp(name, m_checkpointCountArray[i].m_checkpointName)))
+		if((stackLevel == m_checkpointCountArray[i].m_stackLevelAtWhichAdded) && (0 == stricmp(name, m_checkpointCountArray[i].m_checkpointName)))
 		{
 			return & m_checkpointCountArray[i];
 		}
@@ -2874,15 +2993,15 @@ string CFeatureTester::GetListOfCheckpointsExpected()
 	string reply;
 	int countFound = 0;
 
-	for (int i = 0; i < m_numWatchedCheckpoints; ++ i)
+	for(int i = 0; i < m_numWatchedCheckpoints; ++ i)
 	{
-		if (m_checkpointCountArray[i].m_hitResponse == kFTCHR_expectedNext)
+		if(m_checkpointCountArray[i].m_hitResponse == kFTCHR_expectedNext)
 		{
-			if (countFound == 0)
+			if(countFound == 0)
 			{
 				reply = m_checkpointCountArray[i].m_checkpointName;
 			}
-			else if (countFound == m_waitUntilCCCPointHit_numStillToHit - 1)
+			else if(countFound == m_waitUntilCCCPointHit_numStillToHit - 1)
 			{
 				reply.append(" and ");
 				reply.append(m_checkpointCountArray[i].m_checkpointName);
@@ -2892,136 +3011,143 @@ string CFeatureTester::GetListOfCheckpointsExpected()
 				reply.append(", ");
 				reply.append(m_checkpointCountArray[i].m_checkpointName);
 			}
+
 			++ countFound;
 		}
 	}
 
-	assert (countFound == m_waitUntilCCCPointHit_numStillToHit);
+	assert(countFound == m_waitUntilCCCPointHit_numStillToHit);
 
 	return reply.empty() ? "none" : reply;
 }
 
 
 //-------------------------------------------------------------------------------
-void CFeatureTester::InformCodeCoverageLabelHit(const char * cpLabel)
+void CFeatureTester::InformCodeCoverageLabelHit(const char *cpLabel)
 {
 	int countNumDealtWith = 0;
 
-	for (int i = 0; i <= m_runFeatureTestStack.m_count; ++ i)
+	for(int i = 0; i <= m_runFeatureTestStack.m_count; ++ i)
 	{
-		SCheckpointCount * watchedCheckpoint = FindWatchedCheckpointDataByName(cpLabel, i);
+		SCheckpointCount *watchedCheckpoint = FindWatchedCheckpointDataByName(cpLabel, i);
 
-		if (watchedCheckpoint)
+		if(watchedCheckpoint)
 		{
 			++ countNumDealtWith;
 			InformWatchedCheckpointHit(watchedCheckpoint);
 		}
 	}
 
-	if (countNumDealtWith == 0)
+	if(countNumDealtWith == 0)
 	{
-		FeatureTesterLog ("Unwatched checkpoint '%s' has been hit while state=%s", cpLabel, s_featureTestPauseReasonNames[m_pause_state]);
+		FeatureTesterLog("Unwatched checkpoint '%s' has been hit while state=%s", cpLabel, s_featureTestPauseReasonNames[m_pause_state]);
 	}
 }
 
 //-------------------------------------------------------------------------------
-void CFeatureTester::InformWatchedCheckpointHit(SCheckpointCount * watchedCheckpoint)
+void CFeatureTester::InformWatchedCheckpointHit(SCheckpointCount *watchedCheckpoint)
 {
-	FeatureTesterLog ("Watched checkpoint '%s#%d' has been hit (response is \"%s\") while state=%s", watchedCheckpoint->m_checkpointName, watchedCheckpoint->m_stackLevelAtWhichAdded, s_featureTestHitResponseNames[watchedCheckpoint->m_hitResponse], s_featureTestPauseReasonNames[m_pause_state]);
-		++ watchedCheckpoint->m_timesHit;
+	FeatureTesterLog("Watched checkpoint '%s#%d' has been hit (response is \"%s\") while state=%s", watchedCheckpoint->m_checkpointName, watchedCheckpoint->m_stackLevelAtWhichAdded, s_featureTestHitResponseNames[watchedCheckpoint->m_hitResponse], s_featureTestPauseReasonNames[m_pause_state]);
+	++ watchedCheckpoint->m_timesHit;
 
-		float oldTimeLeft = m_pause_timeLeft;
-		float oldTotalTime = m_pause_originalTimeOut;
-		EFTPauseReason oldPauseReason = m_pause_state;
-		EFTCheckpointHitResponse response = watchedCheckpoint->m_hitResponse;
-		SetCheckpointHitResponse(watchedCheckpoint, kFTCHR_nothing);
+	float oldTimeLeft = m_pause_timeLeft;
+	float oldTotalTime = m_pause_originalTimeOut;
+	EFTPauseReason oldPauseReason = m_pause_state;
+	EFTCheckpointHitResponse response = watchedCheckpoint->m_hitResponse;
+	SetCheckpointHitResponse(watchedCheckpoint, kFTCHR_nothing);
 
-		if (m_pause_state == kFTPauseReason_none && oldPauseReason == kFTPauseReason_untilCCCPointsHit)
+	if(m_pause_state == kFTPauseReason_none && oldPauseReason == kFTPauseReason_untilCCCPointsHit)
+	{
+		FeatureTesterLog("Hit all checkpoints with %.1f/%.1f seconds left on the clock", oldTimeLeft, oldTotalTime);
+	}
+
+	switch(response)
+	{
+	case kFTCHR_restartTest:
+		if(StartTest(m_currentTest, "restart", watchedCheckpoint->m_restartDelay))
 		{
-			FeatureTesterLog ("Hit all checkpoints with %.1f/%.1f seconds left on the clock", oldTimeLeft, oldTotalTime);
+			FeatureTesterLog("Failed to restart test as start conditions are no longer met...");
 		}
 
-		switch (response)
+		break;
+
+	case kFTCHR_restartSubroutine:
+		if(watchedCheckpoint->m_stackLevelAtWhichAdded == m_runFeatureTestStack.m_count)
 		{
-			case kFTCHR_restartTest:
-			if (StartTest(m_currentTest, "restart", watchedCheckpoint->m_restartDelay))
-			{
-				FeatureTesterLog ("Failed to restart test as start conditions are no longer met...");
-			}
-			break;
+			RemoveWatchedCheckpointsAddedAtCurrentStackLevel("restarting");
 
-			case kFTCHR_restartSubroutine:
-			if (watchedCheckpoint->m_stackLevelAtWhichAdded == m_runFeatureTestStack.m_count)
-			{
-				RemoveWatchedCheckpointsAddedAtCurrentStackLevel("restarting");
-
-				assert(m_runFeatureTestStack.m_count >= 0 && m_runFeatureTestStack.m_count < SStack::k_stackSize);
-				const SFeatureTest * runningSubroutine = m_runFeatureTestStack.m_count ? m_runFeatureTestStack.m_info[m_runFeatureTestStack.m_count - 1].m_calledTest : m_currentTest;
-				FeatureTesterSpam ("Running subroutine '%s' (@%u) again from the start...", runningSubroutine->m_testName, runningSubroutine->m_offsetIntoInstructionBuffer);
-				m_currentTestNextInstruction = m_singleBufferContainingAllInstructions + runningSubroutine->m_offsetIntoInstructionBuffer;
-				SetPauseStateAndTimeout(kFTPauseReason_none, 0.f);
-				PauseExecution();
-			}
-			else
-			{
-				FeatureTesterWarning("There's currently no support for restarting any subroutine other than the one currently being executed");
-			}
-			break;
-
-			case kFTCHR_completeTest:
-			StopTest("");
-			break;
-
-			case kFTCHR_completeSubroutine:
-			if (watchedCheckpoint->m_stackLevelAtWhichAdded == m_runFeatureTestStack.m_count)
-			{
-				CompleteSubroutine();
-			}
-			else
-			{
-				FeatureTesterWarning("There's currently no support for completing any subroutine other than the one currently being executed");
-			}
-			break;
-
-			case kFTCHR_failTest:
-			CRY_ASSERT_TRACE (watchedCheckpoint->m_customMessage != NULL, ("Custom failure message for hitting checkpoint '%s' is NULL", watchedCheckpoint->m_checkpointName));
-			if (watchedCheckpoint->m_customMessage[0] == '\0')
-			{
-				FeatureTestFailure ("Checkpoint '%s' was hit while it was flagged as a reason for failing the test", watchedCheckpoint->m_checkpointName);
-			}
-			else
-			{
-				FeatureTestFailure ("Checkpoint '%s' was hit: %s", watchedCheckpoint->m_checkpointName, watchedCheckpoint->m_customMessage);
-			}
-			break;
-
-			case kFTCHR_expectedNext:
-			break;
-
-			default:
-			if (watchedCheckpoint->m_stackLevelAtWhichAdded == m_runFeatureTestStack.m_count)
-			{
-				CheckFeatureTestFailure (m_pause_state != kFTPauseReason_untilCCCPointsHit, "Checkpoint %s was hit while waiting to hit %s!", watchedCheckpoint->m_checkpointName, GetListOfCheckpointsExpected().c_str());
-			}
-			break;
+			assert(m_runFeatureTestStack.m_count >= 0 && m_runFeatureTestStack.m_count < SStack::k_stackSize);
+			const SFeatureTest *runningSubroutine = m_runFeatureTestStack.m_count ? m_runFeatureTestStack.m_info[m_runFeatureTestStack.m_count - 1].m_calledTest : m_currentTest;
+			FeatureTesterSpam("Running subroutine '%s' (@%u) again from the start...", runningSubroutine->m_testName, runningSubroutine->m_offsetIntoInstructionBuffer);
+			m_currentTestNextInstruction = m_singleBufferContainingAllInstructions + runningSubroutine->m_offsetIntoInstructionBuffer;
+			SetPauseStateAndTimeout(kFTPauseReason_none, 0.f);
+			PauseExecution();
 		}
+		else
+		{
+			FeatureTesterWarning("There's currently no support for restarting any subroutine other than the one currently being executed");
+		}
+
+		break;
+
+	case kFTCHR_completeTest:
+		StopTest("");
+		break;
+
+	case kFTCHR_completeSubroutine:
+		if(watchedCheckpoint->m_stackLevelAtWhichAdded == m_runFeatureTestStack.m_count)
+		{
+			CompleteSubroutine();
+		}
+		else
+		{
+			FeatureTesterWarning("There's currently no support for completing any subroutine other than the one currently being executed");
+		}
+
+		break;
+
+	case kFTCHR_failTest:
+		CRY_ASSERT_TRACE(watchedCheckpoint->m_customMessage != NULL, ("Custom failure message for hitting checkpoint '%s' is NULL", watchedCheckpoint->m_checkpointName));
+
+		if(watchedCheckpoint->m_customMessage[0] == '\0')
+		{
+			FeatureTestFailure("Checkpoint '%s' was hit while it was flagged as a reason for failing the test", watchedCheckpoint->m_checkpointName);
+		}
+		else
+		{
+			FeatureTestFailure("Checkpoint '%s' was hit: %s", watchedCheckpoint->m_checkpointName, watchedCheckpoint->m_customMessage);
+		}
+
+		break;
+
+	case kFTCHR_expectedNext:
+		break;
+
+	default:
+		if(watchedCheckpoint->m_stackLevelAtWhichAdded == m_runFeatureTestStack.m_count)
+		{
+			CheckFeatureTestFailure(m_pause_state != kFTPauseReason_untilCCCPointsHit, "Checkpoint %s was hit while waiting to hit %s!", watchedCheckpoint->m_checkpointName, GetListOfCheckpointsExpected().c_str());
+		}
+
+		break;
+	}
 }
 
 //-------------------------------------------------------------------------------
-CActor * CFeatureTester::GetPlayerForSelectionFlag(TBitfield flag)
+CActor *CFeatureTester::GetPlayerForSelectionFlag(TBitfield flag)
 {
-	switch (flag)
+	switch(flag)
 	{
-		case kFTPS_localPlayer:
-		return (CActor*)gEnv->pGame->GetIGameFramework()->GetClientActor();
+	case kFTPS_localPlayer:
+		return (CActor *)gEnv->pGame->GetIGameFramework()->GetClientActor();
 		break;
 
-		case kFTPS_firstRemotePlayer:
-		return (CActor*)GetNthNonLocalActor(0);
+	case kFTPS_firstRemotePlayer:
+		return (CActor *)GetNthNonLocalActor(0);
 		break;
 
-		case kFTPS_secondRemotePlayer:
-		return (CActor*)GetNthNonLocalActor(1);
+	case kFTPS_secondRemotePlayer:
+		return (CActor *)GetNthNonLocalActor(1);
 		break;
 	}
 
@@ -3029,17 +3155,17 @@ CActor * CFeatureTester::GetPlayerForSelectionFlag(TBitfield flag)
 }
 
 //-------------------------------------------------------------------------------
-IActor * CFeatureTester::GetNthNonLocalActor(int skipThisManyBeforeReturning)
+IActor *CFeatureTester::GetNthNonLocalActor(int skipThisManyBeforeReturning)
 {
-	IActorSystem * pActorSystem = gEnv->pGame->GetIGameFramework()->GetIActorSystem();
-	IActor * localPlayerActor = gEnv->pGame->GetIGameFramework()->GetClientActor();
+	IActorSystem *pActorSystem = gEnv->pGame->GetIGameFramework()->GetIActorSystem();
+	IActor *localPlayerActor = gEnv->pGame->GetIGameFramework()->GetClientActor();
 	IActorIteratorPtr pIter = pActorSystem->CreateActorIterator();
 
-	while (IActor * pActor = pIter->Next())
+	while(IActor *pActor = pIter->Next())
 	{
-		if (pActor != localPlayerActor && pActor->IsPlayer())
+		if(pActor != localPlayerActor && pActor->IsPlayer())
 		{
-			if (-- skipThisManyBeforeReturning < 0)
+			if(-- skipThisManyBeforeReturning < 0)
 			{
 				return pActor;
 			}
@@ -3052,25 +3178,25 @@ IActor * CFeatureTester::GetNthNonLocalActor(int skipThisManyBeforeReturning)
 //-------------------------------------------------------------------------------
 void CFeatureTester::PollForNewCheckpointHits()
 {
-	ICodeCheckpointMgr * checkpointMgr = gEnv->pCodeCheckpointMgr;
+	ICodeCheckpointMgr *checkpointMgr = gEnv->pCodeCheckpointMgr;
 
-	for (int i = 0; i < m_numWatchedCheckpoints; ++ i)
+	for(int i = 0; i < m_numWatchedCheckpoints; ++ i)
 	{
-		const CCodeCheckpoint * checkpoint = checkpointMgr->GetCheckpoint(m_checkpointCountArray[i].m_checkpointMgrHandle);
+		const CCodeCheckpoint *checkpoint = checkpointMgr->GetCheckpoint(m_checkpointCountArray[i].m_checkpointMgrHandle);
 		uint32 numHits = checkpoint ? checkpoint->HitCount() : 0u;
 
-		assert (numHits >= m_checkpointCountArray[i].m_checkpointMgrNumHitsSoFar);
+		assert(numHits >= m_checkpointCountArray[i].m_checkpointMgrNumHitsSoFar);
 
-		while (numHits > m_checkpointCountArray[i].m_checkpointMgrNumHitsSoFar)
+		while(numHits > m_checkpointCountArray[i].m_checkpointMgrNumHitsSoFar)
 		{
-			assert (checkpoint);
-			FeatureTesterSpam ("Checkpoint '%s' has been hit!", checkpoint->Name());
+			assert(checkpoint);
+			FeatureTesterSpam("Checkpoint '%s' has been hit!", checkpoint->Name());
 			++ m_checkpointCountArray[i].m_checkpointMgrNumHitsSoFar;
 			InformWatchedCheckpointHit(& m_checkpointCountArray[i]);
 
-			if (m_currentTest == NULL)
+			if(m_currentTest == NULL)
 			{
-				FeatureTesterSpam ("Hitting that checkpoint stopped the test! Let's not process any other checkpoint hits");
+				FeatureTesterSpam("Hitting that checkpoint stopped the test! Let's not process any other checkpoint hits");
 				return;
 			}
 		}

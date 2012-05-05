@@ -6,7 +6,7 @@
 //  File name:   UIEntityDynTexTag.cpp
 //  Version:     v1.00
 //  Created:     22/11/2011 by Paul Reindell.
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -19,44 +19,45 @@
 void CUIEntityDynTexTag::InitEventSystem()
 {
 	assert(gEnv->pFlashUI);
-	if (!gEnv->pFlashUI)
+
+	if(!gEnv->pFlashUI)
 		return;
 
 	// event system to receive events from UI
-	m_pUIOFct = gEnv->pFlashUI->CreateEventSystem( "UIEntityTagsDynTex", IUIEventSystem::eEST_UI_TO_SYSTEM );
+	m_pUIOFct = gEnv->pFlashUI->CreateEventSystem("UIEntityTagsDynTex", IUIEventSystem::eEST_UI_TO_SYSTEM);
 	s_EventDispatcher.Init(m_pUIOFct, this, "UIEntityDynTexTag");
 
 	{
-		SUIEventDesc evtDesc( "AddEntityTag", "Adds a 3D entity Tag" );
+		SUIEventDesc evtDesc("AddEntityTag", "Adds a 3D entity Tag");
 		evtDesc.AddParam<SUIParameterDesc::eUIPT_Int>("EntityID", "Entity ID of tagged entity");
 		evtDesc.AddParam<SUIParameterDesc::eUIPT_String>("uiElements_UIElement", "UIElement that is used for this tag (Instance with EntityId as instanceId will be created)");
 		evtDesc.AddParam<SUIParameterDesc::eUIPT_String>("EntityClass", "EntityClass of the spawned entity");
 		evtDesc.AddParam<SUIParameterDesc::eUIPT_String>("Material", "Material template that is used for the dyn texture");
 		evtDesc.AddParam<SUIParameterDesc::eUIPT_Vec3>("Offset", "Offset in camera space relative to entity pos");
 		evtDesc.AddParam<SUIParameterDesc::eUIPT_String>("TagIDX", "Custom IDX to identify entity tag.");
-		s_EventDispatcher.RegisterEvent( evtDesc, &CUIEntityDynTexTag::OnAddTaggedEntity );
+		s_EventDispatcher.RegisterEvent(evtDesc, &CUIEntityDynTexTag::OnAddTaggedEntity);
 	}
 
 	{
-		SUIEventDesc evtDesc( "UpdateEntityTag", "Updates a 3D entity Tag" );
+		SUIEventDesc evtDesc("UpdateEntityTag", "Updates a 3D entity Tag");
 		evtDesc.AddParam<SUIParameterDesc::eUIPT_Int>("EntityID", "Entity ID of tagged entity");
 		evtDesc.AddParam<SUIParameterDesc::eUIPT_String>("TagIDX", "Custom IDX to identify entity tag.");
 		evtDesc.AddParam<SUIParameterDesc::eUIPT_Vec3>("Offset", "Offset in camera space relative to entity pos");
 		evtDesc.AddParam<SUIParameterDesc::eUIPT_Float>("LerpSpeed", "Define speed of lerp between old and new offset, 0=instant");
-	s_EventDispatcher.RegisterEvent( evtDesc, &CUIEntityDynTexTag::OnUpdateTaggedEntity );
+		s_EventDispatcher.RegisterEvent(evtDesc, &CUIEntityDynTexTag::OnUpdateTaggedEntity);
 	}
 
 	{
-		SUIEventDesc evtDesc( "RemoveEntityTag", "Removes a 3D entity Tag" );
+		SUIEventDesc evtDesc("RemoveEntityTag", "Removes a 3D entity Tag");
 		evtDesc.AddParam<SUIParameterDesc::eUIPT_Int>("EntityID", "Entity ID of tagged entity");
 		evtDesc.AddParam<SUIParameterDesc::eUIPT_String>("TagIDX", "Custom IDX to identify entity tag.");
-		s_EventDispatcher.RegisterEvent( evtDesc, &CUIEntityDynTexTag::OnRemoveTaggedEntity );
+		s_EventDispatcher.RegisterEvent(evtDesc, &CUIEntityDynTexTag::OnRemoveTaggedEntity);
 	}
 
 	{
-		SUIEventDesc evtDesc( "RemoveAllEntityTag", "Removes all 3D entity Tags for given entity" );
+		SUIEventDesc evtDesc("RemoveAllEntityTag", "Removes all 3D entity Tags for given entity");
 		evtDesc.AddParam<SUIParameterDesc::eUIPT_Int>("EntityID", "Entity ID of tagged entity");
-		s_EventDispatcher.RegisterEvent( evtDesc, &CUIEntityDynTexTag::OnRemoveAllTaggedEntity );
+		s_EventDispatcher.RegisterEvent(evtDesc, &CUIEntityDynTexTag::OnRemoveAllTaggedEntity);
 	}
 
 	gEnv->pFlashUI->RegisterModule(this, "CUIEntityDynTexTag");
@@ -67,24 +68,25 @@ void CUIEntityDynTexTag::UnloadEventSystem()
 {
 	ClearAllTags();
 
-	if (gEnv->pFlashUI)
+	if(gEnv->pFlashUI)
 		gEnv->pFlashUI->UnregisterModule(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 void CUIEntityDynTexTag::UpdateView(const SViewParams &viewParams)
 {
-	static const Quat rot90Deg = Quat::CreateRotationXYZ( Ang3(gf_PI * 0.5f, 0, 0) );
+	static const Quat rot90Deg = Quat::CreateRotationXYZ(Ang3(gf_PI * 0.5f, 0, 0));
 	const Vec3 vSafeVec = viewParams.rotation.GetColumn1();
 
-	for (TTags::iterator it = m_Tags.begin(); it != m_Tags.end(); ++it)
+	for(TTags::iterator it = m_Tags.begin(); it != m_Tags.end(); ++it)
 	{
-		IEntity* pOwner = gEnv->pEntitySystem->GetEntity(it->OwnerId);
-		IEntity* pTagEntity = gEnv->pEntitySystem->GetEntity(it->TagEntityId);
-		if (pOwner && pTagEntity)
+		IEntity *pOwner = gEnv->pEntitySystem->GetEntity(it->OwnerId);
+		IEntity *pTagEntity = gEnv->pEntitySystem->GetEntity(it->TagEntityId);
+
+		if(pOwner && pTagEntity)
 		{
 			const Vec3 offset = it->fLerp < 1 ? Vec3::CreateLerp(it->vOffset, it->vNewOffset, it->fLerp) : it->vOffset;
-			const Vec3& vPos = pOwner->GetWorldPos();
+			const Vec3 &vPos = pOwner->GetWorldPos();
 			const Vec3 vFaceingPos = viewParams.position - vSafeVec * 1000.f;
 			const Vec3 vDir = (vPos - vFaceingPos).GetNormalizedSafe(vSafeVec);
 			const Vec3 vOffsetX = vDir.Cross(Vec3Constants<float>::fVec3_OneZ).GetNormalized() * offset.x;
@@ -100,7 +102,7 @@ void CUIEntityDynTexTag::UpdateView(const SViewParams &viewParams)
 			pTagEntity->SetPos(vNewPos);
 			pTagEntity->SetRotation(qTagRot);
 
-			if (it->fLerp < 1)
+			if(it->fLerp < 1)
 			{
 				assert(it->fSpeed > 0);
 				it->fLerp += viewParams.frameTime * it->fSpeed;
@@ -119,79 +121,87 @@ void CUIEntityDynTexTag::Reset()
 ////////////////////////////////////////////////////////////////////////////
 void CUIEntityDynTexTag::Reload()
 {
-	if (gEnv->IsEditor())
+	if(gEnv->IsEditor())
 	{
 		ClearAllTags();
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void CUIEntityDynTexTag::OnInstanceDestroyed( IUIElement* pSender, IUIElement* pDeletedInstance )
+void CUIEntityDynTexTag::OnInstanceDestroyed(IUIElement *pSender, IUIElement *pDeletedInstance)
 {
-	for (TTags::iterator it = m_Tags.begin(); it != m_Tags.end(); ++it)
+	for(TTags::iterator it = m_Tags.begin(); it != m_Tags.end(); ++it)
 	{
-		if (it->pInstance == pDeletedInstance)
+		if(it->pInstance == pDeletedInstance)
 			it->pInstance = NULL;
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void CUIEntityDynTexTag::OnEntityEvent( IEntity *pEntity,SEntityEvent &event )
+void CUIEntityDynTexTag::OnEntityEvent(IEntity *pEntity,SEntityEvent &event)
 {
 	assert(event.event == ENTITY_EVENT_DONE);
-	RemoveAllEntityTags( pEntity->GetId(), false );
+	RemoveAllEntityTags(pEntity->GetId(), false);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////
-void CUIEntityDynTexTag::OnAddTaggedEntity( EntityId entityId, const char* uiElementName, const char* entityClass, const char* materialTemplate, const Vec3& offset, const char* idx)
+void CUIEntityDynTexTag::OnAddTaggedEntity(EntityId entityId, const char *uiElementName, const char *entityClass, const char *materialTemplate, const Vec3 &offset, const char *idx)
 {
 	OnRemoveTaggedEntity(entityId, idx);
 
-	IEntityClass* pEntClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass( entityClass );
-	if (pEntClass)
+	IEntityClass *pEntClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(entityClass);
+
+	if(pEntClass)
 	{
 		SEntitySpawnParams params;
 		params.nFlags = ENTITY_FLAG_CLIENT_ONLY;
 		params.pClass = pEntClass;
 
-		IEntity* pTagEntity = gEnv->pEntitySystem->SpawnEntity(params);
-		IUIElement* pElement = gEnv->pFlashUI->GetUIElement(uiElementName);
-		if (pTagEntity && pElement)
+		IEntity *pTagEntity = gEnv->pEntitySystem->SpawnEntity(params);
+		IUIElement *pElement = gEnv->pFlashUI->GetUIElement(uiElementName);
+
+		if(pTagEntity && pElement)
 		{
-			IMaterial* pMatTemplate = gEnv->p3DEngine->GetMaterialManager()->LoadMaterial(materialTemplate, false);
-			if (pMatTemplate && pMatTemplate->GetShaderItem().m_pShaderResources->GetTexture(0))
+			IMaterial *pMatTemplate = gEnv->p3DEngine->GetMaterialManager()->LoadMaterial(materialTemplate, false);
+
+			if(pMatTemplate && pMatTemplate->GetShaderItem().m_pShaderResources->GetTexture(0))
 			{
 				pMatTemplate->GetShaderItem().m_pShaderResources->GetTexture(0)->m_Name.Format("%s@%d.ui", uiElementName, entityId);
-				IMaterial* pMat = gEnv->p3DEngine->GetMaterialManager()->CloneMaterial(pMatTemplate);
+				IMaterial *pMat = gEnv->p3DEngine->GetMaterialManager()->CloneMaterial(pMatTemplate);
 				pTagEntity->SetMaterial(pMat);
 			}
-			IEntityRenderProxy* pRenderProxy = (IEntityRenderProxy*) pTagEntity->GetProxy( ENTITY_PROXY_RENDER );
-			if (pRenderProxy)
+
+			IEntityRenderProxy *pRenderProxy = (IEntityRenderProxy *) pTagEntity->GetProxy(ENTITY_PROXY_RENDER);
+
+			if(pRenderProxy)
 			{
 				IRenderNode *pRenderNode = pRenderProxy->GetRenderNode();
-				if (pRenderNode)
+
+				if(pRenderNode)
 				{
 					pRenderNode->SetViewDistRatio(256);
 				}
 			}
+
 			pElement->RemoveEventListener(this); // first remove to avoid assert if already registered!
 			pElement->AddEventListener(this, "CUIEntityDynTexTag");
 			gEnv->pEntitySystem->AddEntityEventListener(entityId, ENTITY_EVENT_DONE, this);
-			m_Tags.push_back( STagInfo(entityId, pTagEntity->GetId(), idx, offset, pElement->GetInstance((uint)entityId)) );
+			m_Tags.push_back(STagInfo(entityId, pTagEntity->GetId(), idx, offset, pElement->GetInstance((uint)entityId)));
 		}
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void CUIEntityDynTexTag::OnUpdateTaggedEntity( EntityId entityId, const string& idx, const Vec3& offset, float speed )
+void CUIEntityDynTexTag::OnUpdateTaggedEntity(EntityId entityId, const string &idx, const Vec3 &offset, float speed)
 {
-	for (TTags::iterator it = m_Tags.begin(); it != m_Tags.end(); ++it)
+	for(TTags::iterator it = m_Tags.begin(); it != m_Tags.end(); ++it)
 	{
-		if (it->OwnerId == entityId && it->Idx == idx)
+		if(it->OwnerId == entityId && it->Idx == idx)
 		{
 			it->fSpeed = speed;
-			if (speed > 0)
+
+			if(speed > 0)
 			{
 				it->fLerp = 0;
 				it->vNewOffset = offset;
@@ -206,39 +216,44 @@ void CUIEntityDynTexTag::OnUpdateTaggedEntity( EntityId entityId, const string& 
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void CUIEntityDynTexTag::OnRemoveTaggedEntity( EntityId entityId, const string& idx )
+void CUIEntityDynTexTag::OnRemoveTaggedEntity(EntityId entityId, const string &idx)
 {
-	for (TTags::iterator it = m_Tags.begin(); it != m_Tags.end(); ++it)
+	for(TTags::iterator it = m_Tags.begin(); it != m_Tags.end(); ++it)
 	{
-		if (it->OwnerId == entityId && it->Idx == idx)
+		if(it->OwnerId == entityId && it->Idx == idx)
 		{
 			gEnv->pEntitySystem->RemoveEntity(it->TagEntityId);
-			if (it->pInstance)
+
+			if(it->pInstance)
 				it->pInstance->DestroyThis();
+
 			m_Tags.erase(it);
 			break;
 		}
 	}
-	if (!HasEntityTag(entityId))
+
+	if(!HasEntityTag(entityId))
 		gEnv->pEntitySystem->RemoveEntityEventListener(entityId, ENTITY_EVENT_DONE, this);
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void CUIEntityDynTexTag::OnRemoveAllTaggedEntity( EntityId entityId )
+void CUIEntityDynTexTag::OnRemoveAllTaggedEntity(EntityId entityId)
 {
 	RemoveAllEntityTags(entityId);
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void CUIEntityDynTexTag::RemoveAllEntityTags( EntityId entityId, bool bUnregisterListener )
+void CUIEntityDynTexTag::RemoveAllEntityTags(EntityId entityId, bool bUnregisterListener)
 {
-	for (TTags::iterator it = m_Tags.begin(); it != m_Tags.end();)
+	for(TTags::iterator it = m_Tags.begin(); it != m_Tags.end();)
 	{
-		if (it->OwnerId == entityId)
+		if(it->OwnerId == entityId)
 		{
 			gEnv->pEntitySystem->RemoveEntity(it->TagEntityId);
-			if (it->pInstance)
+
+			if(it->pInstance)
 				it->pInstance->DestroyThis();
+
 			it = m_Tags.erase(it);
 		}
 		else
@@ -246,35 +261,40 @@ void CUIEntityDynTexTag::RemoveAllEntityTags( EntityId entityId, bool bUnregiste
 			++it;
 		}
 	}
-	if (bUnregisterListener)
+
+	if(bUnregisterListener)
 		gEnv->pEntitySystem->RemoveEntityEventListener(entityId, ENTITY_EVENT_DONE, this);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 void CUIEntityDynTexTag::ClearAllTags()
 {
-	for (TTags::const_iterator it = m_Tags.begin(); it != m_Tags.end(); ++it)
+	for(TTags::const_iterator it = m_Tags.begin(); it != m_Tags.end(); ++it)
 	{
 		gEnv->pEntitySystem->RemoveEntity(it->TagEntityId);
-		if (it->pInstance)
+
+		if(it->pInstance)
 			it->pInstance->DestroyThis();
+
 		gEnv->pEntitySystem->RemoveEntityEventListener(it->OwnerId, ENTITY_EVENT_DONE, this);
 	}
+
 	m_Tags.clear();
 }
 
 ////////////////////////////////////////////////////////////////////////////
-bool CUIEntityDynTexTag::HasEntityTag( EntityId entityId ) const
+bool CUIEntityDynTexTag::HasEntityTag(EntityId entityId) const
 {
-	for (TTags::const_iterator it = m_Tags.begin(); it != m_Tags.end(); ++it)
+	for(TTags::const_iterator it = m_Tags.begin(); it != m_Tags.end(); ++it)
 	{
-		if (it->OwnerId == entityId)
+		if(it->OwnerId == entityId)
 		{
 			return true;
 		}
 	}
+
 	return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////
-REGISTER_UI_EVENTSYSTEM( CUIEntityDynTexTag );
+REGISTER_UI_EVENTSYSTEM(CUIEntityDynTexTag);

@@ -21,15 +21,15 @@ History:
 
 
 #ifdef WIN64
-	#pragma warning(disable: 4244)
+#pragma warning(disable: 4244)
 #endif
 
 
 //------------------------------------------------------------------------
 CScriptBind_Game::CScriptBind_Game(ISystem *pSystem, IGameFramework *pGameFramework)
-: m_pSystem(pSystem),
-	m_pSS(pSystem->GetIScriptSystem()),
-	m_pGameFW(pGameFramework)
+	: m_pSystem(pSystem),
+	  m_pSS(pSystem->GetIScriptSystem()),
+	  m_pGameFW(pGameFramework)
 {
 	Init(m_pSS, m_pSystem);
 	SetGlobalName("Game");
@@ -71,14 +71,15 @@ void CScriptBind_Game::RegisterMethods()
 
 
 //------------------------------------------------------------------------
-int CScriptBind_Game::PauseGame( IFunctionHandler *pH, bool pause )
+int CScriptBind_Game::PauseGame(IFunctionHandler *pH, bool pause)
 {
 	bool forced = false;
 
-	if (pH->GetParamCount() > 1)
+	if(pH->GetParamCount() > 1)
 	{
 		pH->GetParam(2, forced);
 	}
+
 	m_pGameFW->PauseGame(pause, forced);
 
 	return pH->EndFunction();
@@ -92,9 +93,9 @@ int CScriptBind_Game::PauseGame( IFunctionHandler *pH, bool pause )
 
 //////////////////////////////////////////////////////////////////////////
 int CScriptBind_Game::QueryBattleStatus(IFunctionHandler *pH)
-{		
+{
 	float fStatus = SAFE_GAMEAUDIO_BATTLESTATUS_FUNC_RET(QueryBattleStatus());
-	
+
 	return pH->EndFunction(fStatus);
 }
 
@@ -103,7 +104,8 @@ int CScriptBind_Game::QueryBattleStatus(IFunctionHandler *pH)
 int CScriptBind_Game::IsPlayer(IFunctionHandler *pH, ScriptHandle entityId)
 {
 	EntityId eId = entityId.n;
-	if (eId == LOCAL_PLAYER_ENTITY_ID)
+
+	if(eId == LOCAL_PLAYER_ENTITY_ID)
 		return pH->EndFunction(true);
 
 	IActor *pActor = gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(eId);
@@ -112,7 +114,7 @@ int CScriptBind_Game::IsPlayer(IFunctionHandler *pH, ScriptHandle entityId)
 
 //////////////////////////////////////////////////////////////////////////
 int CScriptBind_Game::GetNumLightsActivated(IFunctionHandler *pH)
-{		
+{
 	return pH->EndFunction(CLam::GetNumLightsActivated());
 }
 
@@ -131,6 +133,7 @@ int CScriptBind_Game::GetNumLightsActivated(IFunctionHandler *pH)
 int CScriptBind_Game::IsMountedWeaponUsableWithTarget(IFunctionHandler *pH)
 {
 	int paramCount = pH->GetParamCount();
+
 	if(paramCount<2)
 	{
 		//gEnv->pAISystem->Warning("<CScriptBind> ", "IsMountedWeaponUsableWithTarget(): too few parameters.");
@@ -147,8 +150,9 @@ int CScriptBind_Game::IsMountedWeaponUsableWithTarget(IFunctionHandler *pH)
 		return pH->EndFunction();
 	}
 
-	IAIObject* pAI = pEntity->GetAI();
-	if (!pAI)
+	IAIObject *pAI = pEntity->GetAI();
+
+	if(!pAI)
 	{
 		//gEnv->pAISystem->Warning("<CScriptBind> ", "IsMountedWeaponUsableWithTarget(): Entity '%s' does not have AI.", pEntity->GetName());
 		GameWarning("%s: Entity '%s' does not have AI.",__FUNCTION__,  pEntity->GetName());
@@ -167,16 +171,17 @@ int CScriptBind_Game::IsMountedWeaponUsableWithTarget(IFunctionHandler *pH)
 
 	itemEntityId = hdl2.n;
 
-	if (!itemEntityId)
+	if(!itemEntityId)
 	{
 		//gEnv->pAISystem->Warning("<CScriptBind> ", "IsMountedWeaponUsableWithTarget(): wrong entity id in parameter 2.");
 		GameWarning("%s: wrong entity id in parameter 2.", __FUNCTION__);
 		return pH->EndFunction();
 	}
-	
+
 	IGameFramework *pGameFramework = gEnv->pGame->GetIGameFramework();
-	IItem* pItem = pGameFramework->GetIItemSystem()->GetItem(itemEntityId);
-	if (!pItem)
+	IItem *pItem = pGameFramework->GetIItemSystem()->GetItem(itemEntityId);
+
+	if(!pItem)
 	{
 		//gEnv->pAISystem->Warning("<CScriptBind> ", "entity in parameter 2 is not an item/weapon");
 		GameWarning("%s: entity in parameter 2 is not an item/weapon.", __FUNCTION__);
@@ -189,7 +194,7 @@ int CScriptBind_Game::IsMountedWeaponUsableWithTarget(IFunctionHandler *pH)
 
 	if(paramCount > 2)
 	{
-		for(int i=3;i <= paramCount ; i++)
+		for(int i=3; i <= paramCount ; i++)
 		{
 			if(pH->GetParamType(i) == svtBool)
 				pH->GetParam(i,bSkipTargetCheck);
@@ -200,15 +205,17 @@ int CScriptBind_Game::IsMountedWeaponUsableWithTarget(IFunctionHandler *pH)
 		}
 	}
 
-	IAIActor* pAIActor = CastToIAIActorSafe(pAI);
-	if (!pAIActor)
+	IAIActor *pAIActor = CastToIAIActorSafe(pAI);
+
+	if(!pAIActor)
 	{
 		GameWarning("%s: entity '%s' in parameter 1 is not an AI actor.", __FUNCTION__, pEntity->GetName());
 		return pH->EndFunction();
 	}
 
 
-	IEntity* pItemEntity = pItem->GetEntity();
+	IEntity *pItemEntity = pItem->GetEntity();
+
 	if(!pItemEntity)
 		return pH->EndFunction();
 
@@ -216,10 +223,12 @@ int CScriptBind_Game::IsMountedWeaponUsableWithTarget(IFunctionHandler *pH)
 	if(!pItem->GetOwnerId())
 	{
 		// weapon is not used, check if it is on a vehicle
-		IEntity* pParentEntity = pItemEntity->GetParent();
+		IEntity *pParentEntity = pItemEntity->GetParent();
+
 		if(pParentEntity)
 		{
-			IAIObject* pParentAI = pParentEntity->GetAI();
+			IAIObject *pParentAI = pParentEntity->GetAI();
+
 			if(pParentAI && pParentAI->GetAIType()==AIOBJECT_VEHICLE)
 			{
 				// (MATT) Feature was cut and code was tricky, hence ignore weapons in vehicles  {2008/02/15:11:08:51}
@@ -227,18 +236,20 @@ int CScriptBind_Game::IsMountedWeaponUsableWithTarget(IFunctionHandler *pH)
 			}
 		}
 	}
-	else if( pItem->GetOwnerId()!= pEntity->GetId()) // item is used by someone else?
+	else if(pItem->GetOwnerId()!= pEntity->GetId())  // item is used by someone else?
 		return pH->EndFunction(false);
 
 	// check target
 	if(bSkipTargetCheck)
 		return pH->EndFunction(true);
 
-	IAIObject* pTarget = pAIActor->GetAttentionTarget();
+	IAIObject *pTarget = pAIActor->GetAttentionTarget();
+
 	if(targetPos.IsZero())
 	{
 		if(!pTarget)
 			return pH->EndFunction();
+
 		targetPos = pTarget->GetPos();
 	}
 
@@ -246,6 +257,7 @@ int CScriptBind_Game::IsMountedWeaponUsableWithTarget(IFunctionHandler *pH)
 	Vec3 targetDirXY(targetDir.x, targetDir.y, 0);
 
 	float length2D = targetDirXY.GetLength();
+
 	if(length2D < minDist || length2D<=0)
 		return pH->EndFunction();
 
@@ -254,9 +266,11 @@ int CScriptBind_Game::IsMountedWeaponUsableWithTarget(IFunctionHandler *pH)
 	Vec3 mountedAngleLimits(pItem->GetMountedAngleLimits());
 
 	float yawRange = DEG2RAD(mountedAngleLimits.z);
+
 	if(yawRange > 0 && yawRange < gf_PI)
 	{
 		float deltaYaw = pItem->GetMountedDir().Dot(targetDirXY);
+
 		if(deltaYaw < cosf(yawRange))
 			return pH->EndFunction(false);
 	}
@@ -269,24 +283,27 @@ int CScriptBind_Game::IsMountedWeaponUsableWithTarget(IFunctionHandler *pH)
 
 	float pitch = atanf(targetDir.z / length2D);
 
-	if ( pitch < minPitch || pitch > maxPitch )
+	if(pitch < minPitch || pitch > maxPitch)
 		return pH->EndFunction(false);
 
 	if(pTarget)
 	{
-		IEntity* pTargetEntity = pTarget->GetEntity();
+		IEntity *pTargetEntity = pTarget->GetEntity();
+
 		if(pTargetEntity)
 		{
 			// check target distance and where he's going
 			IPhysicalEntity *phys = pTargetEntity->GetPhysics();
+
 			if(phys)
 			{
 				pe_status_dynamics	dyn;
 				phys->GetStatus(&dyn);
-				Vec3 velocity ( dyn.v);
+				Vec3 velocity(dyn.v);
 				velocity.z = 0;
 
 				float speed = velocity.GetLength2D();
+
 				if(speed>0)
 				{
 					//velocity /= speed;
@@ -296,6 +313,7 @@ int CScriptBind_Game::IsMountedWeaponUsableWithTarget(IFunctionHandler *pH)
 			}
 		}
 	}
+
 	return pH->EndFunction(true);
 
 }

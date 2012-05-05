@@ -14,19 +14,21 @@ CTagBullet::~CTagBullet(void)
 
 void CTagBullet::HandleEvent(const SGameObjectEvent &event)
 {
-	if (m_destroying)
+	if(m_destroying)
 		return;
 
 	CProjectile::HandleEvent(event);
 
-	if (event.event == eGFE_OnCollision)
+	if(event.event == eGFE_OnCollision)
 	{
 		EventPhysCollision *pCollision = reinterpret_cast<EventPhysCollision *>(event.ptr);
-		if (!pCollision)
+
+		if(!pCollision)
 			return;
 
-		IEntity *pTarget = pCollision->iForeignData[1]==PHYS_FOREIGN_ID_ENTITY ? (IEntity*)pCollision->pForeignData[1]:0;
-		if (pTarget)
+		IEntity *pTarget = pCollision->iForeignData[1]==PHYS_FOREIGN_ID_ENTITY ? (IEntity *)pCollision->pForeignData[1]:0;
+
+		if(pTarget)
 		{
 			EntityId targetId = pTarget->GetId();
 

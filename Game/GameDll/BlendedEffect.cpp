@@ -24,7 +24,8 @@ CFOVEffect::CFOVEffect(EntityId ownerID, float goalFOV)
 void CFOVEffect::Init()
 {
 	IActor *client = gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(m_ownerID);
-	if (client && client->IsPlayer())
+
+	if(client && client->IsPlayer())
 	{
 		CPlayer *player = (CPlayer *)client;
 		SActorParams *params = player->GetActorParams();
@@ -38,7 +39,8 @@ void CFOVEffect::Update(float point)
 {
 	m_currentFOV = (point * (m_goalFOV - m_startFOV)) + m_startFOV;
 	IActor *client = gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(m_ownerID);
-	if (client && client->IsPlayer())
+
+	if(client && client->IsPlayer())
 	{
 		CPlayer *player = (CPlayer *)client;
 		SActorParams *params = player->GetActorParams();
@@ -59,7 +61,8 @@ CPostProcessEffect::CPostProcessEffect(EntityId ownerID, string paramName, float
 void CPostProcessEffect::Init()
 {
 	IActor *client = gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(m_ownerID);
-	if (client && client->IsClient())
+
+	if(client && client->IsClient())
 	{
 		gEnv->p3DEngine->GetPostEffectParam(m_paramName, m_currentVal);
 		m_startVal = m_currentVal;
@@ -70,7 +73,8 @@ void CPostProcessEffect::Init()
 void CPostProcessEffect::Update(float point)
 {
 	IActor *client = gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(m_ownerID);
-	if (client && client->IsClient())
+
+	if(client && client->IsClient())
 	{
 		m_currentVal = (point * (m_goalVal - m_startVal)) + m_startVal;
 		gEnv->p3DEngine->SetPostEffectParam(m_paramName, m_currentVal);

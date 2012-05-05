@@ -19,29 +19,30 @@ History:
 #include "Environment/BattleDust.h"
 
 //------------------------------------------------------------------------
-bool CVehicleDamageBehaviorExplosion::Init(IVehicle* pVehicle, const CVehicleParams& table)
+bool CVehicleDamageBehaviorExplosion::Init(IVehicle *pVehicle, const CVehicleParams &table)
 {
 	m_pVehicle = pVehicle;
-  m_exploded = false;
+	m_exploded = false;
 
 	CVehicleParams explosionParams = table.findChild("Explosion");
-	if (!explosionParams)
+
+	if(!explosionParams)
 		return false;
 
 	explosionParams.getAttr("damage", m_damage);
 	explosionParams.getAttr("radius", m_radius);
 	explosionParams.getAttr("pressure", m_pressure);
-	
-	if (!explosionParams.getAttr("minRadius", m_minRadius))
+
+	if(!explosionParams.getAttr("minRadius", m_minRadius))
 		m_minRadius = m_radius/2.0f;
 
-	if (!explosionParams.getAttr("physRadius", m_physRadius))
+	if(!explosionParams.getAttr("physRadius", m_physRadius))
 		m_physRadius = min(m_radius, 5.0f);
 
-	if (!explosionParams.getAttr("minPhysRadius", m_minPhysRadius))
+	if(!explosionParams.getAttr("minPhysRadius", m_minPhysRadius))
 		m_minPhysRadius = m_physRadius/2.0f;
 
-	if (explosionParams.haveAttr("helper"))
+	if(explosionParams.haveAttr("helper"))
 		m_pHelper = m_pVehicle->GetHelper(explosionParams.getAttr("helper"));
 	else
 		m_pHelper = NULL;
@@ -52,28 +53,29 @@ bool CVehicleDamageBehaviorExplosion::Init(IVehicle* pVehicle, const CVehiclePar
 //------------------------------------------------------------------------
 void CVehicleDamageBehaviorExplosion::Reset()
 {
-  m_exploded = false;
+	m_exploded = false;
 }
 
 //------------------------------------------------------------------------
-void CVehicleDamageBehaviorExplosion::OnDamageEvent(EVehicleDamageBehaviorEvent event, const SVehicleDamageBehaviorEventParams& behaviorParams)
+void CVehicleDamageBehaviorExplosion::OnDamageEvent(EVehicleDamageBehaviorEvent event, const SVehicleDamageBehaviorEventParams &behaviorParams)
 {
-  if (event == eVDBE_Repair)
-    return;
+	if(event == eVDBE_Repair)
+		return;
 
-	if (!m_exploded && behaviorParams.componentDamageRatio >= 1.0f)
+	if(!m_exploded && behaviorParams.componentDamageRatio >= 1.0f)
 	{
 		CGameRules *pGameRules = g_pGame->GetGameRules();
-		if (pGameRules && gEnv->bServer)
+
+		if(pGameRules && gEnv->bServer)
 		{
 			ExplosionInfo explosionInfo;
 			explosionInfo.damage = m_damage;
 			explosionInfo.damage += (behaviorParams.randomness) * Random(-0.25f, 0.25f) * m_damage;
 
-			if (m_pHelper)
+			if(m_pHelper)
 				explosionInfo.pos = m_pHelper->GetWorldSpaceTranslation();
-      else if (behaviorParams.pVehicleComponent)
-        explosionInfo.pos = m_pVehicle->GetEntity()->GetWorldTM() * behaviorParams.pVehicleComponent->GetBounds().GetCenter();
+			else if(behaviorParams.pVehicleComponent)
+				explosionInfo.pos = m_pVehicle->GetEntity()->GetWorldTM() * behaviorParams.pVehicleComponent->GetBounds().GetCenter();
 			else
 				explosionInfo.pos = m_pVehicle->GetEntity()->GetWorldTM().GetTranslation();
 
@@ -86,21 +88,21 @@ void CVehicleDamageBehaviorExplosion::OnDamageEvent(EVehicleDamageBehaviorEvent 
 			explosionInfo.pressure = m_pressure;
 			pGameRules->ServerExplosion(explosionInfo);
 
-			if(CBattleDust* pBD = pGameRules->GetBattleDust())
+			if(CBattleDust *pBD = pGameRules->GetBattleDust())
 				pBD->RecordEvent(eBDET_VehicleExplosion, explosionInfo.pos, m_pVehicle->GetEntity()->GetClass());
 		}
 
-    m_exploded = true;
+		m_exploded = true;
 	}
 }
 
 //------------------------------------------------------------------------
 void CVehicleDamageBehaviorExplosion::Serialize(TSerialize ser, EEntityAspects aspects)
 {
-  if (ser.GetSerializationTarget() != eST_Network)
-  {
-    ser.Value("exploded", m_exploded);
-  }
+	if(ser.GetSerializationTarget() != eST_Network)
+	{
+		ser.Value("exploded", m_exploded);
+	}
 }
 
 DEFINE_VEHICLEOBJECT(CVehicleDamageBehaviorExplosion);

@@ -55,3 +55,4 @@ _ReSharper*/
 
 # Output directory
 output
+*.orig

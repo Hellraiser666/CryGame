@@ -38,6 +38,7 @@ void CCameraPolar::Set(const Vec3 &vDir)
 
 	//yaw in 0 .. 2PI, starting at FORWARD (0,1,0)
 	m_fYaw = cry_acosf(vDir.y);
+
 	if(vDir.x > 0)
 		m_fYaw = gf_PI2 - m_fYaw;
 

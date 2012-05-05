@@ -21,11 +21,11 @@ History:
 //------------------------------------------------------------------------
 bool CItem::ReadItemParams(const IItemParamsNode *root)
 {
-  if (!root)
-  {
-    GameWarning("Warning: ItemParams for item <%s> NULL", GetEntity()->GetName());
-    return false;
-  }
+	if(!root)
+	{
+		GameWarning("Warning: ItemParams for item <%s> NULL", GetEntity()->GetName());
+		return false;
+	}
 
 	const IItemParamsNode *params = root->GetChild("params");
 	const IItemParamsNode *geometry = root->GetChild("geometry");
@@ -35,13 +35,19 @@ bool CItem::ReadItemParams(const IItemParamsNode *root)
 	const IItemParamsNode *damagelevels = root->GetChild("damagelevels");
 	const IItemParamsNode *accessoryAmmo = root->GetChild("accessoryAmmo");
 
-	if (params) ReadParams(params);
-	if (actions) ReadActions(actions);
-	if (geometry) ReadGeometry(geometry);
-	if (layers) ReadLayers(layers);
-	if (accessories) ReadAccessories(accessories);
-	if (damagelevels) ReadDamageLevels(damagelevels);
-	if (accessoryAmmo) ReadAccessoryAmmo(accessoryAmmo);
+	if(params) ReadParams(params);
+
+	if(actions) ReadActions(actions);
+
+	if(geometry) ReadGeometry(geometry);
+
+	if(layers) ReadLayers(layers);
+
+	if(accessories) ReadAccessories(accessories);
+
+	if(damagelevels) ReadDamageLevels(damagelevels);
+
+	if(accessoryAmmo) ReadAccessoryAmmo(accessoryAmmo);
 
 	m_sharedparams->SetValid(true);
 
@@ -51,7 +57,7 @@ bool CItem::ReadItemParams(const IItemParamsNode *root)
 #define ReadValue(hold, param)	reader.Read(#param, hold.param)
 #define ReadValueEx(hold, name, param)	reader.Read(#name, hold.param)
 
-//------------------------------------------------------------------------			
+//------------------------------------------------------------------------
 bool CItem::ReadParams(const IItemParamsNode *params)
 {
 	if(!m_sharedparams->Valid())
@@ -93,35 +99,42 @@ bool CItem::ReadParams(const IItemParamsNode *params)
 	}
 
 	const IItemParamsNode *dw = params->GetChild("dualWield");
-	if (dw)
+
+	if(dw)
 	{
 		int n = dw->GetChildCount();
-		for (int i=0; i<n; i++)
+
+		for(int i=0; i<n; i++)
 		{
 			const IItemParamsNode *item = dw->GetChild(i);
-			if (!stricmp(dw->GetChildName(i), "item") && !m_sharedparams->Valid())
+
+			if(!stricmp(dw->GetChildName(i), "item") && !m_sharedparams->Valid())
 			{
 				const char *name = item->GetAttribute("value");
-				if (name && name[0])
+
+				if(name && name[0])
 					m_sharedparams->dualWieldSupport.insert(TDualWieldSupportMap::value_type(name, true));
 			}
-			else if (!stricmp(dw->GetChildName(i), "suffix"))
+			else if(!stricmp(dw->GetChildName(i), "suffix"))
 			{
 				const char *suffix = item->GetAttribute("value");
-				if (suffix)
+
+				if(suffix)
 					m_sharedparams->params.dual_wield_suffix = suffix;
 			}
-			else if (!stricmp(dw->GetChildName(i), "pose"))
+			else if(!stricmp(dw->GetChildName(i), "pose"))
 			{
 				const char *pose = item->GetAttribute("value");
-				if (pose)
+
+				if(pose)
 					m_sharedparams->params.dual_wield_pose = pose;
 			}
 		}
 	}
 
 	const IItemParamsNode *mp = params->GetChild("mount");
-	if (mp)
+
+	if(mp)
 	{
 		CItemParamReader reader(mp);
 		ReadValue(m_mountparams, pivot);
@@ -146,17 +159,19 @@ bool CItem::ReadGeometry(const IItemParamsNode *geometry)
 {
 	FUNCTION_PROFILER(GetISystem(), PROFILE_GAME);
 
-	if (!m_sharedparams->Valid())
+	if(!m_sharedparams->Valid())
 	{
 		// read teh helpers
 		m_sharedparams->helpers.resize(0);
 
 		const IItemParamsNode *attachments = geometry->GetChild("boneattachments");
-		if (attachments)
+
+		if(attachments)
 		{
 			int n = attachments->GetChildCount();
 			SAttachmentHelper helper;
-			for (int i=0; i<n; i++)
+
+			for(int i=0; i<n; i++)
 			{
 				const IItemParamsNode *attachment = attachments->GetChild(i);
 				const char *slot = attachment->GetAttribute("target");
@@ -164,13 +179,14 @@ bool CItem::ReadGeometry(const IItemParamsNode *geometry)
 				const char *bone = attachment->GetAttribute("bone");
 
 				int islot = TargetToSlot(slot);
-				if (islot == eIGS_Last)
+
+				if(islot == eIGS_Last)
 				{
 					GameWarning("Invalid attachment helper target for item '%s'! Skipping...", GetEntity()->GetName());
 					continue;
 				}
 
-				if (!name || !bone)
+				if(!name || !bone)
 				{
 					GameWarning("Invalid attachment helper specification for item '%s'! Skipping...", GetEntity()->GetName());
 					continue;
@@ -187,15 +203,18 @@ bool CItem::ReadGeometry(const IItemParamsNode *geometry)
 
 	bool result = true;
 	int n = geometry->GetChildCount();
-	for (int i=0; i<n; i++)
+
+	for(int i=0; i<n; i++)
 	{
 		const IItemParamsNode *child = geometry->GetChild(i);
 		int islot=TargetToSlot(geometry->GetChildName(i));
 		assert(islot >= 0);
-		if (islot < eIGS_Last)
+
+		if(islot < eIGS_Last)
 		{
 			result = result && SetGeometryFromParams(islot, child);
-			if (result)
+
+			if(result)
 				PlayAction(m_idleAnimation[islot], 0, true, (eIPAF_Default|eIPAF_NoBlend)&~eIPAF_Owner);
 		}
 	}
@@ -208,18 +227,21 @@ bool CItem::ReadGeometry(const IItemParamsNode *geometry)
 //------------------------------------------------------------------------
 bool CItem::ReadActions(const IItemParamsNode *actions)
 {
-	if (!m_sharedparams->Valid())
+	if(!m_sharedparams->Valid())
 	{
 		m_sharedparams->actions.clear();
 		int n = actions->GetChildCount();
-		for (int i=0; i<n; i++)
+
+		for(int i=0; i<n; i++)
 		{
 			const IItemParamsNode *actionparams = actions->GetChild(i);
-			if (actionparams)
+
+			if(actionparams)
 			{
 				SAction action;
-				if (ReadAction(actionparams, &action))
-				{	
+
+				if(ReadAction(actionparams, &action))
+				{
 					const char *name = actionparams->GetAttribute("name");
 					m_sharedparams->actions.insert(TActionMap::value_type(name, action));
 				}
@@ -234,7 +256,8 @@ bool CItem::ReadActions(const IItemParamsNode *actions)
 bool CItem::ReadAction(const IItemParamsNode *actionparams, SAction *pAction)
 {
 	const char *actionName = actionparams->GetAttribute("name");
-	if (!actionName)
+
+	if(!actionName)
 	{
 		GameWarning("Missing action name for item '%s'! Skipping...", GetEntity()->GetName());
 		return false;
@@ -245,14 +268,17 @@ bool CItem::ReadAction(const IItemParamsNode *actionparams, SAction *pAction)
 	pAction->children=children!=0;
 
 	int n = actionparams->GetChildCount();
-	for (int i=0; i<n; i++)
+
+	for(int i=0; i<n; i++)
 	{
 		const IItemParamsNode *child = actionparams->GetChild(i);
 		const char *childName = actionparams->GetChildName(i);
-		if (!stricmp(childName, "sound"))
+
+		if(!stricmp(childName, "sound"))
 		{
 			const char *name = child->GetAttribute("name");
-			if (!name)
+
+			if(!name)
 			{
 				GameWarning("Missing name of sound for action '%s' in item '%s'! Skipping...", actionName, GetEntity()->GetName());
 				return false;
@@ -261,32 +287,37 @@ bool CItem::ReadAction(const IItemParamsNode *actionparams, SAction *pAction)
 			const char *slot = child->GetAttribute("target");
 			int islot = TargetToSlot(slot);
 
-			if ((islot != eIGS_FirstPerson) && (islot != eIGS_ThirdPerson))
+			if((islot != eIGS_FirstPerson) && (islot != eIGS_ThirdPerson))
 			{
 				GameWarning("Invalid sound target '%s' for action '%s' in item '%s'! Skipping...", slot, actionName, GetEntity()->GetName());
 				return false;
 			}
 
-			if (!pAction->sound[islot].name.empty())
+			if(!pAction->sound[islot].name.empty())
 			{
 				GameWarning("Sound target '%s' for action '%s' in item '%s' already specified! Skipping...", slot, actionName, GetEntity()->GetName());
 				return false;
 			}
 
-			float radius = 1.0f; child->GetAttribute("radius", radius);
-			float sphere = 0.0f; child->GetAttribute("sphere", sphere);
-			int isstatic = 0; child->GetAttribute("static", isstatic);
-			int issynched =0; child->GetAttribute("synched", issynched);
+			float radius = 1.0f;
+			child->GetAttribute("radius", radius);
+			float sphere = 0.0f;
+			child->GetAttribute("sphere", sphere);
+			int isstatic = 0;
+			child->GetAttribute("static", isstatic);
+			int issynched =0;
+			child->GetAttribute("synched", issynched);
 			pAction->sound[islot].name = name;
 			pAction->sound[islot].airadius = radius;
 			pAction->sound[islot].sphere = sphere;
 			pAction->sound[islot].isstatic = isstatic!=0;
 			pAction->sound[islot].issynched = issynched!=0;
 		}
-		else if (!stricmp(childName, "animation"))
+		else if(!stricmp(childName, "animation"))
 		{
 			const char *name = child->GetAttribute("name");
-			if (!name)
+
+			if(!name)
 			{
 				GameWarning("Missing name of animation for action '%s' in item '%s'! Skipping...", actionName, GetEntity()->GetName());
 				return false;
@@ -295,24 +326,31 @@ bool CItem::ReadAction(const IItemParamsNode *actionparams, SAction *pAction)
 			const char *slot = child->GetAttribute("target");
 			int islot = TargetToSlot(slot);
 			assert(islot >= 0);
-			
-			if (islot >= eIGS_Last)
+
+			if(islot >= eIGS_Last)
 			{
 				GameWarning("Invalid animation target '%s' for action '%s' in item '%s'! Skipping...", slot, actionName, GetEntity()->GetName());
 				return false;
 			}
 
-			float speed = 1.0f; child->GetAttribute("speed", speed);
-			float blend = 0.125f; child->GetAttribute("blendTime", blend);
+			float speed = 1.0f;
+			child->GetAttribute("speed", speed);
+			float blend = 0.125f;
+			child->GetAttribute("blendTime", blend);
 			SAnimation animation;
 
 			const char *camera_helper = child->GetAttribute("camera_helper");
-			if (camera_helper && camera_helper[0])
+
+			if(camera_helper && camera_helper[0])
 			{
-				int pos=1; child->GetAttribute("camera_position", pos);
-				int rot=1; child->GetAttribute("camera_rotation", rot);
-				int follow=0; child->GetAttribute("camera_follow", follow);
-				int reorient=0; child->GetAttribute("camera_reorient", reorient);
+				int pos=1;
+				child->GetAttribute("camera_position", pos);
+				int rot=1;
+				child->GetAttribute("camera_rotation", rot);
+				int follow=0;
+				child->GetAttribute("camera_follow", follow);
+				int reorient=0;
+				child->GetAttribute("camera_reorient", reorient);
 
 				animation.camera_helper = camera_helper;
 				animation.camera_pos=pos!=0;
@@ -320,43 +358,45 @@ bool CItem::ReadAction(const IItemParamsNode *actionparams, SAction *pAction)
 				animation.camera_follow=follow!=0;
 				animation.camera_reorient=reorient!=0;
 			}
-			
+
 			animation.name = name;
 			animation.speed = speed;
 			animation.blend = blend;
 
 			pAction->animation[islot].push_back(animation);
 		}
-    else if (!stricmp(childName, "effect"))
-    {
-      const char *name = child->GetAttribute("name");
-      if (!name)
-      {
-        GameWarning("Missing name of effect for action '%s' in item '%s'! Skipping...", actionName, GetEntity()->GetName());
-        return false;
-      }
+		else if(!stricmp(childName, "effect"))
+		{
+			const char *name = child->GetAttribute("name");
 
-      const char *slot = child->GetAttribute("target");
-      int islot = TargetToSlot(slot);
+			if(!name)
+			{
+				GameWarning("Missing name of effect for action '%s' in item '%s'! Skipping...", actionName, GetEntity()->GetName());
+				return false;
+			}
 
-      if ((islot != eIGS_FirstPerson) && (islot != eIGS_ThirdPerson))
-      {
-        GameWarning("Invalid effect target '%s' for action '%s' in item '%s'! Skipping...", slot, actionName, GetEntity()->GetName());
-        return false;
-      }
+			const char *slot = child->GetAttribute("target");
+			int islot = TargetToSlot(slot);
 
-      if (!pAction->effect[islot].name.empty())
-      {
-        GameWarning("Effect target '%s' for action '%s' in item '%s' already specified! Skipping...", slot, actionName, GetEntity()->GetName());
-        return false;
-      }
-      
-      pAction->effect[islot].name = name;
-      
-      const char *helper = child->GetAttribute("helper");
-      if (helper && helper[0])
-        pAction->effect[islot].helper = helper;      
-    }
+			if((islot != eIGS_FirstPerson) && (islot != eIGS_ThirdPerson))
+			{
+				GameWarning("Invalid effect target '%s' for action '%s' in item '%s'! Skipping...", slot, actionName, GetEntity()->GetName());
+				return false;
+			}
+
+			if(!pAction->effect[islot].name.empty())
+			{
+				GameWarning("Effect target '%s' for action '%s' in item '%s' already specified! Skipping...", slot, actionName, GetEntity()->GetName());
+				return false;
+			}
+
+			pAction->effect[islot].name = name;
+
+			const char *helper = child->GetAttribute("helper");
+
+			if(helper && helper[0])
+				pAction->effect[islot].helper = helper;
+		}
 		else
 		{
 			GameWarning("Unknown param '%s' for action '%s' in item '%s'! Skipping...", childName, actionName, GetEntity()->GetName());
@@ -373,10 +413,12 @@ bool CItem::ReadDamageLevels(const IItemParamsNode *damagelevels)
 	m_damageLevels.resize(0);
 
 	int n = damagelevels->GetChildCount();
-	for (int i=0; i<n; i++)
+
+	for(int i=0; i<n; i++)
 	{
 		const IItemParamsNode *levelparams = damagelevels->GetChild(i);
-		if (levelparams)
+
+		if(levelparams)
 		{
 			SDamageLevel level;
 			levelparams->GetAttribute("min_health", level.min_health);
@@ -384,9 +426,11 @@ bool CItem::ReadDamageLevels(const IItemParamsNode *damagelevels)
 			levelparams->GetAttribute("scale", level.scale);
 			const char *helper=levelparams->GetAttribute("helper");
 			const char *effect=levelparams->GetAttribute("effect");
-			if (effect)
+
+			if(effect)
 				level.effect=effect;
-			if (helper)
+
+			if(helper)
 				level.helper=helper;
 
 			m_damageLevels.push_back(level);
@@ -399,18 +443,21 @@ bool CItem::ReadDamageLevels(const IItemParamsNode *damagelevels)
 //------------------------------------------------------------------------
 bool CItem::ReadLayers(const IItemParamsNode *layers)
 {
-	if (!m_sharedparams->Valid())
+	if(!m_sharedparams->Valid())
 	{
 		m_sharedparams->layers.clear();
 		int n = layers->GetChildCount();
-		for (int i=0; i<n; i++)
+
+		for(int i=0; i<n; i++)
 		{
 			const IItemParamsNode *layer = layers->GetChild(i);
-			if (layer)
+
+			if(layer)
 			{
 				SLayer lyr;
-				if (ReadLayer(layer, &lyr))
-				{	
+
+				if(ReadLayer(layer, &lyr))
+				{
 					const char *name = layer->GetAttribute("name");
 					m_sharedparams->layers.insert(TLayerMap::value_type(name, lyr));
 				}
@@ -425,7 +472,8 @@ bool CItem::ReadLayers(const IItemParamsNode *layers)
 bool CItem::ReadLayer(const IItemParamsNode *layer, SLayer *pLayer)
 {
 	const char *layerName = layer->GetAttribute("name");
-	if (!layerName)
+
+	if(!layerName)
 	{
 		GameWarning("Missing layer name for item '%s'! Skipping...", GetEntity()->GetName());
 		return false;
@@ -434,17 +482,21 @@ bool CItem::ReadLayer(const IItemParamsNode *layer, SLayer *pLayer)
 
 	pLayer->isstatic=false;
 	int isstatic;
-	if (layer->GetAttribute("static", isstatic))
+
+	if(layer->GetAttribute("static", isstatic))
 		pLayer->isstatic = isstatic!=0;
 
 	int n = layer->GetChildCount();
-	for (int i=0; i<n; i++)
+
+	for(int i=0; i<n; i++)
 	{
 		const IItemParamsNode *child = layer->GetChild(i);
-		if (!stricmp(layer->GetChildName(i), "animation"))
+
+		if(!stricmp(layer->GetChildName(i), "animation"))
 		{
 			const char *name = child->GetAttribute("name");
-			if (!name)
+
+			if(!name)
 			{
 				GameWarning("Missing name of animation for layer '%s' in item '%s'! Skipping...", layerName, GetEntity()->GetName());
 				return false;
@@ -454,25 +506,29 @@ bool CItem::ReadLayer(const IItemParamsNode *layer, SLayer *pLayer)
 			int islot = TargetToSlot(slot);
 			assert(islot >= 0);
 
-			if (islot >= eIGS_Last)
+			if(islot >= eIGS_Last)
 			{
 				GameWarning("Invalid animation target '%s' of for layer '%s' in item '%s'! Skipping...", slot, layerName, GetEntity()->GetName());
 				return false;
 			}
 
 			pLayer->name[islot] = name;
-			pLayer->id[islot] = 0; child->GetAttribute("layerId", pLayer->id[islot]);
+			pLayer->id[islot] = 0;
+			child->GetAttribute("layerId", pLayer->id[islot]);
 		}
-		else if (!stricmp(layer->GetChildName(i), "bones"))
+		else if(!stricmp(layer->GetChildName(i), "bones"))
 		{
 			int nb = child->GetChildCount();
-			for (int b=0; b<nb; b++)
+
+			for(int b=0; b<nb; b++)
 			{
 				const IItemParamsNode *bone = child->GetChild(b);
-				if (!stricmp(child->GetChildName(b), "bone"))
+
+				if(!stricmp(child->GetChildName(b), "bone"))
 				{
 					const char *name = bone->GetAttribute("name");
-					if (!name)
+
+					if(!name)
 					{
 						GameWarning("Missing name of bone for layer '%s' in item '%s'! Skipping...", layerName, GetEntity()->GetName());
 						return false;
@@ -495,40 +551,48 @@ bool CItem::ReadLayer(const IItemParamsNode *layer, SLayer *pLayer)
 //------------------------------------------------------------------------
 bool CItem::ReadAccessories(const IItemParamsNode *accessories)
 {
-	if (!m_sharedparams->Valid())
+	if(!m_sharedparams->Valid())
 		m_sharedparams->accessoryparams.clear();
-	
+
 	m_initialSetup.clear();
 
 	int n = accessories->GetChildCount();
-	for (int i=0; i<n; i++)
+
+	for(int i=0; i<n; i++)
 	{
 		const IItemParamsNode *child = accessories->GetChild(i);
-		if (!stricmp(accessories->GetChildName(i), "accessory") && !m_sharedparams->Valid())
+
+		if(!stricmp(accessories->GetChildName(i), "accessory") && !m_sharedparams->Valid())
 		{
 			SAccessoryParams params;
-			if (!ReadAccessoryParams(child, &params))
+
+			if(!ReadAccessoryParams(child, &params))
 				continue;
 
 			const char *name = child->GetAttribute("name");
 			m_sharedparams->accessoryparams.insert(TAccessoryParamsMap::value_type(name, params));
 
 		}
-		else if (!stricmp(accessories->GetChildName(i), "initialsetup"))
+		else if(!stricmp(accessories->GetChildName(i), "initialsetup"))
 		{
 			const char *setupName = child->GetAttribute("name");
-			if (!setupName || !setupName[0])
+
+			if(!setupName || !setupName[0])
 				setupName = "default";
+
 			m_initialSetup[setupName].resize(0);
 
 			int na = child->GetChildCount();
-			for (int k=0; k<na; k++)
+
+			for(int k=0; k<na; k++)
 			{
 				const IItemParamsNode *accessory = child->GetChild(k);
-				if (!stricmp(child->GetChildName(k), "accessory"))
+
+				if(!stricmp(child->GetChildName(k), "accessory"))
 				{
 					const char *name = accessory->GetAttribute("name");
-					if (!name || !name[0])
+
+					if(!name || !name[0])
 					{
 						GameWarning("Missing accessory name for initial setup in item '%s'! Skipping...", GetEntity()->GetName());
 						continue;
@@ -552,7 +616,8 @@ bool CItem::ReadAccessories(const IItemParamsNode *accessories)
 bool CItem::ReadAccessoryParams(const IItemParamsNode *accessory, SAccessoryParams *params)
 {
 	const char *name = accessory->GetAttribute("name");
-	if (!name || !name[0])
+
+	if(!name || !name[0])
 	{
 		GameWarning("Missing accessory name for item '%s'! Skipping...", GetEntity()->GetName());
 		return false;
@@ -561,7 +626,7 @@ bool CItem::ReadAccessoryParams(const IItemParamsNode *accessory, SAccessoryPara
 	const IItemParamsNode *attach = accessory->GetChild("attach");
 	const IItemParamsNode *detach = accessory->GetChild("detach");
 
-	if (!attach || !detach)
+	if(!attach || !detach)
 	{
 		GameWarning("Missing attach/detach details for accessory '%s' in item '%s'! Skipping...", name, GetEntity()->GetName());
 		return false;
@@ -576,7 +641,8 @@ bool CItem::ReadAccessoryParams(const IItemParamsNode *accessory, SAccessoryPara
 	int curPos = 0;
 	string curToken, nextToken;
 	nextToken = firemodes.Tokenize(",", curPos);
-	while (!nextToken.empty())
+
+	while(!nextToken.empty())
 	{
 		curToken = nextToken;
 		curToken.Trim();
@@ -590,7 +656,7 @@ bool CItem::ReadAccessoryParams(const IItemParamsNode *accessory, SAccessoryPara
 
 	params->switchToFireMode = accessory->GetAttribute("switchToFireMode");
 	params->zoommode = accessory->GetAttribute("zoommode");
-	
+
 	int exclusive = 0;
 	accessory->GetAttribute("exclusive", exclusive);
 	params->exclusive = exclusive!=0;
@@ -608,23 +674,24 @@ bool CItem::ReadAccessoryAmmo(const IItemParamsNode *ammos)
 {
 	m_bonusAccessoryAmmo.clear();
 
-	if (!ammos)
+	if(!ammos)
 		return false;
 
-	for (int i=0; i<ammos->GetChildCount(); i++)
+	for(int i=0; i<ammos->GetChildCount(); i++)
 	{
 		const IItemParamsNode *ammo = ammos->GetChild(i);
-		if (!strcmpi(ammo->GetName(), "ammo"))
+
+		if(!strcmpi(ammo->GetName(), "ammo"))
 		{
 			int amount=0;
 
-			const char* name = ammo->GetAttribute("name");
-			IEntityClass* pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(name);
+			const char *name = ammo->GetAttribute("name");
+			IEntityClass *pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(name);
 			assert(pClass);
 
 			ammo->GetAttribute("amount", amount);
 
-			if (amount)
+			if(amount)
 				m_bonusAccessoryAmmo[pClass]=amount;
 
 		}
@@ -639,25 +706,30 @@ bool CItem::SetGeometryFromParams(int slot, const IItemParamsNode *geometry)
 	FUNCTION_PROFILER(GetISystem(), PROFILE_GAME);
 
 	const char *name = geometry->GetAttribute("name");
-	if (!name || !name[0])
+
+	if(!name || !name[0])
 	{
 		GameWarning("Missing geometry name for loading item '%s'!", GetEntity()->GetName());
 		return false;
 	}
 
-	Vec3 position(0,0,0); geometry->GetAttribute("position", position);
-	Ang3 angles(0,0,0);		geometry->GetAttribute("angles", angles);
-	float scale=1.0f;			geometry->GetAttribute("scale", scale);
+	Vec3 position(0,0,0);
+	geometry->GetAttribute("position", position);
+	Ang3 angles(0,0,0);
+	geometry->GetAttribute("angles", angles);
+	float scale=1.0f;
+	geometry->GetAttribute("scale", scale);
 
-	if (slot == eIGS_FirstPerson)
+	if(slot == eIGS_FirstPerson)
 	{
 		const char *hand = geometry->GetAttribute("hand");
 		int idx = 0;
-		if (hand && hand[0])
+
+		if(hand && hand[0])
 		{
-			if (!stricmp(hand, "right"))
+			if(!stricmp(hand, "right"))
 				idx = 1;
-			else if (!stricmp(hand, "left"))
+			else if(!stricmp(hand, "left"))
 				idx = 2;
 			else
 			{
@@ -671,7 +743,7 @@ bool CItem::SetGeometryFromParams(int slot, const IItemParamsNode *geometry)
 		m_fpgeometry[idx].angles=DEG2RAD(angles);
 		m_fpgeometry[idx].scale=scale;
 
-		
+
 		// marcio: first person geometry will be loaded upon selecting the weapon in first person
 		//if (((idx<2) && (m_stats.hand == eIH_Right)) || ((idx==2) && (m_stats.hand == eIH_Left)))
 		//	SetGeometry(slot, name, position, DEG2RAD(angles), scale, false);
@@ -686,27 +758,28 @@ bool CItem::SetGeometryFromParams(int slot, const IItemParamsNode *geometry)
 int CItem::TargetToSlot(const char *slot)
 {
 	int islot = eIGS_Last;
-	if (slot)
+
+	if(slot)
 	{
-		if (!stricmp(slot, "firstperson"))
+		if(!stricmp(slot, "firstperson"))
 			islot = eIGS_FirstPerson;
-		else if (!stricmp(slot, "thirdperson"))
+		else if(!stricmp(slot, "thirdperson"))
 			islot = eIGS_ThirdPerson;
-		else if (!stricmp(slot, "arms"))
+		else if(!stricmp(slot, "arms"))
 			islot = eIGS_Arms;
-		else if (!stricmp(slot, "aux0"))
+		else if(!stricmp(slot, "aux0"))
 			islot = eIGS_Aux0;
-		else if (!stricmp(slot, "owner"))
+		else if(!stricmp(slot, "owner"))
 			islot = eIGS_Owner;
-		else if (!stricmp(slot, "ownerloop"))
+		else if(!stricmp(slot, "ownerloop"))
 			islot = eIGS_OwnerLooped;
-		else if (!stricmp(slot, "offhand"))
+		else if(!stricmp(slot, "offhand"))
 			islot = eIGS_OffHand;
-    else if (!stricmp(slot, "destroyed"))
-      islot = eIGS_Destroyed;
-		else if (!stricmp(slot, "thirdpersonAux"))
+		else if(!stricmp(slot, "destroyed"))
+			islot = eIGS_Destroyed;
+		else if(!stricmp(slot, "thirdpersonAux"))
 			islot = eIGS_ThirdPersonAux;
-		else if (!stricmp(slot, "aux1"))
+		else if(!stricmp(slot, "aux1"))
 			islot = eIGS_Aux1;
 	}
 
@@ -716,7 +789,7 @@ int CItem::TargetToSlot(const char *slot)
 //------------------------------------------------------------------------
 void CItem::ReadProperties(IScriptTable *pProperties)
 {
-	if (pProperties)
+	if(pProperties)
 	{
 		GetEntityProperty("HitPoints", m_properties.hitpoints);
 		GetEntityProperty("bPickable", m_properties.pickable);

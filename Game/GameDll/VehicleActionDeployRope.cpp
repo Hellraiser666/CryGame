@@ -20,26 +20,26 @@ float g_ropeLenght = 12.0f;
 
 //------------------------------------------------------------------------
 CVehicleActionDeployRope::CVehicleActionDeployRope()
-: m_pVehicle(NULL),
-	m_pSeat(NULL),
-	m_pRopeRenderNode(NULL),
-	m_pRopeHelper(NULL),
-	m_pDeployAnim(NULL),
-	m_deployAnimOpenedId(InvalidVehicleAnimStateId),
-	m_deployAnimClosedId(InvalidVehicleAnimStateId)
+	: m_pVehicle(NULL),
+	  m_pSeat(NULL),
+	  m_pRopeRenderNode(NULL),
+	  m_pRopeHelper(NULL),
+	  m_pDeployAnim(NULL),
+	  m_deployAnimOpenedId(InvalidVehicleAnimStateId),
+	  m_deployAnimClosedId(InvalidVehicleAnimStateId)
 {
 }
 
 //------------------------------------------------------------------------
 CVehicleActionDeployRope::~CVehicleActionDeployRope()
 {
-	if (m_ropeUpperId)
+	if(m_ropeUpperId)
 	{
 		gEnv->pEntitySystem->RemoveEntity(m_ropeUpperId);
 		m_ropeUpperId = 0;
 	}
 
-	if (m_ropeLowerId)
+	if(m_ropeLowerId)
 	{
 		gEnv->pEntitySystem->RemoveEntity(m_ropeLowerId);
 		m_ropeLowerId = 0;
@@ -47,27 +47,28 @@ CVehicleActionDeployRope::~CVehicleActionDeployRope()
 }
 
 //------------------------------------------------------------------------
-bool CVehicleActionDeployRope::Init(IVehicle* pVehicle, IVehicleSeat* pSeat, const CVehicleParams& table)
+bool CVehicleActionDeployRope::Init(IVehicle *pVehicle, IVehicleSeat *pSeat, const CVehicleParams &table)
 {
 	m_pVehicle = pVehicle;
 	m_pSeat = pSeat;
 
 	CVehicleParams deployRopeTable = table.findChild("DeployRope");
-	if (!deployRopeTable)
+
+	if(!deployRopeTable)
 		return false;
 
-	if (deployRopeTable.haveAttr("helper"))
+	if(deployRopeTable.haveAttr("helper"))
 		m_pRopeHelper = m_pVehicle->GetHelper(deployRopeTable.getAttr("helper"));
 
-	if (deployRopeTable.haveAttr("animation"))
+	if(deployRopeTable.haveAttr("animation"))
 	{
-		if (m_pDeployAnim = m_pVehicle->GetAnimation(deployRopeTable.getAttr("animation")))
+		if(m_pDeployAnim = m_pVehicle->GetAnimation(deployRopeTable.getAttr("animation")))
 		{
 			m_deployAnimOpenedId = m_pDeployAnim->GetStateId("opened");
 			m_deployAnimClosedId = m_pDeployAnim->GetStateId("closed");
 
-			if (m_deployAnimOpenedId == InvalidVehicleAnimStateId 
-				|| m_deployAnimClosedId == InvalidVehicleAnimStateId)
+			if(m_deployAnimOpenedId == InvalidVehicleAnimStateId
+					|| m_deployAnimClosedId == InvalidVehicleAnimStateId)
 			{
 				m_pDeployAnim = NULL;
 			}
@@ -80,13 +81,13 @@ bool CVehicleActionDeployRope::Init(IVehicle* pVehicle, IVehicleSeat* pSeat, con
 //------------------------------------------------------------------------
 void CVehicleActionDeployRope::Reset()
 {
-	if (m_ropeUpperId)
+	if(m_ropeUpperId)
 	{
 		gEnv->pEntitySystem->RemoveEntity(m_ropeUpperId);
 		m_ropeUpperId = 0;
 	}
 
-	if (m_ropeLowerId)
+	if(m_ropeLowerId)
 	{
 		gEnv->pEntitySystem->RemoveEntity(m_ropeLowerId);
 		m_ropeLowerId = 0;
@@ -98,25 +99,26 @@ void CVehicleActionDeployRope::Reset()
 //------------------------------------------------------------------------
 void CVehicleActionDeployRope::OnAction(const TVehicleActionId actionId, int activationMode, float value)
 {
- 	if (actionId == eVAI_Attack1 && activationMode == eAAM_OnPress)
+	if(actionId == eVAI_Attack1 && activationMode == eAAM_OnPress)
 	{
-		if (m_pDeployAnim)
+		if(m_pDeployAnim)
 			m_pDeployAnim->ChangeState(m_deployAnimOpenedId);
-		
+
 		DeployRope();
 	}
 }
 
 //------------------------------------------------------------------------
-void CVehicleActionDeployRope::OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams& params)
+void CVehicleActionDeployRope::OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams &params)
 {
-	if (event == eVE_PassengerExit && params.iParam == m_pSeat->GetSeatId())
+	if(event == eVE_PassengerExit && params.iParam == m_pSeat->GetSeatId())
 	{
-		IActorSystem* pActorSystem = gEnv->pGame->GetIGameFramework()->GetIActorSystem();
+		IActorSystem *pActorSystem = gEnv->pGame->GetIGameFramework()->GetIActorSystem();
 		assert(pActorSystem);
 
-		IActor* pActor = pActorSystem->GetActor(params.entityId);
-		if (!pActor)
+		IActor *pActor = pActorSystem->GetActor(params.entityId);
+
+		if(!pActor)
 		{
 			assert(pActor);
 			return;
@@ -126,16 +128,16 @@ void CVehicleActionDeployRope::OnVehicleEvent(EVehicleEvent event, const SVehicl
 
 		DeployRope();
 		AttachOnRope(pActor->GetEntity());
-	} 
-	else if (event == eVE_Destroyed)
+	}
+	else if(event == eVE_Destroyed)
 	{
-		if (m_ropeUpperId)
+		if(m_ropeUpperId)
 		{
 			gEnv->pEntitySystem->RemoveEntity(m_ropeUpperId);
 			m_ropeUpperId = 0;
 		}
 
-		if (m_ropeLowerId)
+		if(m_ropeLowerId)
 		{
 			gEnv->pEntitySystem->RemoveEntity(m_ropeLowerId);
 			m_ropeLowerId = 0;
@@ -146,19 +148,20 @@ void CVehicleActionDeployRope::OnVehicleEvent(EVehicleEvent event, const SVehicl
 //------------------------------------------------------------------------
 void CVehicleActionDeployRope::Update(const float deltaTime)
 {
-	if (!m_ropeUpperId && !m_ropeLowerId && !m_actorId)
+	if(!m_ropeUpperId && !m_ropeLowerId && !m_actorId)
 		return;
 
-	IActorSystem* pActorSystem = gEnv->pGame->GetIGameFramework()->GetIActorSystem();
+	IActorSystem *pActorSystem = gEnv->pGame->GetIGameFramework()->GetIActorSystem();
 	assert(pActorSystem);
 
-	IActor* pActor = pActorSystem->GetActor(m_actorId);
-	if (!pActor)
+	IActor *pActor = pActorSystem->GetActor(m_actorId);
+
+	if(!pActor)
 		return;
 
 	Vec3 worldPos = pActor->GetEntity()->GetWorldTM().GetTranslation();
 
-	if (IRopeRenderNode* pRopeUpper = GetRopeRenderNode(m_ropeUpperId))
+	if(IRopeRenderNode *pRopeUpper = GetRopeRenderNode(m_ropeUpperId))
 	{
 		Vec3 points[2];
 		points[0] = m_pRopeHelper->GetWorldSpaceTranslation();
@@ -168,7 +171,7 @@ void CVehicleActionDeployRope::Update(const float deltaTime)
 
 		float lenghtLeft = max(0.0f, g_ropeLenght - (points[0].z - points[1].z));
 
-		if (IRopeRenderNode* pRopeLower = GetRopeRenderNode(m_ropeLowerId))
+		if(IRopeRenderNode *pRopeLower = GetRopeRenderNode(m_ropeLowerId))
 		{
 			points[0] = worldPos;
 			points[1] = Vec3(worldPos.x, worldPos.y, worldPos.z - lenghtLeft);
@@ -181,11 +184,12 @@ void CVehicleActionDeployRope::Update(const float deltaTime)
 //------------------------------------------------------------------------
 bool CVehicleActionDeployRope::DeployRope()
 {
-	IActorSystem* pActorSystem = gEnv->pGame->GetIGameFramework()->GetIActorSystem();
+	IActorSystem *pActorSystem = gEnv->pGame->GetIGameFramework()->GetIActorSystem();
 	assert(pActorSystem);
 
-	IActor* pActor = pActorSystem->GetActor(m_actorId);
-	if (!pActor)
+	IActor *pActor = pActorSystem->GetActor(m_actorId);
+
+	if(!pActor)
 		return false;
 
 	Vec3 upperPos = m_pRopeHelper->GetWorldSpaceTranslation();
@@ -193,26 +197,28 @@ bool CVehicleActionDeployRope::DeployRope()
 
 	m_ropeUpperId = CreateRope(m_pVehicle->GetEntity()->GetPhysics(), upperPos, upperPos);
 	m_ropeLowerId = CreateRope(pActor->GetEntity()->GetPhysics(), upperPos, lowerPos);
-	
+
 	m_pVehicle->SetObjectUpdate(this, IVehicle::eVOU_AlwaysUpdate);
 
 	return true;
 }
 
 //------------------------------------------------------------------------
-void CVehicleActionDeployRope::AttachOnRope(IEntity* pEntity)
+void CVehicleActionDeployRope::AttachOnRope(IEntity *pEntity)
 {
 	assert(pEntity);
-	if (!pEntity)
+
+	if(!pEntity)
 		return;
 
-	IRopeRenderNode* pRopeUpper = GetRopeRenderNode(m_ropeUpperId);
-	if (!pRopeUpper)
+	IRopeRenderNode *pRopeUpper = GetRopeRenderNode(m_ropeUpperId);
+
+	if(!pRopeUpper)
 		return;
 
 	assert(pRopeUpper->GetPointsCount() >= 2);
 
-	IPhysicalEntity* pRopePhys = pRopeUpper->GetPhysics();
+	IPhysicalEntity *pRopePhys = pRopeUpper->GetPhysics();
 	assert(pRopePhys);
 
 	typedef std::vector <Vec3> TVec3Vector;
@@ -221,18 +227,19 @@ void CVehicleActionDeployRope::AttachOnRope(IEntity* pEntity)
 	int pointCount;
 
 	pe_status_rope ropeStatus;
-	if (pRopePhys->GetStatus(&ropeStatus))
+
+	if(pRopePhys->GetStatus(&ropeStatus))
 		pointCount = ropeStatus.nSegments + 1;
 	else
 		pointCount = 0;
 
-	if (pointCount < 2)
+	if(pointCount < 2)
 		return;
 
 	points.resize(pointCount);
 	ropeStatus.pPoints = &points[0];
 
-	if (pRopePhys->GetStatus(&ropeStatus))
+	if(pRopePhys->GetStatus(&ropeStatus))
 	{
 		Matrix34 worldTM;
 		worldTM.SetIdentity();
@@ -245,9 +252,9 @@ void CVehicleActionDeployRope::AttachOnRope(IEntity* pEntity)
 }
 
 //------------------------------------------------------------------------
-EntityId CVehicleActionDeployRope::CreateRope(IPhysicalEntity* pLinkedEntity, const Vec3& highPos, const Vec3& lowPos)
+EntityId CVehicleActionDeployRope::CreateRope(IPhysicalEntity *pLinkedEntity, const Vec3 &highPos, const Vec3 &lowPos)
 {
-	IEntitySystem* pEntitySystem = gEnv->pEntitySystem;
+	IEntitySystem *pEntitySystem = gEnv->pEntitySystem;
 	assert(pEntitySystem);
 
 	char pRopeName[256];
@@ -259,22 +266,24 @@ EntityId CVehicleActionDeployRope::CreateRope(IPhysicalEntity* pLinkedEntity, co
 	params.nFlags = ENTITY_FLAG_CLIENT_ONLY;
 	params.pClass = pEntitySystem->GetClassRegistry()->FindClass("RopeEntity");
 
-	IEntity* pRopeEntity = pEntitySystem->SpawnEntity(params, true);
-	if (!pRopeEntity)
+	IEntity *pRopeEntity = pEntitySystem->SpawnEntity(params, true);
+
+	if(!pRopeEntity)
 		return 0;
 
-	pRopeEntity->SetFlags(pRopeEntity->GetFlags() | ENTITY_FLAG_CASTSHADOW );
+	pRopeEntity->SetFlags(pRopeEntity->GetFlags() | ENTITY_FLAG_CASTSHADOW);
 
 	pRopeEntity->CreateProxy(ENTITY_PROXY_ROPE);
 
-	IEntityRopeProxy* pEntityRopeProxy = (IEntityRopeProxy*) pRopeEntity->GetProxy(ENTITY_PROXY_ROPE);
-	if (!pEntityRopeProxy)
+	IEntityRopeProxy *pEntityRopeProxy = (IEntityRopeProxy *) pRopeEntity->GetProxy(ENTITY_PROXY_ROPE);
+
+	if(!pEntityRopeProxy)
 	{
 		pEntitySystem->RemoveEntity(pRopeEntity->GetId());
 		return 0;
 	}
 
-	IRopeRenderNode* pRopeNode = pEntityRopeProxy->GetRopeRenderNode();
+	IRopeRenderNode *pRopeNode = pEntityRopeProxy->GetRopeRenderNode();
 	assert(pRopeNode);
 
 	Vec3 ropePoints[2];
@@ -312,24 +321,26 @@ EntityId CVehicleActionDeployRope::CreateRope(IPhysicalEntity* pLinkedEntity, co
 }
 
 //------------------------------------------------------------------------
-IRopeRenderNode* CVehicleActionDeployRope::GetRopeRenderNode(EntityId ropeId)
+IRopeRenderNode *CVehicleActionDeployRope::GetRopeRenderNode(EntityId ropeId)
 {
-	if (!ropeId)
+	if(!ropeId)
 		return NULL;
 
-	IEntity* pEntity = gEnv->pEntitySystem->GetEntity(ropeId);
-	if (!pEntity)
+	IEntity *pEntity = gEnv->pEntitySystem->GetEntity(ropeId);
+
+	if(!pEntity)
 		return NULL;
 
-	IEntityRopeProxy* pEntityProxy = (IEntityRopeProxy*) pEntity->GetProxy(ENTITY_PROXY_ROPE);
-	if (!pEntityProxy)
+	IEntityRopeProxy *pEntityProxy = (IEntityRopeProxy *) pEntity->GetProxy(ENTITY_PROXY_ROPE);
+
+	if(!pEntityProxy)
 		return NULL;
 
 	return pEntityProxy->GetRopeRenderNode();
 }
 
 //------------------------------------------------------------------------
-void CVehicleActionDeployRope::GetMemoryUsage(ICrySizer* pSizer) const
+void CVehicleActionDeployRope::GetMemoryUsage(ICrySizer *pSizer) const
 {
 	pSizer->Add(*this);
 }

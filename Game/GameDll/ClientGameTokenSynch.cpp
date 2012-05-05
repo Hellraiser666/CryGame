@@ -31,8 +31,8 @@ NET_IMPLEMENT_IMMEDIATE_MESSAGE(CClientGameTokenSynch, ResetMsg, eNRT_ReliableOr
 
 //------------------------------------------------------------------------
 CClientGameTokenSynch::CResetMsg::CResetMsg(int _channelId)
-: INetMessage(CClientGameTokenSynch::ResetMsg),
-	channelId(_channelId)
+	: INetMessage(CClientGameTokenSynch::ResetMsg),
+	  channelId(_channelId)
 {
 };
 
@@ -110,12 +110,12 @@ NET_IMPLEMENT_IMMEDIATE_MESSAGE(CClientGameTokenSynch, SetBoolMsg, eNRT_Reliable
 
 //------------------------------------------------------------------------
 CClientGameTokenSynch::CSetMsg::CSetMsg(const SNetMessageDef *pDef, int _channelId, TGameTokenName &_name, TGameTokenValue &_value)
-:	channelId(_channelId),
-	name(_name),
-	value(_value),
-	INetMessage(pDef)
+	:	channelId(_channelId),
+		name(_name),
+		value(_value),
+		INetMessage(pDef)
 {
-	SetGroup( 'stor' );
+	SetGroup('stor');
 };
 
 //------------------------------------------------------------------------
@@ -152,69 +152,93 @@ void CClientGameTokenSynch::SerializeGameToken(TSerialize ser, TGameTokenName &n
 {
 	ser.Value("name", name);
 
-	switch (type)
+	switch(type)
 	{
 	case eFDT_Int:
-		{
-			int i;
-			if (ser.IsWriting())
-				i=*value.GetPtr<int>();
-			ser.Value("value", i);
-			if (ser.IsReading())
-				value.Set(i);
-		}
-		break;
+	{
+		int i;
+
+		if(ser.IsWriting())
+			i=*value.GetPtr<int>();
+
+		ser.Value("value", i);
+
+		if(ser.IsReading())
+			value.Set(i);
+	}
+	break;
+
 	case eFDT_Float:
-		{
-			float f;
-			if (ser.IsWriting())
-				f=*value.GetPtr<float>();
-			ser.Value("value", f);
-			if (ser.IsReading())
-				value.Set(f);
-		}
-		break;
+	{
+		float f;
+
+		if(ser.IsWriting())
+			f=*value.GetPtr<float>();
+
+		ser.Value("value", f);
+
+		if(ser.IsReading())
+			value.Set(f);
+	}
+	break;
+
 	case eFDT_Vec3:
-		{
-			Vec3 v;
-			if (ser.IsWriting())
-				v=*value.GetPtr<Vec3>();
-			ser.Value("value", v);
-			if (ser.IsReading())
-				value.Set(v);
-		}
-		break;
+	{
+		Vec3 v;
+
+		if(ser.IsWriting())
+			v=*value.GetPtr<Vec3>();
+
+		ser.Value("value", v);
+
+		if(ser.IsReading())
+			value.Set(v);
+	}
+	break;
+
 	case eFDT_EntityId:
-		{
-			EntityId e;
-			if (ser.IsWriting())
-				e=*value.GetPtr<EntityId>();
-			ser.Value("value", e);
-			if (ser.IsReading())
-				value.Set(e);
-		}
-		break;
+	{
+		EntityId e;
+
+		if(ser.IsWriting())
+			e=*value.GetPtr<EntityId>();
+
+		ser.Value("value", e);
+
+		if(ser.IsReading())
+			value.Set(e);
+	}
+	break;
+
 	case eFDT_String:
-		{
-			static string s;
-			s.resize(0);
-			if (ser.IsWriting())
-				s=*value.GetPtr<string>();
-			ser.Value("value", s);
-			if (ser.IsReading())
-				value.Set(s);
-		}
-		break;
+	{
+		static string s;
+		s.resize(0);
+
+		if(ser.IsWriting())
+			s=*value.GetPtr<string>();
+
+		ser.Value("value", s);
+
+		if(ser.IsReading())
+			value.Set(s);
+	}
+	break;
+
 	case eFDT_Bool:
-		{
-			bool b;
-			if (ser.IsWriting())
-				b=*value.GetPtr<bool>();
-			ser.Value("value", b);
-			if (ser.IsReading())
-				value.Set(b);
-		}
-		break;
+	{
+		bool b;
+
+		if(ser.IsWriting())
+			b=*value.GetPtr<bool>();
+
+		ser.Value("value", b);
+
+		if(ser.IsReading())
+			value.Set(b);
+	}
+	break;
+
 	default:
 		assert(0);
 		break;

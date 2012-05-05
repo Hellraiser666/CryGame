@@ -20,7 +20,8 @@ bool CShake::Init(IGameObject *pGameObject)
 	m_shake = 0.05f;
 
 	SmartScriptTable props;
-	IScriptTable* pScriptTable = GetEntity()->GetScriptTable();
+	IScriptTable *pScriptTable = GetEntity()->GetScriptTable();
+
 	if(!pScriptTable || !pScriptTable->GetValue("Properties", props))
 		return false;
 
@@ -53,15 +54,18 @@ void CShake::FullSerialize(TSerialize ser)
 void CShake::Update(SEntityUpdateContext &ctx, int updateSlot)
 {
 	IActor *pClient = g_pGame->GetIGameFramework()->GetClientActor();
-	if (pClient)
+
+	if(pClient)
 	{
 		float dist2ToClient((pClient->GetEntity()->GetWorldPos() - GetEntity()->GetWorldPos()).len2());
 		float maxRange(m_radius * m_radius);
-		if (dist2ToClient<maxRange)
+
+		if(dist2ToClient<maxRange)
 		{
 			IView *pView = g_pGame->GetIGameFramework()->GetIViewSystem()->GetViewByEntityId(pClient->GetEntityId());
 			IView *pViewActive = g_pGame->GetIGameFramework()->GetIViewSystem()->GetActiveView();
-			if (pView)
+
+			if(pView)
 			{
 				float strength = (1.0f - (dist2ToClient/maxRange)) * 0.5f;
 				pView->SetViewShake(ZERO,Vec3(m_shake*strength,0,m_shake*strength),0.1f,0.0225f,1.5f,1);

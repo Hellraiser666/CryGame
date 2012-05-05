@@ -27,17 +27,17 @@ const static float g_fAutoTrackObstacleDistance = 0.4f;
 const static float g_fOffsetTrackingDistance = 0.3f;
 
 CCameraTracking::CCameraTracking() :
-m_pCamRayScan(NULL),
-m_fFrameTime(0.001f),
-m_fYawDelta(0.0f),
-m_fPitchDelta(0.0f),
-m_eLastDirYaw(eTD_LEFT),
-m_eLastDirPitch(eTD_TOP),
-m_fSpeed(0.0f),
-m_fTimeCovered(0.0f),
-m_bViewCovered(false),
-m_vLastObstaclePos(ZERO),
-m_fAutoRotateSpeed(0.0f)
+	m_pCamRayScan(NULL),
+	m_fFrameTime(0.001f),
+	m_fYawDelta(0.0f),
+	m_fPitchDelta(0.0f),
+	m_eLastDirYaw(eTD_LEFT),
+	m_eLastDirPitch(eTD_TOP),
+	m_fSpeed(0.0f),
+	m_fTimeCovered(0.0f),
+	m_bViewCovered(false),
+	m_vLastObstaclePos(ZERO),
+	m_fAutoRotateSpeed(0.0f)
 {
 	// Currently, this class is a static instance. This means that we
 	// can't store pointers to entities that might disappear, like
@@ -67,6 +67,7 @@ bool CCameraTracking::Update(SViewParams &viewParams, float &fHOffObstacleStreng
 	CCameraInputHelper *pCamHelper = hero.GetCameraInputHelper();
 	CRY_ASSERT(pCamHelper);
 	float fLastUserInput = pCamHelper->GetLastUserInputTime();
+
 	//user input overrides auto-follow
 	if(fNow - fLastUserInput < 0.5f)
 		return false;
@@ -83,16 +84,16 @@ bool CCameraTracking::Update(SViewParams &viewParams, float &fHOffObstacleStreng
 		m_curCamOrientation.m_fDist = g_pGameCVars->cl_cam_min_distance;
 
 	//work in 0 .. 2PI
-	m_curCamOrientation.m_fYaw += gf_PI; 
+	m_curCamOrientation.m_fYaw += gf_PI;
 
 	//if there is something in the way
-	if(bObstacleFound)	
+	if(bObstacleFound)
 	{
 		//re-start fadeout
 		m_fTimeCovered = 0.5f;
 		//set last obstacle pos
 		m_vLastObstaclePos = viewParams.position;
-		
+
 		//scan obstacle
 		if(!IdentifyObstacle(curCamDir, hero))
 			return false;
@@ -155,6 +156,7 @@ bool CCameraTracking::Update(SViewParams &viewParams, float &fHOffObstacleStreng
 			//in cutting mode we offset the camera to avoid clipping
 			float offsetStrength = 0.0f;
 			float offsetSpeed = 2.0f;
+
 			if(bObstacleFound)
 			{
 				offsetStrength = (m_fYawDelta < 0.0f)?-g_fOffsetTrackingDistance:g_fOffsetTrackingDistance;
@@ -183,20 +185,24 @@ bool CCameraTracking::IdentifyObstacle(const Vec3 &vCamDir, const CPlayer &hero)
 	//compute rotation speed
 	const float fHeroSpeedModifier = clamp(hero.GetActorStats()->speedFlat / 4.0f, 0.3f, 1.0f);
 	const float fNewSpeed = g_pGameCVars->cl_cam_tracking_rotation_speed * m_fFrameTime * fHeroSpeedModifier;
-	m_fSpeed = InterpolateTo(m_fSpeed, fNewSpeed, (fNewSpeed>m_fSpeed)?0.1f:0.3f); 
+	m_fSpeed = InterpolateTo(m_fSpeed, fNewSpeed, (fNewSpeed>m_fSpeed)?0.1f:0.3f);
 	//m_fSpeed = (g_fInterpolationRate * m_fSpeed + speed) * g_fInterpolationWeight;
 
 	//get ray data from camera ray tests
 	ray_hit *pRayHit = m_pCamRayScan->GetHit(eRAY_TOP_RIGHT);
+
 	if(!pRayHit || pRayHit->dist == 0.0f)
 		pRayHit = m_pCamRayScan->GetHit(eRAY_BOTTOM_RIGHT);
+
 	bool bHitsRight = (pRayHit && pRayHit->dist > 0.0f);
 	Vec3 dirRight = (pRayHit)?-(m_pCamRayScan->GetRayDir(eRAY_TOP_RIGHT)):Vec3(ZERO);
 
 	//ray data left side
 	pRayHit = m_pCamRayScan->GetHit(eRAY_TOP_LEFT);
+
 	if(!pRayHit || pRayHit->dist == 0.0f)
 		pRayHit = m_pCamRayScan->GetHit(eRAY_BOTTOM_LEFT);
+
 	bool bHitsLeft = (pRayHit && pRayHit->dist > 0.0f);
 	Vec3 dirLeft = (pRayHit)?-(m_pCamRayScan->GetRayDir(eRAY_TOP_LEFT)):Vec3(ZERO);
 
@@ -234,6 +240,7 @@ bool CCameraTracking::IdentifyObstacle(const Vec3 &vCamDir, const CPlayer &hero)
 
 		//compute delta yaw
 		m_fYawDelta = (newYaw - m_curCamOrientation.m_fYaw) * m_fSpeed;
+
 		if(m_eLastDirYaw == eTD_RIGHT && m_fYawDelta < 0.0f || m_eLastDirYaw == eTD_LEFT && m_fYawDelta > 0.0f)
 			m_fYawDelta *= -1.0f;
 	}
@@ -294,6 +301,7 @@ bool CCameraTracking::IdentifyObstacle(const Vec3 &vCamDir, const CPlayer &hero)
 			if(fabsf(m_fYawDelta) < 0.01f && fabsf(m_fPitchDelta) > 0.001f)
 				return false;
 		}
+
 		m_bViewCovered = true;
 	}
 	else
@@ -308,6 +316,7 @@ void CCameraTracking::UpdateAutoFollow(const SViewParams &viewParams, const CPla
 	{
 		//if there is an obstacle nearby, don't try to rotate into it
 		float lastObstacleDist = (m_vLastObstaclePos - viewParams.position).len();
+
 		if(lastObstacleDist < g_fAutoTrackObstacleDistance)
 			return;
 
@@ -326,7 +335,7 @@ void CCameraTracking::UpdateAutoFollow(const SViewParams &viewParams, const CPla
 		Vec3 heroDirection = (hero.GetAnimatedCharacter()->GetAnimLocation().q * FORWARD_DIRECTION);
 
 		//compute angle between directions
-		float dt = camDir.Dot(heroDirection);	
+		float dt = camDir.Dot(heroDirection);
 		dt = clamp(dt, -1.0f, 1.0f);
 		float angle = cry_acosf(dt);
 
@@ -340,7 +349,8 @@ void CCameraTracking::UpdateAutoFollow(const SViewParams &viewParams, const CPla
 			float dirVal = camDir.x * heroDirection.y - camDir.y * heroDirection.x;
 
 			CCameraInputHelper *const pCamHelper = hero.GetCameraInputHelper();
-				CRY_ASSERT(pCamHelper);
+			CRY_ASSERT(pCamHelper);
+
 			if(dirVal > 0) //rotate right
 				pCamHelper->SetTrackingDelta(-m_fAutoRotateSpeed, 0.0f);
 			else //rotate left

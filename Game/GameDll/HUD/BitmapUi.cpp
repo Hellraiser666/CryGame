@@ -9,100 +9,103 @@
 #include "Weapon.h"
 
 
-static const char* CROSSHAIR_TEXTURE = "Textures\\Gui\\Crosshair.tif";
+static const char *CROSSHAIR_TEXTURE = "Textures\\Gui\\Crosshair.tif";
 static const float CROSSHAIR_TEXTURE_WIDTH  = 64.0f;
 static const float CROSSHAIR_TEXTURE_HEIGHT = CROSSHAIR_TEXTURE_WIDTH;
 
 
 #if defined ( WIN32 ) || defined ( WIN64 )
-	static const char* LOADINGSCREEN_TEXTURE		= "Textures\\Gui\\loading_screen.tif";
-	static const char* STARTSCREEN_TEXTURE			= "Textures\\Gui\\loading_screen.tif";
-	static const char* PAUSESCREEN_TEXTURE      = "Textures\\Gui\\loading_screen.tif";
+static const char *LOADINGSCREEN_TEXTURE		= "Textures\\Gui\\loading_screen.tif";
+static const char *STARTSCREEN_TEXTURE			= "Textures\\Gui\\loading_screen.tif";
+static const char *PAUSESCREEN_TEXTURE      = "Textures\\Gui\\loading_screen.tif";
 #else
-	// Console optimized textures: Save on memory
-	static const char* LOADINGSCREEN_TEXTURE		= "Textures\\Gui\\loading_screen_con.tif";
-	static const char* STARTSCREEN_TEXTURE			= "Textures\\Gui\\loading_screen_con.tif";
-	static const char* PAUSESCREEN_TEXTURE      = "Textures\\Gui\\loading_screen_con.tif";
+// Console optimized textures: Save on memory
+static const char *LOADINGSCREEN_TEXTURE		= "Textures\\Gui\\loading_screen_con.tif";
+static const char *STARTSCREEN_TEXTURE			= "Textures\\Gui\\loading_screen_con.tif";
+static const char *PAUSESCREEN_TEXTURE      = "Textures\\Gui\\loading_screen_con.tif";
 #endif
 
 
 //////////////////////////////////////////////////////////////////////////
-CBitmapUi::CBitmapUi() 
-: m_pGameFramework( NULL )
-, m_pUiDraw( NULL )
-, m_iTexCrosshair( 0 )
-, m_iTexLoadingScreen( 0 )
-, m_iTexStartScreen( 0 )
-, m_iTexPauseScreen( 0 )
-, m_currentScreenState( eSS_StartScreen )
+CBitmapUi::CBitmapUi()
+	: m_pGameFramework(NULL)
+	, m_pUiDraw(NULL)
+	, m_iTexCrosshair(0)
+	, m_iTexLoadingScreen(0)
+	, m_iTexStartScreen(0)
+	, m_iTexPauseScreen(0)
+	, m_currentScreenState(eSS_StartScreen)
 {
-	assert( g_pGame != NULL );
+	assert(g_pGame != NULL);
 
 	m_pGameFramework = g_pGame->GetIGameFramework();
 
-	assert( m_pGameFramework != NULL );
-	if ( m_pGameFramework == NULL )
+	assert(m_pGameFramework != NULL);
+
+	if(m_pGameFramework == NULL)
 	{
 		return;
 	}
 
 	m_pUiDraw = m_pGameFramework->GetIUIDraw();
 
-	assert( m_pUiDraw != NULL );
-	if ( m_pUiDraw == NULL )
+	assert(m_pUiDraw != NULL);
+
+	if(m_pUiDraw == NULL)
 	{
 		return;
 	}
 
-	m_iTexCrosshair = m_pUiDraw->CreateTexture( CROSSHAIR_TEXTURE, false );
-	m_iTexLoadingScreen = m_pUiDraw->CreateTexture( LOADINGSCREEN_TEXTURE, false );
-	m_iTexStartScreen = m_pUiDraw->CreateTexture( STARTSCREEN_TEXTURE, false );
-	m_iTexPauseScreen = m_pUiDraw->CreateTexture( PAUSESCREEN_TEXTURE, false );
+	m_iTexCrosshair = m_pUiDraw->CreateTexture(CROSSHAIR_TEXTURE, false);
+	m_iTexLoadingScreen = m_pUiDraw->CreateTexture(LOADINGSCREEN_TEXTURE, false);
+	m_iTexStartScreen = m_pUiDraw->CreateTexture(STARTSCREEN_TEXTURE, false);
+	m_iTexPauseScreen = m_pUiDraw->CreateTexture(PAUSESCREEN_TEXTURE, false);
 
-	if ( gEnv->IsEditor() )
+	if(gEnv->IsEditor())
 	{
 		// In editor mode we always want to show the game screen.
 		m_currentScreenState = eSS_InGameScreen;
 	}
 
-	m_pGameFramework->RegisterListener( this, "BitmapUI", eFLPriority_HUD );
+	m_pGameFramework->RegisterListener(this, "BitmapUI", eFLPriority_HUD);
 
-	ILevelSystem* pLevelSystem = m_pGameFramework->GetILevelSystem();
-	assert( pLevelSystem != NULL );
-	if ( pLevelSystem != NULL )
+	ILevelSystem *pLevelSystem = m_pGameFramework->GetILevelSystem();
+	assert(pLevelSystem != NULL);
+
+	if(pLevelSystem != NULL)
 	{
-		pLevelSystem->AddListener( this );
+		pLevelSystem->AddListener(this);
 	}
 
-	gEnv->pSystem->GetISystemEventDispatcher()->RegisterListener( this );
+	gEnv->pSystem->GetISystemEventDispatcher()->RegisterListener(this);
 }
 
 
 //////////////////////////////////////////////////////////////////////////
 CBitmapUi::~CBitmapUi()
 {
-	gEnv->pSystem->GetISystemEventDispatcher()->RemoveListener( this );
+	gEnv->pSystem->GetISystemEventDispatcher()->RemoveListener(this);
 
-	if ( m_pGameFramework != NULL )
+	if(m_pGameFramework != NULL)
 	{
-		m_pGameFramework->GetILevelSystem()->RemoveListener( this );
-		m_pGameFramework->UnregisterListener( this );
+		m_pGameFramework->GetILevelSystem()->RemoveListener(this);
+		m_pGameFramework->UnregisterListener(this);
 	}
 
-	if ( m_pUiDraw != NULL )
+	if(m_pUiDraw != NULL)
 	{
-		m_pUiDraw->DeleteTexture( m_iTexCrosshair );
-		m_pUiDraw->DeleteTexture( m_iTexLoadingScreen );
-		m_pUiDraw->DeleteTexture( m_iTexStartScreen );
-		m_pUiDraw->DeleteTexture( m_iTexPauseScreen );
+		m_pUiDraw->DeleteTexture(m_iTexCrosshair);
+		m_pUiDraw->DeleteTexture(m_iTexLoadingScreen);
+		m_pUiDraw->DeleteTexture(m_iTexStartScreen);
+		m_pUiDraw->DeleteTexture(m_iTexPauseScreen);
 	}
 }
 
 
 //////////////////////////////////////////////////////////////////////////
-void CBitmapUi::SetScreenState( const EScreenState state )
+void CBitmapUi::SetScreenState(const EScreenState state)
 {
-	if ( gEnv->IsEditor() )
+	if(gEnv->IsEditor())
 	{
 		return;
 	}
@@ -111,14 +114,15 @@ void CBitmapUi::SetScreenState( const EScreenState state )
 
 	// TODO: Fix console drawing during CSystem::UpdateLoadingScreen to properly remove one of
 	// the issues that can cause flickering during level load and when the console is visible.
-	if ( state == eSS_LoadingScreen )
+	if(state == eSS_LoadingScreen)
 	{
-		IConsole* pConsole = gEnv->pConsole;
-		if ( pConsole != NULL )
+		IConsole *pConsole = gEnv->pConsole;
+
+		if(pConsole != NULL)
 		{
-			pConsole->ShowConsole( false );
+			pConsole->ShowConsole(false);
 		}
-	}	
+	}
 }
 
 
@@ -132,7 +136,7 @@ CBitmapUi::EScreenState CBitmapUi::GetScreenState() const
 //////////////////////////////////////////////////////////////////////////
 bool CBitmapUi::IsEnabled() const
 {
-	bool showBitmapUi = ( g_pGameCVars->g_showBitmapUi == 1 );
+	bool showBitmapUi = (g_pGameCVars->g_showBitmapUi == 1);
 	return showBitmapUi;
 }
 
@@ -140,53 +144,60 @@ bool CBitmapUi::IsEnabled() const
 //////////////////////////////////////////////////////////////////////////
 bool CBitmapUi::CanDrawCrosshair() const
 {
-	assert( m_pGameFramework != NULL );
+	assert(m_pGameFramework != NULL);
 
-	if ( ! g_pGameCVars->g_show_crosshair )
+	if(! g_pGameCVars->g_show_crosshair)
 	{
 		return false;
 	}
 
-	IActor* pPlayer = m_pGameFramework->GetClientActor();
-	if ( pPlayer == NULL )
+	IActor *pPlayer = m_pGameFramework->GetClientActor();
+
+	if(pPlayer == NULL)
 	{
 		return false;
 	}
 
 	bool isPlayerDead = pPlayer->IsDead();
-	if ( isPlayerDead )
+
+	if(isPlayerDead)
 	{
 		return false;
 	}
 
 	bool thirdPersonMode = pPlayer->IsThirdPerson();
-	bool crosshairEnabledInThirdPerson = ( g_pGameCVars->g_show_crosshair_tp != 0 );
-	if ( thirdPersonMode && ! crosshairEnabledInThirdPerson )
+	bool crosshairEnabledInThirdPerson = (g_pGameCVars->g_show_crosshair_tp != 0);
+
+	if(thirdPersonMode && ! crosshairEnabledInThirdPerson)
 	{
 		return false;
 	}
 
-	IItem* pItem = pPlayer->GetCurrentItem();
-	if ( pItem == NULL )
+	IItem *pItem = pPlayer->GetCurrentItem();
+
+	if(pItem == NULL)
 	{
 		return false;
 	}
 
-	IWeapon* pWeapon = pItem->GetIWeapon();
-	if ( pWeapon == NULL )
+	IWeapon *pWeapon = pItem->GetIWeapon();
+
+	if(pWeapon == NULL)
 	{
 		return false;
 	}
 
 	bool carryingMeleeWeapon = pWeapon->CanMeleeAttack();
-	if ( carryingMeleeWeapon )
+
+	if(carryingMeleeWeapon)
 	{
 		return false;
 	}
 
 	bool isWeaponZoomed = pWeapon->IsZoomed();
-	bool usingWeaponSightForAiming = ( ! thirdPersonMode && isWeaponZoomed );		
-	if ( usingWeaponSightForAiming )
+	bool usingWeaponSightForAiming = (! thirdPersonMode && isWeaponZoomed);
+
+	if(usingWeaponSightForAiming)
 	{
 		return false;
 	}
@@ -199,31 +210,34 @@ bool CBitmapUi::CanDrawCrosshair() const
 void CBitmapUi::DrawCrosshair() const
 {
 	bool canDrawCrosshair = CanDrawCrosshair();
-	if ( ! canDrawCrosshair )
+
+	if(! canDrawCrosshair)
 	{
 		return;
 	}
 
-	DrawCenteredQuad( m_iTexCrosshair, CROSSHAIR_TEXTURE_WIDTH, CROSSHAIR_TEXTURE_HEIGHT );
+	DrawCenteredQuad(m_iTexCrosshair, CROSSHAIR_TEXTURE_WIDTH, CROSSHAIR_TEXTURE_HEIGHT);
 }
 
 
 //////////////////////////////////////////////////////////////////////////
 void CBitmapUi::Draw()
 {
-	if ( ! IsEnabled() )
+	if(! IsEnabled())
 	{
 		return;
 	}
 
-	assert( m_pGameFramework != NULL );
-	if ( m_pGameFramework == NULL )
+	assert(m_pGameFramework != NULL);
+
+	if(m_pGameFramework == NULL)
 	{
 		return;
 	}
 
-	assert( m_pUiDraw != NULL );
-	if ( m_pUiDraw == NULL )
+	assert(m_pUiDraw != NULL);
+
+	if(m_pUiDraw == NULL)
 	{
 		return;
 	}
@@ -233,25 +247,26 @@ void CBitmapUi::Draw()
 	UpdateCurrentState();
 	DrawCurrentScreenState();
 
-	m_pUiDraw->PostRender();	
+	m_pUiDraw->PostRender();
 }
 
 
 //////////////////////////////////////////////////////////////////////////
 void CBitmapUi::DrawFullFrame()
 {
-	IRenderer* pRenderer = gEnv->pRenderer;
-	assert( pRenderer != NULL );
+	IRenderer *pRenderer = gEnv->pRenderer;
+	assert(pRenderer != NULL);
 
-	bool isStandAlone = ( pRenderer->EF_Query( EFQ_RecurseLevel ) <= 0 );
-	if ( isStandAlone )
+	bool isStandAlone = (pRenderer->EF_Query(EFQ_RecurseLevel) <= 0);
+
+	if(isStandAlone)
 	{
 		pRenderer->BeginFrame();
 	}
 
 	Draw();
 
-	if ( isStandAlone )
+	if(isStandAlone)
 	{
 		pRenderer->EndFrame();
 	}
@@ -262,27 +277,29 @@ void CBitmapUi::DrawFullFrame()
 void CBitmapUi::UpdateCurrentState()
 {
 	// TODO: Remove this function once we add a listener/event for game pause.
-	assert( m_pGameFramework != NULL );
+	assert(m_pGameFramework != NULL);
 
 	EScreenState currentScreenState = GetScreenState();
 
-	if ( currentScreenState == eSS_InGameScreen )
+	if(currentScreenState == eSS_InGameScreen)
 	{
 		bool isGamePaused = m_pGameFramework->IsGamePaused();
-		if ( isGamePaused )
+
+		if(isGamePaused)
 		{
-			SetScreenState( eSS_PausedScreen );
+			SetScreenState(eSS_PausedScreen);
 		}
 
 		return;
 	}
 
-	if ( currentScreenState == eSS_PausedScreen )
+	if(currentScreenState == eSS_PausedScreen)
 	{
 		bool isGamePaused = m_pGameFramework->IsGamePaused();
-		if ( ! isGamePaused )
+
+		if(! isGamePaused)
 		{
-			SetScreenState( eSS_InGameScreen );
+			SetScreenState(eSS_InGameScreen);
 		}
 
 		return;
@@ -293,58 +310,61 @@ void CBitmapUi::UpdateCurrentState()
 void CBitmapUi::DrawCurrentScreenState() const
 {
 	EScreenState currentScreenState = GetScreenState();
-	switch ( currentScreenState )
+
+	switch(currentScreenState)
 	{
 	case eSS_InGameScreen:
 		DrawCrosshair();
 		break;
 
 	case eSS_LoadingScreen:
-		DrawFullscreenQuad( m_iTexLoadingScreen );
+		DrawFullscreenQuad(m_iTexLoadingScreen);
 		break;
 
 	case eSS_StartScreen:
-		DrawFullscreenQuad( m_iTexStartScreen );
+		DrawFullscreenQuad(m_iTexStartScreen);
 		break;
 
 	case eSS_PausedScreen:
-		DrawFullscreenQuad( m_iTexPauseScreen );
+		DrawFullscreenQuad(m_iTexPauseScreen);
 		break;
 
 	default:
-		assert( false );
+		assert(false);
 		break;
 	}
 }
 
 
 //////////////////////////////////////////////////////////////////////////
-void CBitmapUi::DrawFullscreenQuad( const int textureId ) const
+void CBitmapUi::DrawFullscreenQuad(const int textureId) const
 {
-	assert( m_pUiDraw != NULL );
+	assert(m_pUiDraw != NULL);
 
-	IRenderer* pRenderer = gEnv->pRenderer;
-	assert( pRenderer != NULL );
-	if ( pRenderer == NULL )
+	IRenderer *pRenderer = gEnv->pRenderer;
+	assert(pRenderer != NULL);
+
+	if(pRenderer == NULL)
 	{
 		return;
 	}
 
-	float screenWidth = static_cast< float >( pRenderer->GetWidth() );
-	float screenHeight = static_cast< float >( pRenderer->GetHeight() );
-	
-	m_pUiDraw->DrawQuadSimple( 0, 0, screenWidth, screenHeight, 0xFFFFFFFF, textureId );
+	float screenWidth = static_cast< float >(pRenderer->GetWidth());
+	float screenHeight = static_cast< float >(pRenderer->GetHeight());
+
+	m_pUiDraw->DrawQuadSimple(0, 0, screenWidth, screenHeight, 0xFFFFFFFF, textureId);
 }
 
 
 //////////////////////////////////////////////////////////////////////////
-void CBitmapUi::DrawCenteredQuad( const int textureId, const float textureWidth, const float textureHeight ) const
+void CBitmapUi::DrawCenteredQuad(const int textureId, const float textureWidth, const float textureHeight) const
 {
-	assert( m_pUiDraw != NULL );
+	assert(m_pUiDraw != NULL);
 
-	IRenderer* pRenderer = gEnv->pRenderer;
-	assert( pRenderer != NULL );
-	if ( pRenderer == NULL )
+	IRenderer *pRenderer = gEnv->pRenderer;
+	assert(pRenderer != NULL);
+
+	if(pRenderer == NULL)
 	{
 		return;
 	}
@@ -355,25 +375,26 @@ void CBitmapUi::DrawCenteredQuad( const int textureId, const float textureWidth,
 	float offsetX = screenCentreX - textureWidth * 0.5f;
 	float offsetY = screenCentreY - textureHeight * 0.5f;
 
-	m_pUiDraw->DrawQuadSimple( offsetX, offsetY, textureWidth, textureHeight, 0xFFFFFFFF, textureId );
+	m_pUiDraw->DrawQuadSimple(offsetX, offsetY, textureWidth, textureHeight, 0xFFFFFFFF, textureId);
 }
 
 
 //////////////////////////////////////////////////////////////////////////
-void CBitmapUi::OnActionEvent(const SActionEvent& event)
+void CBitmapUi::OnActionEvent(const SActionEvent &event)
 {
-	if ( event.m_event == eAE_inGame )
+	if(event.m_event == eAE_inGame)
 	{
-		SetScreenState( eSS_InGameScreen );
+		SetScreenState(eSS_InGameScreen);
 	}
 }
 
 
 //////////////////////////////////////////////////////////////////////////
-void CBitmapUi::OnLoadingProgress( ILevelInfo* pLevel, int progressAmount )
+void CBitmapUi::OnLoadingProgress(ILevelInfo *pLevel, int progressAmount)
 {
 	EScreenState currentScreenState = GetScreenState();
-	if ( currentScreenState == eSS_LoadingScreen )
+
+	if(currentScreenState == eSS_LoadingScreen)
 	{
 		// 3d Engine notifies of loading progress too when already in game ( eg. texture startup streaming finish ),
 		// so we'll only draw a full frame when we're sure we're in loading state.
@@ -383,44 +404,44 @@ void CBitmapUi::OnLoadingProgress( ILevelInfo* pLevel, int progressAmount )
 
 
 //////////////////////////////////////////////////////////////////////////
-void CBitmapUi::OnSystemEvent( ESystemEvent event, UINT_PTR wparam, UINT_PTR lparam )
+void CBitmapUi::OnSystemEvent(ESystemEvent event, UINT_PTR wparam, UINT_PTR lparam)
 {
-	switch ( event )
+	switch(event)
 	{
 	case ESYSTEM_EVENT_LEVEL_UNLOAD:
-		SetScreenState( eSS_LoadingScreen );
+		SetScreenState(eSS_LoadingScreen);
 		DrawFullFrame();
 		break;
 
 	case ESYSTEM_EVENT_LEVEL_LOAD_PREPARE:
-		SetScreenState( eSS_LoadingScreen );
-		gEnv->pGame->GetIGameFramework()->SetLevelPrecachingDone( false );
+		SetScreenState(eSS_LoadingScreen);
+		gEnv->pGame->GetIGameFramework()->SetLevelPrecachingDone(false);
 		break;
 
 	case ESYSTEM_EVENT_LEVEL_LOAD_END:
 		SetScreenState(eSS_InGameScreen);
-		gEnv->pGame->GetIGameFramework()->SetLevelPrecachingDone( true );
+		gEnv->pGame->GetIGameFramework()->SetLevelPrecachingDone(true);
 		break;
 	}
 }
 
 
 //////////////////////////////////////////////////////////////////////////
-void CBitmapUi::OnLoadingStart( ILevelInfo* pLevel )
+void CBitmapUi::OnLoadingStart(ILevelInfo *pLevel)
 {
-	SetScreenState( eSS_LoadingScreen );
+	SetScreenState(eSS_LoadingScreen);
 }
 
 
 //////////////////////////////////////////////////////////////////////////
-void CBitmapUi::OnPostUpdate( float fDeltaTime )
+void CBitmapUi::OnPostUpdate(float fDeltaTime)
 {
 	Draw();
 }
 
 
 //////////////////////////////////////////////////////////////////////////
-void CBitmapUi::OnLoadGame( ILoadGame* pLoadGame )
+void CBitmapUi::OnLoadGame(ILoadGame *pLoadGame)
 {
-	SetScreenState( eSS_LoadingScreen );
+	SetScreenState(eSS_LoadingScreen);
 }

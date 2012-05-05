@@ -22,31 +22,34 @@
 
 CSPAnalyst::CSPAnalyst() : m_bEnabled(false), m_bChainLoad(false)
 {
-	IGameFramework* pGF = g_pGame->GetIGameFramework();
+	IGameFramework *pGF = g_pGame->GetIGameFramework();
 	pGF->GetILevelSystem()->AddListener(this);
 	pGF->RegisterListener(this, "CSPAnalyst", eFLPriority_Game);
 }
 
 CSPAnalyst::~CSPAnalyst()
 {
-	IGameFramework* pGF = g_pGame->GetIGameFramework();
-	if (m_bEnabled)
+	IGameFramework *pGF = g_pGame->GetIGameFramework();
+
+	if(m_bEnabled)
 		pGF->GetIGameplayRecorder()->UnregisterListener(this);
+
 	pGF->GetILevelSystem()->RemoveListener(this);
 	pGF->UnregisterListener(this);
 }
 
 void CSPAnalyst::Enable(bool bEnable)
 {
-	if (m_bEnabled != bEnable)
+	if(m_bEnabled != bEnable)
 	{
-		if (bEnable)
+		if(bEnable)
 		{
 			Reset();
 			g_pGame->GetIGameFramework()->GetIGameplayRecorder()->RegisterListener(this);
 		}
 		else
 			g_pGame->GetIGameFramework()->GetIGameplayRecorder()->UnregisterListener(this);
+
 		m_bEnabled = bEnable;
 	}
 }
@@ -54,25 +57,27 @@ void CSPAnalyst::Enable(bool bEnable)
 bool CSPAnalyst::IsPlayer(EntityId entityId) const
 {
 	// fast path, if already known
-	if (m_gameAnalysis.player.entityId == entityId)
+	if(m_gameAnalysis.player.entityId == entityId)
 		return true;
 
 	// slow path, only first time
-	if (IActor *pActor=g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(entityId))
+	if(IActor *pActor=g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(entityId))
 		return pActor->IsPlayer();
+
 	return false;
 }
 
-void CSPAnalyst::NewPlayer(IEntity* pEntity)
+void CSPAnalyst::NewPlayer(IEntity *pEntity)
 {
 	m_gameAnalysis.player = PlayerAnalysis(pEntity->GetId());
 	m_gameAnalysis.player.name = pEntity->GetName();
 }
 
-CSPAnalyst::PlayerAnalysis* CSPAnalyst::GetPlayer(EntityId entityId)
+CSPAnalyst::PlayerAnalysis *CSPAnalyst::GetPlayer(EntityId entityId)
 {
-	if (m_gameAnalysis.player.entityId == entityId)
+	if(m_gameAnalysis.player.entityId == entityId)
 		return &m_gameAnalysis.player;
+
 	return 0;
 }
 
@@ -83,56 +88,65 @@ void CSPAnalyst::OnGameplayEvent(IEntity *pEntity, const GameplayEvent &event)
 
 	EntityId entityId = pEntity ? pEntity->GetId() : 0;
 
-	if (entityId && IsPlayer(entityId))
+	if(entityId && IsPlayer(entityId))
 		ProcessPlayerEvent(pEntity, event);
 
-	switch (event.event)
+	switch(event.event)
 	{
 	case eGE_GameStarted:
-		{
-			const float t = gEnv->pTimer->GetCurrTime();
-			// CryLogAlways("[CSPAnalyst]: Game Started at %f", t);
-			// if the levelStartTime was serialized, don't touch it
-			if (m_gameAnalysis.levelStartTime == 0.0f)
-				m_gameAnalysis.levelStartTime = gEnv->pTimer->GetFrameStartTime();
-			// if the gameStartTime was serialized, don't touch it
-			if (m_gameAnalysis.gameStartTime == 0.0f)
-				m_gameAnalysis.gameStartTime = m_gameAnalysis.levelStartTime;
-		}
-		// called in SP as well
-		break;
+	{
+		const float t = gEnv->pTimer->GetCurrTime();
+
+		// CryLogAlways("[CSPAnalyst]: Game Started at %f", t);
+		// if the levelStartTime was serialized, don't touch it
+		if(m_gameAnalysis.levelStartTime == 0.0f)
+			m_gameAnalysis.levelStartTime = gEnv->pTimer->GetFrameStartTime();
+
+		// if the gameStartTime was serialized, don't touch it
+		if(m_gameAnalysis.gameStartTime == 0.0f)
+			m_gameAnalysis.gameStartTime = m_gameAnalysis.levelStartTime;
+	}
+	// called in SP as well
+	break;
+
 	case eGE_GameEnd:
-		{
-			int a = 0;(void)a;
-		}
-		// not called in SP yet
-		break;
+	{
+		int a = 0;
+		(void)a;
+	}
+	// not called in SP yet
+	break;
+
 	default:
 		break;
 	}
 }
 
-void CSPAnalyst::ProcessPlayerEvent(IEntity* pEntity, const GameplayEvent& event)
+void CSPAnalyst::ProcessPlayerEvent(IEntity *pEntity, const GameplayEvent &event)
 {
-	assert (pEntity != 0);
+	assert(pEntity != 0);
 	const EntityId entityId = pEntity->GetId();
 
-	switch (event.event)
+	switch(event.event)
 	{
 	case eGE_Connected:
-		{
-			NewPlayer(pEntity);
-			const float t = gEnv->pTimer->GetCurrTime();
-			// CryLogAlways("[CSPAnalyst]: Connected at %f", t);
-		}
-		break;
+	{
+		NewPlayer(pEntity);
+		const float t = gEnv->pTimer->GetCurrTime();
+		// CryLogAlways("[CSPAnalyst]: Connected at %f", t);
+	}
+	break;
+
 	case eGE_Kill:
-		if (PlayerAnalysis* pA = GetPlayer(entityId))
+		if(PlayerAnalysis *pA = GetPlayer(entityId))
 			++pA->kills;
+
 		break;
+
 	case eGE_Death:
-		if (PlayerAnalysis* pA = GetPlayer(entityId))
+		if(PlayerAnalysis *pA = GetPlayer(entityId))
 			++pA->deaths;
+
 	default:
 		break;
 	}
@@ -148,7 +162,7 @@ void CSPAnalyst::PlayerAnalysis::Serialize(TSerialize ser)
 
 void CSPAnalyst::Serialize(TSerialize ser)
 {
-	if (ser.BeginOptionalGroup("SPAnalyst", true))
+	if(ser.BeginOptionalGroup("SPAnalyst", true))
 	{
 		ser.Value("levelStartTime", m_gameAnalysis.levelStartTime);
 		ser.Value("gameStartTime", m_gameAnalysis.gameStartTime);
@@ -164,18 +178,18 @@ void CSPAnalyst::Reset()
 
 void CSPAnalyst::OnLoadingStart(ILevelInfo *pLevelInfo)
 {
-	if (pLevelInfo == 0)
+	if(pLevelInfo == 0)
 		return;
 
-	// in any case, reset the level start time, so it will either be restored from SaveGame or 
+	// in any case, reset the level start time, so it will either be restored from SaveGame or
 	// set in eGE_GameStarted event handling
 	m_gameAnalysis.levelStartTime = CTimeValue(0.0f);
 	m_bChainLoad = false;
 }
 
-void CSPAnalyst::OnSaveGame(ISaveGame* pSaveGame)
+void CSPAnalyst::OnSaveGame(ISaveGame *pSaveGame)
 {
-	if (m_bEnabled == false || pSaveGame == 0)
+	if(m_bEnabled == false || pSaveGame == 0)
 		return;
 
 	CTimeValue now = gEnv->pTimer->GetFrameStartTime();

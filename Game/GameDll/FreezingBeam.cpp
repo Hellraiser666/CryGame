@@ -37,8 +37,8 @@ void CFreezingBeam::ResetParams(const struct IItemParamsNode *params)
 	{
 		CBeam::ResetParams(params);
 
-		const IItemParamsNode *freeze = params?params->GetChild("freeze"):0;  
-		m_pShared->freezeparams.Reset(freeze);  
+		const IItemParamsNode *freeze = params?params->GetChild("freeze"):0;
+		m_pShared->freezeparams.Reset(freeze);
 	}
 }
 
@@ -49,7 +49,7 @@ void CFreezingBeam::PatchParams(const struct IItemParamsNode *patch)
 	{
 		CBeam::PatchParams(patch);
 
-		const IItemParamsNode *freeze = patch?patch->GetChild("freeze"):0;  
+		const IItemParamsNode *freeze = patch?patch->GetChild("freeze"):0;
 		m_pShared->freezeparams.Reset(freeze, false);
 	}
 }
@@ -57,7 +57,7 @@ void CFreezingBeam::PatchParams(const struct IItemParamsNode *patch)
 //------------------------------------------------------------------
 void CFreezingBeam::InitSharedParams()
 {
-	CWeaponSharedParams * pWSP = m_pWeapon->GetWeaponSharedParams();
+	CWeaponSharedParams *pWSP = m_pWeapon->GetWeaponSharedParams();
 	assert(pWSP);
 
 	m_fireParams	= pWSP->GetFireSharedParams("FreezingBeamData", m_fmIdx);
@@ -68,24 +68,25 @@ void CFreezingBeam::CacheSharedParamsPtr()
 {
 	CBeam::CacheSharedParamsPtr();
 
-	m_pShared			= static_cast<CFreezingBeamSharedData*>(m_fireParams.get());
+	m_pShared			= static_cast<CFreezingBeamSharedData *>(m_fireParams.get());
 }
 
 //------------------------------------------------------------------------
 void CFreezingBeam::Hit(ray_hit &hit, const Vec3 &dir)
 {
-  if (gEnv->bMultiplayer)  
-	  if (CActor *pActor=m_pWeapon->GetOwnerActor())
-		  if (pActor && !pActor->IsClient())
-			  return;
-  
+	if(gEnv->bMultiplayer)
+		if(CActor *pActor=m_pWeapon->GetOwnerActor())
+			if(pActor && !pActor->IsClient())
+				return;
+
 	IEntity *pEntity = gEnv->pEntitySystem->GetEntityFromPhysics(hit.pCollider);
 
 	float frost = m_pShared->freezeparams.freeze_speed>0.0f?m_pShared->freezeparams.freeze_speed*m_pShared->beamparams.tick:1.0f;
 
 	int type=hit.pCollider->GetType();
-	if (pEntity && (type==PE_RIGID || type==PE_ARTICULATED || type==PE_LIVING || type==PE_WHEELEDVEHICLE || 
-		(type==PE_STATIC && g_pGame->GetWeaponSystem()->GetProjectile(pEntity->GetId())))) // static projectiles are allowed to be frozen
+
+	if(pEntity && (type==PE_RIGID || type==PE_ARTICULATED || type==PE_LIVING || type==PE_WHEELEDVEHICLE ||
+				   (type==PE_STATIC && g_pGame->GetWeaponSystem()->GetProjectile(pEntity->GetId())))) // static projectiles are allowed to be frozen
 	{
 		SimpleHitInfo info(m_pWeapon->GetOwnerId(), pEntity->GetId(), m_pWeapon->GetEntityId(), 0xe);
 		info.value=frost;
@@ -100,12 +101,13 @@ void CFreezingBeam::Tick(ray_hit &hit, const Vec3 &dir)
 }
 
 //------------------------------------------------------------------------
-void CFreezingBeam::GetMemoryUsage(ICrySizer * s) const
+void CFreezingBeam::GetMemoryUsage(ICrySizer *s) const
 {
-  s->Add(*this);
-  CBeam::GetMemoryUsage(s);
+	s->Add(*this);
+	CBeam::GetMemoryUsage(s);
+
 	if(m_useCustomParams)
 	{
-		m_pShared->freezeparams.GetMemoryUsage(s);  
+		m_pShared->freezeparams.GetMemoryUsage(s);
 	}
 }

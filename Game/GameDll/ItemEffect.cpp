@@ -20,53 +20,58 @@ History:
 //------------------------------------------------------------------------
 uint32 CItem::AttachEffect(int slot, uint32 id, bool attach, const char *effectName, const char *helper, const Vec3 &offset, const Vec3 &dir, float scale, bool prime)
 {
-	if (m_stats.mounted)
+	if(m_stats.mounted)
 		slot=eIGS_FirstPerson;
 
-	if (attach)
+	if(attach)
 	{
-		if (!g_pGameCVars->i_particleeffects)
+		if(!g_pGameCVars->i_particleeffects)
 			return 0;
 
 		IParticleEffect *pParticleEffect = gEnv->pParticleManager->FindEffect(effectName);
-		if (!pParticleEffect)
+
+		if(!pParticleEffect)
 			return 0;
 
 		// generate id
 		++m_effectGenId;
-		while (!m_effectGenId || (m_effects.find(m_effectGenId) != m_effects.end()))
+
+		while(!m_effectGenId || (m_effects.find(m_effectGenId) != m_effects.end()))
 			++m_effectGenId;
-	
+
 		SEntitySlotInfo slotInfo;
 		SEffectInfo effectInfo;
-		
+
 		bool validSlot = GetEntity()->GetSlotInfo(slot, slotInfo) && (slotInfo.pCharacter || slotInfo.pStatObj);
 
-		if (!validSlot || slotInfo.pStatObj || (!helper || !helper[0]))
+		if(!validSlot || slotInfo.pStatObj || (!helper || !helper[0]))
 		{
 			// get helper position
 			Vec3 position(0,0,0);
-			if (validSlot && helper && helper[0])
+
+			if(validSlot && helper && helper[0])
 			{
 				IStatObj *pStatsObj = slotInfo.pStatObj;
 				position = pStatsObj->GetHelperPos(helper);
 				position = GetEntity()->GetSlotLocalTM(slot, false).TransformPoint(position);
-			}      
+			}
+
 			position+=offset;
 
 			// find a free slot
 			SEntitySlotInfo dummy;
 			int i=0;
-			while (GetEntity()->GetSlotInfo(eIGS_Last+i, dummy))
+
+			while(GetEntity()->GetSlotInfo(eIGS_Last+i, dummy))
 				i++;
 
 			// move particle slot to the helper position+offset
-      effectInfo.helper = helper;
+			effectInfo.helper = helper;
 			effectInfo.slot = GetEntity()->LoadParticleEmitter(eIGS_Last+i, pParticleEffect, 0, prime, true);
 			Matrix34 tm = IParticleEffect::ParticleLoc(position, dir, scale);
 			GetEntity()->SetSlotLocalTM(effectInfo.slot, tm);
 		}
-		else if (slotInfo.pCharacter)	// bone attachment
+		else if(slotInfo.pCharacter)	// bone attachment
 		{
 			effectInfo.helper = helper;
 			effectInfo.characterSlot = slot;
@@ -74,7 +79,7 @@ uint32 CItem::AttachEffect(int slot, uint32 id, bool attach, const char *effectN
 			IAttachmentManager *pAttachmentManager = pCharacter->GetIAttachmentManager();
 			IAttachment *pAttachment = pAttachmentManager->GetInterfaceByName(helper);
 
-			if (!pAttachment)
+			if(!pAttachment)
 			{
 				GameWarning("Item '%s' trying to attach effect '%s' to attachment '%s' which does not exist!", GetEntity()->GetName(), effectName, helper);
 				return 0;
@@ -86,9 +91,10 @@ uint32 CItem::AttachEffect(int slot, uint32 id, bool attach, const char *effectN
 			pAttachment->AddBinding(pEffectAttachment);
 			pAttachment->SetAttRelativeDefault(QuatT(tm));
 			pEffectAttachment->CreateEffect(Matrix34(pAttachment->GetAttWorldAbsolute()));
-			if (pEffectAttachment->GetEmitter())
+
+			if(pEffectAttachment->GetEmitter())
 			{
-				if (prime)
+				if(prime)
 					pEffectAttachment->GetEmitter()->Prime();
 			}
 		}
@@ -96,28 +102,33 @@ uint32 CItem::AttachEffect(int slot, uint32 id, bool attach, const char *effectN
 		m_effects.insert(TEffectInfoMap::value_type(m_effectGenId, effectInfo));
 		return m_effectGenId;
 	}
-	else if (id)
+	else if(id)
 	{
 		TEffectInfoMap::iterator it = m_effects.find(id);
-		if (it == m_effects.end())
+
+		if(it == m_effects.end())
 			return 0;
 
 		SEffectInfo &info = it->second;
-		if (info.slot>-1)
+
+		if(info.slot>-1)
 		{
 			GetEntity()->FreeSlot(info.slot);
 		}
 		else
 		{
 			ICharacterInstance *pCharacter = GetEntity()->GetCharacter(info.characterSlot);
-			if (pCharacter)
+
+			if(pCharacter)
 			{
 				IAttachmentManager *pAttachmentManager = pCharacter->GetIAttachmentManager();
 				IAttachment *pAttachment = pAttachmentManager->GetInterfaceByName(info.helper.c_str());
+
 				if(pAttachment)
 					pAttachment->ClearBinding();
 			}
 		}
+
 		m_effects.erase(it);
 	}
 
@@ -125,54 +136,57 @@ uint32 CItem::AttachEffect(int slot, uint32 id, bool attach, const char *effectN
 }
 
 //------------------------------------------------------------------------
-uint32 CItem::AttachLight(int slot, uint32 id, bool attach, float radius, const Vec3 &color, const float fSpecularMult, const char *projectTexture, float projectFov, const char *helper, const Vec3 &offset, const Vec3 &dir, const char* material, float fHDRDynamic)
+uint32 CItem::AttachLight(int slot, uint32 id, bool attach, float radius, const Vec3 &color, const float fSpecularMult, const char *projectTexture, float projectFov, const char *helper, const Vec3 &offset, const Vec3 &dir, const char *material, float fHDRDynamic)
 {
-	if (m_stats.mounted)
+	if(m_stats.mounted)
 		slot=eIGS_FirstPerson;
 
-	if (radius<0.1f || !g_pGameCVars || !g_pGameCVars->i_lighteffects)
+	if(radius<0.1f || !g_pGameCVars || !g_pGameCVars->i_lighteffects)
 		return 0;
 
-	if (attach)
+	if(attach)
 	{
 		CDLight light;
 		light.SetLightColor(ColorF(color.x, color.y, color.z, 1.0f));
-		light.SetSpecularMult( fSpecularMult );
+		light.SetSpecularMult(fSpecularMult);
 		light.m_nLightStyle = 0;
 		light.m_fLightFrustumAngle = 45.0f;
 		light.m_fRadius = radius;
 		light.m_fLightFrustumAngle = projectFov*0.5f;
-	    light.m_fHDRDynamic = fHDRDynamic;
+		light.m_fHDRDynamic = fHDRDynamic;
 
-		if (projectTexture && projectTexture[0])
+		if(projectTexture && projectTexture[0])
 		{
 			int flags = 0;
 			light.m_pLightImage = gEnv->pRenderer->EF_LoadTexture(projectTexture, flags);
 
-			if (!light.m_pLightImage || !light.m_pLightImage->IsTextureLoaded())
+			if(!light.m_pLightImage || !light.m_pLightImage->IsTextureLoaded())
 			{
 				GameWarning("Item '%s' failed to load projecting light texture '%s'!", GetEntity()->GetName(), projectTexture);
 				return 0;
 			}
 		}
 
-		if (light.m_fLightFrustumAngle && (light.m_pLightImage != NULL) && light.m_pLightImage->IsTextureLoaded())
+		if(light.m_fLightFrustumAngle && (light.m_pLightImage != NULL) && light.m_pLightImage->IsTextureLoaded())
 			light.m_Flags |= DLF_PROJECT;
 		else
 		{
-			if (light.m_pLightImage)
+			if(light.m_pLightImage)
 				light.m_pLightImage->Release();
+
 			light.m_pLightImage = 0;
 			light.m_Flags |= DLF_POINT;
 		}
 
-    IMaterial* pMaterial = 0;
-    if (material && material[0])
-      pMaterial = gEnv->p3DEngine->GetMaterialManager()->LoadMaterial(material);
+		IMaterial *pMaterial = 0;
+
+		if(material && material[0])
+			pMaterial = gEnv->p3DEngine->GetMaterialManager()->LoadMaterial(material);
 
 		// generate id
 		++m_effectGenId;
-		while (!m_effectGenId || (m_effects.find(m_effectGenId) != m_effects.end()))
+
+		while(!m_effectGenId || (m_effects.find(m_effectGenId) != m_effects.end()))
 			++m_effectGenId;
 
 		SEntitySlotInfo slotInfo;
@@ -181,36 +195,39 @@ uint32 CItem::AttachLight(int slot, uint32 id, bool attach, float radius, const 
 
 		bool validSlot = GetEntity()->GetSlotInfo(slot, slotInfo) && (slotInfo.pCharacter || slotInfo.pStatObj);
 
-		if (!validSlot || slotInfo.pStatObj)
+		if(!validSlot || slotInfo.pStatObj)
 		{
 			// get helper position
 			Vec3 position(0,0,0);
-			if (validSlot)
+
+			if(validSlot)
 			{
 				IStatObj *pStatsObj = slotInfo.pStatObj;
 				position = pStatsObj->GetHelperPos(helper);
 				position = GetEntity()->GetSlotLocalTM(slot, false).TransformPoint(position);
 			}
+
 			position+=offset;
- 
+
 			// find a free slot
 			SEntitySlotInfo dummy;
 			int i=0;
-			while (GetEntity()->GetSlotInfo(eIGS_Last+i, dummy))
+
+			while(GetEntity()->GetSlotInfo(eIGS_Last+i, dummy))
 				i++;
 
 			// move light slot to the helper position+offset
-      effectInfo.helper = helper;
+			effectInfo.helper = helper;
 			effectInfo.slot = GetEntity()->LoadLight(eIGS_Last+i, &light);
-            
-      if (effectInfo.slot != -1 && pMaterial)
-        GetEntity()->SetSlotMaterial(effectInfo.slot, pMaterial);
-            
-      Matrix34 tm = Matrix34(Matrix33::CreateRotationVDir(dir));
+
+			if(effectInfo.slot != -1 && pMaterial)
+				GetEntity()->SetSlotMaterial(effectInfo.slot, pMaterial);
+
+			Matrix34 tm = Matrix34(Matrix33::CreateRotationVDir(dir));
 			tm.SetTranslation(position);
 			GetEntity()->SetSlotLocalTM(effectInfo.slot, tm);
 		}
-		else if (slotInfo.pCharacter)	// bone attachment
+		else if(slotInfo.pCharacter)	// bone attachment
 		{
 			effectInfo.helper = helper;
 			effectInfo.characterSlot = slot;
@@ -218,7 +235,7 @@ uint32 CItem::AttachLight(int slot, uint32 id, bool attach, float radius, const 
 			IAttachmentManager *pAttachmentManager = pCharacter->GetIAttachmentManager();
 			IAttachment *pAttachment = pAttachmentManager->GetInterfaceByName(helper);
 
-			if (!pAttachment)
+			if(!pAttachment)
 			{
 				GameWarning("Item '%s' trying to attach light to attachment '%s' which does not exist!", GetEntity()->GetName(), helper);
 				return 0;
@@ -226,37 +243,40 @@ uint32 CItem::AttachLight(int slot, uint32 id, bool attach, float radius, const 
 
 			CLightAttachment *pLightAttachment = new CLightAttachment();
 			pLightAttachment->LoadLight(light);
-      
-      if (pMaterial)
-      {
-        if (ILightSource* pLightSource = pLightAttachment->GetLightSource())
-          pLightSource->SetMaterial(pMaterial);        
-      }
-			
-      Matrix34 tm =Matrix34(Matrix33::CreateRotationVDir(dir));
+
+			if(pMaterial)
+			{
+				if(ILightSource *pLightSource = pLightAttachment->GetLightSource())
+					pLightSource->SetMaterial(pMaterial);
+			}
+
+			Matrix34 tm =Matrix34(Matrix33::CreateRotationVDir(dir));
 			tm.SetTranslation(offset);
 			pAttachment->AddBinding(pLightAttachment);
 			pAttachment->SetAttRelativeDefault(QuatT(tm));
-    }
+		}
 
 		m_effects.insert(TEffectInfoMap::value_type(m_effectGenId, effectInfo));
 		return m_effectGenId;
 	}
-	else if (id)
+	else if(id)
 	{
 		TEffectInfoMap::iterator it = m_effects.find(id);
-		if (it == m_effects.end())
+
+		if(it == m_effects.end())
 			return 0;
 
 		SEffectInfo &info = it->second;
-		if (info.slot>-1) 
+
+		if(info.slot>-1)
 		{
 			GetEntity()->FreeSlot(info.slot);
 		}
 		else
 		{
 			ICharacterInstance *pCharacter = GetEntity()->GetCharacter(info.characterSlot);
-			if (pCharacter)
+
+			if(pCharacter)
 			{
 				IAttachmentManager *pAttachmentManager = pCharacter->GetIAttachmentManager();
 				IAttachment *pAttachment = pAttachmentManager->GetInterfaceByName(info.helper.c_str());
@@ -264,6 +284,7 @@ uint32 CItem::AttachLight(int slot, uint32 id, bool attach, float radius, const 
 				pAttachment->ClearBinding();
 			}
 		}
+
 		m_effects.erase(it);
 	}
 
@@ -273,19 +294,19 @@ uint32 CItem::AttachLight(int slot, uint32 id, bool attach, float radius, const 
 //------------------------------------------------------------------------
 //Above function is almost the same, just some special stuff for flashlight
 //------------------------------------------------------------------------
-uint32 CItem::AttachLightEx(int slot, uint32 id, bool attach, bool fakeLight /*= false */, bool castShadows /*= false*/, IRenderNode* pCasterException, float radius, const Vec3 &color, const float fSpecularMult, const char *projectTexture, float projectFov, const char *helper, const Vec3 &offset, const Vec3 &dir, const char* material, float fHDRDynamic)
+uint32 CItem::AttachLightEx(int slot, uint32 id, bool attach, bool fakeLight /*= false */, bool castShadows /*= false*/, IRenderNode *pCasterException, float radius, const Vec3 &color, const float fSpecularMult, const char *projectTexture, float projectFov, const char *helper, const Vec3 &offset, const Vec3 &dir, const char *material, float fHDRDynamic)
 {
-	if (m_stats.mounted)
+	if(m_stats.mounted)
 		slot=eIGS_FirstPerson;
 
-	if (radius<0.1f)
+	if(radius<0.1f)
 		return 0;
 
-	if (attach)
+	if(attach)
 	{
 		CDLight light;
 		light.SetLightColor(ColorF(color.x, color.y, color.z, 1.0f));
-		light.SetSpecularMult( fSpecularMult );
+		light.SetSpecularMult(fSpecularMult);
 		light.m_nLightStyle = 0;
 		light.m_fLightFrustumAngle = 45.0f;
 		light.m_fRadius = radius;
@@ -300,36 +321,39 @@ uint32 CItem::AttachLightEx(int slot, uint32 id, bool attach, bool fakeLight /*=
 			light.m_Flags |= DLF_CASTSHADOW_MAPS;
 
 
-		if (projectTexture && projectTexture[0])
+		if(projectTexture && projectTexture[0])
 		{
 			int flags = 0;
 			light.m_pLightImage = gEnv->pRenderer->EF_LoadTexture(projectTexture, flags);
 
-			if (!light.m_pLightImage || !light.m_pLightImage->IsTextureLoaded())
+			if(!light.m_pLightImage || !light.m_pLightImage->IsTextureLoaded())
 			{
 				GameWarning("Item '%s' failed to load projecting light texture '%s'!", GetEntity()->GetName(), projectTexture);
 				return 0;
 			}
 		}
 
-		if (light.m_fLightFrustumAngle && (light.m_pLightImage != NULL) && light.m_pLightImage->IsTextureLoaded())
+		if(light.m_fLightFrustumAngle && (light.m_pLightImage != NULL) && light.m_pLightImage->IsTextureLoaded())
 			light.m_Flags |= DLF_PROJECT;
 		else
 		{
-			if (light.m_pLightImage)
+			if(light.m_pLightImage)
 				light.m_pLightImage->Release();
+
 			light.m_pLightImage = 0;
 			light.m_Flags |= DLF_POINT;
 		}
 
 
-		IMaterial* pMaterial = 0;
-		if (material && material[0])
+		IMaterial *pMaterial = 0;
+
+		if(material && material[0])
 			pMaterial = gEnv->p3DEngine->GetMaterialManager()->LoadMaterial(material);
 
 		// generate id
 		++m_effectGenId;
-		while (!m_effectGenId || (m_effects.find(m_effectGenId) != m_effects.end()))
+
+		while(!m_effectGenId || (m_effects.find(m_effectGenId) != m_effects.end()))
 			++m_effectGenId;
 
 		SEntitySlotInfo slotInfo;
@@ -338,36 +362,39 @@ uint32 CItem::AttachLightEx(int slot, uint32 id, bool attach, bool fakeLight /*=
 
 		bool validSlot = GetEntity()->GetSlotInfo(slot, slotInfo) && (slotInfo.pCharacter || slotInfo.pStatObj);
 
-		if (!validSlot || slotInfo.pStatObj)
+		if(!validSlot || slotInfo.pStatObj)
 		{
 			// get helper position
 			Vec3 position(0,0,0);
-			if (validSlot)
+
+			if(validSlot)
 			{
 				IStatObj *pStatsObj = slotInfo.pStatObj;
 				position = pStatsObj->GetHelperPos(helper);
 				position = GetEntity()->GetSlotLocalTM(slot, false).TransformPoint(position);
 			}
+
 			position+=offset;
 
 			// find a free slot
 			SEntitySlotInfo dummy;
 			int i=0;
-			while (GetEntity()->GetSlotInfo(eIGS_Last+i, dummy))
+
+			while(GetEntity()->GetSlotInfo(eIGS_Last+i, dummy))
 				i++;
 
 			// move light slot to the helper position+offset
 			effectInfo.helper = helper;
 			effectInfo.slot = GetEntity()->LoadLight(eIGS_Last+i, &light);
 
-			if (effectInfo.slot != -1 && pMaterial)
+			if(effectInfo.slot != -1 && pMaterial)
 				GetEntity()->SetSlotMaterial(effectInfo.slot, pMaterial);
 
 			Matrix34 tm = Matrix34(Matrix33::CreateRotationVDir(dir));
 			tm.SetTranslation(position);
 			GetEntity()->SetSlotLocalTM(effectInfo.slot, tm);
 		}
-		else if (slotInfo.pCharacter)	// bone attachment
+		else if(slotInfo.pCharacter)	// bone attachment
 		{
 			effectInfo.helper = helper;
 			effectInfo.characterSlot = slot;
@@ -375,7 +402,7 @@ uint32 CItem::AttachLightEx(int slot, uint32 id, bool attach, bool fakeLight /*=
 			IAttachmentManager *pAttachmentManager = pCharacter->GetIAttachmentManager();
 			IAttachment *pAttachment = pAttachmentManager->GetInterfaceByName(helper);
 
-			if (!pAttachment)
+			if(!pAttachment)
 			{
 				GameWarning("Item '%s' trying to attach light to attachment '%s' which does not exist!", GetEntity()->GetName(), helper);
 				return 0;
@@ -384,14 +411,15 @@ uint32 CItem::AttachLightEx(int slot, uint32 id, bool attach, bool fakeLight /*=
 			CLightAttachment *pLightAttachment = new CLightAttachment();
 			pLightAttachment->LoadLight(light);
 
-			if (pMaterial)
+			if(pMaterial)
 			{
-				if (ILightSource* pLightSource = pLightAttachment->GetLightSource())
-					pLightSource->SetMaterial(pMaterial);        
+				if(ILightSource *pLightSource = pLightAttachment->GetLightSource())
+					pLightSource->SetMaterial(pMaterial);
 			}
+
 			if(light.m_Flags&DLF_CASTSHADOW_MAPS)
 			{
-				if (ILightSource* pLightSource = pLightAttachment->GetLightSource())
+				if(ILightSource *pLightSource = pLightAttachment->GetLightSource())
 					pLightSource->SetCastingException(pCasterException);
 			}
 
@@ -404,21 +432,24 @@ uint32 CItem::AttachLightEx(int slot, uint32 id, bool attach, bool fakeLight /*=
 		m_effects.insert(TEffectInfoMap::value_type(m_effectGenId, effectInfo));
 		return m_effectGenId;
 	}
-	else if (id)
+	else if(id)
 	{
 		TEffectInfoMap::iterator it = m_effects.find(id);
-		if (it == m_effects.end())
+
+		if(it == m_effects.end())
 			return 0;
 
 		SEffectInfo &info = it->second;
-		if (info.slot>-1) 
+
+		if(info.slot>-1)
 		{
 			GetEntity()->FreeSlot(info.slot);
 		}
 		else
 		{
 			ICharacterInstance *pCharacter = GetEntity()->GetCharacter(info.characterSlot);
-			if (pCharacter)
+
+			if(pCharacter)
 			{
 				IAttachmentManager *pAttachmentManager = pCharacter->GetIAttachmentManager();
 				IAttachment *pAttachment = pAttachmentManager->GetInterfaceByName(info.helper.c_str());
@@ -426,6 +457,7 @@ uint32 CItem::AttachLightEx(int slot, uint32 id, bool attach, bool fakeLight /*=
 				pAttachment->ClearBinding();
 			}
 		}
+
 		m_effects.erase(it);
 	}
 
@@ -434,58 +466,60 @@ uint32 CItem::AttachLightEx(int slot, uint32 id, bool attach, bool fakeLight /*=
 //------------------------------------------------------------------------
 void CItem::SpawnEffect(int slot, const char *effectName, const char *helper, const Vec3 &offset, const Vec3 &dir, float scale)
 {
-	if (m_stats.mounted)
+	if(m_stats.mounted)
 		slot=eIGS_FirstPerson;
 
 	Vec3 position(0,0,0);
 	Vec3 finalOffset = offset;
 
-  SEntitySlotInfo slotInfo;
-  if (GetEntity()->GetSlotInfo(slot, slotInfo))
-  {
-    if (slotInfo.pStatObj)	// entity slot
-    {
-      // get helper position
-      IStatObj *pStatsObj = slotInfo.pStatObj;
-      position = pStatsObj->GetHelperPos(helper);
+	SEntitySlotInfo slotInfo;
+
+	if(GetEntity()->GetSlotInfo(slot, slotInfo))
+	{
+		if(slotInfo.pStatObj)	// entity slot
+		{
+			// get helper position
+			IStatObj *pStatsObj = slotInfo.pStatObj;
+			position = pStatsObj->GetHelperPos(helper);
 
 			position = GetEntity()->GetSlotWorldTM(slot).TransformPoint(position);
-    }
-    else if (slotInfo.pCharacter)	// bone attachment
-    {
-      ICharacterInstance *pCharacter = slotInfo.pCharacter;
-      IAttachmentManager *pAttachmentManager = pCharacter->GetIAttachmentManager();
-      IAttachment *pAttachment = pAttachmentManager->GetInterfaceByName(helper);
+		}
+		else if(slotInfo.pCharacter)	// bone attachment
+		{
+			ICharacterInstance *pCharacter = slotInfo.pCharacter;
+			IAttachmentManager *pAttachmentManager = pCharacter->GetIAttachmentManager();
+			IAttachment *pAttachment = pAttachmentManager->GetInterfaceByName(helper);
 
-      if (pAttachment)
-      {
-        const Matrix34 m = Matrix34(pAttachment->GetAttWorldAbsolute());
-        position = m.GetTranslation();
-      }
-      else
-      {
-        int16 id = pCharacter->GetISkeletonPose()->GetJointIDByName(helper);
-        if (id>=0)
-          position = pCharacter->GetISkeletonPose()->GetAbsJointByID(id).t;
+			if(pAttachment)
+			{
+				const Matrix34 m = Matrix34(pAttachment->GetAttWorldAbsolute());
+				position = m.GetTranslation();
+			}
+			else
+			{
+				int16 id = pCharacter->GetISkeletonPose()->GetJointIDByName(helper);
+
+				if(id>=0)
+					position = pCharacter->GetISkeletonPose()->GetAbsJointByID(id).t;
 
 				position = GetEntity()->GetSlotWorldTM(slot).TransformPoint(position);
-      }
-    }
-  }
+			}
+		}
+	}
 	else if(m_stats.mounted && !m_stats.fp)
 	{
 		if(GetIWeapon())
 		{
-				// if no helper specified, try getting pos from firing locator
-				IWeaponFiringLocator *pLocator = GetIWeapon()->GetFiringLocator();            
+			// if no helper specified, try getting pos from firing locator
+			IWeaponFiringLocator *pLocator = GetIWeapon()->GetFiringLocator();
 
-				if (pLocator)
-				{
-					if(!pLocator->GetFiringPos(GetEntityId(), NULL, position))
-						position.Set(0.0f,0.0f,0.0f);
-					else
-						finalOffset = GetEntity()->GetWorldTM().TransformVector(finalOffset);
-				}
+			if(pLocator)
+			{
+				if(!pLocator->GetFiringPos(GetEntityId(), NULL, position))
+					position.Set(0.0f,0.0f,0.0f);
+				else
+					finalOffset = GetEntity()->GetWorldTM().TransformVector(finalOffset);
+			}
 
 		}
 	}
@@ -493,7 +527,8 @@ void CItem::SpawnEffect(int slot, const char *effectName, const char *helper, co
 	position += finalOffset;
 
 	IParticleEffect *pParticleEffect = gEnv->pParticleManager->FindEffect(effectName);
-	if (pParticleEffect)
+
+	if(pParticleEffect)
 		pParticleEffect->Spawn(true, IParticleEffect::ParticleLoc(position, dir, scale));
 }
 
@@ -501,29 +536,33 @@ void CItem::SpawnEffect(int slot, const char *effectName, const char *helper, co
 IParticleEmitter *CItem::GetEffectEmitter(uint32 id) const
 {
 	TEffectInfoMap::const_iterator it = m_effects.find(id);
-	if (it == m_effects.end()) 
+
+	if(it == m_effects.end())
 		return 0;
 
 	const SEffectInfo &info = it->second;
 	SEntitySlotInfo slotInfo;
 
-	if (GetEntity()->GetSlotInfo(info.slot, slotInfo) && slotInfo.pParticleEmitter)
+	if(GetEntity()->GetSlotInfo(info.slot, slotInfo) && slotInfo.pParticleEmitter)
 		return slotInfo.pParticleEmitter;
 
-	if (GetEntity()->GetSlotInfo(info.characterSlot, slotInfo) && slotInfo.pCharacter)
+	if(GetEntity()->GetSlotInfo(info.characterSlot, slotInfo) && slotInfo.pCharacter)
 	{
 		ICharacterInstance *pCharacter = slotInfo.pCharacter;
 		IAttachmentManager *pAttachmentManager = pCharacter->GetIAttachmentManager();
 		IAttachment *pAttachment = pAttachmentManager->GetInterfaceByName(info.helper.c_str());
-		if (pAttachment)
+
+		if(pAttachment)
 		{
 			CEffectAttachment *pEffectAttachment = static_cast<CEffectAttachment *>(pAttachment->GetIAttachmentObject());
-			if (!pEffectAttachment)
+
+			if(!pEffectAttachment)
 			{
 				// commenting out for silencer functionality
 				//GameWarning("CItem::GetEffectEmitter: no effect attachment on %s (helper %s)", GetEntity()->GetName(), info.helper.c_str());
 				return 0;
 			}
+
 			return pEffectAttachment->GetEmitter();
 		}
 	}
@@ -534,76 +573,82 @@ IParticleEmitter *CItem::GetEffectEmitter(uint32 id) const
 //------------------------------------------------------------------------
 void CItem::EnableLight(bool enable, uint32 id)
 {
-  TEffectInfoMap::const_iterator it = m_effects.find(id);
-  if (it == m_effects.end()) 
-    return;
+	TEffectInfoMap::const_iterator it = m_effects.find(id);
 
-  const SEffectInfo &info = it->second;
-  SEntitySlotInfo slotInfo;
-  ILightSource* pLightSource = 0;
-  
-  if (info.slot != -1)
-  {
-    if (GetEntity()->GetSlotInfo(info.slot, slotInfo) && slotInfo.pLight)
-      pLightSource = static_cast<ILightSource*>(slotInfo.pLight);
-  }
-  else if (info.characterSlot != -1)
-  {
-    if (GetEntity()->GetSlotInfo(info.characterSlot, slotInfo) && slotInfo.pCharacter)
-    { 
-      IAttachmentManager *pAttachmentManager = slotInfo.pCharacter->GetIAttachmentManager();
-      IAttachment *pAttachment = pAttachmentManager->GetInterfaceByName(info.helper.c_str());
-      if (pAttachment)
-      {
-        CLightAttachment *pLightAttachment = static_cast<CLightAttachment *>(pAttachment->GetIAttachmentObject());
-        if (pLightAttachment)
-          pLightSource = pLightAttachment->GetLightSource();
-      }
-    }
-  }
+	if(it == m_effects.end())
+		return;
 
-  if (pLightSource)
-  {
-    CDLight& light = pLightSource->GetLightProperties();       
-    light.m_Flags = (enable) ? light.m_Flags&~DLF_DISABLED : light.m_Flags|DLF_DISABLED;
-    pLightSource->SetLightProperties(light);
-  }
+	const SEffectInfo &info = it->second;
+	SEntitySlotInfo slotInfo;
+	ILightSource *pLightSource = 0;
+
+	if(info.slot != -1)
+	{
+		if(GetEntity()->GetSlotInfo(info.slot, slotInfo) && slotInfo.pLight)
+			pLightSource = static_cast<ILightSource *>(slotInfo.pLight);
+	}
+	else if(info.characterSlot != -1)
+	{
+		if(GetEntity()->GetSlotInfo(info.characterSlot, slotInfo) && slotInfo.pCharacter)
+		{
+			IAttachmentManager *pAttachmentManager = slotInfo.pCharacter->GetIAttachmentManager();
+			IAttachment *pAttachment = pAttachmentManager->GetInterfaceByName(info.helper.c_str());
+
+			if(pAttachment)
+			{
+				CLightAttachment *pLightAttachment = static_cast<CLightAttachment *>(pAttachment->GetIAttachmentObject());
+
+				if(pLightAttachment)
+					pLightSource = pLightAttachment->GetLightSource();
+			}
+		}
+	}
+
+	if(pLightSource)
+	{
+		CDLight &light = pLightSource->GetLightProperties();
+		light.m_Flags = (enable) ? light.m_Flags&~DLF_DISABLED : light.m_Flags|DLF_DISABLED;
+		pLightSource->SetLightProperties(light);
+	}
 }
 
 //------------------------------------------------------------------------
 void CItem::SetLightRadius(float radius, uint32 id)
 {
 	TEffectInfoMap::const_iterator it = m_effects.find(id);
-	if (it == m_effects.end()) 
+
+	if(it == m_effects.end())
 		return;
 
 	const SEffectInfo &info = it->second;
 	SEntitySlotInfo slotInfo;
-	ILightSource* pLightSource = 0;
+	ILightSource *pLightSource = 0;
 
-	if (info.slot != -1)
+	if(info.slot != -1)
 	{
-		if (GetEntity()->GetSlotInfo(info.slot, slotInfo) && slotInfo.pLight)
-			pLightSource = static_cast<ILightSource*>(slotInfo.pLight);
+		if(GetEntity()->GetSlotInfo(info.slot, slotInfo) && slotInfo.pLight)
+			pLightSource = static_cast<ILightSource *>(slotInfo.pLight);
 	}
-	else if (info.characterSlot != -1)
+	else if(info.characterSlot != -1)
 	{
-		if (GetEntity()->GetSlotInfo(info.characterSlot, slotInfo) && slotInfo.pCharacter)
-		{ 
+		if(GetEntity()->GetSlotInfo(info.characterSlot, slotInfo) && slotInfo.pCharacter)
+		{
 			IAttachmentManager *pAttachmentManager = slotInfo.pCharacter->GetIAttachmentManager();
 			IAttachment *pAttachment = pAttachmentManager->GetInterfaceByName(info.helper.c_str());
-			if (pAttachment)
+
+			if(pAttachment)
 			{
 				CLightAttachment *pLightAttachment = static_cast<CLightAttachment *>(pAttachment->GetIAttachmentObject());
-				if (pLightAttachment)
+
+				if(pLightAttachment)
 					pLightSource = pLightAttachment->GetLightSource();
 			}
 		}
 	}
 
-	if (pLightSource)
+	if(pLightSource)
 	{
-		CDLight& light = pLightSource->GetLightProperties();
+		CDLight &light = pLightSource->GetLightProperties();
 		light.m_fRadius = radius;
 		pLightSource->SetLightProperties(light);
 	}
@@ -613,20 +658,21 @@ void CItem::SetLightRadius(float radius, uint32 id)
 void CItem::SetEffectWorldTM(uint32 id, const Matrix34 &tm)
 {
 	TEffectInfoMap::const_iterator it = m_effects.find(id);
-	if (it == m_effects.end()) 
+
+	if(it == m_effects.end())
 		return;
 
 	const SEffectInfo &info = it->second;
 	SEntitySlotInfo slotInfo;
 
-	if (GetEntity()->GetSlotInfo(info.slot, slotInfo) && (slotInfo.pParticleEmitter||slotInfo.pLight))
+	if(GetEntity()->GetSlotInfo(info.slot, slotInfo) && (slotInfo.pParticleEmitter||slotInfo.pLight))
 	{
 		Matrix34 worldMatrix = GetEntity()->GetWorldTM();
 		Matrix34 localMatrix = worldMatrix.GetInverted()*tm;
 
 		GetEntity()->SetSlotLocalTM(info.slot, localMatrix);
 	}
-	else if (GetEntity()->GetSlotInfo(info.characterSlot, slotInfo) && slotInfo.pCharacter)
+	else if(GetEntity()->GetSlotInfo(info.characterSlot, slotInfo) && slotInfo.pCharacter)
 		SetCharacterAttachmentWorldTM(info.characterSlot, info.helper.c_str(), tm);
 }
 
@@ -634,15 +680,16 @@ void CItem::SetEffectWorldTM(uint32 id, const Matrix34 &tm)
 Matrix34 CItem::GetEffectWorldTM(uint32 id)
 {
 	TEffectInfoMap::const_iterator it = m_effects.find(id);
-	if (it == m_effects.end()) 
+
+	if(it == m_effects.end())
 		return Matrix34::CreateIdentity();
 
 	const SEffectInfo &info = it->second;
 	SEntitySlotInfo slotInfo;
 
-	if (GetEntity()->GetSlotInfo(info.slot, slotInfo) && slotInfo.pParticleEmitter)
+	if(GetEntity()->GetSlotInfo(info.slot, slotInfo) && slotInfo.pParticleEmitter)
 		return GetEntity()->GetSlotWorldTM(info.slot);
-	else if (GetEntity()->GetSlotInfo(info.characterSlot, slotInfo) && slotInfo.pCharacter)
+	else if(GetEntity()->GetSlotInfo(info.characterSlot, slotInfo) && slotInfo.pCharacter)
 		return GetCharacterAttachmentWorldTM(info.characterSlot, info.helper.c_str());
 
 	return Matrix34::CreateIdentity();

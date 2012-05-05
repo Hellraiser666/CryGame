@@ -27,7 +27,7 @@ void CCustomReactionFunctions::InitCustomReactionsData()
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-bool CCustomReactionFunctions::CallCustomValidationFunction(bool& bResult, ScriptTablePtr hitDeathReactionsTable, CActor& actor, const SReactionParams::SValidationParams& validationParams, const HitInfo& hitInfo, float fCausedDamage) const
+bool CCustomReactionFunctions::CallCustomValidationFunction(bool &bResult, ScriptTablePtr hitDeathReactionsTable, CActor &actor, const SReactionParams::SValidationParams &validationParams, const HitInfo &hitInfo, float fCausedDamage) const
 {
 	CRY_ASSERT(!validationParams.sCustomValidationFunc.empty());
 
@@ -35,11 +35,13 @@ bool CCustomReactionFunctions::CallCustomValidationFunction(bool& bResult, Scrip
 
 	// Try to find a LUA function first. If not present, try to find the C++ version
 	HSCRIPTFUNCTION validationFunc = NULL;
-	if (!hitDeathReactionsTable->GetValue(validationParams.sCustomValidationFunc.c_str(), validationFunc))
+
+	if(!hitDeathReactionsTable->GetValue(validationParams.sCustomValidationFunc.c_str(), validationFunc))
 	{
 		// C++ custom validation
 		ValidationFncContainer::const_iterator itFind = m_validationFunctors.find(validationParams.sCustomValidationFunc);
-		if (itFind != m_validationFunctors.end())
+
+		if(itFind != m_validationFunctors.end())
 		{
 			bResult = itFind->second(actor, validationParams, hitInfo, fCausedDamage);
 			bSuccess = true;
@@ -57,8 +59,10 @@ bool CCustomReactionFunctions::CallCustomValidationFunction(bool& bResult, Scrip
 	}
 
 #ifndef _RELEASE
-	if (!bSuccess)
+
+	if(!bSuccess)
 		CHitDeathReactionsSystem::Warning("Couldn't find custom validation function (%s)", validationParams.sCustomValidationFunc.c_str());
+
 #endif
 
 	return bSuccess;
@@ -66,28 +70,30 @@ bool CCustomReactionFunctions::CallCustomValidationFunction(bool& bResult, Scrip
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-bool CCustomReactionFunctions::CallCustomExecutionFunction(ScriptTablePtr hitDeathReactionsTable, CActor& actor, const SReactionParams& reactionParams, const HitInfo& hitInfo) const
+bool CCustomReactionFunctions::CallCustomExecutionFunction(ScriptTablePtr hitDeathReactionsTable, CActor &actor, const SReactionParams &reactionParams, const HitInfo &hitInfo) const
 {
 	CRY_ASSERT(!reactionParams.sCustomExecutionFunc.empty());
 
 	bool bSuccess = false;
 
-	// try LUA first. This is so overriding C++ functions can be easily done on LUA, without the need to recompile or to change 
+	// try LUA first. This is so overriding C++ functions can be easily done on LUA, without the need to recompile or to change
 	// the name of the LUA methods in both reactionParams and script code
 	HSCRIPTFUNCTION executionFunc = NULL;
-	if (hitDeathReactionsTable->GetValue(reactionParams.sCustomExecutionFunc.c_str(), executionFunc))
+
+	if(hitDeathReactionsTable->GetValue(reactionParams.sCustomExecutionFunc.c_str(), executionFunc))
 	{
-		IScriptSystem* pScriptSystem = hitDeathReactionsTable->GetScriptSystem();
+		IScriptSystem *pScriptSystem = hitDeathReactionsTable->GetScriptSystem();
 		bSuccess = Script::Call(pScriptSystem, executionFunc, hitDeathReactionsTable, reactionParams.reactionScriptTable);
 		pScriptSystem->ReleaseFunc(executionFunc);
 	}
 
 	// Try C++ now
-	if (!bSuccess)
+	if(!bSuccess)
 	{
 		// C++ custom execution
 		ExecutionFncContainer::const_iterator itFind = m_executionFunctors.find(reactionParams.sCustomExecutionFunc);
-		if (itFind != m_executionFunctors.end())
+
+		if(itFind != m_executionFunctors.end())
 		{
 			// [*DavidR | 21/Oct/2010] C++ custom functions have the advantage of receiving a reference to the hitinfo, LUA methods can get the "lastHit" so we
 			// avoid the expensive construction of the hitInfo table
@@ -103,14 +109,14 @@ bool CCustomReactionFunctions::CallCustomExecutionFunction(ScriptTablePtr hitDea
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-bool CCustomReactionFunctions::RegisterCustomValidationFunction(const string& sName, const ValidationFunctor& validationFunctor)
+bool CCustomReactionFunctions::RegisterCustomValidationFunction(const string &sName, const ValidationFunctor &validationFunctor)
 {
 	return m_validationFunctors.insert(ValidationFncContainer::value_type(sName, validationFunctor)).second;
 }
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-bool CCustomReactionFunctions::RegisterCustomExecutionFunction(const string& sName, const ExecutionFunctor& executionFunctor)
+bool CCustomReactionFunctions::RegisterCustomExecutionFunction(const string &sName, const ExecutionFunctor &executionFunctor)
 {
 	return m_executionFunctors.insert(ExecutionFncContainer::value_type(sName, executionFunctor)).second;
 }
@@ -128,16 +134,16 @@ void CCustomReactionFunctions::RegisterCustomFunctions()
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-CHitDeathReactionsPtr	CCustomReactionFunctions::GetActorHitDeathReactions(CActor& actor) const
+CHitDeathReactionsPtr	CCustomReactionFunctions::GetActorHitDeathReactions(CActor &actor) const
 {
 	CRY_ASSERT(actor.GetActorClass() == CPlayer::GetActorClassType());
-	CPlayer& player = static_cast<CPlayer&>(actor);
+	CPlayer &player = static_cast<CPlayer &>(actor);
 	return player.GetHitDeathReactions();
 }
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-void CCustomReactionFunctions::FallAndPlay_Reaction(CActor& actor, const SReactionParams& reactionParams, const HitInfo& hitInfo)
+void CCustomReactionFunctions::FallAndPlay_Reaction(CActor &actor, const SReactionParams &reactionParams, const HitInfo &hitInfo)
 {
 	actor.Fall();
 	DeathImpulse_Reaction(actor, reactionParams, hitInfo);
@@ -145,10 +151,11 @@ void CCustomReactionFunctions::FallAndPlay_Reaction(CActor& actor, const SReacti
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-void CCustomReactionFunctions::DeathImpulse_Reaction(CActor& actor, const SReactionParams& reactionParams, const HitInfo& hitInfo)
+void CCustomReactionFunctions::DeathImpulse_Reaction(CActor &actor, const SReactionParams &reactionParams, const HitInfo &hitInfo)
 {
 	CHitDeathReactionsPtr pHitDeathReactions = GetActorHitDeathReactions(actor);
-	if (pHitDeathReactions)
+
+	if(pHitDeathReactions)
 	{
 		pHitDeathReactions->EndCurrentReaction();
 	}
@@ -156,30 +163,32 @@ void CCustomReactionFunctions::DeathImpulse_Reaction(CActor& actor, const SReact
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-void CCustomReactionFunctions::MeleeDeath_Reaction(CActor& actor, const SReactionParams& reactionParams, const HitInfo& hitInfo)
+void CCustomReactionFunctions::MeleeDeath_Reaction(CActor &actor, const SReactionParams &reactionParams, const HitInfo &hitInfo)
 {
 	CHitDeathReactionsPtr pHitDeathReactions = GetActorHitDeathReactions(actor);
-	if (pHitDeathReactions)
+
+	if(pHitDeathReactions)
 	{
-			if (!reactionParams.reactionAnim->animCRCs.empty())
-			{
-					// If an animation is present, execute the default reaction code
-					pHitDeathReactions->ExecuteDeathReaction(reactionParams);
-			}
-			else
-			{
-					// Apply Death impulses
-					DeathImpulse_Reaction(actor, reactionParams, hitInfo);
-			}
+		if(!reactionParams.reactionAnim->animCRCs.empty())
+		{
+			// If an animation is present, execute the default reaction code
+			pHitDeathReactions->ExecuteDeathReaction(reactionParams);
+		}
+		else
+		{
+			// Apply Death impulses
+			DeathImpulse_Reaction(actor, reactionParams, hitInfo);
+		}
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-void CCustomReactionFunctions::ReactionDoNothing(CActor& actor, const SReactionParams& reactionParams, const HitInfo& hitInfo)
+void CCustomReactionFunctions::ReactionDoNothing(CActor &actor, const SReactionParams &reactionParams, const HitInfo &hitInfo)
 {
 	CHitDeathReactionsPtr pHitDeathReactions = GetActorHitDeathReactions(actor);
-	if (pHitDeathReactions)
+
+	if(pHitDeathReactions)
 	{
 		pHitDeathReactions->EndCurrentReaction();
 	}

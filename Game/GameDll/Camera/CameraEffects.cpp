@@ -39,6 +39,7 @@ void CCameraEffects::UpdateTreeTransparency(const Vec3 &camPos, const Vec3 &targ
 	static ICVar *pTreeTransCvar(gEnv->pConsole->GetCVar("e_VegetationAlphaBlendNear"));
 	//get some minimum distance plus the camera distance
 	float camDist = max(0.0f, -0.5f + (camPos - targetPos).len());/*1.0f + (camPos - targetPos).len()*/;
+
 	if(pTreeTransCvar)
 	{
 		//set effect distance

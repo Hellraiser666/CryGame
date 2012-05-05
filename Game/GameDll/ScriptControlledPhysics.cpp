@@ -16,17 +16,17 @@ History:
 
 //------------------------------------------------------------------------
 CScriptControlledPhysics::CScriptControlledPhysics()
-: m_moving(false)
-, m_speed(0.0f)
-, m_maxSpeed(0.0f)
-, m_acceleration(0.0f)
-, m_stopTime(1.0f)
-,	m_rotating(false)
-, m_rotationTarget(IDENTITY)
-, m_rotationSpeed(0.0f)
-, m_rotationMaxSpeed(0.0f)
-, m_rotationAcceleration(0.0f)
-, m_rotationStopTime(0.0f)
+	: m_moving(false)
+	, m_speed(0.0f)
+	, m_maxSpeed(0.0f)
+	, m_acceleration(0.0f)
+	, m_stopTime(1.0f)
+	,	m_rotating(false)
+	, m_rotationTarget(IDENTITY)
+	, m_rotationSpeed(0.0f)
+	, m_rotationMaxSpeed(0.0f)
+	, m_rotationAcceleration(0.0f)
+	, m_rotationStopTime(0.0f)
 {
 }
 
@@ -49,7 +49,7 @@ void CScriptControlledPhysics::RegisterMethods()
 
 	SCRIPT_REG_TEMPLFUNC(GetSpeed, "");
 	SCRIPT_REG_TEMPLFUNC(GetAcceleration, "");
-	
+
 	SCRIPT_REG_TEMPLFUNC(GetAngularSpeed, "");
 	SCRIPT_REG_TEMPLFUNC(GetAngularAcceleration, "");
 
@@ -59,7 +59,7 @@ void CScriptControlledPhysics::RegisterMethods()
 }
 
 //------------------------------------------------------------------------
-bool CScriptControlledPhysics::Init(IGameObject * pGameObject )
+bool CScriptControlledPhysics::Init(IGameObject *pGameObject)
 {
 	CScriptableBase::Init(gEnv->pScriptSystem, gEnv->pSystem, 1);
 
@@ -86,9 +86,9 @@ void CScriptControlledPhysics::Release()
 }
 
 //------------------------------------------------------------------------
-void CScriptControlledPhysics::PostInit( IGameObject * pGameObject )
+void CScriptControlledPhysics::PostInit(IGameObject *pGameObject)
 {
-	if (IPhysicalEntity *pPE=GetEntity()->GetPhysics())
+	if(IPhysicalEntity *pPE=GetEntity()->GetPhysics())
 	{
 		pe_params_flags fp;
 		fp.flagsOR=pef_log_poststep;
@@ -97,7 +97,7 @@ void CScriptControlledPhysics::PostInit( IGameObject * pGameObject )
 }
 
 //------------------------------------------------------------------------
-void CScriptControlledPhysics::HandleEvent(const SGameObjectEvent& event)
+void CScriptControlledPhysics::HandleEvent(const SGameObjectEvent &event)
 {
 	switch(event.event)
 	{
@@ -117,17 +117,18 @@ void CScriptControlledPhysics::OnPostStep(EventPhysPostStep *pPostStep)
 
 	float dt=pPostStep->dt;
 
-	if (m_moving)
+	if(m_moving)
 	{
 		Vec3 current=pPostStep->pos;
 		Vec3 target=m_moveTarget;
 		Vec3 delta=target-current;
 		float distance=delta.len();
 		Vec3 dir=delta;
+
 		if(distance>0.01f)
 			dir *= (1.0f/distance);
 
-		if (distance<0.01f)
+		if(distance<0.01f)
 		{
 			m_speed=0.0f;
 			m_moving=false;
@@ -140,26 +141,27 @@ void CScriptControlledPhysics::OnPostStep(EventPhysPostStep *pPostStep)
 		{
 			float a=m_speed/m_stopTime;
 			float d=m_speed*m_stopTime-0.5f*a*m_stopTime*m_stopTime;
-			
-			if (distance<=(d+0.01f))
+
+			if(distance<=(d+0.01f))
 				m_acceleration=(distance-m_speed*m_stopTime)/(m_stopTime*m_stopTime);
 
 			m_speed=m_speed+m_acceleration*dt;
-			if (m_speed>=m_maxSpeed)
+
+			if(m_speed>=m_maxSpeed)
 			{
 				m_speed=m_maxSpeed;
 				m_acceleration=0.0f;
 			}
-			else if (m_speed*dt>distance)
+			else if(m_speed*dt>distance)
 				m_speed=distance/dt;
-			else if (m_speed<0.05f)
+			else if(m_speed<0.05f)
 				m_speed=0.05f;
 
 			av.v=dir*m_speed;
 		}
 	}
 
-	if (m_rotating)
+	if(m_rotating)
 	{
 		Quat current=pPostStep->q;
 		Quat target=m_rotationTarget;
@@ -167,12 +169,13 @@ void CScriptControlledPhysics::OnPostStep(EventPhysPostStep *pPostStep)
 		Quat rotation=target*!current;
 		float angle=cry_acosf(CLAMP(rotation.w, -1.0f, 1.0f))*2.0f;
 		float original=angle;
-		if (angle>gf_PI)
+
+		if(angle>gf_PI)
 			angle=angle-gf_PI2;
-		else if (angle<-gf_PI)
+		else if(angle<-gf_PI)
 			angle=angle+gf_PI2;
 
-		if (cry_fabsf(angle)<0.001f)
+		if(cry_fabsf(angle)<0.001f)
 		{
 			m_rotationSpeed=0.0f;
 			m_rotating=false;
@@ -184,15 +187,16 @@ void CScriptControlledPhysics::OnPostStep(EventPhysPostStep *pPostStep)
 			float a=m_rotationSpeed/m_rotationStopTime;
 			float d=m_rotationSpeed*m_stopTime-0.5f*a*m_rotationStopTime*m_rotationStopTime;
 
-			if (cry_fabsf(angle)<d+0.001f)
+			if(cry_fabsf(angle)<d+0.001f)
 				m_rotationAcceleration=(angle-m_rotationSpeed*m_rotationStopTime)/(m_rotationStopTime*m_rotationStopTime);
 
 			m_rotationSpeed=m_rotationSpeed+sgn(angle)*m_rotationAcceleration*dt;
-			if (cry_fabsf(m_rotationSpeed*dt)>cry_fabsf(angle))
+
+			if(cry_fabsf(m_rotationSpeed*dt)>cry_fabsf(angle))
 				m_rotationSpeed=angle/dt;
-			else if (cry_fabsf(m_rotationSpeed)<0.001f)
+			else if(cry_fabsf(m_rotationSpeed)<0.001f)
 				m_rotationSpeed=sgn(m_rotationSpeed)*0.001f;
-			else if (cry_fabsf(m_rotationSpeed)>=m_rotationMaxSpeed)
+			else if(cry_fabsf(m_rotationSpeed)>=m_rotationMaxSpeed)
 			{
 				m_rotationSpeed=sgn(m_rotationSpeed)*m_rotationMaxSpeed;
 				m_rotationAcceleration=0.0f;
@@ -202,16 +206,17 @@ void CScriptControlledPhysics::OnPostStep(EventPhysPostStep *pPostStep)
 
 		if(cry_fabsf(angle)>=0.001f)
 			av.w=(rotation.v/cry_sinf(original*0.5f)).normalized();
+
 		av.w*=m_rotationSpeed;
 	}
 
-	if (moving || rotating)
+	if(moving || rotating)
 	{
-		if (IPhysicalEntity *pPE=GetEntity()->GetPhysics())
+		if(IPhysicalEntity *pPE=GetEntity()->GetPhysics())
 			pPE->Action(&av);
 	}
 
-	if ((moving && !m_moving) || (rotating && !m_rotating))
+	if((moving && !m_moving) || (rotating && !m_rotating))
 		GetEntity()->SetWorldTM(Matrix34::Create(GetEntity()->GetScale(), pPostStep->q, pPostStep->pos));
 }
 
@@ -253,7 +258,7 @@ int CScriptControlledPhysics::MoveTo(IFunctionHandler *pH, Vec3 point, float ini
 	pe_action_awake aa;
 	aa.bAwake=1;
 
-	if (IPhysicalEntity *pPE=GetEntity()->GetPhysics())
+	if(IPhysicalEntity *pPE=GetEntity()->GetPhysics())
 		pPE->Action(&aa);
 
 	return pH->EndFunction();
@@ -272,7 +277,7 @@ int CScriptControlledPhysics::RotateTo(IFunctionHandler *pH, Vec3 dir, float rol
 	pe_action_awake aa;
 	aa.bAwake=1;
 
-	if (IPhysicalEntity *pPE=GetEntity()->GetPhysics())
+	if(IPhysicalEntity *pPE=GetEntity()->GetPhysics())
 		pPE->Action(&aa);
 
 	return pH->EndFunction();
@@ -291,14 +296,14 @@ int CScriptControlledPhysics::RotateToAngles(IFunctionHandler *pH, Vec3 angles, 
 	pe_action_awake aa;
 	aa.bAwake=1;
 
-	if (IPhysicalEntity *pPE=GetEntity()->GetPhysics())
+	if(IPhysicalEntity *pPE=GetEntity()->GetPhysics())
 		pPE->Action(&aa);
 
 	return pH->EndFunction();
 }
 
 //------------------------------------------------------------------------
-void CScriptControlledPhysics::GetMemoryUsage(ICrySizer * s) const
+void CScriptControlledPhysics::GetMemoryUsage(ICrySizer *s) const
 {
 	int nSize = sizeof(*this);
 	s->AddObject(this,nSize);

@@ -21,7 +21,7 @@ TActionHandler<CBinocular> CBinocular::s_actionHandler;
 
 struct CBinocular::EndRaiseWeaponAction
 {
-	EndRaiseWeaponAction(CBinocular *_binocs): binocs(_binocs){}
+	EndRaiseWeaponAction(CBinocular *_binocs): binocs(_binocs) {}
 	CBinocular *binocs;
 
 	void execute(CItem *_this)
@@ -31,16 +31,16 @@ struct CBinocular::EndRaiseWeaponAction
 };
 
 CBinocular::CBinocular():
-m_bZoomed(false),
-m_bNightVisionEnabled(false),
-m_pNightVisionCVar(NULL),
-m_pSpecCVar(NULL),
-m_pPhysWorld(NULL)
+	m_bZoomed(false),
+	m_bNightVisionEnabled(false),
+	m_pNightVisionCVar(NULL),
+	m_pSpecCVar(NULL),
+	m_pPhysWorld(NULL)
 {
 	if(s_actionHandler.GetNumHandlers() == 0)
 	{
 #define ADD_HANDLER(action, func) s_actionHandler.AddHandler(actions.action, &CBinocular::func)
-		const CGameActions& actions = g_pGame->Actions();
+		const CGameActions &actions = g_pGame->Actions();
 
 		ADD_HANDLER(xi_zoom,OnActionZoom);
 		ADD_HANDLER(zoom,OnActionZoom);
@@ -60,7 +60,7 @@ m_pPhysWorld(NULL)
 	m_pNightVisionCVar	= gEnv->pConsole->GetCVar("r_NightVision");
 	m_pSpecCVar			= gEnv->pConsole->GetCVar("sys_spec");
 	m_pDefaultNVMode	= gEnv->pConsole->GetCVar("pl_nightvisionModeBinocular");
-	
+
 }
 //------------------------------------------------------------------------
 CBinocular::~CBinocular()
@@ -68,7 +68,7 @@ CBinocular::~CBinocular()
 }
 
 //------------------------------------------------------------------------
-void CBinocular::OnAction(EntityId actorId, const ActionId& actionId, int activationMode, float value)
+void CBinocular::OnAction(EntityId actorId, const ActionId &actionId, int activationMode, float value)
 {
 	s_actionHandler.Dispatch(this,actorId,actionId,activationMode,value);
 }
@@ -85,14 +85,14 @@ void CBinocular::Select(bool select)
 	{
 		PlayAction(g_pItemStrings->select);
 	}
-		
+
 	CWeapon::Select(select);
 }
 
 //-----------------------------------------------------------------------
-bool CBinocular::OnActionZoom(EntityId actorId, const ActionId& actionId, int activationMode, float value)
+bool CBinocular::OnActionZoom(EntityId actorId, const ActionId &actionId, int activationMode, float value)
 {
-	if (activationMode == eAAM_OnPress)
+	if(activationMode == eAAM_OnPress)
 	{
 		if(m_bZoomed == false)
 		{
@@ -116,14 +116,14 @@ bool CBinocular::OnActionZoom(EntityId actorId, const ActionId& actionId, int ac
 }
 
 //-------------------------------------------------------------------------
-bool CBinocular::OnActionZoomIn(EntityId actorId, const ActionId& actionId, int activationMode, float value)
+bool CBinocular::OnActionZoomIn(EntityId actorId, const ActionId &actionId, int activationMode, float value)
 {
 	if(m_bZoomed == false)
 		return true;
-	
-	if (m_zm)
+
+	if(m_zm)
 	{
-		if (m_zm->GetCurrentStep() < m_zm->GetMaxZoomSteps())
+		if(m_zm->GetCurrentStep() < m_zm->GetMaxZoomSteps())
 		{
 			PlayAction(g_pItemStrings->zoom_in);
 			m_zm->StartZoom(false, true);
@@ -134,18 +134,18 @@ bool CBinocular::OnActionZoomIn(EntityId actorId, const ActionId& actionId, int 
 }
 
 //--------------------------------------------------------------------------
-bool CBinocular::OnActionZoomOut(EntityId actorId, const ActionId& actionId, int activationMode, float value)
+bool CBinocular::OnActionZoomOut(EntityId actorId, const ActionId &actionId, int activationMode, float value)
 {
 	if(m_bZoomed == false)
 		return true;
 
-	if (m_zm)
+	if(m_zm)
 	{
-		if (m_zm->GetCurrentStep() > 1)
+		if(m_zm->GetCurrentStep() > 1)
 		{
 			m_zm->ZoomOut();
 		}
-		else	
+		else
 		{
 			PlayAction(g_pItemStrings->lower);
 			m_zm->ExitZoom();
@@ -157,7 +157,7 @@ bool CBinocular::OnActionZoomOut(EntityId actorId, const ActionId& actionId, int
 	return true;
 }
 
-bool CBinocular::OnActionToggleNightVision( EntityId actorId, const ActionId& actionId, int activationMode, float value )
+bool CBinocular::OnActionToggleNightVision(EntityId actorId, const ActionId &actionId, int activationMode, float value)
 {
 	if(m_bZoomed == false)
 		return true;
@@ -168,7 +168,7 @@ bool CBinocular::OnActionToggleNightVision( EntityId actorId, const ActionId& ac
 	if(m_pDefaultNVMode == NULL)
 		return true;
 
-	if (m_bNightVisionEnabled == true)
+	if(m_bNightVisionEnabled == true)
 	{
 		PlayAction(g_pItemStrings->nightvision_off);
 		m_pNightVisionCVar->ForceSet("0");
@@ -186,7 +186,7 @@ bool CBinocular::OnActionToggleNightVision( EntityId actorId, const ActionId& ac
 
 void CBinocular::Zoom()
 {
-	if (m_zm && !m_bZoomed)
+	if(m_zm && !m_bZoomed)
 	{
 		gEnv->p3DEngine->SetPostEffectParam("Dof_UseMask", 0);
 		gEnv->p3DEngine->SetPostEffectParam("Dof_Active", 1);
@@ -196,11 +196,11 @@ void CBinocular::Zoom()
 		PlayAction(g_pItemStrings->zoom_in);
 		m_zm->StartZoom();
 		m_bZoomed = true;
-		SetDefaultIdleAnimation( eIGS_FirstPerson,g_pItemStrings->idle_raised);
+		SetDefaultIdleAnimation(eIGS_FirstPerson,g_pItemStrings->idle_raised);
 	}
 }
 
-void CBinocular::OnDropped( EntityId actorId )
+void CBinocular::OnDropped(EntityId actorId)
 {
 	ResetState();
 
@@ -212,7 +212,7 @@ void CBinocular::OnDropped( EntityId actorId )
 
 void CBinocular::ResetState()
 {
-	SetDefaultIdleAnimation( eIGS_FirstPerson,g_pItemStrings->idle_relaxed);
+	SetDefaultIdleAnimation(eIGS_FirstPerson,g_pItemStrings->idle_relaxed);
 	SetWeaponRaised(false);
 
 	if(m_pNightVisionCVar)
@@ -224,30 +224,30 @@ void CBinocular::ResetState()
 	gEnv->p3DEngine->SetPostEffectParam("Dof_Active", 0);
 }
 
-void CBinocular::UpdateFPView( float frameTime )
+void CBinocular::UpdateFPView(float frameTime)
 {
 	CWeapon::UpdateFPView(frameTime);
 
 	if(m_bZoomed == false)
 		return;
 
-	if (m_pSpecCVar == NULL)
+	if(m_pSpecCVar == NULL)
 		return;
 
 	if(m_pPhysWorld == NULL)
 		return;
 
-	if (m_pSpecCVar->GetIVal() > 2)
+	if(m_pSpecCVar->GetIVal() > 2)
 	{
 		ray_hit hit;
-		const CCamera& cam = GetISystem()->GetViewCamera();
+		const CCamera &cam = GetISystem()->GetViewCamera();
 		const Vec3 pos = cam.GetPosition()+cam.GetViewdir();
 		const Vec3 direction = cam.GetViewdir();
-		
-		int numHits = m_pPhysWorld->RayWorldIntersection( pos,direction * 1000.0f,
-			ent_all,
-			rwi_stop_at_pierceable|rwi_colltype_any,
-			&hit, 1 );
+
+		int numHits = m_pPhysWorld->RayWorldIntersection(pos,direction * 1000.0f,
+					  ent_all,
+					  rwi_stop_at_pierceable|rwi_colltype_any,
+					  &hit, 1);
 
 		if(numHits > 0)
 		{

@@ -29,7 +29,7 @@ h4*T2;
 lineto (p)                            // draw to calculated point on the curve
 }*/
 
-static Vec3 HermiteInterpolate( float s, const Vec3& p1, const Vec3& t1, const Vec3& p2, const Vec3& t2 )
+static Vec3 HermiteInterpolate(float s, const Vec3 &p1, const Vec3 &t1, const Vec3 &p2, const Vec3 &t2)
 {
 	float s2 = s*s;
 	float s3 = s2*s;
@@ -42,8 +42,8 @@ static Vec3 HermiteInterpolate( float s, const Vec3& p1, const Vec3& t1, const V
 
 
 // PLAYERPREDICTION
-CNetPlayerInput::CNetPlayerInput( CPlayer * pPlayer ) 
-: 
+CNetPlayerInput::CNetPlayerInput(CPlayer *pPlayer)
+	:
 	m_pPlayer(pPlayer),
 	m_netDesiredSpeed(0.0f),
 	m_netLerpSpeed(0.0f),
@@ -79,21 +79,21 @@ void CNetPlayerInput::InitialiseInterpolation(f32 netPosDist, const Vec3 &desPos
 {
 	m_newInterpolation = false;
 
-	//--- Don't trigger a fresh interpolation for minor adjustments if the player is on the ground & stopping or 
+	//--- Don't trigger a fresh interpolation for minor adjustments if the player is on the ground & stopping or
 	//--- would be moving against the local player's velocity
 	bool isStatic = (m_pPlayer->GetActorStats()->onGround > 0.1f) && ((m_netDesiredSpeed < k_staticSpeed) || (desPosOffset.Dot(desiredVelocity) < 0.0f));
 	const float minDist = isStatic ? k_minDistStatic : k_minDistMoving;
 
-	if (g_pGameCVars->pl_debugInterpolation)
+	if(g_pGameCVars->pl_debugInterpolation)
 	{
 		CryWatch("NewInterp NetPosDist: %f MinDist: %f)", netPosDist, minDist);
 	}
 
 	m_netLastUpdate = curTime;
 
-	if (netPosDist > minDist)
+	if(netPosDist > minDist)
 	{
-		if (m_netDesiredSpeed > k_staticSpeed)
+		if(m_netDesiredSpeed > k_staticSpeed)
 		{
 			m_initialDir = desiredVelocity / m_netDesiredSpeed;
 		}
@@ -110,26 +110,28 @@ void CNetPlayerInput::InitialiseInterpolation(f32 netPosDist, const Vec3 &desPos
 
 void CNetPlayerInput::UpdateErrorSnap(const Vec3 &entPos, const Vec3 &desiredPos, f32 netPosDist, const Vec3 &desPosOffset, const CTimeValue &curTime)
 {
-	if (g_pGameCVars->pl_velocityInterpAlwaysSnap)
+	if(g_pGameCVars->pl_velocityInterpAlwaysSnap)
 	{
 		//--- Snap to target
 		m_pPlayer->GetEntity()->SetPos(desiredPos);
 		m_passedNetPos = true;
 		m_passedPredictionPos = true;
 	}
-	else if (curTime > m_nextBCTime && !(m_pPlayer->m_stats.inFreefall.Value() > 0))
+	else if(curTime > m_nextBCTime && !(m_pPlayer->m_stats.inFreefall.Value() > 0))
 	{
 		//--- Breadcrumbs dropped for simulated annealing, whilst the player is blocked we reduce the maximum
 		//--- allowed offset until the character is snapped to the last net position
 		Vec3 prevOffset = entPos - m_breadCrumb;
 		bool blocked = false;
-		if (!m_passedNetPos)
+
+		if(!m_passedNetPos)
 		{
 			float moveDist = prevOffset.Dot(desPosOffset) / netPosDist;
 			float moveSpeed  = moveDist / k_timePerBC;
 			blocked = ((moveSpeed / m_netLerpSpeed) <= k_BCMovingRatio);
 		}
-		if (blocked)
+
+		if(blocked)
 		{
 			m_blockedTime += k_timePerBC;
 		}
@@ -153,7 +155,8 @@ void CNetPlayerInput::UpdateErrorSnap(const Vec3 &entPos, const Vec3 &desiredPos
 		float maxDistXY = !m_passedNetPos ? blockedFactor * k_maxInterpolateDist : k_reachedTargetAllowedDeviation;
 		float timeOnGround = m_pPlayer->GetActorStats()->onGround;
 		float allowedHeightDiff = (float)__fsel(timeOnGround - k_onGroundTime, k_allowedHeightDiff, k_allowedHeightDiffInAir);
-		if ((distSqrXY > (maxDistXY * maxDistXY)) || (cry_fabsf(heightDiff) > allowedHeightDiff))
+
+		if((distSqrXY > (maxDistXY * maxDistXY)) || (cry_fabsf(heightDiff) > allowedHeightDiff))
 		{
 			//--- Snap to target
 			m_pPlayer->GetEntity()->SetPos(desiredPos);
@@ -176,7 +179,7 @@ void CNetPlayerInput::UpdateInterpolation()
 	Vec3 desiredVelocity = m_curInput.deltaMovement * g_pGameCVars->pl_netSerialiseMaxSpeed;
 	m_netDesiredSpeed = desiredVelocity.GetLength2D();
 
-	if (m_newInterpolation)
+	if(m_newInterpolation)
 	{
 		InitialiseInterpolation(dist, displacement, desiredVelocity, curTime);
 	}
@@ -195,26 +198,28 @@ void CNetPlayerInput::UpdateInterpolation()
 
 	UpdateErrorSnap(entPos, desiredPosition, dist, displacement, curTime);
 
-	if (!m_passedNetPos && (m_initialDir.Dot(displacement) < 0.0f))
+	if(!m_passedNetPos && (m_initialDir.Dot(displacement) < 0.0f))
 	{
 		m_passedNetPos = true;
 	}
+
 	Vec3 maxPrediction = desiredPosition + (desiredVelocity * k_maxPredictTime);
-	if (m_passedNetPos && !m_passedPredictionPos && (m_initialDir.Dot(maxPrediction - entPos) < 0.0f))
+
+	if(m_passedNetPos && !m_passedPredictionPos && (m_initialDir.Dot(maxPrediction - entPos) < 0.0f))
 	{
 		m_passedPredictionPos = true;
 	}
 
 #if !defined(_RELEASE)
 
-	if (g_pGameCVars->pl_debugInterpolation)
+	if(g_pGameCVars->pl_debugInterpolation)
 	{
 		CryWatch("Cur: (%f, %f, %f) Des: (%f, %f, %f) Pred: (%f, %f, %f) ", entPos.x, entPos.y, entPos.z, desiredPosition.x, desiredPosition.y, desiredPosition.z, m_predictedPosition.x, m_predictedPosition.y, m_predictedPosition.z);
 		CryWatch("BlockTime: (%f) PredictTime (%f) LastNetTime (%f) CurTime (%f)", m_blockedTime, dt, m_netLastUpdate.GetSeconds(), curTime.GetSeconds());
 		CryWatch("Lerp Speed: (%f) Passed pred pos (%d) Passed net pos (%d)", m_netLerpSpeed, m_passedPredictionPos, m_passedNetPos);
 		CryWatch("InputSpeed: (%f, %f, %f) ", desiredVelocity.x, desiredVelocity.y, desiredVelocity.z);
 
-		IRenderAuxGeom* pRender = gEnv->pRenderer->GetIRenderAuxGeom();
+		IRenderAuxGeom *pRender = gEnv->pRenderer->GetIRenderAuxGeom();
 
 		SAuxGeomRenderFlags flags = pRender->GetRenderFlags();
 		SAuxGeomRenderFlags oldFlags = pRender->GetRenderFlags();
@@ -248,17 +253,19 @@ void CNetPlayerInput::UpdateMoveRequest()
 	Vec3 deltaMovement = worldRot.GetInverted().GetNormalized() * m_curInput.deltaMovement;
 	// absolutely ensure length is correct
 	deltaMovement = deltaMovement.GetNormalizedSafe(ZERO) * m_curInput.deltaMovement.GetLength();
-	moveRequest.AddDeltaMovement( deltaMovement );
-	if( IsDemoPlayback() )
+	moveRequest.AddDeltaMovement(deltaMovement);
+
+	if(IsDemoPlayback())
 	{
 		Vec3 localVDir(m_pPlayer->GetViewQuatFinal().GetInverted() * m_curInput.lookDirection);
 		Ang3 deltaAngles(asinf(localVDir.z),0,cry_atan2f(-localVDir.x,localVDir.y));
 		moveRequest.AddDeltaRotation(deltaAngles*gEnv->pTimer->GetFrameTime());
 	}
+
 	//else
 	{
 		//--- Vector slerp actually produces QNans if the vectors are exactly opposite, in that case snap to the target
-		if (m_lookDir.Dot(m_curInput.lookDirection) < (float)-0.99f)
+		if(m_lookDir.Dot(m_curInput.lookDirection) < (float)-0.99f)
 		{
 			m_lookDir = m_curInput.lookDirection;
 		}
@@ -270,18 +277,18 @@ void CNetPlayerInput::UpdateMoveRequest()
 		Vec3 distantTarget = moveState.eyePosition + 1000.0f * m_lookDir;
 		Vec3 lookTarget = distantTarget;
 
-		if (m_curInput.usinglookik)
-			moveRequest.SetLookTarget( lookTarget );
+		if(m_curInput.usinglookik)
+			moveRequest.SetLookTarget(lookTarget);
 		else
 			moveRequest.ClearLookTarget();
 
-		if (m_curInput.aiming)
-			moveRequest.SetAimTarget( lookTarget );
+		if(m_curInput.aiming)
+			moveRequest.SetAimTarget(lookTarget);
 		else
 			moveRequest.ClearAimTarget();
 
-		if (m_curInput.deltaMovement.GetLengthSquared() > sqr(0.02f)) // 0.2f is almost stopped
-			moveRequest.SetBodyTarget( distantTarget );
+		if(m_curInput.deltaMovement.GetLengthSquared() > sqr(0.02f))  // 0.2f is almost stopped
+			moveRequest.SetBodyTarget(distantTarget);
 		else
 			moveRequest.ClearBodyTarget();
 	}
@@ -294,47 +301,51 @@ void CNetPlayerInput::UpdateMoveRequest()
 		moveRequest.SetPseudoSpeed(m_curInput.pseudoSpeed);
 
 	float lean=0.0f;
-	if (m_curInput.leanl)
+
+	if(m_curInput.leanl)
 		lean-=1.0f;
-	if (m_curInput.leanr)
+
+	if(m_curInput.leanr)
 		lean+=1.0f;
 
-	if (fabsf(lean)>0.01f)
+	if(fabsf(lean)>0.01f)
 		moveRequest.SetLean(lean);
 	else
 		moveRequest.ClearLean();
 
-	moveRequest.SetStance( (EStance)m_curInput.stance );
+	moveRequest.SetStance((EStance)m_curInput.stance);
 
 	m_pPlayer->GetMovementController()->RequestMovement(moveRequest);
 
-	if (m_curInput.sprint)
+	if(m_curInput.sprint)
 		m_pPlayer->m_actions |= ACTION_SPRINT;
 	else
 		m_pPlayer->m_actions &= ~ACTION_SPRINT;
 
-	if (m_curInput.leanl)
+	if(m_curInput.leanl)
 		m_pPlayer->m_actions |= ACTION_LEANLEFT;
 	else
 		m_pPlayer->m_actions &= ~ACTION_LEANLEFT;
 
-	if (m_curInput.leanr)
+	if(m_curInput.leanr)
 		m_pPlayer->m_actions |= ACTION_LEANRIGHT;
 	else
 		m_pPlayer->m_actions &= ~ACTION_LEANRIGHT;
 
 #if !defined(_RELEASE)
+
 	// debug..
-	if (g_pGameCVars->g_debugNetPlayerInput & 2)
+	if(g_pGameCVars->g_debugNetPlayerInput & 2)
 	{
-		IPersistantDebug * pPD = gEnv->pGame->GetIGameFramework()->GetIPersistantDebug();
-		pPD->Begin( string("update_player_input_") + m_pPlayer->GetEntity()->GetName(), true );
+		IPersistantDebug *pPD = gEnv->pGame->GetIGameFramework()->GetIPersistantDebug();
+		pPD->Begin(string("update_player_input_") + m_pPlayer->GetEntity()->GetName(), true);
 		Vec3 wp = m_pPlayer->GetEntity()->GetWorldPos();
 		wp.z += 2.0f;
-		pPD->AddSphere( moveRequest.GetLookTarget(), 0.5f, ColorF(1,0,1,0.3f), 1.0f );
+		pPD->AddSphere(moveRequest.GetLookTarget(), 0.5f, ColorF(1,0,1,0.3f), 1.0f);
 		//		pPD->AddSphere( moveRequest.GetMoveTarget(), 0.5f, ColorF(1,1,0,0.3f), 1.0f );
-		pPD->AddDirection( m_pPlayer->GetEntity()->GetWorldPos() + Vec3(0,0,2), 1, m_curInput.deltaMovement, ColorF(1,0,0,0.3f), 1.0f );
+		pPD->AddDirection(m_pPlayer->GetEntity()->GetWorldPos() + Vec3(0,0,2), 1, m_curInput.deltaMovement, ColorF(1,0,0,0.3f), 1.0f);
 	}
+
 #endif
 
 	//m_curInput.deltaMovement.zero();
@@ -343,11 +354,11 @@ void CNetPlayerInput::UpdateMoveRequest()
 
 void CNetPlayerInput::PreUpdate()
 {
-	IPhysicalEntity * pPhysEnt = m_pPlayer->GetEntity()->GetPhysics();
+	IPhysicalEntity *pPhysEnt = m_pPlayer->GetEntity()->GetPhysics();
 
-	if (pPhysEnt && !m_pPlayer->IsDead())
+	if(pPhysEnt && !m_pPlayer->IsDead())
 	{
-		if (m_pPlayer->AllowPhysicsUpdate(m_curInput.physCounter) && m_pPlayer->IsRemote() && HasReceivedUpdate())
+		if(m_pPlayer->AllowPhysicsUpdate(m_curInput.physCounter) && m_pPlayer->IsRemote() && HasReceivedUpdate())
 		{
 			UpdateInterpolation();
 		}
@@ -365,14 +376,14 @@ void CNetPlayerInput::PreUpdate()
 
 void CNetPlayerInput::Update()
 {
-	if (gEnv->bServer && (g_pGameCVars->sv_input_timeout>0) && ((gEnv->pTimer->GetFrameStartTime()-m_lastUpdate).GetMilliSeconds()>=g_pGameCVars->sv_input_timeout))
+	if(gEnv->bServer && (g_pGameCVars->sv_input_timeout>0) && ((gEnv->pTimer->GetFrameStartTime()-m_lastUpdate).GetMilliSeconds()>=g_pGameCVars->sv_input_timeout))
 	{
 		m_curInput.deltaMovement.zero();
 		// PLAYERPREDICTION
 		m_curInput.sprint=false;
 		m_curInput.stance=(uint8)STANCE_NULL;
 
-		CHANGED_NETWORK_STATE(m_pPlayer,  IPlayerInput::INPUT_ASPECT );
+		CHANGED_NETWORK_STATE(m_pPlayer,  IPlayerInput::INPUT_ASPECT);
 		// ~PLAYERPREDICTION
 	}
 }
@@ -381,14 +392,14 @@ void CNetPlayerInput::PostUpdate()
 {
 }
 
-void CNetPlayerInput::SetState( const SSerializedPlayerInput& input )
+void CNetPlayerInput::SetState(const SSerializedPlayerInput &input)
 {
 	DoSetState(input);
 
 	m_lastUpdate = gEnv->pTimer->GetCurrTime();
 }
 
-void CNetPlayerInput::GetState( SSerializedPlayerInput& input )
+void CNetPlayerInput::GetState(SSerializedPlayerInput &input)
 {
 	input = m_curInput;
 }
@@ -416,13 +427,13 @@ float CNetPlayerInput::CalculatePseudoSpeed() const
 }
 // ~PLAYERPREDICTION
 
-void CNetPlayerInput::DoSetState(const SSerializedPlayerInput& input )
+void CNetPlayerInput::DoSetState(const SSerializedPlayerInput &input)
 {
 	// PLAYERPREDICTION
 	m_newInterpolation |= (input.position != m_curInput.position) || (input.deltaMovement != m_curInput.deltaMovement);
 
 	m_curInput = input;
-	CHANGED_NETWORK_STATE(m_pPlayer,  IPlayerInput::INPUT_ASPECT );
+	CHANGED_NETWORK_STATE(m_pPlayer,  IPlayerInput::INPUT_ASPECT);
 
 	// not having these set seems to stop a remote avatars rotation being reflected
 	m_curInput.aiming = true;
@@ -430,12 +441,13 @@ void CNetPlayerInput::DoSetState(const SSerializedPlayerInput& input )
 	m_curInput.usinglookik = true;
 	// ~PLAYERPREDICTION
 
-	IAIActor* pAIActor = CastToIAIActorSafe(m_pPlayer->GetEntity()->GetAI());
-	if (pAIActor)
+	IAIActor *pAIActor = CastToIAIActorSafe(m_pPlayer->GetEntity()->GetAI());
+
+	if(pAIActor)
 		pAIActor->GetState().bodystate=input.bodystate;
 
 	CMovementRequest moveRequest;
-	moveRequest.SetStance( (EStance)m_curInput.stance );
+	moveRequest.SetStance((EStance)m_curInput.stance);
 
 	if(IsDemoPlayback())
 	{
@@ -443,61 +455,70 @@ void CNetPlayerInput::DoSetState(const SSerializedPlayerInput& input )
 		Ang3 deltaAngles(asinf(localVDir.z),0,cry_atan2f(-localVDir.x,localVDir.y));
 		moveRequest.AddDeltaRotation(deltaAngles*gEnv->pTimer->GetFrameTime());
 	}
+
 	{
-		if (m_curInput.usinglookik)
-			moveRequest.SetLookTarget( m_pPlayer->GetEntity()->GetWorldPos() + 10.0f * m_curInput.lookDirection );
+		if(m_curInput.usinglookik)
+			moveRequest.SetLookTarget(m_pPlayer->GetEntity()->GetWorldPos() + 10.0f * m_curInput.lookDirection);
 		else
 			moveRequest.ClearLookTarget();
-		if (m_curInput.aiming)
+
+		if(m_curInput.aiming)
 			moveRequest.SetAimTarget(moveRequest.GetLookTarget());
 		else
 			moveRequest.ClearAimTarget();
 	}
-/*
-	float pseudoSpeed = 0.0f; 
-	if (m_curInput.deltaMovement.len2() > 0.0f)
-	{
-		pseudoSpeed = m_pPlayer->CalculatePseudoSpeed(m_curInput.sprint);
-	}
-	*/
+
+	/*
+		float pseudoSpeed = 0.0f;
+		if (m_curInput.deltaMovement.len2() > 0.0f)
+		{
+			pseudoSpeed = m_pPlayer->CalculatePseudoSpeed(m_curInput.sprint);
+		}
+		*/
 	// PLAYERPREDICTION
 	moveRequest.SetPseudoSpeed(CalculatePseudoSpeed());
 	// ~PLAYERPREDICTION
 	moveRequest.SetAllowStrafing(input.allowStrafing);
 
 	float lean=0.0f;
-	if (m_curInput.leanl)
+
+	if(m_curInput.leanl)
 		lean-=1.0f;
-	if (m_curInput.leanr)
+
+	if(m_curInput.leanr)
 		lean+=1.0f;
+
 	moveRequest.SetLean(lean);
 
 	m_pPlayer->GetMovementController()->RequestMovement(moveRequest);
 
 	IAnimationGraphState *pState=0;
-	if (m_pPlayer->GetAnimatedCharacter())
+
+	if(m_pPlayer->GetAnimatedCharacter())
 		pState=m_pPlayer->GetAnimatedCharacter()->GetAnimationGraphState();
-		
+
 // PLAYERPREDICTION
-	if (pState)
+	if(pState)
 	{
 		pState->SetInput(m_pPlayer->m_inputAiming, m_curInput.aiming);
 		pState->SetInput(m_pPlayer->m_inputUsingLookIK, m_curInput.usinglookik);
 	}
 
 #if !defined(_RELEASE)
+
 	// debug..
-	if (g_pGameCVars->g_debugNetPlayerInput & 1)
+	if(g_pGameCVars->g_debugNetPlayerInput & 1)
 	{
-		IPersistantDebug * pPD = gEnv->pGame->GetIGameFramework()->GetIPersistantDebug();
-		pPD->Begin( string("net_player_input_") + m_pPlayer->GetEntity()->GetName(), true );
-		pPD->AddSphere( moveRequest.GetLookTarget(), 0.5f, ColorF(1,0,1,1), 1.0f );
+		IPersistantDebug *pPD = gEnv->pGame->GetIGameFramework()->GetIPersistantDebug();
+		pPD->Begin(string("net_player_input_") + m_pPlayer->GetEntity()->GetName(), true);
+		pPD->AddSphere(moveRequest.GetLookTarget(), 0.5f, ColorF(1,0,1,1), 1.0f);
 		//			pPD->AddSphere( moveRequest.GetMoveTarget(), 0.5f, ColorF(1,1,0,1), 1.0f );
 
 		Vec3 wp(m_pPlayer->GetEntity()->GetWorldPos() + Vec3(0,0,2));
-		pPD->AddDirection( wp, 1.5f, m_curInput.deltaMovement, ColorF(1,0,0,1), 1.0f );
-		pPD->AddDirection( wp, 1.5f, m_curInput.lookDirection, ColorF(0,1,0,1), 1.0f );
+		pPD->AddDirection(wp, 1.5f, m_curInput.deltaMovement, ColorF(1,0,0,1), 1.0f);
+		pPD->AddDirection(wp, 1.5f, m_curInput.lookDirection, ColorF(0,1,0,1), 1.0f);
 	}
+
 #endif
 // ~PLAYERPREDICTION
 }
@@ -507,12 +528,14 @@ void CNetPlayerInput::GetDesiredVel(const Vec3 &pos, Vec3 &vel) const
 {
 	bool doInterp = !m_passedPredictionPos;
 	vel.Set(0.0f, 0.0f, 0.0f);
-	if (doInterp)
+
+	if(doInterp)
 	{
 		Vec3 offset = m_predictedPosition - pos;
 		offset.z = 0.0f;
 		float dist  = offset.GetLength2D();
-		if (dist > 0.0f)
+
+		if(dist > 0.0f)
 		{
 			vel = offset * (m_netLerpSpeed / dist);
 
@@ -521,7 +544,7 @@ void CNetPlayerInput::GetDesiredVel(const Vec3 &pos, Vec3 &vel) const
 			Vec3  pathCorrection = vel - parallelVel;
 			vel = parallelVel + (g_pGameCVars->pl_velocityInterpPathCorrection * pathCorrection);
 
-			if (g_pGameCVars->pl_debugInterpolation)
+			if(g_pGameCVars->pl_debugInterpolation)
 			{
 				CryWatch("Offset: (%f, %f, %f) InitDir: (%f, %f, %f) DesiredVel: (%f, %f, %f)", offset.x, offset.y, offset.z, m_initialDir.x, m_initialDir.y, m_initialDir.z, vel.x, vel.y, vel.z);
 			}

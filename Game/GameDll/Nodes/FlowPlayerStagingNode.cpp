@@ -8,7 +8,7 @@
 class CFlowPlayerStagingNode : public CFlowBaseNode<eNCT_Singleton>
 {
 public:
-	CFlowPlayerStagingNode( SActivationInfo * pActInfo )
+	CFlowPlayerStagingNode(SActivationInfo *pActInfo)
 	{
 	}
 
@@ -39,20 +39,22 @@ public:
 		EOP_Done = 0,
 	};
 
-	virtual void GetConfiguration(SFlowNodeConfig& config)
+	virtual void GetConfiguration(SFlowNodeConfig &config)
 	{
-		static const SInputPortConfig inputs[] = {
-			InputPortConfig_Void  ("Trigger", _HELP("Trigger")),
+		static const SInputPortConfig inputs[] =
+		{
+			InputPortConfig_Void("Trigger", _HELP("Trigger")),
 			InputPortConfig<Vec3> ("ViewLimitDir", _HELP("ViewLimitDir")),
 			InputPortConfig<bool> ("InLocalSpace", true, _HELP("ViewLimit Vector is in Local Space or World Space")),
 			InputPortConfig<float>("ViewLimitYaw", _HELP("ViewLimitYaw (0.0=FreeLook, 0.001=Lock)")),
 			InputPortConfig<float>("ViewLimitPitch", _HELP("ViewLimitPitch (0.0=Freelook, 0.001=Lock)")),
 			InputPortConfig<bool> ("LockPlayer", false, _HELP("Lock the player's position")),
-			InputPortConfig<int>( "TryStance", -1, _HELP("Try to set Stance on Locking [works only if Player was linked beforehand]"), 0, _UICONFIG("enum_int:<ignore>=-1,Stand=0,Crouch=1,Prone=2,Relaxed=3,Stealth=4,Swim=5,ZeroG=6")),
+			InputPortConfig<int>("TryStance", -1, _HELP("Try to set Stance on Locking [works only if Player was linked beforehand]"), 0, _UICONFIG("enum_int:<ignore>=-1,Stand=0,Crouch=1,Prone=2,Relaxed=3,Stealth=4,Swim=5,ZeroG=6")),
 			{0}
 		};
-		static const SOutputPortConfig outputs[] = {
-			OutputPortConfig_Void ("Done", _HELP("Trigger for Chaining")),
+		static const SOutputPortConfig outputs[] =
+		{
+			OutputPortConfig_Void("Done", _HELP("Trigger for Chaining")),
 			{0}
 		};
 		config.pInputPorts = inputs;
@@ -61,29 +63,32 @@ public:
 		config.SetCategory(EFLN_APPROVED);
 	}
 
-	virtual void ProcessEvent( EFlowEvent event, SActivationInfo *pActInfo )
+	virtual void ProcessEvent(EFlowEvent event, SActivationInfo *pActInfo)
 	{
-		switch (event)
+		switch(event)
 		{
 		case eFE_Initialize:
 			break;
+
 		case eFE_Activate:
-			if (IsPortActive(pActInfo, EIP_Trigger))
+			if(IsPortActive(pActInfo, EIP_Trigger))
 			{
-				const Vec3& dir = GetPortVec3(pActInfo, EIP_LimitDir);
+				const Vec3 &dir = GetPortVec3(pActInfo, EIP_LimitDir);
 				const bool localSpace = GetPortBool(pActInfo, EIP_LocalSpace);
 				const float rangeH = GetPortFloat(pActInfo, EIP_LimitYaw);
 				const float rangeV = GetPortFloat(pActInfo, EIP_LimitPitch);
 				CActor *pPlayerActor = static_cast<CActor *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
-				if (pPlayerActor)
+
+				if(pPlayerActor)
 				{
 					CPlayer::SStagingParams stagingParams;
-					CPlayer* pPlayer = static_cast<CPlayer*> (pPlayerActor);
-					if (dir.len2()>0.01f)
+					CPlayer *pPlayer = static_cast<CPlayer *>(pPlayerActor);
+
+					if(dir.len2()>0.01f)
 					{
-						if (localSpace)
+						if(localSpace)
 						{
-							const Quat& viewQuat = pPlayer->GetViewQuatFinal(); // WC
+							const Quat &viewQuat = pPlayer->GetViewQuatFinal(); // WC
 							Vec3 dirWC = viewQuat * dir;
 							stagingParams.vLimitDir = dirWC.GetNormalizedSafe(ZERO);
 						}
@@ -95,17 +100,19 @@ public:
 					stagingParams.vLimitRangeV = DEG2RAD(rangeV);
 					stagingParams.bLocked = GetPortBool(pActInfo, EIP_Lock);
 					int stance = GetPortInt(pActInfo, EIP_Stance);
-					if (stance < STANCE_NULL || stance >= STANCE_LAST)
+
+					if(stance < STANCE_NULL || stance >= STANCE_LAST)
 					{
 						stance = STANCE_NULL;
 						GameWarning("[flow] PlayerStaging: stance=%d invalid", stance);
 					}
+
 					stagingParams.stance = (EStance) stance;
 
 					bool bActive = (stagingParams.bLocked ||
-						(!stagingParams.vLimitDir.IsZero() && 
-						!iszero(stagingParams.vLimitRangeH) && 
-						!iszero(stagingParams.vLimitRangeV)) );
+									(!stagingParams.vLimitDir.IsZero() &&
+									 !iszero(stagingParams.vLimitRangeH) &&
+									 !iszero(stagingParams.vLimitRangeV)));
 					pPlayer->StagePlayer(bActive, &stagingParams);
 
 					/*
@@ -124,7 +131,7 @@ public:
 							else
 								pActorParams->vLimitDir = dir.GetNormalizedSafe(ZERO);
 						}
-						else 
+						else
 							pActorParams->vLimitDir.zero();
 
 						pActorParams->vLimitRangeH = DEG2RAD(rangeH);
@@ -149,13 +156,15 @@ public:
 					}
 					*/
 				}
+
 				ActivateOutput(pActInfo, EOP_Done, false);
 			}
+
 			break;
 		}
 	}
 
-	virtual void GetMemoryUsage(ICrySizer * s) const
+	virtual void GetMemoryUsage(ICrySizer *s) const
 	{
 		s->Add(*this);
 	}
@@ -164,10 +173,10 @@ public:
 class CFlowPlayerLinkNode : public CFlowBaseNode<eNCT_Singleton>
 {
 private:
-		Vec3 m_Position;
-		Quat m_Rotation;
+	Vec3 m_Position;
+	Quat m_Rotation;
 public:
-	CFlowPlayerLinkNode( SActivationInfo * pActInfo )
+	CFlowPlayerLinkNode(SActivationInfo *pActInfo)
 	{
 	}
 
@@ -190,19 +199,21 @@ public:
 		EOP_Unlinked,
 	};
 
-	virtual void GetConfiguration(SFlowNodeConfig& config)
+	virtual void GetConfiguration(SFlowNodeConfig &config)
 	{
-		static const SInputPortConfig inputs[] = {
-			InputPortConfig_Void  ("Link", _HELP("Link the Player to Target Entity")),
-			InputPortConfig_Void  ("Unlink", _HELP("Unlink the Player (from any Entity)")),
-			InputPortConfig<EntityId> ("Target", _HELP("Target Entity Id") ),
-			InputPortConfig<int>  ("DrawPlayer", 0, _HELP("Draw the Player (Hide=-1, NoChange=0, Show=1)"), 0, _UICONFIG("enum_int:NoChange=0,Hide=-1,Show=1")),
+		static const SInputPortConfig inputs[] =
+		{
+			InputPortConfig_Void("Link", _HELP("Link the Player to Target Entity")),
+			InputPortConfig_Void("Unlink", _HELP("Unlink the Player (from any Entity)")),
+			InputPortConfig<EntityId> ("Target", _HELP("Target Entity Id")),
+			InputPortConfig<int> ("DrawPlayer", 0, _HELP("Draw the Player (Hide=-1, NoChange=0, Show=1)"), 0, _UICONFIG("enum_int:NoChange=0,Hide=-1,Show=1")),
 			InputPortConfig<bool> ("KeepTransformationOnUnlink", true, _HELP("Keep Transformation on Unlink")),
 			{0}
 		};
-		static const SOutputPortConfig outputs[] = {
-			OutputPortConfig_Void ("Linked", _HELP("Trigger if Linked")),
-			OutputPortConfig_Void ("Unlinked", _HELP("Trigger if Unlinked")),
+		static const SOutputPortConfig outputs[] =
+		{
+			OutputPortConfig_Void("Linked", _HELP("Trigger if Linked")),
+			OutputPortConfig_Void("Unlinked", _HELP("Trigger if Unlinked")),
 			{0}
 		};
 		config.pInputPorts = inputs;
@@ -211,28 +222,33 @@ public:
 		config.SetCategory(EFLN_APPROVED);
 	}
 
-	virtual void ProcessEvent( EFlowEvent event, SActivationInfo *pActInfo )
+	virtual void ProcessEvent(EFlowEvent event, SActivationInfo *pActInfo)
 	{
-		switch (event)
+		switch(event)
 		{
 		case eFE_Activate:
 			const int nDrawPlayer = GetPortInt(pActInfo, EIP_DrawPlayer);
-			if (IsPortActive(pActInfo, EIP_Link))
+
+			if(IsPortActive(pActInfo, EIP_Link))
 			{
-				IEntity* pEntity = gEnv->pEntitySystem->GetEntity(GetPortEntityId(pActInfo, EIP_Target));
-				if (pEntity)
+				IEntity *pEntity = gEnv->pEntitySystem->GetEntity(GetPortEntityId(pActInfo, EIP_Target));
+
+				if(pEntity)
 				{
-					CActor *pPlayerActor = static_cast<CActor*>(gEnv->pGame->GetIGameFramework()->GetClientActor());
-					if (pPlayerActor)
+					CActor *pPlayerActor = static_cast<CActor *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
+
+					if(pPlayerActor)
 					{
-						SActorStats* pActorStats = pPlayerActor->GetActorStats();
-						if (pActorStats)
+						SActorStats *pActorStats = pPlayerActor->GetActorStats();
+
+						if(pActorStats)
 						{
-							if (nDrawPlayer == -1)
+							if(nDrawPlayer == -1)
 								pActorStats->isHidden = true;
-							else if (nDrawPlayer == 1)
+							else if(nDrawPlayer == 1)
 								pActorStats->isHidden = false;
 						}
+
 						m_Position = pEntity->GetWorldPos();
 						m_Rotation = pEntity->GetWorldRotation();
 
@@ -241,17 +257,20 @@ public:
 					}
 				}
 			}
-			if (IsPortActive(pActInfo, EIP_Unlink))
+
+			if(IsPortActive(pActInfo, EIP_Unlink))
 			{
-				CActor *pPlayerActor = static_cast<CActor*>(gEnv->pGame->GetIGameFramework()->GetClientActor());
-				if (pPlayerActor)
+				CActor *pPlayerActor = static_cast<CActor *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
+
+				if(pPlayerActor)
 				{
-					SActorStats* pActorStats = pPlayerActor->GetActorStats();
-					if (pActorStats)
+					SActorStats *pActorStats = pPlayerActor->GetActorStats();
+
+					if(pActorStats)
 					{
-						if (nDrawPlayer == -1)
+						if(nDrawPlayer == -1)
 							pActorStats->isHidden = true;
-						else if (nDrawPlayer == 1)
+						else if(nDrawPlayer == 1)
 							pActorStats->isHidden = false;
 					}
 
@@ -267,11 +286,12 @@ public:
 					ActivateOutput(pActInfo, EOP_Unlinked, true);
 				}
 			}
+
 			break;
 		}
 	}
 
-	virtual void GetMemoryUsage(ICrySizer * s) const
+	virtual void GetMemoryUsage(ICrySizer *s) const
 	{
 		s->Add(*this);
 	}

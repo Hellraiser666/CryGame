@@ -20,7 +20,7 @@ History:
 
 struct CRocketLauncher::EndDropAction
 {
-	EndDropAction(CRocketLauncher *_rocketLauncher): rocketLauncher(_rocketLauncher){}
+	EndDropAction(CRocketLauncher *_rocketLauncher): rocketLauncher(_rocketLauncher) {}
 	CRocketLauncher *rocketLauncher;
 
 	void execute(CItem *_this)
@@ -31,13 +31,13 @@ struct CRocketLauncher::EndDropAction
 
 struct CRocketLauncher::EndZoomOutAction
 {
-	EndZoomOutAction(CRocketLauncher *_rocketLauncher): rocketLauncher(_rocketLauncher){}
+	EndZoomOutAction(CRocketLauncher *_rocketLauncher): rocketLauncher(_rocketLauncher) {}
 	CRocketLauncher *rocketLauncher;
 
 	void execute(CItem *_this)
 	{
 		const int zoomMode = rocketLauncher->GetCurrentZoomMode();
-		IZoomMode* pZoomMode = rocketLauncher->GetZoomMode(zoomMode);
+		IZoomMode *pZoomMode = rocketLauncher->GetZoomMode(zoomMode);
 
 		if(pZoomMode)
 			pZoomMode->ExitZoom();
@@ -47,23 +47,23 @@ struct CRocketLauncher::EndZoomOutAction
 };
 
 CRocketLauncher::CRocketLauncher():
-m_dotEffectSlot(-1),
-m_smokeEffectSlot(-1),
-m_auxSlotUsed(false),
-m_auxSlotUsedBQS(false),
-m_laserTPOn(false),
-m_laserFPOn(false),
-m_lastLaserHitSolid(false),
-m_lastLaserHitViewPlane(false),
-m_smoothLaserLength(-1.0f),
-m_firedRockets(0),
-m_lastLaserHitPt(ZERO),
-m_sAimdotEffect(""),
-m_sAimdotFPEffect(""),
-m_sEmptySmokeEffect(""),
-m_LaserRange(150.0f),
-m_LaserRangeTP(8.0f),
-m_Timeout(0.15f)
+	m_dotEffectSlot(-1),
+	m_smokeEffectSlot(-1),
+	m_auxSlotUsed(false),
+	m_auxSlotUsedBQS(false),
+	m_laserTPOn(false),
+	m_laserFPOn(false),
+	m_lastLaserHitSolid(false),
+	m_lastLaserHitViewPlane(false),
+	m_smoothLaserLength(-1.0f),
+	m_firedRockets(0),
+	m_lastLaserHitPt(ZERO),
+	m_sAimdotEffect(""),
+	m_sAimdotFPEffect(""),
+	m_sEmptySmokeEffect(""),
+	m_LaserRange(150.0f),
+	m_LaserRangeTP(8.0f),
+	m_Timeout(0.15f)
 {
 }
 
@@ -118,9 +118,10 @@ void CRocketLauncher::ProcessEvent(SEntityEvent &event)
 				DrawSlot(eIGS_ThirdPersonAux,true);
 				m_auxSlotUsed = true;
 			}
+
 			ActivateLaserDot(false, false);
 		}
-	}	
+	}
 }
 //========================================
 bool CRocketLauncher::SetAspectProfile(EEntityAspects aspect, uint8 profile)
@@ -129,62 +130,69 @@ bool CRocketLauncher::SetAspectProfile(EEntityAspects aspect, uint8 profile)
 		return CWeapon::SetAspectProfile(aspect, profile);
 
 	bool ok = false;
+
 	if(!gEnv->bMultiplayer && gEnv->pSystem->IsSerializingFile() && m_auxSlotUsedBQS)
 		ok = true;
 
 	int slot = (m_auxSlotUsed||ok)?eIGS_ThirdPersonAux:eIGS_ThirdPerson;
 
-	if (aspect == eEA_Physics)
+	if(aspect == eEA_Physics)
 	{
-		switch (profile)
+		switch(profile)
 		{
 		case eIPhys_PhysicalizedStatic:
-			{
-				SEntityPhysicalizeParams params;
-				params.type = PE_STATIC;
-				params.nSlot = slot;
+		{
+			SEntityPhysicalizeParams params;
+			params.type = PE_STATIC;
+			params.nSlot = slot;
 
-				GetEntity()->Physicalize(params);
+			GetEntity()->Physicalize(params);
 
-				return true;
-			}
-			break;
+			return true;
+		}
+		break;
+
 		case eIPhys_PhysicalizedRigid:
+		{
+			SEntityPhysicalizeParams params;
+			params.type = PE_RIGID;
+			params.nSlot = slot;
+			params.mass = m_sharedparams->params.mass;
+
+			pe_params_buoyancy buoyancy;
+			buoyancy.waterDamping = 1.5;
+			buoyancy.waterResistance = 1000;
+			buoyancy.waterDensity = 0;
+			params.pBuoyancy = &buoyancy;
+
+			GetEntity()->Physicalize(params);
+
+			IPhysicalEntity *pPhysics = GetEntity()->GetPhysics();
+
+			if(pPhysics)
+			{
+				pe_action_awake action;
+				action.bAwake = m_ownerId!=0;
+				pPhysics->Action(&action);
+			}
+		}
+
+		return true;
+
+		case eIPhys_NotPhysicalized:
+		{
+			IEntityPhysicalProxy *pPhysicsProxy = GetPhysicalProxy();
+
+			if(pPhysicsProxy)
 			{
 				SEntityPhysicalizeParams params;
-				params.type = PE_RIGID;
+				params.type = PE_NONE;
 				params.nSlot = slot;
-				params.mass = m_sharedparams->params.mass;
-
-				pe_params_buoyancy buoyancy;
-				buoyancy.waterDamping = 1.5;
-				buoyancy.waterResistance = 1000;
-				buoyancy.waterDensity = 0;
-				params.pBuoyancy = &buoyancy;
-
-				GetEntity()->Physicalize(params);
-
-				IPhysicalEntity *pPhysics = GetEntity()->GetPhysics();
-				if (pPhysics)
-				{
-					pe_action_awake action;
-					action.bAwake = m_ownerId!=0;
-					pPhysics->Action(&action);
-				}
+				pPhysicsProxy->Physicalize(params);
 			}
-			return true;
-		case eIPhys_NotPhysicalized:
-			{
-				IEntityPhysicalProxy *pPhysicsProxy = GetPhysicalProxy();
-				if (pPhysicsProxy)
-				{
-					SEntityPhysicalizeParams params;
-					params.type = PE_NONE;
-					params.nSlot = slot;
-					pPhysicsProxy->Physicalize(params);
-				}
-			}
-			return true;
+		}
+
+		return true;
 		}
 	}
 
@@ -249,7 +257,7 @@ void CRocketLauncher::FullSerialize(TSerialize ser)
 	ser.Value("smokeEffect", m_smokeEffectSlot);
 
 	if(ser.IsReading())
-	{	
+	{
 		if((smoke!=-1) && (m_smokeEffectSlot==-1))
 			GetEntity()->FreeSlot(smoke);
 	}
@@ -267,11 +275,11 @@ void CRocketLauncher::PostSerialize()
 	if(m_auxSlotUsed)
 	{
 		SetViewMode(0);
-		DrawSlot( eIGS_ThirdPersonAux,true);
+		DrawSlot(eIGS_ThirdPersonAux,true);
 		ActivateTPLaser(false);
 	}
 	else
-		DrawSlot( eIGS_ThirdPersonAux,false);
+		DrawSlot(eIGS_ThirdPersonAux,false);
 
 	if(m_smokeEffectSlot>-1)
 		Pickalize(false,true);
@@ -283,14 +291,15 @@ void CRocketLauncher::ActivateLaserDot(bool activate, bool fp)
 {
 	if(activate)
 	{
-		IParticleEffect * pEffect = gEnv->pParticleManager->FindEffect(fp?m_sAimdotFPEffect.c_str():m_sAimdotEffect.c_str());
+		IParticleEffect *pEffect = gEnv->pParticleManager->FindEffect(fp?m_sAimdotFPEffect.c_str():m_sAimdotEffect.c_str());
 
 		if(pEffect)
 		{
 			if(m_dotEffectSlot<0)
 			{
-				m_dotEffectSlot = GetEntity()->LoadParticleEmitter( eIGS_Aux0,pEffect);
-				if(IParticleEmitter* pEmitter = GetEntity()->GetParticleEmitter(m_dotEffectSlot))
+				m_dotEffectSlot = GetEntity()->LoadParticleEmitter(eIGS_Aux0,pEffect);
+
+				if(IParticleEmitter *pEmitter = GetEntity()->GetParticleEmitter(m_dotEffectSlot))
 				{
 					pEmitter->SetRndFlags(pEmitter->GetRndFlags()|ERF_RENDER_ALWAYS);
 					pEmitter->SetViewDistUnlimited();
@@ -316,7 +325,7 @@ void CRocketLauncher::UpdateFPView(float frameTime)
 }
 
 //=======================================
-void CRocketLauncher::Update(SEntityUpdateContext& ctx, int slot)
+void CRocketLauncher::Update(SEntityUpdateContext &ctx, int slot)
 {
 	FUNCTION_PROFILER(GetISystem(), PROFILE_GAME);
 
@@ -332,7 +341,8 @@ void CRocketLauncher::Update(SEntityUpdateContext& ctx, int slot)
 //========================================
 void CRocketLauncher::Drop(float impulseScale, bool selectNext, bool byDeath)
 {
-	CActor* pOwner = GetOwnerActor();
+	CActor *pOwner = GetOwnerActor();
+
 	//Don't let the player drop it if it has not been opened
 	if(m_stats.first_selection && pOwner && pOwner->IsPlayer() && pOwner->GetHealth()>0 && !byDeath)
 		return;
@@ -340,7 +350,7 @@ void CRocketLauncher::Drop(float impulseScale, bool selectNext, bool byDeath)
 	if(pOwner && !pOwner->IsPlayer())
 	{
 		//In this case goes to the clip, no the inventory
-		for(TAmmoMap::const_iterator it = m_minDroppedAmmo.begin();it!=m_minDroppedAmmo.end();it++)
+		for(TAmmoMap::const_iterator it = m_minDroppedAmmo.begin(); it!=m_minDroppedAmmo.end(); it++)
 			m_ammo[it->first] = it->second;
 
 		m_minDroppedAmmo.clear();
@@ -356,9 +366,9 @@ bool CRocketLauncher::CanPickUp(EntityId userId) const
 	CActor *pActor = GetActor(userId);
 	IInventory *pInventory=GetActorInventory(pActor);
 
-	if (m_sharedparams->params.pickable && m_stats.pickable && !m_stats.flying && !m_frozen &&(!m_ownerId || m_ownerId==userId) && !m_stats.selected && !GetEntity()->IsHidden())
+	if(m_sharedparams->params.pickable && m_stats.pickable && !m_stats.flying && !m_frozen &&(!m_ownerId || m_ownerId==userId) && !m_stats.selected && !GetEntity()->IsHidden())
 	{
-		if (pInventory && pInventory->FindItem(GetEntityId())!=-1)
+		if(pInventory && pInventory->FindItem(GetEntityId())!=-1)
 			return false;
 	}
 	else
@@ -366,43 +376,46 @@ bool CRocketLauncher::CanPickUp(EntityId userId) const
 
 	uint8 uniqueId = m_pItemSystem->GetItemUniqueId(GetEntity()->GetClass()->GetName());
 
-	//Can not pick up a LAW while I have one already 
+	//Can not pick up a LAW while I have one already
 	if(pInventory && (pInventory->GetCountOfUniqueId(uniqueId)>0))
 	{
 		if(pActor->IsClient())
 			g_pGame->GetGameRules()->OnTextMessage(eTextMessageCenter, "@mp_CannotCarryMoreLAW");
+
 		return false;
 	}
 
 	return true;
-		
+
 }
 //=========================================
 void CRocketLauncher::UpdateDotEffect(float frameTime)
 {
 	Vec3 laserPos, dir;
 
-	CCamera& camera = gEnv->pSystem->GetViewCamera();
+	CCamera &camera = gEnv->pSystem->GetViewCamera();
 	laserPos = camera.GetPosition();
 	dir = camera.GetMatrix().GetColumn1();
 	dir.Normalize();
-	
+
 	const float nearClipPlaneLimit = 10.0f;
 
 	Vec3 hitPos(0,0,0);
 	float laserLength = 0.0f;
 	float dotScale=1.0f;
 	{
-		IPhysicalEntity* pSkipEntity = NULL;
+		IPhysicalEntity *pSkipEntity = NULL;
+
 		if(GetOwner())
 			pSkipEntity = GetOwner()->GetPhysics();
 
 		const int objects = ent_all;
 		const int flags = (geom_colltype_ray << rwi_colltype_bit) | rwi_colltype_any | (10 & rwi_pierceability_mask) | (geom_colltype14 << rwi_colltype_bit);
 
-		ray_hit hit;	
-		if (gEnv->pPhysicalWorld->RayWorldIntersection(laserPos, dir*m_LaserRange, objects,
-			flags, &hit, 1, &pSkipEntity, pSkipEntity?1:0))
+		ray_hit hit;
+
+		if(gEnv->pPhysicalWorld->RayWorldIntersection(laserPos, dir*m_LaserRange, objects,
+				flags, &hit, 1, &pSkipEntity, pSkipEntity?1:0))
 		{
 			//Clamp distance below near clip plane limits, if not dot will be overdrawn during rasterization
 			if(hit.dist>nearClipPlaneLimit)
@@ -415,6 +428,7 @@ void CRocketLauncher::UpdateDotEffect(float frameTime)
 				laserLength = hit.dist;
 				hitPos = hit.pt;
 			}
+
 			if(GetOwnerActor() && GetOwnerActor()->GetActorParams())
 				dotScale *= GetOwnerActor()->GetActorParams()->viewFoVScale;
 		}
@@ -425,11 +439,13 @@ void CRocketLauncher::UpdateDotEffect(float frameTime)
 		}
 	}
 
-	if (m_dotEffectSlot>=0)
+	if(m_dotEffectSlot>=0)
 	{
 		Matrix34 worldMatrix = GetEntity()->GetWorldTM();
+
 		if(laserLength<=0.7f)
 			hitPos = laserPos+(0.7f*dir);
+
 		if(IsWeaponLowered())
 		{
 			hitPos = laserPos+(2.0f*dir);
@@ -452,10 +468,10 @@ void CRocketLauncher::ActivateTPLaser(bool activate)
 {
 	if(activate)
 	{
-		DrawSlot( eIGS_Aux1,true);
+		DrawSlot(eIGS_Aux1,true);
 		ActivateLaserDot(true,false);
 		m_laserTPOn = true;
-		
+
 		//Force first update
 		m_lastUpdate = 0.0f;
 		m_smoothLaserLength = -1.0f;
@@ -464,8 +480,8 @@ void CRocketLauncher::ActivateTPLaser(bool activate)
 	}
 	else
 	{
-		DrawSlot( eIGS_Aux1,false);
-		GetEntity()->SetSlotLocalTM( eIGS_Aux1,Matrix34::CreateIdentity());
+		DrawSlot(eIGS_Aux1,false);
+		GetEntity()->SetSlotLocalTM(eIGS_Aux1,Matrix34::CreateIdentity());
 		ActivateLaserDot(false,false);
 		m_laserTPOn = false;
 	}
@@ -477,17 +493,19 @@ void CRocketLauncher::UpdateTPLaser(float frameTime)
 	m_lastUpdate -= frameTime;
 
 	bool allowUpdate = true;
+
 	if(m_lastUpdate<=0.0f)
 		m_lastUpdate = m_Timeout;
 	else
 		allowUpdate = false;
 
-	const CCamera& camera = gEnv->pRenderer->GetCamera();
+	const CCamera &camera = gEnv->pRenderer->GetCamera();
 
 	//If character not visible, laser is not correctly updated
-	if(CActor* pOwner = GetOwnerActor())
+	if(CActor *pOwner = GetOwnerActor())
 	{
-		ICharacterInstance* pCharacter = pOwner->GetEntity()->GetCharacter(0);
+		ICharacterInstance *pCharacter = pOwner->GetEntity()->GetCharacter(0);
+
 		if(pCharacter && !pCharacter->IsCharacterVisible())
 			return;
 	}
@@ -501,7 +519,8 @@ void CRocketLauncher::UpdateTPLaser(float frameTime)
 
 	if(allowUpdate)
 	{
-		IPhysicalEntity* pSkipEntity = NULL;
+		IPhysicalEntity *pSkipEntity = NULL;
+
 		if(GetOwner())
 			pSkipEntity = GetOwner()->GetPhysics();
 
@@ -512,8 +531,9 @@ void CRocketLauncher::UpdateTPLaser(float frameTime)
 		const int flags = (geom_colltype_ray << rwi_colltype_bit) | rwi_colltype_any | (10 & rwi_pierceability_mask) | (geom_colltype14 << rwi_colltype_bit);
 
 		ray_hit hit;
-		if (gEnv->pPhysicalWorld->RayWorldIntersection(pos, dir*range, objects, flags,
-			&hit, 1, &pSkipEntity, pSkipEntity ? 1 : 0))
+
+		if(gEnv->pPhysicalWorld->RayWorldIntersection(pos, dir*range, objects, flags,
+				&hit, 1, &pSkipEntity, pSkipEntity ? 1 : 0))
 		{
 			laserLength = hit.dist;
 			m_lastLaserHitPt = hit.pt;
@@ -527,7 +547,7 @@ void CRocketLauncher::UpdateTPLaser(float frameTime)
 		}
 
 		// Hit near plane
-		if (dir.Dot(camera.GetViewdir()) < 0.0f)
+		if(dir.Dot(camera.GetViewdir()) < 0.0f)
 		{
 			Plane nearPlane;
 			nearPlane.SetPlane(camera.GetViewdir(), camera.GetPosition());
@@ -535,10 +555,12 @@ void CRocketLauncher::UpdateTPLaser(float frameTime)
 			Ray ray(pos, dir);
 			Vec3 out;
 			m_lastLaserHitViewPlane = false;
-			if (Intersect::Ray_Plane(ray, nearPlane, out))
+
+			if(Intersect::Ray_Plane(ray, nearPlane, out))
 			{
 				float dist = Distance::Point_Point(pos, out);
-				if (dist < laserLength)
+
+				if(dist < laserLength)
 				{
 					laserLength = dist;
 					m_lastLaserHitPt = out;
@@ -556,11 +578,11 @@ void CRocketLauncher::UpdateTPLaser(float frameTime)
 		hitPos = pos + dir * laserLength;
 	}
 
-	if (m_smoothLaserLength < 0.0f)
+	if(m_smoothLaserLength < 0.0f)
 		m_smoothLaserLength = laserLength;
 	else
 	{
-		if (laserLength < m_smoothLaserLength)
+		if(laserLength < m_smoothLaserLength)
 			m_smoothLaserLength = laserLength;
 		else
 			m_smoothLaserLength += (laserLength - m_smoothLaserLength) * min(1.0f, 10.0f * frameTime);
@@ -568,23 +590,25 @@ void CRocketLauncher::UpdateTPLaser(float frameTime)
 
 	const float assetLength = 2.0f;
 	m_smoothLaserLength = CLAMP(m_smoothLaserLength,0.01f,m_LaserRangeTP);
-	float scale = m_smoothLaserLength / assetLength; 
+	float scale = m_smoothLaserLength / assetLength;
 
 	// Scale the laser based on the distance.
 	Matrix34 scl;
 	scl.SetIdentity();
 	scl.SetScale(Vec3(1,scale,1));
 	scl.SetTranslation(offset);
-	GetEntity()->SetSlotLocalTM( eIGS_Aux1, scl);
+	GetEntity()->SetSlotLocalTM(eIGS_Aux1, scl);
 
-	if (m_dotEffectSlot >= 0)
+	if(m_dotEffectSlot >= 0)
 	{
-		if (m_lastLaserHitSolid)
+		if(m_lastLaserHitSolid)
 		{
 			Matrix34 dotMatrix = Matrix34::CreateTranslationMat(Vec3(0,m_smoothLaserLength,0));
 			dotMatrix.AddTranslation(offset);
+
 			if(m_lastLaserHitViewPlane)
 				dotMatrix.Scale(Vec3(0.2f,0.2f,0.2f));
+
 			GetEntity()->SetSlotLocalTM(m_dotEffectSlot,dotMatrix);
 		}
 		else
@@ -611,9 +635,10 @@ void CRocketLauncher::PostDropAnim()
 	if(m_fm && GetAmmoCount(m_fm->GetAmmoType())<=0)
 	{
 		Pickalize(false,true);
+
 		if(m_smokeEffectSlot==-1)
 		{
-			IParticleEffect * pEffect = gEnv->pParticleManager->FindEffect(m_sEmptySmokeEffect.c_str());
+			IParticleEffect *pEffect = gEnv->pParticleManager->FindEffect(m_sEmptySmokeEffect.c_str());
 
 			if(pEffect)
 				m_smokeEffectSlot = GetEntity()->LoadParticleEmitter(-1,pEffect);
@@ -632,7 +657,8 @@ void CRocketLauncher::AutoDrop()
 	{
 		m_firedRockets--;
 
-		CActor* pOwner = GetOwnerActor();
+		CActor *pOwner = GetOwnerActor();
+
 		// no need to auto-drop for AI
 		if(pOwner && !pOwner->IsPlayer())
 			return;
@@ -647,46 +673,46 @@ void CRocketLauncher::AutoDrop()
 
 void CRocketLauncher::OnStopFire(EntityId shooterId)
 {
-		CWeapon::OnStopFire(shooterId);
+	CWeapon::OnStopFire(shooterId);
 
-		if (IsAutoDroppable())
-		{
-				AutoDrop();
-		}
+	if(IsAutoDroppable())
+	{
+		AutoDrop();
+	}
 }
 
-bool CRocketLauncher::ReadItemParams( const IItemParamsNode *params )
+bool CRocketLauncher::ReadItemParams(const IItemParamsNode *params)
 {
-		if (!CWeapon::ReadItemParams(params))
-				return false;
+	if(!CWeapon::ReadItemParams(params))
+		return false;
 
-		// read in custom params for the rocket launcher
-		const IItemParamsNode *paramsNode = params->GetChild("params");
+	// read in custom params for the rocket launcher
+	const IItemParamsNode *paramsNode = params->GetChild("params");
+	{
+		CItemParamReader reader(paramsNode);
+		reader.Read("aimdot_effect", m_sAimdotEffect);
+		reader.Read("aimdot_fp_effect", m_sAimdotFPEffect);
+		reader.Read("empty_smoke_effect", m_sEmptySmokeEffect);
+		reader.Read("laser_range", m_LaserRange);
+		reader.Read("laser_range_tp", m_LaserRangeTP);
+		reader.Read("timeout", m_Timeout);
+
+		// precache effects to not load them at runtime
+		if(!m_sAimdotEffect.empty())
 		{
-				CItemParamReader reader(paramsNode);
-				reader.Read("aimdot_effect", m_sAimdotEffect);
-				reader.Read("aimdot_fp_effect", m_sAimdotFPEffect);
-				reader.Read("empty_smoke_effect", m_sEmptySmokeEffect);
-				reader.Read("laser_range", m_LaserRange);
-				reader.Read("laser_range_tp", m_LaserRangeTP);
-				reader.Read("timeout", m_Timeout);
-
-				// precache effects to not load them at runtime
-				if (!m_sAimdotEffect.empty())
-				{
-						gEnv->pParticleManager->FindEffect(m_sAimdotEffect.c_str(), "CRocketLauncher::ReadItemParams");
-				}
-
-				if(!m_sAimdotFPEffect.empty())
-				{
-						gEnv->pParticleManager->FindEffect(m_sAimdotFPEffect.c_str(), "CRocketLauncher::ReadItemParams");
-				}
-
-				if(!m_sEmptySmokeEffect.empty())
-				{
-						gEnv->pParticleManager->FindEffect(m_sEmptySmokeEffect.c_str(), "CRocketLauncher::ReadItemParams");
-				}
+			gEnv->pParticleManager->FindEffect(m_sAimdotEffect.c_str(), "CRocketLauncher::ReadItemParams");
 		}
 
-		return true;
+		if(!m_sAimdotFPEffect.empty())
+		{
+			gEnv->pParticleManager->FindEffect(m_sAimdotFPEffect.c_str(), "CRocketLauncher::ReadItemParams");
+		}
+
+		if(!m_sEmptySmokeEffect.empty())
+		{
+			gEnv->pParticleManager->FindEffect(m_sEmptySmokeEffect.c_str(), "CRocketLauncher::ReadItemParams");
+		}
+	}
+
+	return true;
 }

@@ -23,11 +23,11 @@ const SInputPortConfig CFlowNode_ColorGradient::inputPorts[] =
 	InputPortConfig_Void("Trigger", _HELP("")),
 	InputPortConfig<string>("tex_TexturePath", _HELP("Path to the Color Chart texture.")),
 	InputPortConfig<float>("TransitionTime", _HELP("Fade in time (Seconds).")),
-	{0},    
+	{0},
 };
 
-CFlowNode_ColorGradient::CFlowNode_ColorGradient(SActivationInfo* activationInformation) :
-m_pTexture(NULL)
+CFlowNode_ColorGradient::CFlowNode_ColorGradient(SActivationInfo *activationInformation) :
+	m_pTexture(NULL)
 {
 }
 
@@ -38,13 +38,13 @@ CFlowNode_ColorGradient::~CFlowNode_ColorGradient()
 
 
 
-void CFlowNode_ColorGradient::GetConfiguration(SFlowNodeConfig& config)
+void CFlowNode_ColorGradient::GetConfiguration(SFlowNodeConfig &config)
 {
 	config.pInputPorts = inputPorts;
 	config.SetCategory(EFLN_ADVANCED);
 }
 
-void CFlowNode_ColorGradient::ProcessEvent(EFlowEvent event, SActivationInfo* activationInformation)
+void CFlowNode_ColorGradient::ProcessEvent(EFlowEvent event, SActivationInfo *activationInformation)
 {
 	//Preload texture
 	if(event==IFlowNode::eFE_PrecacheResources && m_pTexture==NULL)
@@ -54,11 +54,11 @@ void CFlowNode_ColorGradient::ProcessEvent(EFlowEvent event, SActivationInfo* ac
 		const uint32 COLORCHART_TEXFLAGS = FT_NOMIPS |  FT_DONT_STREAM | FT_DONT_RESIZE | FT_STATE_CLAMP;
 
 		m_pTexture = gEnv->pRenderer->EF_LoadTexture(texturePath.c_str(), COLORCHART_TEXFLAGS);
-		
+
 		//CryLogAlways("CFlowNode_ColorGradient 0x%p: Precache texture %s", this, texturePath.c_str());
 	}
 
-	if (event==IFlowNode::eFE_Activate && IsPortActive(activationInformation, eIP_Trigger))
+	if(event==IFlowNode::eFE_Activate && IsPortActive(activationInformation, eIP_Trigger))
 	{
 		const string texturePath = GetPortString(activationInformation, eInputPorts_TexturePath);
 		const float timeToFade = GetPortFloat(activationInformation, eInputPorts_TransitionTime);
@@ -67,14 +67,14 @@ void CFlowNode_ColorGradient::ProcessEvent(EFlowEvent event, SActivationInfo* ac
 	}
 }
 
-void CFlowNode_ColorGradient::GetMemoryUsage(ICrySizer* sizer) const
+void CFlowNode_ColorGradient::GetMemoryUsage(ICrySizer *sizer) const
 {
 	sizer->Add(*this);
 }
 
-IFlowNodePtr CFlowNode_ColorGradient::Clone( SActivationInfo * pActInfo )
+IFlowNodePtr CFlowNode_ColorGradient::Clone(SActivationInfo *pActInfo)
 {
-		return new CFlowNode_ColorGradient(pActInfo);
+	return new CFlowNode_ColorGradient(pActInfo);
 }
 
 REGISTER_FLOW_NODE("Image:ColorGradient", CFlowNode_ColorGradient);

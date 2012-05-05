@@ -5,7 +5,7 @@
 // -------------------------------------------------------------------------
 //  File name:   ChickenBoids.cpp
 //  Created:     28/4/2007 by Timur.
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -37,47 +37,47 @@
 
 
 //////////////////////////////////////////////////////////////////////////
-CChickenFlock::CChickenFlock( IEntity *pEntity )
-: CFlock( pEntity,EFLOCK_CHICKENS )
+CChickenFlock::CChickenFlock(IEntity *pEntity)
+	: CFlock(pEntity,EFLOCK_CHICKENS)
 {
 	m_boidEntityName = "BirdBoid";
 	m_nBoidEntityFlagsAdd = ENTITY_FLAG_CASTSHADOW;
 };
 
 //////////////////////////////////////////////////////////////////////////
-void CChickenFlock::CreateBoids( SBoidsCreateContext &ctx )
+void CChickenFlock::CreateBoids(SBoidsCreateContext &ctx)
 {
 	m_bc.noLanding = true;
 	m_bc.vEntitySlotOffset = Vec3(0,0,-0.5f); // Offset down by half boid radius.
 
-	if (CHICKEN_WALK_ANIM < m_bc.animations.size())
+	if(CHICKEN_WALK_ANIM < m_bc.animations.size())
 		m_boidDefaultAnimName = m_bc.animations[CHICKEN_WALK_ANIM];
 
 	CFlock::CreateBoids(ctx);
 
-	for (uint32 i = 0; i < m_RequestedBoidsCount; i++)
+	for(uint32 i = 0; i < m_RequestedBoidsCount; i++)
 	{
 		CBoidObject *boid = CreateBoid();
 		float radius = m_bc.fSpawnRadius;
 		boid->m_pos = m_origin + Vec3(radius*Boid::Frand(),radius*Boid::Frand(),Boid::Frand()*radius);
 		boid->m_pos.z = m_bc.engine->GetTerrainElevation(boid->m_pos.x,boid->m_pos.y) + m_bc.fBoidRadius*0.5f;
-		boid->m_heading = ( Vec3(Boid::Frand(),Boid::Frand(),0) ).GetNormalized();
+		boid->m_heading = (Vec3(Boid::Frand(),Boid::Frand(),0)).GetNormalized();
 		boid->m_scale = m_bc.boidScale + Boid::Frand()*m_bc.boidRandomScale;
 		boid->m_speed = m_bc.MinSpeed;
 
 		AddBoid(boid);
-	}	
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
-void CChickenFlock::OnAIEvent(EAIStimulusType type, const Vec3& pos, float radius, float threat, EntityId sender)
+void CChickenFlock::OnAIEvent(EAIStimulusType type, const Vec3 &pos, float radius, float threat, EntityId sender)
 {
 	CFlock::OnAIEvent(type,pos,radius,threat,sender);
 }
 
 //////////////////////////////////////////////////////////////////////////
-CChickenBoid::CChickenBoid( SBoidContext &bc )
-: CBoidBird( bc )
+CChickenBoid::CChickenBoid(SBoidContext &bc)
+	: CBoidBird(bc)
 {
 	m_maxIdleTime = 2.0f + cry_frand()*MAX_REST_TIME;
 	m_maxNonIdleTime = cry_frand()*MAX_WALK_TIME;
@@ -89,14 +89,15 @@ CChickenBoid::CChickenBoid( SBoidContext &bc )
 }
 
 //////////////////////////////////////////////////////////////////////////
-void CChickenBoid::OnPickup( bool bPickup,float fSpeed )
+void CChickenBoid::OnPickup(bool bPickup,float fSpeed)
 {
-	if (bPickup)
+	if(bPickup)
 	{
 		m_physicsControlled = true;
-		if (!m_dead)
+
+		if(!m_dead)
 		{
-			PlayAnimationId( CHICKEN_PICKUP_ANIM,true );
+			PlayAnimationId(CHICKEN_PICKUP_ANIM,true);
 			PlaySound(CHICKEN_SOUND_PICKUP);
 		}
 	}
@@ -105,24 +106,25 @@ void CChickenBoid::OnPickup( bool bPickup,float fSpeed )
 		m_landing = false;
 		m_bThrown = true;
 		m_physicsControlled = false;
-		
-		if (!m_dead)
+
+		if(!m_dead)
 		{
-			if (fSpeed > 5.0f)
+			if(fSpeed > 5.0f)
 			{
-				Kill( m_pos,Vec3(0,0,0) );
+				Kill(m_pos,Vec3(0,0,0));
 			}
 			else
 			{
-				PlayAnimationId( CHICKEN_WALK_ANIM,true );
+				PlayAnimationId(CHICKEN_WALK_ANIM,true);
 				//m_physicsControlled = true;
 			}
+
 			PlaySound(CHICKEN_SOUND_THROW);
 			// Wait until fall to the ground and go resting.
 			//PlayAnimationId( CHICKEN_THROW_ANIM,true );
 		}
 
-		if (m_pPhysics)
+		if(m_pPhysics)
 		{
 			// Enabling reporting of physics collisions.
 			pe_params_flags pf;
@@ -137,20 +139,21 @@ void CChickenBoid::OnPickup( bool bPickup,float fSpeed )
 }
 
 //////////////////////////////////////////////////////////////////////////
-void CChickenBoid::OnCollision( SEntityEvent &event )
+void CChickenBoid::OnCollision(SEntityEvent &event)
 {
-	if (m_bThrown)
+	if(m_bThrown)
 	{
 		// Get speed.
-		if (m_pPhysics && m_pPhysics->GetType() == PE_PARTICLE)
+		if(m_pPhysics && m_pPhysics->GetType() == PE_PARTICLE)
 		{
 			pe_params_particle pparams;
 			m_pPhysics->GetParams(&pparams);
-			if (pparams.velocity > 5.0f)
+
+			if(pparams.velocity > 5.0f)
 			{
 				m_bThrown = false;
 				m_physicsControlled = false;
-				Kill( m_pos,Vec3(0,0,0) );
+				Kill(m_pos,Vec3(0,0,0));
 			}
 		}
 	}
@@ -159,52 +162,56 @@ void CChickenBoid::OnCollision( SEntityEvent &event )
 }
 
 //////////////////////////////////////////////////////////////////////////
-void CChickenBoid::Kill( const Vec3 &hitPoint,const Vec3 &force )
+void CChickenBoid::Kill(const Vec3 &hitPoint,const Vec3 &force)
 {
 	CBoidBird::Kill(hitPoint,force);
 	PlaySound(CHICKEN_SOUND_DIE);
 }
 
 //////////////////////////////////////////////////////////////////////////
-void CChickenBoid::Physicalize( SBoidContext &bc )
+void CChickenBoid::Physicalize(SBoidContext &bc)
 {
 	bc.fBoidThickness = bc.fBoidRadius;
 	CBoidObject::Physicalize(bc);
 }
 
 //////////////////////////////////////////////////////////////////////////
-void CChickenBoid::Update( float dt,SBoidContext &bc )
+void CChickenBoid::Update(float dt,SBoidContext &bc)
 {
-	if (m_physicsControlled)
+	if(m_physicsControlled)
 	{
 		UpdatePhysics(dt,bc);
-		if (m_bThrown && m_pPhysics)
+
+		if(m_bThrown && m_pPhysics)
 		{
 			pe_status_awake tmp;
 			bool bAwake = m_pPhysics->GetStatus(&tmp) != 0;
-			if (!bAwake)
+
+			if(!bAwake)
 			{
 				// Falled on ground after being thrown.
 				m_bThrown = false;
 				m_physicsControlled = false;
 			}
 		}
+
 		return;
 	}
-	if (m_dead)
+
+	if(m_dead)
 		return;
 
 	m_lastThinkTime += dt;
 
-	if (bc.waterLevel > bc.terrainZ)
+	if(bc.waterLevel > bc.terrainZ)
 		bc.terrainZ = bc.waterLevel;
 
-	if (bc.followPlayer)
+	if(bc.followPlayer)
 	{
-		if (m_pos.GetSquaredDistance(bc.playerPos) > MAX_CHICKEN_DISTANCE_FROM_PLAYER*MAX_CHICKEN_DISTANCE_FROM_PLAYER)
+		if(m_pos.GetSquaredDistance(bc.playerPos) > MAX_CHICKEN_DISTANCE_FROM_PLAYER*MAX_CHICKEN_DISTANCE_FROM_PLAYER)
 		{
 			float z = bc.MinHeight + (Boid::Frand()+1)/2.0f*(bc.MaxHeight - bc.MinHeight);
-			m_pos = bc.playerPos + Vec3(Boid::Frand()*MAX_CHICKEN_DISTANCE_FROM_PLAYER,Boid::Frand()*MAX_CHICKEN_DISTANCE_FROM_PLAYER,z );
+			m_pos = bc.playerPos + Vec3(Boid::Frand()*MAX_CHICKEN_DISTANCE_FROM_PLAYER,Boid::Frand()*MAX_CHICKEN_DISTANCE_FROM_PLAYER,z);
 			m_pos.z = bc.engine->GetTerrainElevation(m_pos.x,m_pos.y) + bc.fBoidRadius*0.5f;
 			m_speed = bc.MinSpeed;
 			m_heading = Vec3(Boid::Frand(),Boid::Frand(),0).GetNormalized();
@@ -212,19 +219,20 @@ void CChickenBoid::Update( float dt,SBoidContext &bc )
 	}
 
 	Think(dt,bc);
-	if (!m_landing)
+
+	if(!m_landing)
 	{
 		// Calc movement with current velocity.
-		CalcMovement( dt,bc,true );
+		CalcMovement(dt,bc,true);
 
 		UpdateAnimationSpeed(bc);
 		m_accel.Set(0,0,0);
 	}
 }
 
-void CChickenBoid::CalcOrientation( Quat &qOrient )
+void CChickenBoid::CalcOrientation(Quat &qOrient)
 {
-	if (m_physicsControlled && m_pPhysics)
+	if(m_physicsControlled && m_pPhysics)
 	{
 		pe_status_pos ppos;
 		m_pPhysics->GetStatus(&ppos);
@@ -232,35 +240,36 @@ void CChickenBoid::CalcOrientation( Quat &qOrient )
 		return;
 	}
 
-	if (m_heading.IsZero())
+	if(m_heading.IsZero())
 		m_heading = Vec3(1,0,0);
 
 	Vec3 dir = m_heading;
 
-	if (m_alignHorizontally != 0)
+	if(m_alignHorizontally != 0)
 	{
 		dir.z *= (1.0f-m_alignHorizontally);
 	}
+
 	dir.NormalizeFast();
 
-	if (m_banking != 0)
-		qOrient.SetRotationVDir( dir,-m_banking*0.5f );
+	if(m_banking != 0)
+		qOrient.SetRotationVDir(dir,-m_banking*0.5f);
 	else
-		qOrient.SetRotationVDir( dir );
+		qOrient.SetRotationVDir(dir);
 
 
 }
 
 
 //////////////////////////////////////////////////////////////////////////
-void CChickenBoid::Think( float dt,SBoidContext &bc )
+void CChickenBoid::Think(float dt,SBoidContext &bc)
 {
 	Vec3 flockHeading(0,0,0);
 
 	m_accel(0,0,0);
 //	float height = m_pos.z - bc.terrainZ;
 
-	if (m_bThrown)
+	if(m_bThrown)
 	{
 		m_accel.Set(0,0,-10.0f);
 		//float z = bc.engine->GetTerrainElevation(m_pos.x,m_pos.y) + bc.fBoidRadius*0.5f;
@@ -272,8 +281,10 @@ void CChickenBoid::Think( float dt,SBoidContext &bc )
 			m_physicsControlled = false;
 			m_bThrown = false;
 			m_heading.z = 0;
-			if (m_heading.IsZero())
+
+			if(m_heading.IsZero())
 				m_heading = Vec3(1,0,0);
+
 			m_heading.Normalize();
 			m_accel.Set(0,0,0);
 			m_speed = bc.MinSpeed;
@@ -293,7 +304,7 @@ void CChickenBoid::Think( float dt,SBoidContext &bc )
 
 	m_bScared = false;
 
-	if (bc.factorAlignment != 0)
+	if(bc.factorAlignment != 0)
 	{
 		//CalcCohesion();
 		Vec3 alignmentAccel;
@@ -328,17 +339,18 @@ void CChickenBoid::Think( float dt,SBoidContext &bc )
 	*/
 
 	// Attract to origin point.
-	if (bc.followPlayer)
+	if(bc.followPlayer)
 	{
 		m_accel += (bc.playerPos - m_pos) * bc.factorAttractToOrigin;
 	}
 	else
 	{
 		//m_accel += (m_birdOriginPos - m_pos) * bc.factorAttractToOrigin;
-		if ((cry_rand()&31) == 1)
+		if((cry_rand()&31) == 1)
 		{
-			m_birdOriginPos = Vec3(	bc.flockPos.x+Boid::Frand()*bc.fSpawnRadius,bc.flockPos.y+Boid::Frand()*bc.fSpawnRadius,bc.flockPos.z+Boid::Frand()*bc.fSpawnRadius );
-			if (m_birdOriginPos.z - bc.terrainZ < bc.MinHeight)
+			m_birdOriginPos = Vec3(bc.flockPos.x+Boid::Frand()*bc.fSpawnRadius,bc.flockPos.y+Boid::Frand()*bc.fSpawnRadius,bc.flockPos.z+Boid::Frand()*bc.fSpawnRadius);
+
+			if(m_birdOriginPos.z - bc.terrainZ < bc.MinHeight)
 			{
 				m_birdOriginPos.z = bc.terrainZ + bc.MinHeight;
 			}
@@ -359,7 +371,7 @@ void CChickenBoid::Think( float dt,SBoidContext &bc )
 	float fCollisionAvoidanceWeight = 10.0f;
 
 	// Do walk sounds.
-	if ((cry_rand()&0xFF) == 0)
+	if((cry_rand()&0xFF) == 0)
 		PlaySound(CHICKEN_SOUND_CLUCK);
 
 	//////////////////////////////////////////////////////////////////////////
@@ -367,7 +379,8 @@ void CChickenBoid::Think( float dt,SBoidContext &bc )
 	//////////////////////////////////////////////////////////////////////////
 	float fScareDist = 5.0f;
 	float sqrPlayerDist = m_pos.GetSquaredDistance(bc.playerPos);
-	if (sqrPlayerDist < fScareDist*fScareDist)
+
+	if(sqrPlayerDist < fScareDist*fScareDist)
 	{
 		Vec3 retreatDir = (m_pos - bc.playerPos) + Vec3(Boid::Frand()*2.0f,Boid::Frand()*2.0f,0);
 		retreatDir.NormalizeFast();
@@ -376,19 +389,22 @@ void CChickenBoid::Think( float dt,SBoidContext &bc )
 		m_accel.y += retreatDir.y*scareFactor*bc.factorAvoidLand;
 
 		m_bScared = true;
-		if (m_landing) m_actionTime = m_maxIdleTime+1.0f; // Stop idle.
+
+		if(m_landing) m_actionTime = m_maxIdleTime+1.0f;  // Stop idle.
+
 		// Do walk sounds.
-		if ((cry_rand()&0xFF) == 0)
+		if((cry_rand()&0xFF) == 0)
 			PlaySound(CHICKEN_SOUND_SCARED);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// Scare points also scare chicken off.
 	//////////////////////////////////////////////////////////////////////////
-	if (bc.scareRatio > 0)
+	if(bc.scareRatio > 0)
 	{
 		float sqrScareDist = m_pos.GetSquaredDistance(bc.scarePoint);
-		if (sqrScareDist < bc.scareRadius*bc.scareRadius)
+
+		if(sqrScareDist < bc.scareRadius*bc.scareRadius)
 		{
 			float fScareMultiplier = 10.0f;
 			Vec3 retreatDir = m_pos - bc.scarePoint;
@@ -397,19 +413,20 @@ void CChickenBoid::Think( float dt,SBoidContext &bc )
 			m_accel.x += retreatDir.x*scareFactor*fScareMultiplier;
 			m_accel.y += retreatDir.y*scareFactor*fScareMultiplier;
 
-			if (m_landing) m_actionTime = m_maxIdleTime+1.0f; // Stop idle.
+			if(m_landing) m_actionTime = m_maxIdleTime+1.0f;  // Stop idle.
 
 			m_bScared = true;
 
 			// Do walk sounds.
-			if ((cry_rand()&0xF) == 0)
+			if((cry_rand()&0xF) == 0)
 				PlaySound(CHICKEN_SOUND_CLUCK);
 		}
 	}
+
 	//////////////////////////////////////////////////////////////////////////
 
 
-	if (bc.avoidObstacles)
+	if(bc.avoidObstacles)
 	{
 		// Avoid obstacles & terrain.
 		IPhysicalWorld *physWorld = bc.physics;
@@ -424,8 +441,9 @@ void CChickenBoid::Think( float dt,SBoidContext &bc )
 		int objTypes = ent_all|ent_no_ondemand_activation;
 		int flags = rwi_stop_at_pierceable|rwi_ignore_terrain_holes;
 		ray_hit hit;
-		int col = physWorld->RayWorldIntersection( vPos,vDir,objTypes,flags,&hit,1 );
-		if (col != 0 && hit.dist > 0)
+		int col = physWorld->RayWorldIntersection(vPos,vDir,objTypes,flags,&hit,1);
+
+		if(col != 0 && hit.dist > 0)
 		{
 			// Turn from collided surface.
 			Vec3 normal = hit.n;
@@ -443,17 +461,18 @@ void CChickenBoid::Think( float dt,SBoidContext &bc )
 	m_accel += m_avoidanceAccel;
 	m_avoidanceAccel = m_avoidanceAccel*bc.fSmoothFactor;
 
-	if (!m_landing)
+	if(!m_landing)
 	{
 		m_actionTime += dt;
-		if (m_actionTime > m_maxNonIdleTime && (m_pos.z > bc.waterLevel && bc.bAvoidWater))
+
+		if(m_actionTime > m_maxNonIdleTime && (m_pos.z > bc.waterLevel && bc.bAvoidWater))
 		{
 			// Play idle.
-			PlayAnimationId( CHICKEN_IDLE_ANIM + (cry_rand()%CHICKEN_IDLE_ANIM_NUM),true );
+			PlayAnimationId(CHICKEN_IDLE_ANIM + (cry_rand()%CHICKEN_IDLE_ANIM_NUM),true);
 			m_maxIdleTime = 2.0f + cry_frand()*MAX_REST_TIME;
 			m_landing = true;
 			m_actionTime = 0;
-			
+
 			m_accel.Set(0,0,0);
 			m_speed = 0;
 		}
@@ -464,10 +483,11 @@ void CChickenBoid::Think( float dt,SBoidContext &bc )
 		m_speed = 0.1f;
 
 		m_actionTime += dt;
-		if (m_actionTime > m_maxIdleTime)
+
+		if(m_actionTime > m_maxIdleTime)
 		{
 			m_maxNonIdleTime = cry_frand()*MAX_WALK_TIME;
-			PlayAnimationId( CHICKEN_WALK_ANIM,true );
+			PlayAnimationId(CHICKEN_WALK_ANIM,true);
 			m_landing = false;
 			m_actionTime = 0;
 		}
@@ -479,61 +499,69 @@ void CChickenBoid::Think( float dt,SBoidContext &bc )
 
 	//////////////////////////////////////////////////////////////////////////
 	// Avoid water ocean..
-	if (m_pos.z < bc.waterLevel && bc.bAvoidWater)
+	if(m_pos.z < bc.waterLevel && bc.bAvoidWater)
 	{
-		if (m_landing)
+		if(m_landing)
 			m_actionTime = m_maxIdleTime;
+
 		Vec3 nextpos = m_pos + m_heading;
 		float farz = bc.engine->GetTerrainElevation(nextpos.x,nextpos.y) + bc.fBoidRadius*0.5f;
-		if (farz > m_pos.z)
+
+		if(farz > m_pos.z)
 			m_accel += m_heading*bc.factorAvoidLand;
 		else
 			m_accel += -m_heading*bc.factorAvoidLand;
+
 		m_accel.z = 0;
 	}
+
 	//////////////////////////////////////////////////////////////////////////
 }
 
 //////////////////////////////////////////////////////////////////////////
-void CTurtleBoid::Think( float dt,SBoidContext &bc )
+void CTurtleBoid::Think(float dt,SBoidContext &bc)
 {
 	bc.fMaxTurnRatio = 0.05f;
 
-	if (m_bScared)
+	if(m_bScared)
 	{
 		m_landing = false;
 		m_actionTime = 0;
 		dt = 0;
 	}
+
 	bool bWasScared = m_bScared;
-	CChickenBoid::Think( dt,bc );
-	if (m_bThrown)
+	CChickenBoid::Think(dt,bc);
+
+	if(m_bThrown)
 	{
 		m_pos.z = bc.engine->GetTerrainElevation(m_pos.x,m_pos.y) + bc.fBoidRadius*0.5f;
 	}
-	if (m_bScared && !m_bThrown)
+
+	if(m_bScared && !m_bThrown)
 	{
 		// When scared will not move
 		m_accel.Set(0,0,0);
 
 		// If first frame scared play scared animation.
-		if (!bWasScared)
-			PlayAnimationId( CHICKEN_IDLE_ANIM+1,false,1.0f );
+		if(!bWasScared)
+			PlayAnimationId(CHICKEN_IDLE_ANIM+1,false,1.0f);
+
 		m_landing = true;
 		m_actionTime = 0;
 	}
-	else if (bWasScared)
+	else if(bWasScared)
 	{
 		// Not scared anymore, resume idle anim.
 		m_maxNonIdleTime = cry_frand()*MAX_WALK_TIME;
-		PlayAnimationId( CHICKEN_WALK_ANIM,true );
+		PlayAnimationId(CHICKEN_WALK_ANIM,true);
 		m_landing = false;
 		m_actionTime = 0;
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////
-CTurtleFlock::CTurtleFlock( IEntity *pEntity ) : CChickenFlock(pEntity)
+CTurtleFlock::CTurtleFlock(IEntity *pEntity) : CChickenFlock(pEntity)
 {
 	m_type = EFLOCK_TURTLES;
 	m_boidEntityName = "TurtleBoid";

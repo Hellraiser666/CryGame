@@ -15,20 +15,22 @@ static bool s_stringUtils_assertEnabled = true;
 
 
 //--------------------------------------------------------------------------------
-bool cry_strncpy(char * destination, const char * source, size_t bufferLength)
+bool cry_strncpy(char *destination, const char *source, size_t bufferLength)
 {
 	bool reply = false;
 
 	CRY_ASSERT(destination);
 	CRY_ASSERT(source);
 
-	if (bufferLength)
+	if(bufferLength)
 	{
 		size_t i;
-		for (i = 0; source[i] && (i + 1) < bufferLength; ++ i)
+
+		for(i = 0; source[i] && (i + 1) < bufferLength; ++ i)
 		{
 			destination[i] = source[i];
 		}
+
 		destination[i] = '\0';
 		reply = (source[i] == '\0');
 	}
@@ -39,20 +41,22 @@ bool cry_strncpy(char * destination, const char * source, size_t bufferLength)
 }
 
 //--------------------------------------------------------------------------------
-bool cry_wstrncpy(wchar_t * destination, const wchar_t * source, size_t bufferLength)
+bool cry_wstrncpy(wchar_t *destination, const wchar_t *source, size_t bufferLength)
 {
 	bool reply = false;
 
 	CRY_ASSERT(destination);
 	CRY_ASSERT(source);
 
-	if (bufferLength)
+	if(bufferLength)
 	{
 		size_t i;
-		for (i = 0; source[i] && (i + 1) < bufferLength; ++ i)
+
+		for(i = 0; source[i] && (i + 1) < bufferLength; ++ i)
 		{
 			destination[i] = source[i];
 		}
+
 		destination[i] = '\0';
 		reply = (source[i] == '\0');
 	}
@@ -63,7 +67,7 @@ bool cry_wstrncpy(wchar_t * destination, const wchar_t * source, size_t bufferLe
 }
 
 //--------------------------------------------------------------------------------
-void cry_sprintf(char * destination, size_t size, const char* format, ...)
+void cry_sprintf(char *destination, size_t size, const char *format, ...)
 {
 	va_list args;
 	va_start(args,format);
@@ -74,20 +78,22 @@ void cry_sprintf(char * destination, size_t size, const char* format, ...)
 }
 
 //--------------------------------------------------------------------------------
-size_t cry_copyStringUntilFindChar(char * destination, const char * source, size_t bufferLength, char until)
+size_t cry_copyStringUntilFindChar(char *destination, const char *source, size_t bufferLength, char until)
 {
 	size_t reply = 0;
 
 	CRY_ASSERT(destination);
 	CRY_ASSERT(source);
 
-	if (bufferLength)
+	if(bufferLength)
 	{
 		size_t i;
-		for (i = 0; source[i] && source[i] != until && (i + 1) < bufferLength; ++ i)
+
+		for(i = 0; source[i] && source[i] != until && (i + 1) < bufferLength; ++ i)
 		{
 			destination[i] = source[i];
 		}
+
 		destination[i] = '\0';
 		reply = (source[i] == until) ? (i + 1) : 0;
 	}
@@ -98,18 +104,18 @@ size_t cry_copyStringUntilFindChar(char * destination, const char * source, size
 //--------------------------------------------------------------------------------
 
 #ifndef cry_displayMemInHexAndAscii
-void cry_displayMemInHexAndAscii(const char * startEachLineWith, const void * data, int size, ITextOutputHandler & output, const int bytesPerLine)
+void cry_displayMemInHexAndAscii(const char *startEachLineWith, const void *data, int size, ITextOutputHandler &output, const int bytesPerLine)
 {
-	if (size > 0 && data)
+	if(size > 0 && data)
 	{
-		const unsigned char * charData = (const unsigned char *) data;
+		const unsigned char *charData = (const unsigned char *) data;
 		string hexLine, asciiLine;
 		int bytesOnThisLineSoFar = 0;
 		int padTo = 0;
 
-		while (size)
+		while(size)
 		{
-			if (++ bytesOnThisLineSoFar > bytesPerLine)
+			if(++ bytesOnThisLineSoFar > bytesPerLine)
 			{
 				output.DoOutput(string().Format("%s%s  %s", startEachLineWith, hexLine.c_str(), asciiLine.c_str()));
 				padTo = hexLine.length();
@@ -120,7 +126,7 @@ void cry_displayMemInHexAndAscii(const char * startEachLineWith, const void * da
 
 			hexLine = hexLine + string().Format("%02x", (int) * charData);
 
-			if ((bytesOnThisLineSoFar & 7) == 0 && (bytesOnThisLineSoFar != bytesPerLine))
+			if((bytesOnThisLineSoFar & 7) == 0 && (bytesOnThisLineSoFar != bytesPerLine))
 			{
 				hexLine += " ";
 			}
@@ -140,32 +146,32 @@ void cry_displayMemInHexAndAscii(const char * startEachLineWith, const void * da
 }
 
 //---------------------------------------------------------------------
-void CCryWatchOutputHandler::DoOutput(const char * text)
+void CCryWatchOutputHandler::DoOutput(const char *text)
 {
-	CryWatch ("%s", text);
+	CryWatch("%s", text);
 }
 
 //---------------------------------------------------------------------
-void CCryLogOutputHandler::DoOutput(const char * text)
+void CCryLogOutputHandler::DoOutput(const char *text)
 {
-	CryLog ("%s", text);
+	CryLog("%s", text);
 }
 
 //---------------------------------------------------------------------
-void CCryLogAlwaysOutputHandler::DoOutput(const char * text)
+void CCryLogAlwaysOutputHandler::DoOutput(const char *text)
 {
-	CryLogAlways ("%s", text);
+	CryLogAlways("%s", text);
 }
 #endif
 
 //---------------------------------------------------------------------
-void StrToWstr(const char* str, wstring& dstr)
+void StrToWstr(const char *str, wstring &dstr)
 {
 	CryStackStringT<wchar_t, 64> tmp;
 	tmp.resize(strlen(str));
 	tmp.clear();
 
-	while (const wchar_t c=(wchar_t)(*str++))
+	while(const wchar_t c=(wchar_t)(*str++))
 	{
 		tmp.append(1, c);
 	}

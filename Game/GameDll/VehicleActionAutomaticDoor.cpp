@@ -25,20 +25,20 @@ const float DOOR_CLOSED = 1.0f;
 
 //------------------------------------------------------------------------
 CVehicleActionAutomaticDoor::CVehicleActionAutomaticDoor()
-: m_pVehicle(NULL),
-	m_pDoorAnim(NULL),
-	m_doorOpenedStateId(InvalidVehicleAnimStateId),
-	m_doorClosedStateId(InvalidVehicleAnimStateId),
-	m_timeInTheAir(0.0f),
-	m_timeOnTheGround(0.0f),
-	m_isTouchingGround(false),
-	m_isOpenRequested(false),
-	m_isBlocked(false),
-	m_isDisabled(false),
-	m_animTime(0.0f),
-	m_animGoal(0.0f),
-	m_eventSamplingTime(0.0f),
-	m_isTouchingGroundBase(false)
+	: m_pVehicle(NULL),
+	  m_pDoorAnim(NULL),
+	  m_doorOpenedStateId(InvalidVehicleAnimStateId),
+	  m_doorClosedStateId(InvalidVehicleAnimStateId),
+	  m_timeInTheAir(0.0f),
+	  m_timeOnTheGround(0.0f),
+	  m_isTouchingGround(false),
+	  m_isOpenRequested(false),
+	  m_isBlocked(false),
+	  m_isDisabled(false),
+	  m_animTime(0.0f),
+	  m_animGoal(0.0f),
+	  m_eventSamplingTime(0.0f),
+	  m_isTouchingGroundBase(false)
 {
 }
 
@@ -49,20 +49,21 @@ CVehicleActionAutomaticDoor::~CVehicleActionAutomaticDoor()
 }
 
 //------------------------------------------------------------------------
-bool CVehicleActionAutomaticDoor::Init(IVehicle* pVehicle, const CVehicleParams& table)
+bool CVehicleActionAutomaticDoor::Init(IVehicle *pVehicle, const CVehicleParams &table)
 {
 	m_pVehicle = pVehicle;
 
 	CVehicleParams autoDoorTable = table.findChild("AutomaticDoor");
-	if (!autoDoorTable)
+
+	if(!autoDoorTable)
 		return false;
 
-	if (autoDoorTable.haveAttr("animation"))
+	if(autoDoorTable.haveAttr("animation"))
 		m_pDoorAnim = m_pVehicle->GetAnimation(autoDoorTable.getAttr("animation"));
 
 	autoDoorTable.getAttr("timeMax", m_timeMax);
 
-	if (!m_pDoorAnim)
+	if(!m_pDoorAnim)
 		return false;
 
 	m_doorOpenedStateId = m_pDoorAnim->GetStateId("opened");
@@ -107,6 +108,7 @@ void CVehicleActionAutomaticDoor::Reset()
 	m_pDoorAnim->StopAnimation();
 	m_pDoorAnim->StartAnimation();
 	m_pDoorAnim->ToggleManualUpdate(true);
+
 	if(!m_isDisabled)
 		m_pDoorAnim->SetTime(DOOR_OPENED);
 	else
@@ -118,18 +120,18 @@ void CVehicleActionAutomaticDoor::Reset()
 }
 
 //------------------------------------------------------------------------
-int CVehicleActionAutomaticDoor::OnEvent(int eventType, SVehicleEventParams& eventParams)
+int CVehicleActionAutomaticDoor::OnEvent(int eventType, SVehicleEventParams &eventParams)
 {
-	if (eventType == eVAE_OnGroundCollision || eventType == eVAE_OnEntityCollision)
+	if(eventType == eVAE_OnGroundCollision || eventType == eVAE_OnEntityCollision)
 	{
 		m_isTouchingGroundBase = true;
 		return 1;
 	}
-	else if (eventType == eVAE_IsUsable)
+	else if(eventType == eVAE_IsUsable)
 	{
 		return 1;
 	}
-	else if (eventType == eVAE_OnUsed)
+	else if(eventType == eVAE_OnUsed)
 	{
 		m_isOpenRequested = !m_isOpenRequested;
 	}
@@ -148,7 +150,7 @@ void CVehicleActionAutomaticDoor::Serialize(TSerialize ser, EEntityAspects aspec
 
 	ser.Value("animTime", m_animTime);
 
-	if (ser.IsReading())
+	if(ser.IsReading())
 	{
 		m_pDoorAnim->StartAnimation();
 		m_pDoorAnim->ToggleManualUpdate(true);
@@ -167,7 +169,8 @@ void CVehicleActionAutomaticDoor::Update(const float deltaTime)
 	const float inTheAirMaxTime = 0.5f;
 
 	m_eventSamplingTime +=deltaTime;
-	if ( m_eventSamplingTime > 0.25f )
+
+	if(m_eventSamplingTime > 0.25f)
 	{
 		//incase Update rate > event update rate
 		m_eventSamplingTime =0.0f;
@@ -177,18 +180,20 @@ void CVehicleActionAutomaticDoor::Update(const float deltaTime)
 
 	float curSpeed = 0.0f;
 
-	if (IPhysicalEntity* pPhysEntity = m_pVehicle->GetEntity()->GetPhysics())
+	if(IPhysicalEntity *pPhysEntity = m_pVehicle->GetEntity()->GetPhysics())
 	{
 		pe_status_dynamics dyn;
-		if (pPhysEntity->GetStatus(&dyn))
+
+		if(pPhysEntity->GetStatus(&dyn))
 			curSpeed = dyn.v.GetLength();
 	}
 
-	if (IVehicleMovement* pMovement = m_pVehicle->GetMovement())
+	if(IVehicleMovement *pMovement = m_pVehicle->GetMovement())
 		isEnginePowered = pMovement->IsPowered();
 
-	isSlowEnough = ( curSpeed <= 2.0f );
-	if (m_isTouchingGround && isSlowEnough)
+	isSlowEnough = (curSpeed <= 2.0f);
+
+	if(m_isTouchingGround && isSlowEnough)
 	{
 		m_timeInTheAir = 0.0f;
 		m_timeOnTheGround += deltaTime;
@@ -199,11 +204,11 @@ void CVehicleActionAutomaticDoor::Update(const float deltaTime)
 		m_timeInTheAir += deltaTime;
 	}
 
-	if ((m_timeOnTheGround >= m_timeMax || m_isOpenRequested) && !m_isBlocked)
+	if((m_timeOnTheGround >= m_timeMax || m_isOpenRequested) && !m_isBlocked)
 	{
 		m_animGoal = DOOR_OPENED;
 	}
-	else if ((m_timeInTheAir > inTheAirMaxTime && isEnginePowered) && !m_isBlocked)
+	else if((m_timeInTheAir > inTheAirMaxTime && isEnginePowered) && !m_isBlocked)
 	{
 		m_animGoal = DOOR_CLOSED;
 	}
@@ -211,7 +216,7 @@ void CVehicleActionAutomaticDoor::Update(const float deltaTime)
 	//if (m_animGoal != m_animTime)
 	{
 		float speed = 0.5f;
-		speed += min( curSpeed*0.1f, 1.0f );
+		speed += min(curSpeed*0.1f, 1.0f);
 		Interpolate(m_animTime, m_animGoal, speed, deltaTime);
 		m_pDoorAnim->SetTime(m_animTime);
 	}
@@ -235,22 +240,23 @@ void CVehicleActionAutomaticDoor::OpenDoor(bool value)
 void CVehicleActionAutomaticDoor::BlockDoor(bool value)
 {
 	m_isBlocked = value;
-	if ( m_isBlocked == false )
+
+	if(m_isBlocked == false)
 		m_isOpenRequested = false;
 }
 
 //------------------------------------------------------------------------
-void CVehicleActionAutomaticDoor::OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams& params)
+void CVehicleActionAutomaticDoor::OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams &params)
 {
-	if (event == eVE_OpenDoors)
+	if(event == eVE_OpenDoors)
 	{
 		m_animGoal = DOOR_OPENED;
 	}
-	else if (event == eVE_CloseDoors)
+	else if(event == eVE_CloseDoors)
 	{
 		m_animGoal = DOOR_CLOSED;
 	}
-	else if (event == eVE_BlockDoors)
+	else if(event == eVE_BlockDoors)
 	{
 		BlockDoor(params.bParam);
 	}

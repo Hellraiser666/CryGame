@@ -4,7 +4,7 @@
  -------------------------------------------------------------------------
   $Id$
   $DateTime$
-  
+
  -------------------------------------------------------------------------
   History:
   - 27:10:2004   11:29 : Created by Marcio Martins
@@ -35,42 +35,42 @@
 
 //------------------------------------------------------------------------
 // Helper that returns requested fire mode or current fire mode (if none specified).
-static IFireMode* GetRequestedFireMode(CWeapon* pWeapon, IFunctionHandler* pH, int nPosFireMode = 1)
+static IFireMode *GetRequestedFireMode(CWeapon *pWeapon, IFunctionHandler *pH, int nPosFireMode = 1)
 {
-		CRY_ASSERT(pWeapon);
-		CRY_ASSERT(pH);
+	CRY_ASSERT(pWeapon);
+	CRY_ASSERT(pH);
 
-		IFireMode* pFireMode = NULL;
-		const char* szFireMode = NULL;
-		int idxFireMode = 0;
+	IFireMode *pFireMode = NULL;
+	const char *szFireMode = NULL;
+	int idxFireMode = 0;
 
-		// If a fire mode index/name specified, use that.  Else, use current.
-		if (pH->GetParamCount() >= nPosFireMode)
+	// If a fire mode index/name specified, use that.  Else, use current.
+	if(pH->GetParamCount() >= nPosFireMode)
+	{
+		if(pH->GetParamType(nPosFireMode) == svtString && pH->GetParam(nPosFireMode,szFireMode))
 		{
-				if (pH->GetParamType(nPosFireMode) == svtString && pH->GetParam(nPosFireMode,szFireMode))
-				{
-						pFireMode = pWeapon->GetFireMode(szFireMode);
-				}
-				else if (pH->GetParamType(nPosFireMode) == svtNumber && pH->GetParam(nPosFireMode,idxFireMode))
-				{
-						pFireMode = pWeapon->GetFireMode(idxFireMode);
-				}
+			pFireMode = pWeapon->GetFireMode(szFireMode);
 		}
-		else
+		else if(pH->GetParamType(nPosFireMode) == svtNumber && pH->GetParam(nPosFireMode,idxFireMode))
 		{
-				idxFireMode = pWeapon->GetCurrentFireMode();
-				pFireMode = pWeapon->GetFireMode(idxFireMode);
+			pFireMode = pWeapon->GetFireMode(idxFireMode);
 		}
+	}
+	else
+	{
+		idxFireMode = pWeapon->GetCurrentFireMode();
+		pFireMode = pWeapon->GetFireMode(idxFireMode);
+	}
 
-		return pFireMode;
+	return pFireMode;
 }
 
 
 //------------------------------------------------------------------------
 CScriptBind_Weapon::CScriptBind_Weapon(ISystem *pSystem, IGameFramework *pGameFramework)
-: m_pSystem(pSystem),
-	m_pSS(pSystem->GetIScriptSystem()),
-	m_pGameFW(pGameFramework)
+	: m_pSystem(pSystem),
+	  m_pSS(pSystem->GetIScriptSystem()),
+	  m_pGameFW(pGameFramework)
 {
 	Init(m_pSS, m_pSystem, 1);
 
@@ -88,7 +88,7 @@ void CScriptBind_Weapon::AttachTo(CWeapon *pWeapon)
 {
 	IScriptTable *pScriptTable = ((CItem *)pWeapon)->GetEntity()->GetScriptTable();
 
-	if (pScriptTable)
+	if(pScriptTable)
 	{
 		SmartScriptTable thisTable(m_pSS);
 
@@ -103,23 +103,25 @@ void CScriptBind_Weapon::AttachTo(CWeapon *pWeapon)
 int CScriptBind_Weapon::SetAmmoCount(IFunctionHandler *pH)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
-	IFireMode* pFireMode = GetRequestedFireMode(pWeapon, pH);
+	IFireMode *pFireMode = GetRequestedFireMode(pWeapon, pH);
 
-	if (pFireMode)
+	if(pFireMode)
 	{
-		if (pH->GetParamType(2) != svtNumber)
+		if(pH->GetParamType(2) != svtNumber)
 			return pH->EndFunction();
 
 		const char *ammoName = 0;
-		if (pH->GetParamType(1) == svtString)
+
+		if(pH->GetParamType(1) == svtString)
 			pH->GetParam(1, ammoName);
 
-		IEntityClass* pAmmoType = pFireMode->GetAmmoType();
+		IEntityClass *pAmmoType = pFireMode->GetAmmoType();
 
-		if (ammoName)
+		if(ammoName)
 			pAmmoType = gEnv->pEntitySystem->GetClassRegistry()->FindClass(ammoName);
 
 		int ammo = 0;
@@ -135,12 +137,13 @@ int CScriptBind_Weapon::SetAmmoCount(IFunctionHandler *pH)
 int CScriptBind_Weapon::GetAmmoCount(IFunctionHandler *pH)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
-	IFireMode* pFireMode = GetRequestedFireMode(pWeapon, pH);
-	
-	if (pFireMode)
+	IFireMode *pFireMode = GetRequestedFireMode(pWeapon, pH);
+
+	if(pFireMode)
 		return pH->EndFunction(pFireMode->GetAmmoCount());
 
 	return pH->EndFunction();
@@ -150,12 +153,13 @@ int CScriptBind_Weapon::GetAmmoCount(IFunctionHandler *pH)
 int CScriptBind_Weapon::GetClipSize(IFunctionHandler *pH)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
-	IFireMode* pFireMode = GetRequestedFireMode(pWeapon, pH);
+	IFireMode *pFireMode = GetRequestedFireMode(pWeapon, pH);
 
-	if (pFireMode)
+	if(pFireMode)
 		return pH->EndFunction(pFireMode->GetClipSize());
 
 	return pH->EndFunction();
@@ -165,12 +169,13 @@ int CScriptBind_Weapon::GetClipSize(IFunctionHandler *pH)
 int CScriptBind_Weapon::IsZoomed(IFunctionHandler *pH)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
 	IZoomMode *pZoomMode = pWeapon->GetZoomMode(pWeapon->GetCurrentZoomMode());
 
-	if (pZoomMode)
+	if(pZoomMode)
 		return pH->EndFunction(pZoomMode->IsZoomed());
 
 	return pH->EndFunction();
@@ -180,12 +185,13 @@ int CScriptBind_Weapon::IsZoomed(IFunctionHandler *pH)
 int CScriptBind_Weapon::IsZooming(IFunctionHandler *pH)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
 	IZoomMode *pZoomMode = pWeapon->GetZoomMode(pWeapon->GetCurrentZoomMode());
 
-	if (pZoomMode)
+	if(pZoomMode)
 		return pH->EndFunction(pZoomMode->IsZoomingInOrOut());
 
 	return pH->EndFunction();
@@ -195,12 +201,13 @@ int CScriptBind_Weapon::IsZooming(IFunctionHandler *pH)
 int CScriptBind_Weapon::GetDamage(IFunctionHandler *pH)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
-	IFireMode* pFireMode = GetRequestedFireMode(pWeapon, pH);
+	IFireMode *pFireMode = GetRequestedFireMode(pWeapon, pH);
 
-	if (pFireMode)
+	if(pFireMode)
 		return pH->EndFunction(pFireMode->GetDamage());
 
 	return pH->EndFunction();
@@ -210,13 +217,14 @@ int CScriptBind_Weapon::GetDamage(IFunctionHandler *pH)
 int CScriptBind_Weapon::GetAmmoType(IFunctionHandler *pH)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
-	IFireMode* pFireMode = GetRequestedFireMode(pWeapon, pH);
+	IFireMode *pFireMode = GetRequestedFireMode(pWeapon, pH);
 
-	if (pFireMode)
-		if (IEntityClass * pCls = pFireMode->GetAmmoType())
+	if(pFireMode)
+		if(IEntityClass *pCls = pFireMode->GetAmmoType())
 			return pH->EndFunction(pCls->GetName());
 
 	return pH->EndFunction();
@@ -226,12 +234,13 @@ int CScriptBind_Weapon::GetAmmoType(IFunctionHandler *pH)
 int CScriptBind_Weapon::GetRecoil(IFunctionHandler *pH)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
-	IFireMode* pFireMode = GetRequestedFireMode(pWeapon, pH);
+	IFireMode *pFireMode = GetRequestedFireMode(pWeapon, pH);
 
-	if (pFireMode)
+	if(pFireMode)
 		return pH->EndFunction(pFireMode->GetRecoil());
 
 	return pH->EndFunction();
@@ -241,12 +250,13 @@ int CScriptBind_Weapon::GetRecoil(IFunctionHandler *pH)
 int CScriptBind_Weapon::GetSpread(IFunctionHandler *pH)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
-	IFireMode* pFireMode = GetRequestedFireMode(pWeapon, pH);
+	IFireMode *pFireMode = GetRequestedFireMode(pWeapon, pH);
 
-	if (pFireMode)
+	if(pFireMode)
 		return pH->EndFunction(pFireMode->GetSpread());
 
 	return pH->EndFunction();
@@ -256,12 +266,13 @@ int CScriptBind_Weapon::GetSpread(IFunctionHandler *pH)
 int CScriptBind_Weapon::GetCrosshair(IFunctionHandler *pH)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
-	IFireMode* pFireMode = GetRequestedFireMode(pWeapon, pH);
+	IFireMode *pFireMode = GetRequestedFireMode(pWeapon, pH);
 
-	if (pFireMode)
+	if(pFireMode)
 		return pH->EndFunction(pFireMode->GetCrosshair());
 
 	return pH->EndFunction();
@@ -271,7 +282,8 @@ int CScriptBind_Weapon::GetCrosshair(IFunctionHandler *pH)
 int CScriptBind_Weapon::GetCrosshairOpacity(IFunctionHandler *pH)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
 	return pH->EndFunction(pWeapon->GetCrosshairOpacity());
@@ -281,50 +293,56 @@ int CScriptBind_Weapon::GetCrosshairOpacity(IFunctionHandler *pH)
 int CScriptBind_Weapon::GetCrosshairVisibility(IFunctionHandler *pH)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
 	return pH->EndFunction(pWeapon->GetCrosshairVisibility());
 }
 
 //------------------------------------------------------------------------
-int CScriptBind_Weapon::EnableFireMode(IFunctionHandler *pH, const char* name, bool enable)
+int CScriptBind_Weapon::EnableFireMode(IFunctionHandler *pH, const char *name, bool enable)
 {
-		CWeapon *pWeapon = GetWeapon(pH);
-		if (!pWeapon)
-				return pH->EndFunction();
+	CWeapon *pWeapon = GetWeapon(pH);
 
-		IFireMode* pFireMode = pWeapon->GetFireMode(name);
-		if (pFireMode)
-		{
-				pFireMode->Enable(enable);
-		}
-
+	if(!pWeapon)
 		return pH->EndFunction();
+
+	IFireMode *pFireMode = pWeapon->GetFireMode(name);
+
+	if(pFireMode)
+	{
+		pFireMode->Enable(enable);
+	}
+
+	return pH->EndFunction();
 }
 
 //------------------------------------------------------------------------
-int CScriptBind_Weapon::IsFireModeEnabled(IFunctionHandler *pH, const char* name)
+int CScriptBind_Weapon::IsFireModeEnabled(IFunctionHandler *pH, const char *name)
 {
-		CWeapon *pWeapon = GetWeapon(pH);
-		if (!pWeapon)
-				return pH->EndFunction();
+	CWeapon *pWeapon = GetWeapon(pH);
 
-		bool bIsEnabled = false;
-		IFireMode* pFireMode = pWeapon->GetFireMode(name);
-		if (pFireMode)
-		{
-				bIsEnabled = pFireMode->IsEnabled();
-		}
+	if(!pWeapon)
+		return pH->EndFunction();
 
-		return pH->EndFunction(bIsEnabled);
+	bool bIsEnabled = false;
+	IFireMode *pFireMode = pWeapon->GetFireMode(name);
+
+	if(pFireMode)
+	{
+		bIsEnabled = pFireMode->IsEnabled();
+	}
+
+	return pH->EndFunction(bIsEnabled);
 }
 
 //------------------------------------------------------------------------
 int CScriptBind_Weapon::SetCurrentFireMode(IFunctionHandler *pH, const char *name)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
 	pWeapon->SetCurrentFireMode(name);
@@ -336,7 +354,8 @@ int CScriptBind_Weapon::SetCurrentFireMode(IFunctionHandler *pH, const char *nam
 int CScriptBind_Weapon::SetCurrentZoomMode(IFunctionHandler *pH, const char *name)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
 	pWeapon->SetCurrentZoomMode(name);
@@ -347,7 +366,8 @@ int CScriptBind_Weapon::SetCurrentZoomMode(IFunctionHandler *pH, const char *nam
 int CScriptBind_Weapon::ModifyCommit(IFunctionHandler *pH)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
 	pWeapon->RestoreLayers();
@@ -365,7 +385,8 @@ public:
 		m_className = cname;
 		m_attach = attch;
 	}
-	void execute(CItem *item) {
+	void execute(CItem *item)
+	{
 		//CryLogAlways("attaching %s", _className);
 		m_pWeapon->AttachAccessory(m_className, m_attach, false);
 		//delete this;
@@ -379,7 +400,8 @@ private:
 int CScriptBind_Weapon::ScheduleAttach(IFunctionHandler *pH, const char *className, bool attach)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
 	pWeapon->GetScheduler()->ScheduleAction(CSchedulerAction<ScheduleAttachClass>::Create(ScheduleAttachClass(pWeapon, className, attach)));
@@ -390,7 +412,8 @@ int CScriptBind_Weapon::ScheduleAttach(IFunctionHandler *pH, const char *classNa
 int CScriptBind_Weapon::SupportsAccessory(IFunctionHandler *pH, const char *accessoryName)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
 	CItem::SAccessoryParams *params = pWeapon->GetAccessoryParams(accessoryName);
@@ -400,11 +423,12 @@ int CScriptBind_Weapon::SupportsAccessory(IFunctionHandler *pH, const char *acce
 int CScriptBind_Weapon::GetAccessory(IFunctionHandler *pH, const char *accessoryName)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
-	CItem *pItem = pWeapon->GetAccessory(accessoryName);					
-	
+	CItem *pItem = pWeapon->GetAccessory(accessoryName);
+
 	if(!pItem)
 		return 0;
 
@@ -412,19 +436,20 @@ int CScriptBind_Weapon::GetAccessory(IFunctionHandler *pH, const char *accessory
 
 	if(!pEntity)
 		return 0;
-	
+
 	IScriptTable *pScriptTable = pEntity->GetScriptTable();
 
-	return pH->EndFunction( pScriptTable );
+	return pH->EndFunction(pScriptTable);
 }
 
 int CScriptBind_Weapon::AttachAccessory(IFunctionHandler *pH, const char *className, bool attach, bool force)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
-	if (className)
+	if(className)
 		pWeapon->AttachAccessory(className, attach, true, force);
 
 	return pH->EndFunction();
@@ -433,10 +458,11 @@ int CScriptBind_Weapon::AttachAccessory(IFunctionHandler *pH, const char *classN
 int CScriptBind_Weapon::SwitchAccessory(IFunctionHandler *pH, const char *className)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
-	if (className)
+	if(className)
 		pWeapon->SwitchAccessory(className);
 
 	return pH->EndFunction();
@@ -445,15 +471,17 @@ int CScriptBind_Weapon::SwitchAccessory(IFunctionHandler *pH, const char *classN
 int CScriptBind_Weapon::IsFiring(IFunctionHandler *pH)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
 	int n=pWeapon->GetNumOfFireModes();
-	for (int i=0;i<n;i++)
+
+	for(int i=0; i<n; i++)
 	{
-		if (IFireMode *pFireMode=pWeapon->GetFireMode(i))
+		if(IFireMode *pFireMode=pWeapon->GetFireMode(i))
 		{
-			if (pFireMode->IsEnabled() && pFireMode->IsFiring())
+			if(pFireMode->IsEnabled() && pFireMode->IsFiring())
 				return pH->EndFunction(true);
 		}
 	}
@@ -464,23 +492,24 @@ int CScriptBind_Weapon::IsFiring(IFunctionHandler *pH)
 int CScriptBind_Weapon::AttachAccessoryPlaceHolder(IFunctionHandler *pH, SmartScriptTable accessory, bool attach)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
 	const char *accessoryName;
 	accessory->GetValue("class", accessoryName);
 	ScriptHandle id;
 	accessory->GetValue("id", id);
-	
+
 	EntityId entId = (EntityId)id.n;
 	//CryLogAlways("id = %d", entId);
 	IEntity *attachment = gEnv->pEntitySystem->GetEntity(entId);
-	
 
-	if (accessoryName)
+
+	if(accessoryName)
 	{
 		//CryLogAlways("got name: %s", accessoryName);
-		if (pWeapon->GetAccessoryPlaceHolder(accessoryName))
+		if(pWeapon->GetAccessoryPlaceHolder(accessoryName))
 		{
 			//CryLogAlways("found accessory place holder");
 			pWeapon->AttachAccessoryPlaceHolder(accessoryName, attach);
@@ -492,12 +521,13 @@ int CScriptBind_Weapon::AttachAccessoryPlaceHolder(IFunctionHandler *pH, SmartSc
 			IEntity *wep = pWeapon->GetEntity();
 			//IGameObject *pGameObject = pWeapon->GetOwnerActor()->GetGameObject();
 			IInventory *pInventory = pActor->GetInventory();
-			if (pInventory)
+
+			if(pInventory)
 			{
 				//CryLogAlways("found inventory");
-				if (attachment)
+				if(attachment)
 				{
-					if (pInventory->FindItem(entId) != -1)
+					if(pInventory->FindItem(entId) != -1)
 					{
 						//CryLogAlways("found attachment in inventory already...");
 					}
@@ -505,9 +535,10 @@ int CScriptBind_Weapon::AttachAccessoryPlaceHolder(IFunctionHandler *pH, SmartSc
 					{
 						//CryLogAlways("attachment not found in inventory, adding...");
 					}
+
 					//CryLogAlways("found attachment");
-					
-					
+
+
 					//attachment->DetachThis(0);
 					//attachment->SetParentId(0);
 					//CItem *t = (CItem *)attachment;
@@ -522,7 +553,7 @@ int CScriptBind_Weapon::AttachAccessoryPlaceHolder(IFunctionHandler *pH, SmartSc
 					//}
 					pWeapon->AttachAccessoryPlaceHolder(accessoryName, attach);
 					pInventory->RemoveItem(attachment->GetId());
-					
+
 				}
 				else
 				{
@@ -530,15 +561,17 @@ int CScriptBind_Weapon::AttachAccessoryPlaceHolder(IFunctionHandler *pH, SmartSc
 				}
 			}
 		}
-		
+
 	}
+
 	return pH->EndFunction();
 }
 
 int CScriptBind_Weapon::GetAttachmentHelperPos(IFunctionHandler *pH, const char *helperName)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
 	Vec3 pos = pWeapon->GetSlotHelperPos(eIGS_FirstPerson, helperName, false);
@@ -554,7 +587,8 @@ int CScriptBind_Weapon::GetAttachmentHelperPos(IFunctionHandler *pH, const char 
 int CScriptBind_Weapon::GetShooter(IFunctionHandler *pH)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
 	IEntity *owner = pWeapon->GetOwner();
@@ -572,16 +606,16 @@ int CScriptBind_Weapon::AutoShoot(IFunctionHandler *pH, int shots, bool autoRelo
 		int		m_nshots;
 		bool	m_reload;
 
-		virtual void OnShoot(IWeapon *pWeapon, EntityId shooterId, EntityId ammoId, IEntityClass* pAmmoType,
-			const Vec3 &pos, const Vec3 &dir, const Vec3 &vel) {};
+		virtual void OnShoot(IWeapon *pWeapon, EntityId shooterId, EntityId ammoId, IEntityClass *pAmmoType,
+							 const Vec3 &pos, const Vec3 &dir, const Vec3 &vel) {};
 		virtual void OnStartFire(IWeapon *pWeapon, EntityId shooterId) {};
 		virtual void OnStopFire(IWeapon *pWeapon, EntityId shooterId) {};
-		virtual void OnStartReload(IWeapon *pWeapon, EntityId shooterId, IEntityClass* pAmmoType) {};
-		virtual void OnEndReload(IWeapon *pWeapon, EntityId shooterId, IEntityClass* pAmmoType) {};
+		virtual void OnStartReload(IWeapon *pWeapon, EntityId shooterId, IEntityClass *pAmmoType) {};
+		virtual void OnEndReload(IWeapon *pWeapon, EntityId shooterId, IEntityClass *pAmmoType) {};
 		virtual void OnSetAmmoCount(IWeapon *pWeapon, EntityId shooterId) {}
-		virtual void OnOutOfAmmo(IWeapon *pWeapon, IEntityClass* pAmmoType)
+		virtual void OnOutOfAmmo(IWeapon *pWeapon, IEntityClass *pAmmoType)
 		{
-			if (m_reload)
+			if(m_reload)
 				pWeapon->Reload(false);
 			else
 			{
@@ -591,7 +625,7 @@ int CScriptBind_Weapon::AutoShoot(IFunctionHandler *pH, int shots, bool autoRelo
 		};
 		virtual void OnReadyToFire(IWeapon *pWeapon)
 		{
-			if (!(--m_nshots))
+			if(!(--m_nshots))
 			{
 				pWeapon->StopFire();
 				pWeapon->RemoveEventListener(this);
@@ -602,21 +636,22 @@ int CScriptBind_Weapon::AutoShoot(IFunctionHandler *pH, int shots, bool autoRelo
 				pWeapon->StopFire();
 			}
 		};
-		virtual void OnPickedUp(IWeapon *pWeapon, EntityId actorId, bool destroyed){}
-		virtual void OnDropped(IWeapon *pWeapon, EntityId actorId){}
-		virtual void OnMelee(IWeapon* pWeapon, EntityId shooterId){}
+		virtual void OnPickedUp(IWeapon *pWeapon, EntityId actorId, bool destroyed) {}
+		virtual void OnDropped(IWeapon *pWeapon, EntityId actorId) {}
+		virtual void OnMelee(IWeapon *pWeapon, EntityId shooterId) {}
 		virtual void OnStartTargetting(IWeapon *pWeapon) {}
 		virtual void OnStopTargetting(IWeapon *pWeapon) {}
 		virtual void OnSelected(IWeapon *pWeapon, bool select) {}
 		virtual void OnFireModeChanged(IWeapon *pWeapon, int currentFireMode) {}
-		virtual void OnZoomChanged(IWeapon* pWeapon, bool zoomed, int idx) {}
+		virtual void OnZoomChanged(IWeapon *pWeapon, bool zoomed, int idx) {}
 	};
 
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
-	pWeapon->AddEventListener(new AutoShootHelper(shots, autoReload), __FUNCTION__); 	// FIXME: possible small memory leak here. 
+	pWeapon->AddEventListener(new AutoShootHelper(shots, autoReload), __FUNCTION__); 	// FIXME: possible small memory leak here.
 	pWeapon->StartFire();
 	pWeapon->StopFire();
 
@@ -628,7 +663,8 @@ int CScriptBind_Weapon::AutoShoot(IFunctionHandler *pH, int shots, bool autoRelo
 int CScriptBind_Weapon::Reload(IFunctionHandler *pH)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (pWeapon)
+
+	if(pWeapon)
 		pWeapon->Reload();
 
 	return pH->EndFunction();
@@ -694,10 +730,11 @@ CItem *CScriptBind_Weapon::GetItem(IFunctionHandler *pH)
 {
 	void *pThis = pH->GetThis();
 
-	if (pThis)
+	if(pThis)
 	{
 		IItem *pItem = m_pGameFW->GetIItemSystem()->GetItem((EntityId)(UINT_PTR)pThis);
-		if (pItem)
+
+		if(pItem)
 			return static_cast<CItem *>(pItem);
 	}
 
@@ -709,13 +746,15 @@ CWeapon *CScriptBind_Weapon::GetWeapon(IFunctionHandler *pH)
 {
 	void *pThis = pH->GetThis();
 
-	if (pThis)
+	if(pThis)
 	{
 		IItem *pItem = m_pGameFW->GetIItemSystem()->GetItem((EntityId)(UINT_PTR)pThis);
-		if (pItem)
+
+		if(pItem)
 		{
 			IWeapon *pWeapon=pItem->GetIWeapon();
-			if (pWeapon)
+
+			if(pWeapon)
 				return static_cast<CWeapon *>(pWeapon);
 		}
 	}
@@ -727,7 +766,8 @@ CWeapon *CScriptBind_Weapon::GetWeapon(IFunctionHandler *pH)
 int CScriptBind_Weapon::ActivateLamLaser(IFunctionHandler *pH, bool activate)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
 	pWeapon->ActivateLamLaser(activate);
@@ -739,6 +779,7 @@ int CScriptBind_Weapon::ActivateLamLaser(IFunctionHandler *pH, bool activate)
 int CScriptBind_Weapon::ActivateLamLight(IFunctionHandler *pH, bool activate)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
+
 	if(!pWeapon)
 		return pH->EndFunction();
 
@@ -753,12 +794,14 @@ int CScriptBind_Weapon::ActivateLamLight(IFunctionHandler *pH, bool activate)
 int CScriptBind_Weapon::GetCurrentFireMode(IFunctionHandler *pH)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
 	int idx = pWeapon->GetCurrentFireMode();
-	IFireMode* pFireMode = pWeapon->GetFireMode(idx);
-	if (pFireMode)
+	IFireMode *pFireMode = pWeapon->GetFireMode(idx);
+
+	if(pFireMode)
 	{
 		return pH->EndFunction(pFireMode->GetName());
 	}
@@ -770,11 +813,13 @@ int CScriptBind_Weapon::GetCurrentFireMode(IFunctionHandler *pH)
 int CScriptBind_Weapon::GetFireMode(IFunctionHandler *pH, int idx)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
-	IFireMode* pFireMode = pWeapon->GetFireMode(idx);
-	if (pFireMode)
+	IFireMode *pFireMode = pWeapon->GetFireMode(idx);
+
+	if(pFireMode)
 	{
 		return pH->EndFunction(pFireMode->GetName());
 	}
@@ -783,14 +828,16 @@ int CScriptBind_Weapon::GetFireMode(IFunctionHandler *pH, int idx)
 }
 
 //------------------------------------------------------------------------
-int CScriptBind_Weapon::GetFireModeIdx(IFunctionHandler *pH, const char* name)
+int CScriptBind_Weapon::GetFireModeIdx(IFunctionHandler *pH, const char *name)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
-	if (!pWeapon)
+
+	if(!pWeapon)
 		return pH->EndFunction();
 
 	const int idx = pWeapon->GetFireModeIdx(name);
-	if (idx >= 0)
+
+	if(idx >= 0)
 	{
 		return pH->EndFunction(idx);
 	}
@@ -803,10 +850,12 @@ int CScriptBind_Weapon::GetNumOfFireModes(IFunctionHandler *pH)
 {
 	CWeapon *pWeapon = GetWeapon(pH);
 	int nCountFireModes = 0;
-	if (pWeapon)
+
+	if(pWeapon)
 	{
 		nCountFireModes = pWeapon->GetNumOfFireModes();
 	}
+
 	return pH->EndFunction(nCountFireModes);
 }
 

@@ -26,22 +26,22 @@ CCachedAIValues::CCachedAIValues()
 {
 }
 
-void CCachedAIValues::Init(IGameObject* pGameObject)
+void CCachedAIValues::Init(IGameObject *pGameObject)
 {
 	m_pGameObject = pGameObject;
 }
 
-bool CCachedAIValues::operator==(const ICachedAIValues& _rhs) const
+bool CCachedAIValues::operator==(const ICachedAIValues &_rhs) const
 {
-	const CCachedAIValues& rhs = static_cast<const CCachedAIValues&>(_rhs);
+	const CCachedAIValues &rhs = static_cast<const CCachedAIValues &>(_rhs);
 
 	return ((m_iAlertnessState == rhs.m_iAlertnessState) &&
-		(m_readabilitySoundID == rhs.m_readabilitySoundID));
+			(m_readabilitySoundID == rhs.m_readabilitySoundID));
 }
 
-bool CCachedAIValues::NetSerialize( TSerialize ser, EEntityAspects aspect, uint8 profile, int flags )
+bool CCachedAIValues::NetSerialize(TSerialize ser, EEntityAspects aspect, uint8 profile, int flags)
 {
-	if (aspect == ASPECT_AI_VALUES)
+	if(aspect == ASPECT_AI_VALUES)
 	{
 		ser.Value("alertState", m_iAlertnessState, 'ui3');
 		ser.Value("readabilitySound", m_readabilitySoundParams);
@@ -83,11 +83,11 @@ void CCachedAIValues::SetReadabilitySoundFinished(bool bReadabilitySoundFinished
 	m_bReadabilitySoundFinished = bReadabilitySoundFinished;
 }
 
-const SReadabilitySoundParams* CCachedAIValues::PopUnplayedReadabilitySoundParams()
+const SReadabilitySoundParams *CCachedAIValues::PopUnplayedReadabilitySoundParams()
 {
 	return m_readabilitySoundParams.GetLatestValue();
 }
-void CCachedAIValues::SetReadabilitySoundParams(const SReadabilitySoundParams& params)
+void CCachedAIValues::SetReadabilitySoundParams(const SReadabilitySoundParams &params)
 {
 	TriggerNetUpdate();
 	m_readabilitySoundParams.SetAndDirty(params);
@@ -96,6 +96,7 @@ void CCachedAIValues::SetReadabilitySoundParams(const SReadabilitySoundParams& p
 void CCachedAIValues::TriggerNetUpdate()
 {
 	CRY_ASSERT(m_pGameObject);
+
 	if(m_pGameObject)
 	{
 		m_pGameObject->ChangedNetworkState(ASPECT_AI_VALUES);

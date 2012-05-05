@@ -24,11 +24,11 @@ History:
 
 //------------------------------------------------------------------------
 CScan::CScan()
-:	m_scanning(false),
-	m_delayTimer(0.0f),
-	m_durationTimer(0.0f),
-	m_scanLoopId(INVALID_SOUNDID),
-	m_tagEntitiesDelay(0.0f)
+	:	m_scanning(false),
+		m_delayTimer(0.0f),
+		m_durationTimer(0.0f),
+		m_scanLoopId(INVALID_SOUNDID),
+		m_tagEntitiesDelay(0.0f)
 {
 }
 
@@ -42,7 +42,7 @@ void CScan::Init(IWeapon *pWeapon, const struct IItemParamsNode *params, uint32 
 {
 	m_pWeapon = static_cast<CWeapon *>(pWeapon);
 
-	if (params)
+	if(params)
 		ResetParams(params);
 }
 
@@ -82,7 +82,7 @@ void CScan::Activate(bool activate)
 	m_scanning=false;
 	m_delayTimer=m_durationTimer=m_tagEntitiesDelay=0.0f;
 
-	if (m_scanLoopId != INVALID_SOUNDID)
+	if(m_scanLoopId != INVALID_SOUNDID)
 	{
 		m_pWeapon->StopSound(m_scanLoopId);
 		m_scanLoopId = INVALID_SOUNDID;
@@ -92,12 +92,13 @@ void CScan::Activate(bool activate)
 //------------------------------------------------------------------------
 void CScan::Update(float frameTime, uint32 frameId)
 {
-	if (m_scanning && m_pWeapon->IsClient())
+	if(m_scanning && m_pWeapon->IsClient())
 	{
-		if (m_delayTimer>0.0f)
+		if(m_delayTimer>0.0f)
 		{
 			m_delayTimer -= frameTime;
-			if (m_delayTimer>0.0f)
+
+			if(m_delayTimer>0.0f)
 				return;
 
 			m_delayTimer = 0.0f;
@@ -107,7 +108,8 @@ void CScan::Update(float frameTime, uint32 frameId)
 
 			m_scanLoopId=m_pWeapon->PlayAction(m_scanactions.scan, 0, true, CItem::eIPAF_Default|CItem::eIPAF_CleanBlending);
 			ISound *pSound = m_pWeapon->GetSoundProxy()->GetSound(m_scanLoopId);
-			if (pSound)
+
+			if(pSound)
 				pSound->GetInterfaceDeprecated()->SetLoopMode(true);
 		}
 
@@ -116,6 +118,7 @@ void CScan::Update(float frameTime, uint32 frameId)
 			if(m_tagEntitiesDelay>0.0f)
 			{
 				m_tagEntitiesDelay-=frameTime;
+
 				if(m_tagEntitiesDelay<=0.0f)
 				{
 					m_tagEntitiesDelay = 0.0f;
@@ -131,12 +134,13 @@ void CScan::Update(float frameTime, uint32 frameId)
 				}
 			}
 
-			if (m_durationTimer>0.0f)
+			if(m_durationTimer>0.0f)
 			{
 				m_durationTimer-=frameTime;
-				if (m_durationTimer<=0.0f)
+
+				if(m_durationTimer<=0.0f)
 				{
-					m_durationTimer=0.0f;	
+					m_durationTimer=0.0f;
 					StopFire();
 					//m_pWeapon->RequestShoot(0, ZERO, ZERO, ZERO, ZERO, 1.0f, 0, false);
 				}
@@ -150,34 +154,42 @@ void CScan::Update(float frameTime, uint32 frameId)
 //------------------------------------------------------------------------
 void CScan::StartFire()
 {
-	if (!m_pWeapon->IsBusy())
+	if(!m_pWeapon->IsBusy())
 	{
 		if(m_pWeapon->GetOwnerActor())
 		{
 			// add the flash animation part here
 			IEntity *pEntity = m_pWeapon->GetEntity();
+
 			if(pEntity)
 			{
-				IEntityRenderProxy* pRenderProxy((IEntityRenderProxy*)pEntity->GetProxy(ENTITY_PROXY_RENDER));
-				if (pRenderProxy)
+				IEntityRenderProxy *pRenderProxy((IEntityRenderProxy *)pEntity->GetProxy(ENTITY_PROXY_RENDER));
+
+				if(pRenderProxy)
 				{
-					IMaterial* pMtl(pRenderProxy->GetRenderMaterial(0));
-					if (pMtl)
+					IMaterial *pMtl(pRenderProxy->GetRenderMaterial(0));
+
+					if(pMtl)
 					{
 						pMtl = pMtl->GetSafeSubMtl(2);
-						if (pMtl)
+
+						if(pMtl)
 						{
-							const SShaderItem& shaderItem(pMtl->GetShaderItem());
-							if (shaderItem.m_pShaderResources)
+							const SShaderItem &shaderItem(pMtl->GetShaderItem());
+
+							if(shaderItem.m_pShaderResources)
 							{
-								SEfResTexture* pTex = shaderItem.m_pShaderResources->GetTexture(0);
-								if (pTex)
+								SEfResTexture *pTex = shaderItem.m_pShaderResources->GetTexture(0);
+
+								if(pTex)
 								{
-									IDynTextureSource* pDynTexSrc = pTex->m_Sampler.m_pDynTexSource;
-									if (pDynTexSrc)
+									IDynTextureSource *pDynTexSrc = pTex->m_Sampler.m_pDynTexSource;
+
+									if(pDynTexSrc)
 									{
-										IFlashPlayer* pFlashPlayer = (IFlashPlayer*) pDynTexSrc->GetSource(IDynTextureSource::DTS_I_FLASHPLAYER);
-										if (pFlashPlayer)
+										IFlashPlayer *pFlashPlayer = (IFlashPlayer *) pDynTexSrc->GetSource(IDynTextureSource::DTS_I_FLASHPLAYER);
+
+										if(pFlashPlayer)
 											pFlashPlayer->Invoke0("startScan");
 									}
 								}
@@ -203,32 +215,40 @@ void CScan::StartFire()
 //------------------------------------------------------------------------
 void CScan::StopFire()
 {
-	if (!m_scanning)
+	if(!m_scanning)
 		return;
 
 	IEntity *pEntity = m_pWeapon->GetEntity();
+
 	if(pEntity)
 	{
-		IEntityRenderProxy* pRenderProxy((IEntityRenderProxy*)pEntity->GetProxy(ENTITY_PROXY_RENDER));
-		if (pRenderProxy)
+		IEntityRenderProxy *pRenderProxy((IEntityRenderProxy *)pEntity->GetProxy(ENTITY_PROXY_RENDER));
+
+		if(pRenderProxy)
 		{
-			IMaterial* pMtl(pRenderProxy->GetRenderMaterial(0));
-			if (pMtl)
+			IMaterial *pMtl(pRenderProxy->GetRenderMaterial(0));
+
+			if(pMtl)
 			{
 				pMtl = pMtl->GetSafeSubMtl(2);
-				if (pMtl)
+
+				if(pMtl)
 				{
-					const SShaderItem& shaderItem(pMtl->GetShaderItem());
-					if (shaderItem.m_pShaderResources)
+					const SShaderItem &shaderItem(pMtl->GetShaderItem());
+
+					if(shaderItem.m_pShaderResources)
 					{
-						SEfResTexture* pTex = shaderItem.m_pShaderResources->GetTexture(0);
-						if (pTex)
+						SEfResTexture *pTex = shaderItem.m_pShaderResources->GetTexture(0);
+
+						if(pTex)
 						{
-							IDynTextureSource* pDynTexSrc = pTex->m_Sampler.m_pDynTexSource;
-							if (pDynTexSrc)
+							IDynTextureSource *pDynTexSrc = pTex->m_Sampler.m_pDynTexSource;
+
+							if(pDynTexSrc)
 							{
-								IFlashPlayer* pFlashPlayer = (IFlashPlayer*) pDynTexSrc->GetSource(IDynTextureSource::DTS_I_FLASHPLAYER);
-								if (pFlashPlayer)
+								IFlashPlayer *pFlashPlayer = (IFlashPlayer *) pDynTexSrc->GetSource(IDynTextureSource::DTS_I_FLASHPLAYER);
+
+								if(pFlashPlayer)
 									pFlashPlayer->Invoke0("cancelScan");
 							}
 						}
@@ -244,7 +264,7 @@ void CScan::StopFire()
 	m_pWeapon->SetBusy(false);
 	m_pWeapon->RequestStopFire();
 
-	if (m_scanLoopId != INVALID_SOUNDID)
+	if(m_scanLoopId != INVALID_SOUNDID)
 	{
 		m_pWeapon->StopSound(m_scanLoopId);
 		m_scanLoopId = INVALID_SOUNDID;
@@ -254,22 +274,23 @@ void CScan::StopFire()
 //------------------------------------------------------------------------
 void CScan::NetStartFire()
 {
-	if (!m_pWeapon->IsClient())
+	if(!m_pWeapon->IsClient())
 		return;
 
 	m_scanLoopId=m_pWeapon->PlayAction(m_scanactions.scan);
 	ISound *pSound = m_pWeapon->GetSoundProxy()->GetSound(m_scanLoopId);
-	if (pSound)
+
+	if(pSound)
 		pSound->GetInterfaceDeprecated()->SetLoopMode(true);
 }
 
 //------------------------------------------------------------------------
 void CScan::NetStopFire()
 {
-	if (!m_pWeapon->IsClient())
+	if(!m_pWeapon->IsClient())
 		return;
 
-	if (m_scanLoopId != INVALID_SOUNDID)
+	if(m_scanLoopId != INVALID_SOUNDID)
 	{
 		m_pWeapon->StopSound(m_scanLoopId);
 		m_scanLoopId = INVALID_SOUNDID;
@@ -279,7 +300,7 @@ void CScan::NetStopFire()
 //------------------------------------------------------------------------
 void CScan::NetShoot(const Vec3 &hit, int ph)
 {
-	if (m_pWeapon->IsServer())
+	if(m_pWeapon->IsServer())
 	{
 		IEntity *pOwner=m_pWeapon->GetOwner();
 		EntityId ownerId=pOwner->GetId();
@@ -289,25 +310,29 @@ void CScan::NetShoot(const Vec3 &hit, int ph)
 		Vec3 pos=pOwner->GetWorldPos();
 		query.box = AABB(Vec3(pos.x-radius,pos.y-radius,pos.z-radius), Vec3(pos.x+radius,pos.y+radius,pos.z+radius));
 		query.nEntityFlags = ENTITY_FLAG_ON_RADAR; // Filter by entity flag.
-		gEnv->pEntitySystem->QueryProximity( query );
+		gEnv->pEntitySystem->QueryProximity(query);
 
 		for(int i=0; i<query.nCount; i++)
 		{
 			IEntity *pEntity = query.pEntities[i];
+
 			if(pEntity && pEntity != pOwner && !pEntity->IsHidden())
 			{
 				CActor *pActor=m_pWeapon->GetActor(pEntity->GetId());
-				if (pActor && (pActor->GetSpectatorMode()!=0 || pActor->GetHealth()<=0.0f))
+
+				if(pActor && (pActor->GetSpectatorMode()!=0 || pActor->GetHealth()<=0.0f))
 					continue;
 
-/*				if (pActor && pActor->GetActorClass()==CPlayer::GetActorClassType())
-				{
-					CPlayer *pPlayer=static_cast<CPlayer *>(pActor);
-					CNanoSuit *pSuit=pPlayer->GetNanoSuit();
-					if (pSuit && pSuit->GetMode()==NANOMODE_CLOAK && pSuit->GetCloak()->GetType()==CLOAKMODE_REFRACTION)
-						continue;
-				}
-				else*/ if(IItem *pItem = g_pGame->GetIGameFramework()->GetIItemSystem()->GetItem(pEntity->GetId()))
+				/*				if (pActor && pActor->GetActorClass()==CPlayer::GetActorClassType())
+								{
+									CPlayer *pPlayer=static_cast<CPlayer *>(pActor);
+									CNanoSuit *pSuit=pPlayer->GetNanoSuit();
+									if (pSuit && pSuit->GetMode()==NANOMODE_CLOAK && pSuit->GetCloak()->GetType()==CLOAKMODE_REFRACTION)
+										continue;
+								}
+								else*/
+
+				if(IItem *pItem = g_pGame->GetIGameFramework()->GetIItemSystem()->GetItem(pEntity->GetId()))
 					continue;
 
 				g_pGame->GetGameRules()->AddTaggedEntity(ownerId, pEntity->GetId(), true);
@@ -317,7 +342,7 @@ void CScan::NetShoot(const Vec3 &hit, int ph)
 }
 
 //------------------------------------------------------------------------
-void CScan::GetMemoryUsage(ICrySizer * s) const
+void CScan::GetMemoryUsage(ICrySizer *s) const
 {
 	s->Add(m_name);
 	m_scanparams.GetMemoryUsage(s);

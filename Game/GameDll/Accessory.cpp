@@ -7,7 +7,7 @@ Description:  Item/weapon accessories
 
 -------------------------------------------------------------------------
 History:
-- 28:1:2008   Created by Benito G.R. 
+- 28:1:2008   Created by Benito G.R.
 
 *************************************************************************/
 
@@ -20,13 +20,15 @@ History:
 void CAccessory::PickUp(EntityId pickerId, bool sound, bool select, bool keepHistory, const char *setup)
 {
 	CActor *pActor=GetActor(pickerId);
-	if (!pActor)
+
+	if(!pActor)
 		return;
 
 	if(!CheckAmmoRestrictions(pickerId))
 	{
-		if (IsServer())
+		if(IsServer())
 			g_pGame->GetGameRules()->SendTextMessage(eTextMessageCenter, "@ammo_maxed_out", eRMI_ToClientChannel, pActor->GetChannelId(), (string("@")+GetEntity()->GetClass()->GetName()).c_str());
+
 		return;
 	}
 
@@ -38,7 +40,7 @@ void CAccessory::PickUp(EntityId pickerId, bool sound, bool select, bool keepHis
 	bool soundEnabled = IsSoundEnabled();
 	EnableSound(sound);
 
-	SetViewMode(0);		
+	SetViewMode(0);
 	SetOwnerId(pickerId);
 
 	CopyRenderFlags(GetOwner());
@@ -49,7 +51,8 @@ void CAccessory::PickUp(EntityId pickerId, bool sound, bool select, bool keepHis
 
 
 	IInventory *pInventory = pActor->GetInventory();
-	if (!pInventory)
+
+	if(!pInventory)
 	{
 		GameWarning("Actor '%s' has no inventory, when trying to pickup '%s'!",pActor->GetEntity()->GetName(),GetEntity()->GetName());
 		return;
@@ -60,13 +63,13 @@ void CAccessory::PickUp(EntityId pickerId, bool sound, bool select, bool keepHis
 		pInventory->AddAccessory(GetEntity()->GetClass());
 	}
 
-	OnPickedUp(pickerId, m_sharedparams->params.unique);	
+	OnPickedUp(pickerId, m_sharedparams->params.unique);
 
 	PlayAction(g_pItemStrings->pickedup);
 
 	EnableSound(soundEnabled);
 
-	if (IsServer() && !IsDemoPlayback())
+	if(IsServer() && !IsDemoPlayback())
 	{
 		if(!gEnv->bMultiplayer)
 			RemoveEntity();
@@ -74,14 +77,15 @@ void CAccessory::PickUp(EntityId pickerId, bool sound, bool select, bool keepHis
 			g_pGame->GetGameRules()->ScheduleEntityRemoval(GetEntityId(),10.0f,false); //Give some time to the clients to pick the msg
 	}
 
-	if (IsServer())
+	if(IsServer())
 	{
 		GetGameObject()->SetNetworkParent(pickerId);
-		if ((GetEntity()->GetFlags()&(ENTITY_FLAG_CLIENT_ONLY|ENTITY_FLAG_SERVER_ONLY)) == 0)
+
+		if((GetEntity()->GetFlags()&(ENTITY_FLAG_CLIENT_ONLY|ENTITY_FLAG_SERVER_ONLY)) == 0)
 		{
 			pActor->GetGameObject()->InvokeRMIWithDependentObject(CActor::ClPickUp(), CActor::PickItemParams(GetEntityId(), m_stats.selected, sound), eRMI_ToAllClients|eRMI_NoLocalCalls, GetEntityId());
 
 			const char *displayName=GetDisplayName();
-}
+		}
 	}
 }

@@ -20,33 +20,35 @@ public:
 		return pFtMgr ? pFtMgr->m_featureTests.size() : 0;
 	}
 
-	virtual const char* GetValue(int nIndex) const
+	virtual const char *GetValue(int nIndex) const
 	{
-		if (nIndex < 0 || nIndex >= GetCount())
+		if(nIndex < 0 || nIndex >= GetCount())
 		{
 			return NULL;
 		}
 
 		CFeatureTestMgr *pFtMgr = GetFeatureTestMgr();
-		if (!pFtMgr)
+
+		if(!pFtMgr)
 		{
 			return NULL;
 		}
 
-		IFeatureTest* pFeatureTest = pFtMgr->m_featureTests[nIndex].m_pTest;
+		IFeatureTest *pFeatureTest = pFtMgr->m_featureTests[nIndex].m_pTest;
 		return pFeatureTest ? pFeatureTest->Name() : NULL;
 	}
 
 private:
-	CFeatureTestMgr* GetFeatureTestMgr() const
+	CFeatureTestMgr *GetFeatureTestMgr() const
 	{
 #if ENABLE_FEATURE_TESTER
-		CFeatureTester* pFTester = CFeatureTester::GetInstance();
+		CFeatureTester *pFTester = CFeatureTester::GetInstance();
 
-		if (pFTester)
+		if(pFTester)
 		{
 			return &pFTester->GetMapFeatureTestMgr();
 		}
+
 #endif
 		return NULL;
 	}
@@ -55,21 +57,21 @@ private:
 static CFeatureTestMgrArgumentAutoComplete s_featureTestMgrArgumentAutoComplete;
 
 CFeatureTestMgr::CFeatureTestMgr()
-:	m_runningTestIndex(),
-	m_pRunningTest(),
-	m_pAutoTester(),
-	m_running(),
-	m_pendingRunAll(),
-	m_pendingQuickload(),
-	m_pendingLevelReload(),
-	m_hasQuickloaded(),
-	m_timeWaitedForScheduled(0.0f),
-	m_waiting(false),
-	m_timeoutScheduled(0.0f)
+	:	m_runningTestIndex(),
+		m_pRunningTest(),
+		m_pAutoTester(),
+		m_running(),
+		m_pendingRunAll(),
+		m_pendingQuickload(),
+		m_pendingLevelReload(),
+		m_hasQuickloaded(),
+		m_timeWaitedForScheduled(0.0f),
+		m_waiting(false),
+		m_timeoutScheduled(0.0f)
 {
-	IConsole* pConsole = GetISystem()->GetIConsole();
+	IConsole *pConsole = GetISystem()->GetIConsole();
 
-	if (pConsole)
+	if(pConsole)
 	{
 		pConsole->AddCommand("ft_map_runAll", CmdMapRunAll, VF_CHEAT, "FEATURE TESTER: Run all enabled map feature tests");
 		pConsole->AddCommand("ft_map_forceRun", CmdMapForceRun, VF_CHEAT, "FEATURE TESTER: Force run of the provided test (even if it's not ready)");
@@ -79,9 +81,9 @@ CFeatureTestMgr::CFeatureTestMgr()
 
 CFeatureTestMgr::~CFeatureTestMgr()
 {
-	IConsole* pConsole = GetISystem()->GetIConsole();
+	IConsole *pConsole = GetISystem()->GetIConsole();
 
-	if (pConsole)
+	if(pConsole)
 	{
 		pConsole->RemoveCommand("ft_map_runAll");
 		pConsole->RemoveCommand("ft_map_forceRun");
@@ -89,12 +91,13 @@ CFeatureTestMgr::~CFeatureTestMgr()
 }
 
 /// Registers a feature test (does not take ownership of test)
-void CFeatureTestMgr::RegisterFeatureTest(IFeatureTest* pFeatureTest)
+void CFeatureTestMgr::RegisterFeatureTest(IFeatureTest *pFeatureTest)
 {
 	assert(pFeatureTest);
-	if (pFeatureTest)
+
+	if(pFeatureTest)
 	{
-		if (!stl::push_back_unique(m_featureTests, pFeatureTest))
+		if(!stl::push_back_unique(m_featureTests, pFeatureTest))
 		{
 			CryLog("Feature test case already registered: %s", pFeatureTest->Name());
 		}
@@ -102,15 +105,16 @@ void CFeatureTestMgr::RegisterFeatureTest(IFeatureTest* pFeatureTest)
 }
 
 /// Unregisters a feature test
-void CFeatureTestMgr::UnregisterFeatureTest(IFeatureTest* pFeatureTest)
+void CFeatureTestMgr::UnregisterFeatureTest(IFeatureTest *pFeatureTest)
 {
 	assert(pFeatureTest);
-	if (pFeatureTest)
+
+	if(pFeatureTest)
 	{
-		if (pFeatureTest == m_pRunningTest)
+		if(pFeatureTest == m_pRunningTest)
 			m_pRunningTest = NULL;
 
-		if (!stl::find_and_erase(m_featureTests, pFeatureTest))
+		if(!stl::find_and_erase(m_featureTests, pFeatureTest))
 		{
 			CryLog("Tried to unregister an unknown feature test: %s", pFeatureTest->Name());
 		}
@@ -120,12 +124,12 @@ void CFeatureTestMgr::UnregisterFeatureTest(IFeatureTest* pFeatureTest)
 /// Runs all registered tests (if they meet their dependencies)
 void CFeatureTestMgr::RunAll()
 {
-	if (!IsRunning())
+	if(!IsRunning())
 	{
 		// Ensure all tests are cleaned up and scheduled to run
 		ResetAllTests(eFTS_Scheduled);
 
-		if (StartNextTest() || WaitingForScheduledTests())
+		if(StartNextTest() || WaitingForScheduledTests())
 		{
 			CryLog("Running all map feature tests...");
 		}
@@ -141,37 +145,37 @@ void CFeatureTestMgr::RunAll()
 }
 
 /// Force running of the defined test case (ignores dependencies)
-void CFeatureTestMgr::ForceRun(const char* testNameFilter)
+void CFeatureTestMgr::ForceRun(const char *testNameFilter)
 {
-	if (!IsRunning())
+	if(!IsRunning())
 	{
 		// Ensure no other tests run apart from the selected one
 		ResetAllTests(eFTS_Disabled);
 
 		size_t firstTestIndex = ~0;
 
-		for (TFeatureTestVec::iterator iter(m_featureTests.begin()); iter != m_featureTests.end(); ++iter)
+		for(TFeatureTestVec::iterator iter(m_featureTests.begin()); iter != m_featureTests.end(); ++iter)
 		{
-			FeatureTestState& ftState = *iter;
+			FeatureTestState &ftState = *iter;
 
-			const char* testName = ftState.m_pTest->Name();
+			const char *testName = ftState.m_pTest->Name();
 
 			// If test name contains the filter string
-			if (strstr(testName, testNameFilter) != NULL)
+			if(strstr(testName, testNameFilter) != NULL)
 			{
 				ftState.m_state = eFTS_Scheduled;
-				
+
 				CryLogAlways("Scheduling test: %s", testName);
 
 				// Store the first valid test found as the one to run first
-				if (firstTestIndex == ~0)
+				if(firstTestIndex == ~0)
 					firstTestIndex = std::distance(m_featureTests.begin(), iter);
 			}
 		}
 
-		if (firstTestIndex != ~0)
+		if(firstTestIndex != ~0)
 		{
-			FeatureTestState& ftState = m_featureTests[firstTestIndex];
+			FeatureTestState &ftState = m_featureTests[firstTestIndex];
 			ftState.m_state = eFTS_Running;
 			m_runningTestIndex = firstTestIndex;
 			m_pRunningTest = ftState.m_pTest;
@@ -182,7 +186,7 @@ void CFeatureTestMgr::ForceRun(const char* testNameFilter)
 			const float currTime = gEnv->pTimer->GetCurrTime();
 
 			// If test doesn't start
-			if (!m_pRunningTest->Start())
+			if(!m_pRunningTest->Start())
 			{
 				// Reset state
 				m_running = false;
@@ -203,12 +207,13 @@ void CFeatureTestMgr::ForceRun(const char* testNameFilter)
 bool CFeatureTestMgr::WaitingForScheduledTests()
 {
 	//If timeout has not yet been reached
-	if( m_timeWaitedForScheduled < m_timeoutScheduled )
+	if(m_timeWaitedForScheduled < m_timeoutScheduled)
 	{
 		//If there is any test scheduled and still waiting then return true;
-		for (TFeatureTestVec::const_iterator iter(m_featureTests.begin()); iter != m_featureTests.end(); ++iter)
+		for(TFeatureTestVec::const_iterator iter(m_featureTests.begin()); iter != m_featureTests.end(); ++iter)
 		{
-			const FeatureTestState& ftState = *iter;
+			const FeatureTestState &ftState = *iter;
+
 			if(ftState.m_state == eFTS_Scheduled)
 			{
 				m_waiting = true;
@@ -224,7 +229,7 @@ bool CFeatureTestMgr::WaitingForScheduledTests()
 /// Updates testing state
 void CFeatureTestMgr::Update(float deltaTime)
 {
-	if (m_pendingLevelReload)
+	if(m_pendingLevelReload)
 	{
 		m_pendingLevelReload = false;
 		m_hasQuickloaded = false;
@@ -233,24 +238,25 @@ void CFeatureTestMgr::Update(float deltaTime)
 		return;
 	}
 
-	if (m_pendingQuickload)
+	if(m_pendingQuickload)
 	{
 		m_pendingQuickload = false;
 
 		bool bAllowQuickload = true;
 
-		if (gEnv->IsEditor())
+		if(gEnv->IsEditor())
 		{
-			ICVar* pg_allowSaveLoadInEditor = gEnv->pConsole->GetCVar("g_allowSaveLoadInEditor");
+			ICVar *pg_allowSaveLoadInEditor = gEnv->pConsole->GetCVar("g_allowSaveLoadInEditor");
 			const bool bAllowSaveInEditor = pg_allowSaveLoadInEditor && (pg_allowSaveLoadInEditor->GetIVal() != 0);
-			if (!bAllowSaveInEditor)
+
+			if(!bAllowSaveInEditor)
 			{
 				CryLogAlways("Ignoring quickload tests in editor");
 				bAllowQuickload = false;
 			}
 		}
 
-		if (bAllowQuickload)
+		if(bAllowQuickload)
 		{
 			QuickloadReportResults();
 			return;
@@ -258,10 +264,10 @@ void CFeatureTestMgr::Update(float deltaTime)
 	}
 
 	// WORKAROUND: Auto-tester sends run all request before FG tests have loaded, so we wait for them to register here
-	if (m_pendingRunAll)
+	if(m_pendingRunAll)
 	{
 		// Have any feature tests registered yet?
-		if (!m_featureTests.empty())
+		if(!m_featureTests.empty())
 		{
 			// Initiate the RunAll!
 			m_pendingRunAll = false;
@@ -270,17 +276,17 @@ void CFeatureTestMgr::Update(float deltaTime)
 	}
 
 	// If running tests
-	if (m_running)
+	if(m_running)
 	{
 		// If a test is in progress
-		if (m_pRunningTest)
+		if(m_pRunningTest)
 		{
 			m_pRunningTest->Update(deltaTime);
 		}
 		else	// We don't have a current test
 		{
 			// Get one from the scheduled list
-			if (!StartNextTest() && !WaitingForScheduledTests())
+			if(!StartNextTest() && !WaitingForScheduledTests())
 			{
 				CryLogAlways("Finished running map tests!");
 			}
@@ -293,6 +299,7 @@ void CFeatureTestMgr::Update(float deltaTime)
 		if(WaitingForScheduledTests())
 		{
 			m_timeWaitedForScheduled += deltaTime;
+
 			if(m_timeWaitedForScheduled >= m_timeoutScheduled)
 			{
 				m_waiting = false;
@@ -308,28 +315,28 @@ void CFeatureTestMgr::Update(float deltaTime)
 }
 
 /// Called when a test run is done with its results.
-void CFeatureTestMgr::OnTestResults(const char* testName, const char* testDesc, const char* failureMsg, float duration, const char* owners)
+void CFeatureTestMgr::OnTestResults(const char *testName, const char *testDesc, const char *failureMsg, float duration, const char *owners)
 {
 	CryLogAlways("Finished running test \"%s\" in %fs: %s", testName, duration, (!failureMsg ? "Succeeded" : failureMsg));
 
-	if (m_pAutoTester)
+	if(m_pAutoTester)
 	{
-		const char* testGroupName = m_hasQuickloaded ? "FG Tests (after quickload)" : "FG Tests";
+		const char *testGroupName = m_hasQuickloaded ? "FG Tests (after quickload)" : "FG Tests";
 		m_pAutoTester->AddSimpleTestCase(testGroupName, testName, duration, failureMsg, owners);
 		m_pAutoTester->WriteResults(m_pAutoTester->kWriteResultsFlag_unfinished);
 	}
 }
 
 /// Called on completion of a feature test
-void CFeatureTestMgr::OnTestFinished(IFeatureTest* pFeatureTest)
+void CFeatureTestMgr::OnTestFinished(IFeatureTest *pFeatureTest)
 {
 	assert(m_pRunningTest == pFeatureTest);
 
-	if (m_pRunningTest == pFeatureTest)
+	if(m_pRunningTest == pFeatureTest)
 	{
-		if (m_runningTestIndex < m_featureTests.size())
+		if(m_runningTestIndex < m_featureTests.size())
 		{
-			FeatureTestState& ftState = m_featureTests[m_runningTestIndex];
+			FeatureTestState &ftState = m_featureTests[m_runningTestIndex];
 
 			ftState.m_state = eFTS_Finished;
 		}
@@ -358,14 +365,14 @@ bool CFeatureTestMgr::StartNextTest()
 	// Ensure previous test is complete first
 	assert(!m_pRunningTest);
 
-	for (TFeatureTestVec::iterator iter(m_featureTests.begin()); iter != m_featureTests.end(); ++iter)
+	for(TFeatureTestVec::iterator iter(m_featureTests.begin()); iter != m_featureTests.end(); ++iter)
 	{
-		FeatureTestState& ftState = *iter;
+		FeatureTestState &ftState = *iter;
 
 		// TODO: Check category, other filters?
 
 		// Find the first test hasn't been run and has no dependencies
-		if (ftState.m_state == eFTS_Scheduled && ftState.m_pTest->ReadyToRun())
+		if(ftState.m_state == eFTS_Scheduled && ftState.m_pTest->ReadyToRun())
 		{
 			ftState.m_state = eFTS_Running;
 			m_runningTestIndex = std::distance(m_featureTests.begin(), iter);
@@ -374,7 +381,7 @@ bool CFeatureTestMgr::StartNextTest()
 			CryLogAlways("Running Map Test: %s", m_pRunningTest->Name());
 
 			// Run it!
-			if (m_pRunningTest->Start())
+			if(m_pRunningTest->Start())
 			{
 				break;
 			}
@@ -393,15 +400,16 @@ bool CFeatureTestMgr::StartNextTest()
 }
 
 /// Returns the index of the first test found with the given name or ~0
-size_t CFeatureTestMgr::FindTest(const char* name) const
+size_t CFeatureTestMgr::FindTest(const char *name) const
 {
 	size_t resultIndex = ~0;
 
-	for (TFeatureTestVec::const_iterator iter(m_featureTests.begin()); iter != m_featureTests.end(); ++iter)
+	for(TFeatureTestVec::const_iterator iter(m_featureTests.begin()); iter != m_featureTests.end(); ++iter)
 	{
-		const FeatureTestState& ftState = *iter;
-		const char* testName = ftState.m_pTest->Name();
-		if (stricmp(name, testName) == 0)
+		const FeatureTestState &ftState = *iter;
+		const char *testName = ftState.m_pTest->Name();
+
+		if(stricmp(name, testName) == 0)
 		{
 			resultIndex = std::distance(m_featureTests.begin(), iter);
 			break;
@@ -414,15 +422,15 @@ size_t CFeatureTestMgr::FindTest(const char* name) const
 /// Resets all tests to to the given state
 void CFeatureTestMgr::ResetAllTests(EFTState resetState)
 {
-	if (m_running)
+	if(m_running)
 		CryWarning(VALIDATOR_MODULE_GAME, VALIDATOR_WARNING, "Resetting tests while testing was running - may have undesired side effects!");
 
 	m_runningTestIndex = 0;
 	m_pRunningTest = NULL;
 
-	for (TFeatureTestVec::iterator iter(m_featureTests.begin()); iter != m_featureTests.end(); ++iter)
+	for(TFeatureTestVec::iterator iter(m_featureTests.begin()); iter != m_featureTests.end(); ++iter)
 	{
-		FeatureTestState& ftState = *iter;
+		FeatureTestState &ftState = *iter;
 
 		ftState.m_state = resetState;
 	}
@@ -437,7 +445,7 @@ void CFeatureTestMgr::QuickloadReportResults()
 	const bool success = g_pGame->LoadLastSave();
 	const float duration = gEnv->pTimer->GetCurrTime() - startTime;
 
-	const char* const failureMessage = success ? NULL : "Couldn't load last save";
+	const char *const failureMessage = success ? NULL : "Couldn't load last save";
 	OnTestResults("Quickload", "Quickload before running tests", failureMessage, duration);
 }
 
@@ -445,27 +453,31 @@ void CFeatureTestMgr::QuickloadReportResults()
 void CFeatureTestMgr::CmdMapRunAll(IConsoleCmdArgs *pArgs)
 {
 #if ENABLE_FEATURE_TESTER
-	CFeatureTester* pFTester = CFeatureTester::GetInstance();
+	CFeatureTester *pFTester = CFeatureTester::GetInstance();
 
 	bool reloadLevel = false;
 	bool quickload = false;
 
 	int argCount = pArgs->GetArgCount();
-	for (int argIndex = 0; argIndex < argCount; ++argIndex)
+
+	for(int argIndex = 0; argIndex < argCount; ++argIndex)
 	{
-		const char* arg = pArgs->GetArg(argIndex);
-		if (!stricmp("reloadlevel", arg))
+		const char *arg = pArgs->GetArg(argIndex);
+
+		if(!stricmp("reloadlevel", arg))
 		{
 			reloadLevel = true;
 		}
-		if (!stricmp("quickload", arg))
+
+		if(!stricmp("quickload", arg))
 		{
 			quickload = true;
 		}
 	}
 
-	if (pFTester)
+	if(pFTester)
 		pFTester->GetMapFeatureTestMgr().ScheduleRunAll(reloadLevel, quickload, 0.0f);
+
 #else
 	CryWarning(VALIDATOR_MODULE_GAME, VALIDATOR_ERROR, "Feature testing not enabled in this build.");
 #endif
@@ -474,15 +486,15 @@ void CFeatureTestMgr::CmdMapRunAll(IConsoleCmdArgs *pArgs)
 void CFeatureTestMgr::CmdMapForceRun(IConsoleCmdArgs *pArgs)
 {
 #if ENABLE_FEATURE_TESTER
-	CFeatureTester* pFTester = CFeatureTester::GetInstance();
+	CFeatureTester *pFTester = CFeatureTester::GetInstance();
 
-	if (pFTester)
+	if(pFTester)
 	{
-		CFeatureTestMgr& ftMgr = pFTester->GetMapFeatureTestMgr();
+		CFeatureTestMgr &ftMgr = pFTester->GetMapFeatureTestMgr();
 
-		if (pArgs->GetArgCount() == 2)
+		if(pArgs->GetArgCount() == 2)
 		{
-			const char* ftName = pArgs->GetArg(1);
+			const char *ftName = pArgs->GetArg(1);
 			ftMgr.ForceRun(ftName);
 		}
 		else
@@ -490,6 +502,7 @@ void CFeatureTestMgr::CmdMapForceRun(IConsoleCmdArgs *pArgs)
 			CryLogAlways("Usage: %s <testname>", pArgs->GetArg(0));
 		}
 	}
+
 #else
 	CryWarning(VALIDATOR_MODULE_GAME, VALIDATOR_ERROR, "Feature testing not enabled in this build.");
 #endif

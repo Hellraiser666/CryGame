@@ -7,7 +7,7 @@
 //  Version:     v1.00
 //  Created:     11/4/2003 by Timur.
 //  Compilers:   Visual Studio.NET
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -29,8 +29,8 @@ enum EBugsFlockBehaviors
 
 
 //////////////////////////////////////////////////////////////////////////
-CBugsFlock::CBugsFlock( IEntity *pEntity )
-:	CFlock( pEntity,EFLOCK_BUGS )
+CBugsFlock::CBugsFlock(IEntity *pEntity)
+	:	CFlock(pEntity,EFLOCK_BUGS)
 {
 	m_boidDefaultAnimName = "fly_loop";
 }
@@ -41,29 +41,30 @@ CBugsFlock::~CBugsFlock()
 }
 
 //////////////////////////////////////////////////////////////////////////
-void CBugsFlock::CreateBoids( SBoidsCreateContext &ctx )
+void CBugsFlock::CreateBoids(SBoidsCreateContext &ctx)
 {
 	CFlock::CreateBoids(ctx);
-	
+
 	int i;
 
-	if (!m_e_flocks)
+	if(!m_e_flocks)
 		return;
 
-	if (m_pEntity)
+	if(m_pEntity)
 	{
-		IEntityRenderProxy *pRenderProxy = (IEntityRenderProxy*)m_pEntity->GetProxy(ENTITY_PROXY_RENDER);
-		if (pRenderProxy)
+		IEntityRenderProxy *pRenderProxy = (IEntityRenderProxy *)m_pEntity->GetProxy(ENTITY_PROXY_RENDER);
+
+		if(pRenderProxy)
 			pRenderProxy->ClearSlots();
 	}
 
 	// Different boids.
-	for (i = 0; i < ctx.boidsCount; i++)
+	for(i = 0; i < ctx.boidsCount; i++)
 	{
-		CBoidBug *boid = new CBoidBug( m_bc );
+		CBoidBug *boid = new CBoidBug(m_bc);
 		float radius = m_bc.fSpawnRadius;
 		boid->m_pos = m_origin + Vec3(radius*Boid::Frand(),radius*Boid::Frand(),
-			m_bc.MinHeight+(m_bc.MaxHeight-m_bc.MinHeight)*Boid::Frand() );
+									  m_bc.MinHeight+(m_bc.MaxHeight-m_bc.MinHeight)*Boid::Frand());
 
 		boid->m_heading = Vec3(Boid::Frand(),Boid::Frand(),0).GetNormalized();
 		boid->m_speed = m_bc.MinSpeed + (m_bc.MaxSpeed-m_bc.MinSpeed)*Boid::Frand();
@@ -99,7 +100,7 @@ void CBugsFlock::CreateBoids( SBoidsCreateContext &ctx )
 				}
 			}
 		}
-	
+
 		if (numObj > 0)
 			boid->m_objectId = (i % numObj);
 		else
@@ -125,29 +126,31 @@ void CBugsFlock::CreateBoids( SBoidsCreateContext &ctx )
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-CBoidBug::CBoidBug( SBoidContext &bc )
-: CBoidObject( bc )
+CBoidBug::CBoidBug(SBoidContext &bc)
+	: CBoidObject(bc)
 {
 	m_objectId = 0;
 	m_onGround = 0;
 }
 
-void CBoidBug::UpdateBugsBehavior( float dt,SBoidContext &bc )
+void CBoidBug::UpdateBugsBehavior(float dt,SBoidContext &bc)
 {
-	if ((rand() % 10) == 0)
+	if((rand() % 10) == 0)
 	{
 		// Randomally modify heading vector.
 		m_heading.x += Boid::Frand()*0.2f*bc.factorAlignment; // Used as random movement.
 		m_heading.y += Boid::Frand()*0.2f*bc.factorAlignment;
 		m_heading.z += Boid::Frand()*0.1f*bc.factorAlignment;
 		m_heading = m_heading.GetNormalized();
-		if (bc.behavior == EBUGS_DRAGONFLY)
+
+		if(bc.behavior == EBUGS_DRAGONFLY)
 			m_speed = bc.MinSpeed + (bc.MaxSpeed - bc.MinSpeed)*Boid::Frand();
 	}
 
 	// Avoid player.
-	Vec3 fromPlayerVec = Vec3( m_pos.x-bc.playerPos.x, m_pos.y-bc.playerPos.y, 0 );
-	if ((fromPlayerVec).GetLengthSquared() < BUGS_SCARE_DISTANCE*BUGS_SCARE_DISTANCE) // 2 meters.
+	Vec3 fromPlayerVec = Vec3(m_pos.x-bc.playerPos.x, m_pos.y-bc.playerPos.y, 0);
+
+	if((fromPlayerVec).GetLengthSquared() < BUGS_SCARE_DISTANCE*BUGS_SCARE_DISTANCE)  // 2 meters.
 	{
 		float d = (BUGS_SCARE_DISTANCE - fromPlayerVec.GetLength());
 		m_accel += 5.0f * fromPlayerVec * d;
@@ -159,11 +162,11 @@ void CBoidBug::UpdateBugsBehavior( float dt,SBoidContext &bc )
 
 	//m_accel = (m_targetPos - m_pos)*bc.factorAttractToOrigin;
 
-	if (m_pos.z < bc.terrainZ+bc.MinHeight)
+	if(m_pos.z < bc.terrainZ+bc.MinHeight)
 	{
 		m_accel.z = (bc.terrainZ+bc.MinHeight-m_pos.z)*bc.factorAttractToOrigin;
 	}
-	else if (m_pos.z > bc.terrainZ+bc.MaxHeight)
+	else if(m_pos.z > bc.terrainZ+bc.MaxHeight)
 	{
 		m_accel.z = -(m_pos.z-bc.terrainZ+bc.MinHeight)*bc.factorAttractToOrigin;
 	}
@@ -175,32 +178,36 @@ void CBoidBug::UpdateBugsBehavior( float dt,SBoidContext &bc )
 }
 
 //////////////////////////////////////////////////////////////////////////
-void CBoidBug::UpdateDragonflyBehavior( float dt,SBoidContext &bc )
+void CBoidBug::UpdateDragonflyBehavior(float dt,SBoidContext &bc)
 {
-	UpdateBugsBehavior( dt,bc );	
+	UpdateBugsBehavior(dt,bc);
 }
 
 //////////////////////////////////////////////////////////////////////////
-void CBoidBug::UpdateFrogsBehavior( float dt,SBoidContext &bc )
+void CBoidBug::UpdateFrogsBehavior(float dt,SBoidContext &bc)
 {
-	if (m_onGround)
+	if(m_onGround)
 	{
-		if (((rand() % 100) == 1) ||
-			((Vec3(bc.playerPos.x-m_pos.x,bc.playerPos.y-m_pos.y,0).GetLengthSquared()) < BUGS_SCARE_DISTANCE*BUGS_SCARE_DISTANCE))
+		if(((rand() % 100) == 1) ||
+				((Vec3(bc.playerPos.x-m_pos.x,bc.playerPos.y-m_pos.y,0).GetLengthSquared()) < BUGS_SCARE_DISTANCE*BUGS_SCARE_DISTANCE))
 		{
 			// Sacred by player or random jump.
 			m_onGround = false;
 			m_heading = m_pos - bc.playerPos;
-			if (m_heading != Vec3(0,0,0))
+
+			if(m_heading != Vec3(0,0,0))
 				m_heading = m_heading.GetNormalized();
 			else
 				m_heading = Vec3(Boid::Frand(),Boid::Frand(),Boid::Frand()).GetNormalized();
+
 			m_heading.z = 0.2f + (Boid::Frand()+1.0f)*0.5f;
-			m_heading += Vec3(Boid::Frand()*0.3f,Boid::Frand()*0.3f,0 );
-			if (m_heading != Vec3(0,0,0))
+			m_heading += Vec3(Boid::Frand()*0.3f,Boid::Frand()*0.3f,0);
+
+			if(m_heading != Vec3(0,0,0))
 				m_heading = m_heading.GetNormalized();
 			else
 				m_heading = Vec3(Boid::Frand(),Boid::Frand(),Boid::Frand()).GetNormalized();
+
 			m_speed = bc.MaxSpeed;
 		}
 	}
@@ -211,21 +218,24 @@ void CBoidBug::UpdateFrogsBehavior( float dt,SBoidContext &bc )
 
 	Vec3 origin = bc.flockPos;
 
-	if (bc.followPlayer)
+	if(bc.followPlayer)
 	{
 		origin = bc.playerPos;
 	}
 
 	// Keep in range.
-	if (bc.followPlayer)
+	if(bc.followPlayer)
 	{
-		if (m_pos.x < origin.x - range)
+		if(m_pos.x < origin.x - range)
 			m_pos.x = origin.x + range;
-		if (m_pos.y < origin.y - range)
+
+		if(m_pos.y < origin.y - range)
 			m_pos.y = origin.y + range;
-		if (m_pos.x > origin.x + range)
+
+		if(m_pos.x > origin.x + range)
 			m_pos.x = origin.x - range;
-		if (m_pos.y > origin.y + range)
+
+		if(m_pos.y > origin.y + range)
 			m_pos.y = origin.y - range;
 	}
 	else
@@ -244,14 +254,15 @@ void CBoidBug::UpdateFrogsBehavior( float dt,SBoidContext &bc )
 		}
 		*/
 	}
-	m_accel.Set( 0,0,-10 );
+
+	m_accel.Set(0,0,-10);
 
 	bool bBanking = m_object != 0;
-	CalcMovement( dt,bc,bBanking );
-	
+	CalcMovement(dt,bc,bBanking);
+
 	UpdateAnimationSpeed(bc);
 
-	if (m_pos.z < bc.terrainZ+0.1f)
+	if(m_pos.z < bc.terrainZ+0.1f)
 	{
 		// Land.
 		m_pos.z = bc.terrainZ+0.1f;
@@ -261,17 +272,17 @@ void CBoidBug::UpdateFrogsBehavior( float dt,SBoidContext &bc )
 }
 
 //////////////////////////////////////////////////////////////////////////
-void CBoidBug::Update( float dt,SBoidContext &bc )
+void CBoidBug::Update(float dt,SBoidContext &bc)
 {
-	if (bc.behavior == EBUGS_FROG)
+	if(bc.behavior == EBUGS_FROG)
 	{
-		UpdateFrogsBehavior( dt,bc );
+		UpdateFrogsBehavior(dt,bc);
 		return;
 	}
 
-	if (m_onGround)
+	if(m_onGround)
 	{
-		if ((Vec3(bc.playerPos.x-m_pos.x,bc.playerPos.y-m_pos.y,0).GetLengthSquared()) < BUGS_SCARE_DISTANCE*BUGS_SCARE_DISTANCE)
+		if((Vec3(bc.playerPos.x-m_pos.x,bc.playerPos.y-m_pos.y,0).GetLengthSquared()) < BUGS_SCARE_DISTANCE*BUGS_SCARE_DISTANCE)
 		{
 			// Sacred by player, fast takeoff.
 			m_onGround = false;
@@ -280,15 +291,17 @@ void CBoidBug::Update( float dt,SBoidContext &bc )
 			m_heading = (m_heading).GetNormalized();
 			m_speed = 1;
 		}
-		else if ((rand() % 50) == 0)
+		else if((rand() % 50) == 0)
 		{
 			// take off.
 			m_onGround = false;
 			m_heading.z = 0.2f;
 			m_heading = (m_heading).GetNormalized();
 		}
+
 		return;
 	}
+
 	// Keep in range.
 	bc.terrainZ = bc.engine->GetTerrainElevation(m_pos.x,m_pos.y);
 
@@ -296,64 +309,71 @@ void CBoidBug::Update( float dt,SBoidContext &bc )
 
 	Vec3 origin = bc.flockPos;
 
-	if (bc.followPlayer)
+	if(bc.followPlayer)
 	{
 		origin = bc.playerPos;
 	}
-	
-	if (bc.followPlayer)
+
+	if(bc.followPlayer)
 	{
-		if (m_pos.x < origin.x - range)
+		if(m_pos.x < origin.x - range)
 			m_pos.x = origin.x + range;
-		if (m_pos.y < origin.y - range)
+
+		if(m_pos.y < origin.y - range)
 			m_pos.y = origin.y + range;
-		if (m_pos.x > origin.x + range)
+
+		if(m_pos.x > origin.x + range)
 			m_pos.x = origin.x - range;
-		if (m_pos.y > origin.y + range)
+
+		if(m_pos.y > origin.y + range)
 			m_pos.y = origin.y - range;
 	}
 	else
 	{
-		if (bc.behavior == EBUGS_BUG || bc.behavior == EBUGS_DRAGONFLY)
+		if(bc.behavior == EBUGS_BUG || bc.behavior == EBUGS_DRAGONFLY)
 		{
-			if (m_pos.x < origin.x-range)
+			if(m_pos.x < origin.x-range)
 				m_accel = (origin - m_pos)*bc.factorAttractToOrigin;
-			if (m_pos.y < origin.y-range)
+
+			if(m_pos.y < origin.y-range)
 				m_accel = (origin - m_pos)*bc.factorAttractToOrigin;
-			if (m_pos.x > origin.x+range)
+
+			if(m_pos.x > origin.x+range)
 				m_accel = (origin - m_pos)*bc.factorAttractToOrigin;
-			if (m_pos.y > origin.y+range)
+
+			if(m_pos.y > origin.y+range)
 				m_accel = (origin - m_pos)*bc.factorAttractToOrigin;
 		}
 	}
 
-	if (bc.behavior == EBUGS_BUG)
+	if(bc.behavior == EBUGS_BUG)
 	{
-		UpdateBugsBehavior( dt,bc );
+		UpdateBugsBehavior(dt,bc);
 	}
-	else 	if (bc.behavior == EBUGS_DRAGONFLY)
+	else 	if(bc.behavior == EBUGS_DRAGONFLY)
 	{
-		UpdateDragonflyBehavior( dt,bc );
+		UpdateDragonflyBehavior(dt,bc);
 	}
-	else 	if (bc.behavior == EBUGS_FROG)
+	else 	if(bc.behavior == EBUGS_FROG)
 	{
-		UpdateFrogsBehavior( dt,bc );
+		UpdateFrogsBehavior(dt,bc);
 	}
 	else
 	{
-		UpdateBugsBehavior( dt,bc );
+		UpdateBugsBehavior(dt,bc);
 	}
 
 	bool bBanking = m_object != 0;
-	CalcMovement( dt,bc,bBanking );
-	
+	CalcMovement(dt,bc,bBanking);
+
 	UpdateAnimationSpeed(bc);
 
-	if (m_pos.z < bc.terrainZ+0.1f)
+	if(m_pos.z < bc.terrainZ+0.1f)
 	{
 		// Land.
 		m_pos.z = bc.terrainZ+0.1f;
-		if (!bc.noLanding && (rand()%10) == 0)
+
+		if(!bc.noLanding && (rand()%10) == 0)
 		{
 			m_onGround = true;
 			m_speed = 0;
@@ -361,12 +381,12 @@ void CBoidBug::Update( float dt,SBoidContext &bc )
 		}
 	}
 
-	if (m_pos.z < bc.waterLevel)
+	if(m_pos.z < bc.waterLevel)
 		m_pos.z = bc.waterLevel;
 }
 
 //////////////////////////////////////////////////////////////////////////
-void CBoidBug::Render( SRendParams &rp,CCamera &cam,SBoidContext &bc )
+void CBoidBug::Render(SRendParams &rp,CCamera &cam,SBoidContext &bc)
 {
 	/*
 	// Cull boid.

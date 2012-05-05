@@ -27,7 +27,7 @@ CC4::CC4()
 	if(s_actionHandler.GetNumHandlers() == 0)
 	{
 #define ADD_HANDLER(action, func) s_actionHandler.AddHandler(actions.action, &CC4::func)
-		const CGameActions& actions = g_pGame->Actions();
+		const CGameActions &actions = g_pGame->Actions();
 
 		ADD_HANDLER(zoom,OnActionSelectDetonator);
 		ADD_HANDLER(xi_zoom,OnActionSelectDetonator);
@@ -43,26 +43,29 @@ CC4::~CC4()
 
 
 //------------------------------------------------------------------------
-void CC4::OnAction(EntityId actorId, const ActionId& actionId, int activationMode, float value)
+void CC4::OnAction(EntityId actorId, const ActionId &actionId, int activationMode, float value)
 {
 	if(!s_actionHandler.Dispatch(this,actorId,actionId,activationMode,value))
 		CWeapon::OnAction(actorId, actionId, activationMode, value);
 }
 
 //-----------------------------------------------------------------------
-bool CC4::OnActionSelectDetonator(EntityId actorId, const ActionId& actionId, int activationMode, float value)
+bool CC4::OnActionSelectDetonator(EntityId actorId, const ActionId &actionId, int activationMode, float value)
 {
 	if(activationMode == eAAM_OnPress)
 	{
 		bool projectile = false;
 
-		IFireMode* pFM = GetFireMode(GetCurrentFireMode());
+		IFireMode *pFM = GetFireMode(GetCurrentFireMode());
+
 		if(pFM)
 		{
 			EntityId projectileId = pFM->GetProjectileId();
+
 			if(projectileId && g_pGame->GetWeaponSystem()->GetProjectile(projectileId))
 				projectile = true;
 		}
+
 		//If there is some projectile we can switch
 		if(projectile)
 			SelectDetonator();
@@ -74,14 +77,16 @@ bool CC4::OnActionSelectDetonator(EntityId actorId, const ActionId& actionId, in
 void CC4::PickUp(EntityId pickerId, bool sound, bool select/* =true */, bool keepHistory/* =true */, const char *setup /*= NULL*/)
 {
 	CActor *pActor=GetActor(pickerId);
-	if (pActor)
+
+	if(pActor)
 	{
 		IInventory *pInventory=GetActorInventory(pActor);
-		if (pInventory)
+
+		if(pInventory)
 		{
-			if (!pInventory->GetItemByClass(CItem::sDetonatorClass))
+			if(!pInventory->GetItemByClass(CItem::sDetonatorClass))
 			{
-				if (IsServer())
+				if(IsServer())
 					m_pItemSystem->GiveItem(pActor, "Detonator", false, false, false);
 			}
 		}
@@ -99,20 +104,23 @@ bool CC4::CanSelect() const
 	if(!canSelect)
 	{
 		CActor *pOwner = GetOwnerActor();
+
 		if(!pOwner)
 			return false;
 
 		EntityId detonatorId = pOwner->GetInventory()?pOwner->GetInventory()->GetItemByClass(CItem::sDetonatorClass):0;
-		
+
 		//Do not re-select detonator again
 		if(detonatorId && (detonatorId==pOwner->GetCurrentItemId()))
 			return false;
 
-		IFireMode* pFM = GetFireMode(GetCurrentFireMode());
+		IFireMode *pFM = GetFireMode(GetCurrentFireMode());
+
 		if(pFM)
 		{
 			//CC4::Select will select the detonator in this case
 			EntityId projectileId = pFM->GetProjectileId();
+
 			if(projectileId && g_pGame->GetWeaponSystem()->GetProjectile(projectileId))
 				return true;
 
@@ -125,33 +133,37 @@ bool CC4::CanSelect() const
 //------------------------------------------------------------------------
 void CC4::Select(bool select)
 {
-	if (select)
+	if(select)
 	{
 		bool outOfAmmo = OutOfAmmo(false);
 		bool projectile = false;
 
-		IFireMode* pFM = GetFireMode(GetCurrentFireMode());
+		IFireMode *pFM = GetFireMode(GetCurrentFireMode());
+
 		if(pFM)
 		{
 			EntityId projectileId = pFM->GetProjectileId();
+
 			if(projectileId && g_pGame->GetWeaponSystem()->GetProjectile(projectileId))
 				projectile = true;
 		}
 
 		if(outOfAmmo && projectile)
 		{
-				SelectDetonator();
-				return;
+			SelectDetonator();
+			return;
 		}
 		else if(outOfAmmo)
 		{
 			Select(false);
 			CActor *pOwner=GetOwnerActor();
-			if (!pOwner)
+
+			if(!pOwner)
 				return;
 
 			EntityId fistsId = pOwner->GetInventory()?pOwner->GetInventory()->GetItemByClass(CItem::sFistsClass):0;
-			if (fistsId)
+
+			if(fistsId)
 				pOwner->SelectItem(fistsId,true);
 
 			return;
@@ -165,14 +177,15 @@ void CC4::Select(bool select)
 void CC4::Drop(float impulseScale, bool selectNext, bool byDeath)
 {
 	EntityId fistsId = 0;
-	
+
 	CActor *pOwner = GetOwnerActor();
+
 	if(pOwner)
 		fistsId = pOwner->GetInventory()?pOwner->GetInventory()->GetItemByClass(CItem::sFistsClass):0;
 
 	CItem::Drop(impulseScale,selectNext,byDeath);
 
-	if (fistsId)
+	if(fistsId)
 		pOwner->SelectItem(fistsId,true);
 
 }
@@ -180,10 +193,11 @@ void CC4::Drop(float impulseScale, bool selectNext, bool byDeath)
 //=======================================================================
 void CC4::SelectDetonator()
 {
-	if (CActor *pOwner=GetOwnerActor())
+	if(CActor *pOwner=GetOwnerActor())
 	{
 		EntityId detonatorId = pOwner->GetInventory()->GetItemByClass(CItem::sDetonatorClass);
-		if (detonatorId)
+
+		if(detonatorId)
 			pOwner->SelectItemByName("Detonator", false);
 	}
 }
@@ -192,7 +206,8 @@ void CC4::SelectDetonator()
 IMPLEMENT_RMI(CC4, ClSetProjectileId)
 {
 	IFireMode *pFireMode=GetFireMode(params.fmId);
-	if (pFireMode)
+
+	if(pFireMode)
 		pFireMode->SetProjectileId(params.id);
 	else
 		return false;
@@ -204,7 +219,8 @@ IMPLEMENT_RMI(CC4, ClSetProjectileId)
 IMPLEMENT_RMI(CC4, SvRequestTime)
 {
 	IFireMode *pFireMode=GetFireMode(params.fmId);
-	if (pFireMode && !stricmp(pFireMode->GetType(), "Plant"))
+
+	if(pFireMode && !stricmp(pFireMode->GetType(), "Plant"))
 	{
 		CPlant *pPlant=static_cast<CPlant *>(pFireMode);
 		pPlant->SetTime(params.time);

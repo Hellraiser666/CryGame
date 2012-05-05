@@ -53,7 +53,7 @@ void CScriptBind_GameAudio::RegisterMethods()
 #undef SCRIPT_REG_CLASSNAME
 #define SCRIPT_REG_CLASSNAME &CScriptBind_GameAudio::
 
-SCRIPT_REG_TEMPLFUNC(SendSignal, "EGameAudioSignals");
+	SCRIPT_REG_TEMPLFUNC(SendSignal, "EGameAudioSignals");
 
 #undef SCRIPT_REG_CLASSNAME
 }
@@ -61,21 +61,23 @@ SCRIPT_REG_TEMPLFUNC(SendSignal, "EGameAudioSignals");
 //------------------------------------------------------------------------
 int CScriptBind_GameAudio::SendSignal(IFunctionHandler *pH, int EGameAudioSignals)
 {
-	if (m_pGameAudio)
+	if(m_pGameAudio)
 	{
 		switch(EGameAudioSignals)
 		{
 		case EGameAudioSignal_NOSIGNAL:
 			m_pGameAudio->SendSignal(EGameAudioSignal_NOSIGNAL);
 			break;
-		//case EGameAudioSignal_Menu_Activate:
-		//	m_pGameAudio->SendSignal(EGameAudioSignal_Menu_Activate);
-		//	break;
-		//case EGameAudioSignal_Menu_Deactivate:
-		//	m_pGameAudio->SendSignal(EGameAudioSignal_Menu_Deactivate);
-		//	break;
+
+			//case EGameAudioSignal_Menu_Activate:
+			//	m_pGameAudio->SendSignal(EGameAudioSignal_Menu_Activate);
+			//	break;
+			//case EGameAudioSignal_Menu_Deactivate:
+			//	m_pGameAudio->SendSignal(EGameAudioSignal_Menu_Deactivate);
+			//	break;
 		case EGameAudioSignal_LAST:
 			break;
+
 		default:
 
 			break;

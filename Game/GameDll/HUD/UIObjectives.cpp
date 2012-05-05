@@ -6,7 +6,7 @@
 //  File name:   UIObjectives.cpp
 //  Version:     v1.00
 //  Created:     20/1/2011 by Paul Reindell.
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -26,15 +26,15 @@ CUIObjectives::CUIObjectives()
 ////////////////////////////////////////////////////////////////////////////
 void CUIObjectives::InitEventSystem()
 {
-	if ( gEnv->pFlashUI )
+	if(gEnv->pFlashUI)
 	{
 		// events that be fired to the UI
-		m_pUIEvents = gEnv->pFlashUI->CreateEventSystem( "UIObjectives", IUIEventSystem::eEST_SYSTEM_TO_UI );
+		m_pUIEvents = gEnv->pFlashUI->CreateEventSystem("UIObjectives", IUIEventSystem::eEST_SYSTEM_TO_UI);
 		m_eventSender.Init(m_pUIEvents);
 
 		{
 			SUIEventDesc evtDesc("ObjectiveAdded", "Mission objective added");
-			evtDesc.AddParam<SUIParameterDesc::eUIPT_Int>("MissionID", "ID of the mission" );
+			evtDesc.AddParam<SUIParameterDesc::eUIPT_Int>("MissionID", "ID of the mission");
 			evtDesc.AddParam<SUIParameterDesc::eUIPT_String>("Name", "Name of the mission");
 			evtDesc.AddParam<SUIParameterDesc::eUIPT_String>("Desc", "Description of the mission");
 			evtDesc.AddParam<SUIParameterDesc::eUIPT_String>("State", "State of the objective");
@@ -42,32 +42,33 @@ void CUIObjectives::InitEventSystem()
 		}
 
 		{
-			SUIEventDesc evtDesc( "ObjectiveRemoved", "Mission objective removed" );
-			evtDesc.AddParam<SUIParameterDesc::eUIPT_Int>("MissionID", "ID of the mission" );
+			SUIEventDesc evtDesc("ObjectiveRemoved", "Mission objective removed");
+			evtDesc.AddParam<SUIParameterDesc::eUIPT_Int>("MissionID", "ID of the mission");
 			m_eventSender.RegisterEvent<eUIOE_ObjectiveRemoved>(evtDesc);
 		}
 
 		{
-			SUIEventDesc evtDesc( "ObjectivesReset", "All mission objectives reset" );
+			SUIEventDesc evtDesc("ObjectivesReset", "All mission objectives reset");
 			m_eventSender.RegisterEvent<eUIOE_ObjectivesReset>(evtDesc);
 		}
 
 		{
-			SUIEventDesc evtDesc( "ObjectiveStateChanged", "Objective status changed" );
-			evtDesc.AddParam<SUIParameterDesc::eUIPT_Int>("MissionID", "ID of the mission" );
+			SUIEventDesc evtDesc("ObjectiveStateChanged", "Objective status changed");
+			evtDesc.AddParam<SUIParameterDesc::eUIPT_Int>("MissionID", "ID of the mission");
 			evtDesc.AddParam<SUIParameterDesc::eUIPT_String>("State", "State of the objective");
 			m_eventSender.RegisterEvent<eUIOE_ObjectiveStateChanged>(evtDesc);
 		}
 
 		// event system to receive events from UI
-		m_pUIFunctions = gEnv->pFlashUI->CreateEventSystem( "UIObjectives", IUIEventSystem::eEST_UI_TO_SYSTEM );
+		m_pUIFunctions = gEnv->pFlashUI->CreateEventSystem("UIObjectives", IUIEventSystem::eEST_UI_TO_SYSTEM);
 		m_eventDispatcher.Init(m_pUIFunctions, this, "CUIObjectives");
 
 		{
-			SUIEventDesc evtDesc( "RequestObjectives", "Request all mission objectives (force to call ObjectiveAdded for each objective)" );
-			m_eventDispatcher.RegisterEvent( evtDesc, &CUIObjectives::OnRequestMissionObjectives );
+			SUIEventDesc evtDesc("RequestObjectives", "Request all mission objectives (force to call ObjectiveAdded for each objective)");
+			m_eventDispatcher.RegisterEvent(evtDesc, &CUIObjectives::OnRequestMissionObjectives);
 		}
 	}
+
 	UpdateObjectiveInfo();
 }
 
@@ -77,26 +78,29 @@ void CUIObjectives::UnloadEventSystem()
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// functions that generate events for the UI 
+// functions that generate events for the UI
 ////////////////////////////////////////////////////////////////////////////
-void CUIObjectives::MissionObjectiveAdded( const string& objectiveID, int state )
+void CUIObjectives::MissionObjectiveAdded(const string &objectiveID, int state)
 {
-	if ( gEnv->IsEditor() )
+	if(gEnv->IsEditor())
 	{
 		UpdateObjectiveInfo();
 	}
-	SMissionObjectiveInfo* pInfo = GetMissionObjectiveInfo( objectiveID );
-	if ( pInfo )
+
+	SMissionObjectiveInfo *pInfo = GetMissionObjectiveInfo(objectiveID);
+
+	if(pInfo)
 	{
 		m_eventSender.SendEvent<eUIOE_ObjectiveAdded>(objectiveID, pInfo->Name, pInfo->Desc, state);
 	}
 }
 
 //--------------------------------------------------------------------------------------------
-void CUIObjectives::MissionObjectiveRemoved( const string& objectiveID )
+void CUIObjectives::MissionObjectiveRemoved(const string &objectiveID)
 {
-	SMissionObjectiveInfo* pInfo = GetMissionObjectiveInfo( objectiveID );
-	if ( pInfo )
+	SMissionObjectiveInfo *pInfo = GetMissionObjectiveInfo(objectiveID);
+
+	if(pInfo)
 	{
 		m_eventSender.SendEvent<eUIOE_ObjectiveRemoved>(objectiveID);
 	}
@@ -109,10 +113,11 @@ void CUIObjectives::MissionObjectivesReset()
 }
 
 //--------------------------------------------------------------------------------------------
-void CUIObjectives::MissionObjectiveStateChanged( const string& objectiveID, int state )
+void CUIObjectives::MissionObjectiveStateChanged(const string &objectiveID, int state)
 {
-	SMissionObjectiveInfo* pInfo = GetMissionObjectiveInfo( objectiveID );
-	if ( pInfo )
+	SMissionObjectiveInfo *pInfo = GetMissionObjectiveInfo(objectiveID);
+
+	if(pInfo)
 	{
 		m_eventSender.SendEvent<eUIOE_ObjectiveStateChanged>(objectiveID, state);
 	}
@@ -123,22 +128,27 @@ void CUIObjectives::MissionObjectiveStateChanged( const string& objectiveID, int
 ////////////////////////////////////////////////////////////////////////////
 void CUIObjectives::OnRequestMissionObjectives()
 {
-	CGameRules* pGameRules = GetGameRules();
-	if ( pGameRules && g_pGame->GetIGameFramework()->GetClientActor() )
+	CGameRules *pGameRules = GetGameRules();
+
+	if(pGameRules && g_pGame->GetIGameFramework()->GetClientActor())
 	{
-		CActor* pActor = (CActor*)pGameRules->GetActorByChannelId( g_pGame->GetIGameFramework()->GetClientActor()->GetChannelId() );
-		if ( pActor )
+		CActor *pActor = (CActor *)pGameRules->GetActorByChannelId(g_pGame->GetIGameFramework()->GetClientActor()->GetChannelId());
+
+		if(pActor)
 		{
 			std::map< string, int > tmpList;
-			int teamID = pGameRules->GetTeam( pActor->GetEntityId() );
-			for ( TObjectiveMap::iterator it = m_ObjectiveMap.begin(); it != m_ObjectiveMap.end(); ++it )
+			int teamID = pGameRules->GetTeam(pActor->GetEntityId());
+
+			for(TObjectiveMap::iterator it = m_ObjectiveMap.begin(); it != m_ObjectiveMap.end(); ++it)
 			{
-				CGameRules::TObjective* pObjective = pGameRules->GetObjective( teamID, it->first.c_str() );
-				if ( pObjective )
+				CGameRules::TObjective *pObjective = pGameRules->GetObjective(teamID, it->first.c_str());
+
+				if(pObjective)
 					tmpList[ it->first ] = pObjective->status;
 			}
-			for ( std::map< string, int >::iterator it = tmpList.begin(); it != tmpList.end(); ++it )
-				MissionObjectiveAdded( it->first, it->second );
+
+			for(std::map< string, int >::iterator it = tmpList.begin(); it != tmpList.end(); ++it)
+				MissionObjectiveAdded(it->first, it->second);
 		}
 	}
 
@@ -152,25 +162,28 @@ void CUIObjectives::UpdateObjectiveInfo()
 	m_ObjectiveMap.clear();
 
 	string path = "Libs/UI/Objectives_new.xml";
-	XmlNodeRef missionObjectives = GetISystem()->LoadXmlFromFile( path.c_str() );
-	if (missionObjectives == 0)
+	XmlNodeRef missionObjectives = GetISystem()->LoadXmlFromFile(path.c_str());
+
+	if(missionObjectives == 0)
 	{
-		gEnv->pLog->LogError("Error while loading MissionObjective file '%s'", path.c_str() );
+		gEnv->pLog->LogError("Error while loading MissionObjective file '%s'", path.c_str());
 		return;
 	}
 
 	for(int tag = 0; tag < missionObjectives->getChildCount(); ++tag)
 	{
 		XmlNodeRef mission = missionObjectives->getChild(tag);
-		const char* attrib;
-		const char* objective;
-		const char* text;
+		const char *attrib;
+		const char *objective;
+		const char *text;
+
 		for(int obj = 0; obj < mission->getChildCount(); ++obj)
 		{
 			XmlNodeRef objectiveNode = mission->getChild(obj);
 			string id(mission->getTag());
 			id += ".";
 			id += objectiveNode->getTag();
+
 			if(objectiveNode->getAttributeByIndex(0, &attrib, &objective) && objectiveNode->getAttributeByIndex(1, &attrib, &text))
 			{
 				m_ObjectiveMap[ id ].Name = objective;
@@ -178,7 +191,7 @@ void CUIObjectives::UpdateObjectiveInfo()
 			}
 			else
 			{
-				gEnv->pLog->LogError("Error while loading MissionObjective file '%s'", path.c_str() );
+				gEnv->pLog->LogError("Error while loading MissionObjective file '%s'", path.c_str());
 				return;
 			}
 		}
@@ -186,23 +199,26 @@ void CUIObjectives::UpdateObjectiveInfo()
 }
 
 ////////////////////////////////////////////////////////////////////////////
-CUIObjectives::SMissionObjectiveInfo* CUIObjectives::GetMissionObjectiveInfo( const string& objectiveID, bool bLogError )
+CUIObjectives::SMissionObjectiveInfo *CUIObjectives::GetMissionObjectiveInfo(const string &objectiveID, bool bLogError)
 {
-	TObjectiveMap::iterator it = m_ObjectiveMap.find( objectiveID );
-	if ( it != m_ObjectiveMap.end() )
+	TObjectiveMap::iterator it = m_ObjectiveMap.find(objectiveID);
+
+	if(it != m_ObjectiveMap.end())
 	{
 		return &it->second;
 	}
-	if ( bLogError )
-		gEnv->pLog->LogError( "[UIObjectives] Mission Objective \"%s\" is not defined!", objectiveID.c_str() );
+
+	if(bLogError)
+		gEnv->pLog->LogError("[UIObjectives] Mission Objective \"%s\" is not defined!", objectiveID.c_str());
+
 	return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////
-CGameRules* CUIObjectives::GetGameRules()
+CGameRules *CUIObjectives::GetGameRules()
 {
-	return static_cast<CGameRules *>( g_pGame->GetIGameFramework()->GetIGameRulesSystem()->GetCurrentGameRules() );
+	return static_cast<CGameRules *>(g_pGame->GetIGameFramework()->GetIGameRulesSystem()->GetCurrentGameRules());
 }
 
 ////////////////////////////////////////////////////////////////////////////
-REGISTER_UI_EVENTSYSTEM( CUIObjectives );
+REGISTER_UI_EVENTSYSTEM(CUIObjectives);

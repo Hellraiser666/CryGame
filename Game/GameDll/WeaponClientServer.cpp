@@ -19,7 +19,7 @@
 //------------------------------------------------------------------------
 int CWeapon::NetGetCurrentAmmoCount() const
 {
-	if (!m_fm)
+	if(!m_fm)
 		return 0;
 
 	return GetAmmoCount(m_fm->GetAmmoType());
@@ -28,7 +28,7 @@ int CWeapon::NetGetCurrentAmmoCount() const
 //------------------------------------------------------------------------
 void CWeapon::NetSetCurrentAmmoCount(int count)
 {
-	if (!m_fm)
+	if(!m_fm)
 		return;
 
 	SetAmmoCount(m_fm->GetAmmoType(), count);
@@ -52,7 +52,7 @@ void CWeapon::NetSetWeaponRaised(bool raise)
 		RaiseWeapon(raise);
 }
 
-void CWeapon::NetUpdateFireMode(SEntityUpdateContext& ctx)
+void CWeapon::NetUpdateFireMode(SEntityUpdateContext &ctx)
 {
 	// CGunTurret and CVehicleWeapon overide NetAllowUpdate to perform their own checks.
 	if(NetAllowUpdate(true))
@@ -62,7 +62,7 @@ void CWeapon::NetUpdateFireMode(SEntityUpdateContext& ctx)
 		if(IsReloading())
 			return;	// reloading, bail
 
-		if((!m_isFiringStarted) && (m_isFiring || m_shootCounter > 0)) 
+		if((!m_isFiringStarted) && (m_isFiring || m_shootCounter > 0))
 		{
 			m_isFiringStarted = true;
 			m_netNextShot = 0.f;
@@ -108,7 +108,7 @@ void CWeapon::NetUpdateFireMode(SEntityUpdateContext& ctx)
 
 bool CWeapon::NetAllowUpdate(bool requireActor)
 {
-	if (!gEnv->bServer)
+	if(!gEnv->bServer)
 	{
 		IActor *pActor = GetOwnerActor();
 
@@ -117,7 +117,7 @@ bool CWeapon::NetAllowUpdate(bool requireActor)
 			return false;
 		}
 
-		if (!pActor || !pActor->IsClient())
+		if(!pActor || !pActor->IsClient())
 		{
 			return true;
 		}
@@ -138,45 +138,47 @@ void CWeapon::ClSetReloadState(int state)
 		switch(state)
 		{
 		case eNRS_NoReload:
-			{
-				if(IsReloading())
-					m_fm->NetEndReload();
-				m_reloadState = state;
-				break;
-			}
+		{
+			if(IsReloading())
+				m_fm->NetEndReload();
+
+			m_reloadState = state;
+			break;
+		}
 
 		case eNRS_StartReload:
-			{
-				m_fm->Reload(m_zm ? m_zm->GetCurrentStep() : 0);
-				m_reloadState = eNRS_StartReload;
-				break;
-			}
+		{
+			m_fm->Reload(m_zm ? m_zm->GetCurrentStep() : 0);
+			m_reloadState = eNRS_StartReload;
+			break;
+		}
 
 		case eNRS_EndReload:
+		{
+			if(ownerIsLocal)
 			{
-				if(ownerIsLocal)
-				{
-					m_fm->NetEndReload();
-				}
-				m_reloadState = eNRS_NoReload;
-				break;
+				m_fm->NetEndReload();
 			}
+
+			m_reloadState = eNRS_NoReload;
+			break;
+		}
 
 		case eNRS_CancelReload:
+		{
+			if(!ownerIsLocal)
 			{
-				if(!ownerIsLocal)
-				{
-					m_fm->CancelReload();
-				}
-
-				m_reloadState = eNRS_NoReload;
-				break;
+				m_fm->CancelReload();
 			}
+
+			m_reloadState = eNRS_NoReload;
+			break;
+		}
 
 		default:
-			{
-				break;
-			}
+		{
+			break;
+		}
 		}
 	}
 }
@@ -209,11 +211,11 @@ void CWeapon::RequestReload()
 {
 	CActor *pActor=GetOwnerActor();
 
-	if (!gEnv->bServer && pActor && pActor->IsClient())
+	if(!gEnv->bServer && pActor && pActor->IsClient())
 	{
 		GetGameObject()->InvokeRMI(SvRequestReload(), DefaultParams(), eRMI_ToServer);
 	}
-	else if (IsServer())
+	else if(IsServer())
 	{
 		SvSetReloadState(eNRS_StartReload);
 	}
@@ -224,15 +226,16 @@ void CWeapon::RequestCancelReload()
 {
 	CActor *pActor=GetOwnerActor();
 
-	if (!gEnv->bServer && pActor && pActor->IsClient())
+	if(!gEnv->bServer && pActor && pActor->IsClient())
 	{
 		if(m_fm)
 		{
 			m_fm->CancelReload();
 		}
+
 		GetGameObject()->InvokeRMI(SvRequestCancelReload(), DefaultParams(), eRMI_ToServer);
 	}
-	else if (IsServer())
+	else if(IsServer())
 	{
 		SvCancelReload();
 	}
@@ -247,53 +250,55 @@ void CWeapon::SendEndReload()
 //------------------------------------------------------------------------
 void CWeapon::NetShoot(const Vec3 &hit, int predictionHandle)
 {
-	if (m_fm)
+	if(m_fm)
 		m_fm->NetShoot(hit, predictionHandle);
 }
 
 //------------------------------------------------------------------------
 void CWeapon::NetShootEx(const Vec3 &pos, const Vec3 &dir, const Vec3 &vel, const Vec3 &hit, float extra, int predictionHandle)
 {
-	if (m_fm)
+	if(m_fm)
 		m_fm->NetShootEx(pos, dir, vel, hit, extra, predictionHandle);
 }
 
 //------------------------------------------------------------------------
 void CWeapon::NetStartFire()
 {
-	if (m_fm)
+	if(m_fm)
 		m_fm->NetStartFire();
 }
 
 //------------------------------------------------------------------------
 void CWeapon::NetStopFire()
 {
-	if (m_fm)
+	if(m_fm)
 		m_fm->NetStopFire();
 }
 
 //------------------------------------------------------------------------
 void CWeapon::NetStartMeleeAttack(bool weaponMelee)
 {
-	if (weaponMelee && m_melee)
+	if(weaponMelee && m_melee)
 		m_melee->NetStartFire();
-	else if (m_fm)
+	else if(m_fm)
 		m_fm->NetStartFire();
 }
 
 //------------------------------------------------------------------------
 void CWeapon::NetMeleeAttack(bool weaponMelee, const Vec3 &pos, const Vec3 &dir)
 {
-	if (weaponMelee && m_melee)
+	if(weaponMelee && m_melee)
 	{
 		m_melee->NetShootEx(pos, dir, ZERO, ZERO, 1.0f, 0);
-		if (IsServer())
+
+		if(IsServer())
 			m_pGameplayRecorder->Event(GetOwner(), GameplayEvent(eGE_WeaponMelee, 0, 0, (void *)GetEntityId()));
 	}
-	else if (m_fm)
+	else if(m_fm)
 	{
 		m_fm->NetShootEx(pos, dir, ZERO, ZERO, 1.0f, 0);
-		if (IsServer())
+
+		if(IsServer())
 			m_pGameplayRecorder->Event(GetOwner(), GameplayEvent(eGE_WeaponMelee, 0, 0, (void *)GetEntityId()));
 	}
 }
@@ -301,13 +306,14 @@ void CWeapon::NetMeleeAttack(bool weaponMelee, const Vec3 &pos, const Vec3 &dir)
 //------------------------------------------------------------------------
 void CWeapon::NetZoom(float fov)
 {
-	if (CActor *pOwner=GetOwnerActor())
+	if(CActor *pOwner=GetOwnerActor())
 	{
-		if (pOwner->IsClient())
+		if(pOwner->IsClient())
 			return;
 
 		SActorParams *pActorParams = pOwner->GetActorParams();
-		if (!pActorParams)
+
+		if(!pActorParams)
 			return;
 
 		pActorParams->viewFoVScale = fov;
@@ -315,20 +321,20 @@ void CWeapon::NetZoom(float fov)
 }
 
 //------------------------------------------------------------------------
-void CWeapon::RequestShoot(IEntityClass* pAmmoType, const Vec3 &pos, const Vec3 &dir, const Vec3 &vel, const Vec3 &hit, float extra, int predictionHandle, bool forceExtended)
+void CWeapon::RequestShoot(IEntityClass *pAmmoType, const Vec3 &pos, const Vec3 &dir, const Vec3 &vel, const Vec3 &hit, float extra, int predictionHandle, bool forceExtended)
 {
 	CActor *pActor=GetOwnerActor();
 
-	if (!gEnv->bServer && pActor && pActor->IsClient())
+	if(!gEnv->bServer && pActor && pActor->IsClient())
 	{
-		if (IsServerSpawn(pAmmoType) || forceExtended)
+		if(IsServerSpawn(pAmmoType) || forceExtended)
 			GetGameObject()->InvokeRMI(CWeapon::SvRequestShootEx(), SvRequestShootExParams(pos, dir, vel, hit, extra, predictionHandle), eRMI_ToServer);
 		else
 			GetGameObject()->InvokeRMI(CWeapon::SvRequestShoot(), SvRequestShootParams(hit, predictionHandle), eRMI_ToServer);
 
 		m_expended_ammo++;
 	}
-	else if (IsServer())
+	else if(IsServer())
 	{
 		m_fireCounter++;
 		CHANGED_NETWORK_STATE(this, ASPECT_STREAM);
@@ -340,11 +346,11 @@ void CWeapon::RequestStartFire()
 {
 	CActor *pActor=GetOwnerActor();
 
-	if (!gEnv->bServer && pActor && pActor->IsClient())
+	if(!gEnv->bServer && pActor && pActor->IsClient())
 	{
 		GetGameObject()->InvokeRMI(CWeapon::SvRequestStartFire(), DefaultParams(), eRMI_ToServer);
 	}
-	else if (IsServer())
+	else if(IsServer())
 	{
 		NetSetIsFiring(true);
 	}
@@ -355,16 +361,18 @@ void CWeapon::RequestZoom(float fov)
 {
 	GetGameObject()->Pulse('bang');
 	CActor *pActor=GetOwnerActor();
-	if (pActor)
+
+	if(pActor)
 		pActor->GetGameObject()->Pulse('bang');
 
-	if (gEnv->IsClient() && pActor && pActor->IsClient())
+	if(gEnv->IsClient() && pActor && pActor->IsClient())
 		GetGameObject()->InvokeRMI(CWeapon::SvRequestZoom(), ZoomParams(fov), eRMI_ToServer);
 	else
 	{
 		int to=gEnv->IsClient()?eRMI_ToRemoteClients:eRMI_ToAllClients;
 		GetGameObject()->InvokeRMI(CWeapon::ClZoom(), ZoomParams(fov), to);
-		if (!gEnv->IsClient())
+
+		if(!gEnv->IsClient())
 			NetZoom(fov);
 	}
 }
@@ -372,6 +380,7 @@ void CWeapon::RequestZoom(float fov)
 void CWeapon::NetSetIsFiring(bool isFiring)
 {
 	m_isFiring = isFiring;
+
 	if(gEnv->bServer)
 		CHANGED_NETWORK_STATE(this, ASPECT_STREAM);
 }
@@ -381,11 +390,11 @@ void CWeapon::RequestStartMeleeAttack(bool weaponMelee, bool boostedAttack)
 {
 	CActor *pActor=GetOwnerActor();
 
-	if (!gEnv->bServer && pActor && pActor->IsClient())
+	if(!gEnv->bServer && pActor && pActor->IsClient())
 	{
 		GetGameObject()->InvokeRMI(CWeapon::SvRequestStartMeleeAttack(), RequestStartMeleeAttackParams(weaponMelee), eRMI_ToServer);
 	}
-	else if (IsServer())
+	else if(IsServer())
 	{
 		m_meleeCounter++;
 		CHANGED_NETWORK_STATE(this, ASPECT_STREAM);
@@ -397,11 +406,11 @@ void CWeapon::RequestStopFire()
 {
 	CActor *pActor=GetOwnerActor();
 
-	if (!gEnv->bServer && pActor && pActor->IsClient())
+	if(!gEnv->bServer && pActor && pActor->IsClient())
 	{
 		GetGameObject()->InvokeRMI(CWeapon::SvRequestStopFire(), DefaultParams(), eRMI_ToServer);
 	}
-	else if (IsServer())
+	else if(IsServer())
 	{
 		NetSetIsFiring(false);
 	}
@@ -412,7 +421,7 @@ void CWeapon::RequestFireMode(int fmId)
 {
 	CActor *pActor=GetOwnerActor();
 
-	if (gEnv->IsClient() && pActor && pActor->IsClient())
+	if(gEnv->IsClient() && pActor && pActor->IsClient())
 	{
 		float animationTime = GetCurrentAnimationTime(eIGS_Owner)/1000.0f;
 		m_switchFireModeTimeStap = gEnv->pTimer->GetCurrTime() + animationTime;
@@ -427,6 +436,7 @@ void CWeapon::RequestFireMode(int fmId)
 			{
 				m_fm->Activate(false);
 			}
+
 			GetGameObject()->InvokeRMI(SvRequestFireMode(), SvRequestFireModeParams(fmId), eRMI_ToServer);
 		}
 	}
@@ -436,11 +446,12 @@ void CWeapon::RequestFireMode(int fmId)
 void CWeapon::RequestLock(EntityId id, int partId)
 {
 	IActor *pActor=m_pGameFramework->GetClientActor();
-	if (!pActor || pActor->IsClient())
+
+	if(!pActor || pActor->IsClient())
 	{
-		if (gEnv->bServer)
+		if(gEnv->bServer)
 		{
-			if (m_fm)
+			if(m_fm)
 				m_fm->Lock(id, partId);
 
 			GetGameObject()->InvokeRMI(CWeapon::ClLock(), LockParams(id, partId), eRMI_ToRemoteClients);
@@ -454,7 +465,8 @@ void CWeapon::RequestLock(EntityId id, int partId)
 void CWeapon::RequestUnlock()
 {
 	IActor *pActor=m_pGameFramework->GetClientActor();
-	if (!pActor || pActor->IsClient())
+
+	if(!pActor || pActor->IsClient())
 		GetGameObject()->InvokeRMI(SvRequestUnlock(), EmptyParams(), eRMI_ToServer);
 }
 
@@ -463,10 +475,11 @@ void CWeapon::RequestWeaponRaised(bool raise)
 {
 	if(gEnv->bMultiplayer)
 	{
-		CActor* pActor = GetOwnerActor();
+		CActor *pActor = GetOwnerActor();
+
 		if(pActor && pActor->IsClient())
 		{
-			if (gEnv->bServer)
+			if(gEnv->bServer)
 				CHANGED_NETWORK_STATE(this, ASPECT_STREAM);
 			else
 				GetGameObject()->InvokeRMI(SvRequestWeaponRaised(), WeaponRaiseParams(raise), eRMI_ToServer);
@@ -478,10 +491,11 @@ void CWeapon::RequestSetZoomState(bool zoomed)
 {
 	if(gEnv->bMultiplayer)
 	{
-		CActor* pActor = GetOwnerActor();
+		CActor *pActor = GetOwnerActor();
+
 		if(pActor && pActor->IsClient())
 		{
-			if (gEnv->bServer)
+			if(gEnv->bServer)
 				CHANGED_NETWORK_STATE(this, ASPECT_STREAM);
 			else
 				GetGameObject()->InvokeRMI(SvRequestSetZoomState(), ZoomStateParams(zoomed), eRMI_ToServer);
@@ -498,7 +512,7 @@ IMPLEMENT_RMI(CWeapon, SvRequestStartFire)
 	IActor *pLocalActor=m_pGameFramework->GetClientActor();
 	bool isLocal = pLocalActor && pActor && (pLocalActor->GetChannelId() == pActor->GetChannelId());
 
-	if (!isLocal)
+	if(!isLocal)
 	{
 		NetSetIsFiring(true);
 		NetStartFire();
@@ -516,7 +530,7 @@ IMPLEMENT_RMI(CWeapon, SvRequestStopFire)
 	IActor *pLocalActor=m_pGameFramework->GetClientActor();
 	bool isLocal = pLocalActor && pActor && (pLocalActor->GetChannelId() == pActor->GetChannelId());
 
-	if (!isLocal)
+	if(!isLocal)
 	{
 		NetSetIsFiring(false);
 		NetStopFire();
@@ -532,10 +546,11 @@ IMPLEMENT_RMI(CWeapon, SvRequestShoot)
 
 	bool ok=true;
 	CActor *pActor=GetActorByNetChannel(pNetChannel);
-	if (!pActor || pActor->GetHealth()<=0)
+
+	if(!pActor || pActor->GetHealth()<=0)
 		ok=false;
 
-	if (ok)
+	if(ok)
 	{
 		m_fireCounter++;
 		m_expended_ammo++;
@@ -543,7 +558,7 @@ IMPLEMENT_RMI(CWeapon, SvRequestShoot)
 		IActor *pLocalActor=m_pGameFramework->GetClientActor();
 		const bool isLocal = pLocalActor && (pLocalActor->GetChannelId() == pActor->GetChannelId());
 
-		if (!isLocal)
+		if(!isLocal)
 		{
 			NetShoot(params.hit, params.predictionHandle);
 		}
@@ -561,10 +576,11 @@ IMPLEMENT_RMI(CWeapon, SvRequestShootEx)
 
 	bool ok=true;
 	CActor *pActor=GetActorByNetChannel(pNetChannel);
-	if (!pActor || pActor->GetHealth()<=0)
+
+	if(!pActor || pActor->GetHealth()<=0)
 		ok=false;
 
-	if (ok)
+	if(ok)
 	{
 		m_fireCounter++;
 		m_expended_ammo++;
@@ -572,7 +588,7 @@ IMPLEMENT_RMI(CWeapon, SvRequestShootEx)
 		IActor *pLocalActor=m_pGameFramework->GetClientActor();
 		bool isLocal = pLocalActor && (pLocalActor->GetChannelId() == pActor->GetChannelId());
 
-		if (!isLocal)
+		if(!isLocal)
 		{
 			NetShootEx(params.pos, params.dir, params.vel, params.hit, params.extra, params.predictionHandle);
 		}
@@ -593,7 +609,7 @@ IMPLEMENT_RMI(CWeapon, SvRequestStartMeleeAttack)
 	IActor *pLocalActor=m_pGameFramework->GetClientActor();
 	bool isLocal = pLocalActor && pActor && (pLocalActor->GetChannelId() == pActor->GetChannelId());
 
-	if (!isLocal)
+	if(!isLocal)
 	{
 		NetStartMeleeAttack(params.wmelee);
 	}
@@ -621,10 +637,11 @@ IMPLEMENT_RMI(CWeapon, SvRequestReload)
 
 	bool ok=true;
 	CActor *pActor=GetActorByNetChannel(pNetChannel);
-	if (!pActor || pActor->IsDead())
+
+	if(!pActor || pActor->IsDead())
 		ok=false;
 
-	if (ok)
+	if(ok)
 	{
 		SvSetReloadState(eNRS_StartReload);
 
@@ -649,7 +666,7 @@ IMPLEMENT_RMI(CWeapon, SvRequestCancelReload)
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CWeapon, ClLock)
 {
-	if (m_fm)
+	if(m_fm)
 		m_fm->Lock(params.entityId, params.partId);
 
 	return true;
@@ -658,7 +675,7 @@ IMPLEMENT_RMI(CWeapon, ClLock)
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CWeapon, ClUnlock)
 {
-	if (m_fm)
+	if(m_fm)
 		m_fm->Unlock();
 
 	return true;
@@ -670,7 +687,7 @@ IMPLEMENT_RMI(CWeapon, SvRequestLock)
 {
 	CHECK_OWNER_REQUEST();
 
-	if (m_fm)
+	if(m_fm)
 		m_fm->Lock(params.entityId, params.partId);
 
 	GetGameObject()->InvokeRMI(CWeapon::ClLock(), params, eRMI_ToRemoteClients);
@@ -683,7 +700,7 @@ IMPLEMENT_RMI(CWeapon, SvRequestUnlock)
 {
 	CHECK_OWNER_REQUEST();
 
-	if (m_fm)
+	if(m_fm)
 		m_fm->Unlock();
 
 	GetGameObject()->InvokeRMI(CWeapon::ClUnlock(), params, eRMI_ToRemoteClients);
@@ -705,7 +722,7 @@ IMPLEMENT_RMI(CWeapon, SvRequestSetZoomState)
 {
 	CHECK_OWNER_REQUEST();
 
-	if (params.zoomed)
+	if(params.zoomed)
 		StartZoom(GetOwnerId(), 1);
 	else
 		StopZoom(GetOwnerId());
@@ -721,23 +738,26 @@ IMPLEMENT_RMI(CWeapon, SvRequestZoom)
 
 	bool ok=true;
 	CActor *pActor=GetActorByNetChannel(pNetChannel);
-	if (!pActor || pActor->GetHealth()<=0)
+
+	if(!pActor || pActor->GetHealth()<=0)
 		ok=false;
 
-	if (ok)
+	if(ok)
 	{
 		GetGameObject()->InvokeRMI(CWeapon::ClZoom(), params,
-			eRMI_ToOtherClients|eRMI_NoLocalCalls, m_pGameFramework->GetGameChannelId(pNetChannel));
+								   eRMI_ToOtherClients|eRMI_NoLocalCalls, m_pGameFramework->GetGameChannelId(pNetChannel));
 
 		IActor *pLocalActor=m_pGameFramework->GetClientActor();
 		bool isLocal = pLocalActor && (pLocalActor->GetChannelId() == pActor->GetChannelId());
 
-		if (!isLocal)
+		if(!isLocal)
 			NetZoom(params.fov);
 
 		int event=eGE_ZoomedOut;
-		if (params.fov<0.99f)
+
+		if(params.fov<0.99f)
 			event=eGE_ZoomedIn;
+
 		m_pGameplayRecorder->Event(GetOwner(), GameplayEvent(event, 0, 0, (void *)GetEntityId()));
 	}
 

@@ -11,28 +11,28 @@ Created December 2009 by Tim Furnish
 #include "Utility/StringUtils.h"
 
 #if defined(_DEBUG)
-	#define MORE_SINGLE_ALLOC_TEXT_BLOCK_CHECKS   1
+#define MORE_SINGLE_ALLOC_TEXT_BLOCK_CHECKS   1
 #else
-	#define MORE_SINGLE_ALLOC_TEXT_BLOCK_CHECKS   0
+#define MORE_SINGLE_ALLOC_TEXT_BLOCK_CHECKS   0
 #endif
 
 
 
 
-	#define SingleAllocTextBlockLog(...)
+#define SingleAllocTextBlockLog(...)
 
 
 //----------------------------------------------------------
 CSingleAllocTextBlock::CSingleAllocTextBlock() :
 	m_mem(NULL)
 {
-	Reset ();
+	Reset();
 }
 
 //----------------------------------------------------------
 CSingleAllocTextBlock::~CSingleAllocTextBlock()
 {
-	Reset ();
+	Reset();
 }
 
 //----------------------------------------------------------
@@ -64,21 +64,24 @@ void CSingleAllocTextBlock::IncreaseSizeNeeded(size_t theSize)
 }
 
 //----------------------------------------------------------
-void CSingleAllocTextBlock::IncreaseSizeNeeded(const char * textIn, bool doDuplicateCheck)
+void CSingleAllocTextBlock::IncreaseSizeNeeded(const char *textIn, bool doDuplicateCheck)
 {
 	CRY_ASSERT_MESSAGE(m_mem == NULL, "Shouldn't try and increase size after memory allocation!");
 
-	if (textIn)
+	if(textIn)
 	{
 		size_t lengthIncludingTerminator = strlen(textIn) + 1;
-		if (doDuplicateCheck == false || FindDuplicate(textIn) == NULL)
+
+		if(doDuplicateCheck == false || FindDuplicate(textIn) == NULL)
 		{
-			if (doDuplicateCheck)
+			if(doDuplicateCheck)
 			{
 				RememberPossibleDuplicate(textIn);
 			}
+
 			m_sizeNeeded += lengthIncludingTerminator;
 		}
+
 		m_sizeNeededWithoutUsingDuplicates += lengthIncludingTerminator;
 	}
 }
@@ -90,7 +93,7 @@ void CSingleAllocTextBlock::Allocate()
 	m_mem = new char[m_sizeNeeded + MORE_SINGLE_ALLOC_TEXT_BLOCK_CHECKS];
 	CRY_ASSERT_TRACE(m_mem != NULL, ("Failed to allocate %u bytes of memory!", m_sizeNeeded));
 
-	SingleAllocTextBlockLog ("Allocated %u bytes of memory (saved %u bytes by reusing strings; number of unique strings found is %d/%d)", m_sizeNeeded, m_sizeNeededWithoutUsingDuplicates - m_sizeNeeded, m_reuseDuplicatedStringsNumUsed, m_reuseDuplicatedStringsArraySize);
+	SingleAllocTextBlockLog("Allocated %u bytes of memory (saved %u bytes by reusing strings; number of unique strings found is %d/%d)", m_sizeNeeded, m_sizeNeededWithoutUsingDuplicates - m_sizeNeeded, m_reuseDuplicatedStringsNumUsed, m_reuseDuplicatedStringsArraySize);
 
 	m_reuseDuplicatedStringsNumUsed = 0;
 
@@ -102,13 +105,13 @@ void CSingleAllocTextBlock::Allocate()
 }
 
 //----------------------------------------------------------
-const char * CSingleAllocTextBlock::FindDuplicate(const char * textIn)
+const char *CSingleAllocTextBlock::FindDuplicate(const char *textIn)
 {
-	assert (m_reuseDuplicatedStringsNumUsed <= m_reuseDuplicatedStringsArraySize);
+	assert(m_reuseDuplicatedStringsNumUsed <= m_reuseDuplicatedStringsArraySize);
 
-	for (int i = 0; i < m_reuseDuplicatedStringsNumUsed; ++ i)
+	for(int i = 0; i < m_reuseDuplicatedStringsNumUsed; ++ i)
 	{
-		if (0 == strcmp (textIn, m_reuseDuplicatedStringsArray[i].m_charPtr))
+		if(0 == strcmp(textIn, m_reuseDuplicatedStringsArray[i].m_charPtr))
 		{
 			SingleAllocTextBlockLog("Stored '%s' already! Reusing pointer!", textIn);
 			return m_reuseDuplicatedStringsArray[i].m_charPtr;
@@ -120,11 +123,11 @@ const char * CSingleAllocTextBlock::FindDuplicate(const char * textIn)
 
 
 //----------------------------------------------------------
-void CSingleAllocTextBlock::RememberPossibleDuplicate(const char * textIn)
+void CSingleAllocTextBlock::RememberPossibleDuplicate(const char *textIn)
 {
-	if (m_reuseDuplicatedStringsArray)
+	if(m_reuseDuplicatedStringsArray)
 	{
-		if (m_reuseDuplicatedStringsNumUsed < m_reuseDuplicatedStringsArraySize)
+		if(m_reuseDuplicatedStringsNumUsed < m_reuseDuplicatedStringsArraySize)
 		{
 			m_reuseDuplicatedStringsArray[m_reuseDuplicatedStringsNumUsed].m_charPtr = textIn;
 			++ m_reuseDuplicatedStringsNumUsed;
@@ -142,36 +145,42 @@ void CSingleAllocTextBlock::RememberPossibleDuplicate(const char * textIn)
 }
 
 //----------------------------------------------------------
-const char * CSingleAllocTextBlock::StoreText(const char * textIn, bool doDuplicateCheck)
+const char *CSingleAllocTextBlock::StoreText(const char *textIn, bool doDuplicateCheck)
 {
-	const char * reply = NULL;
+	const char *reply = NULL;
 
-	if (textIn)
+	if(textIn)
 	{
 		reply = doDuplicateCheck ? FindDuplicate(textIn) : NULL;
-		if (reply == NULL)
+
+		if(reply == NULL)
 		{
 			CRY_ASSERT_MESSAGE(m_mem != NULL, "No memory has been allocated!");
-			if (cry_strncpy(m_mem + m_numBytesUsed, textIn, m_sizeNeeded - m_numBytesUsed))
+
+			if(cry_strncpy(m_mem + m_numBytesUsed, textIn, m_sizeNeeded - m_numBytesUsed))
 			{
 				reply = m_mem + m_numBytesUsed;
 				m_numBytesUsed += strlen(reply) + 1;
-				if (doDuplicateCheck)
+
+				if(doDuplicateCheck)
 				{
 					RememberPossibleDuplicate(reply);
 				}
 			}
+
 #ifndef _RELEASE
 			else
 			{
 				GameWarning("Tried to store too much text in a single-alloc text block of size %u (%u bytes have already been used, no room for '%s')", (uint32)m_sizeNeeded, (uint32)m_numBytesUsed, textIn);
 			}
+
 #endif
 		}
-		SingleAllocTextBlockLog ("Storing a copy of '%s', now used %u/%u bytes, %u bytes left", textIn, m_numBytesUsed, m_sizeNeeded, m_sizeNeeded - m_numBytesUsed);
+
+		SingleAllocTextBlockLog("Storing a copy of '%s', now used %u/%u bytes, %u bytes left", textIn, m_numBytesUsed, m_sizeNeeded, m_sizeNeeded - m_numBytesUsed);
 	}
 
-	CRY_ASSERT_TRACE (m_numBytesUsed <= m_sizeNeeded, ("Counters have been set to invalid values! Apparently used %d/%d bytes!", m_numBytesUsed, m_sizeNeeded));
+	CRY_ASSERT_TRACE(m_numBytesUsed <= m_sizeNeeded, ("Counters have been set to invalid values! Apparently used %d/%d bytes!", m_numBytesUsed, m_sizeNeeded));
 
 	return reply;
 }

@@ -27,8 +27,8 @@ const static float INTERPOLATION_PITCH_REL_SPEED = 0.25f;
 
 //**************************************
 CCameraInputHelper::CCameraInputHelper(CPlayer *pHero, CPlayerInput *pHeroInput) :
-m_pHero(pHero),
-m_pHeroInput(pHeroInput)
+	m_pHero(pHero),
+	m_pHeroInput(pHeroInput)
 {
 	CRY_ASSERT(m_pHero);
 	CRY_ASSERT(m_pHeroInput);
@@ -42,10 +42,11 @@ CCameraInputHelper::~CCameraInputHelper()
 
 void CCameraInputHelper::PostUpdate(float fFrameTime, float fDeltaPitch)
 {
-	//invert pitch in new camera system 
+	//invert pitch in new camera system
 	if(g_pGameCVars->cl_cam_orbit != 0)
 	{
 		fDeltaPitch *= -1.0f;
+
 		if(fabsf(fDeltaPitch) > g_fCamError)
 		{
 			float pitch = m_fPitch;//g_pGameCVars->cl_tpvPitchNav;
@@ -112,6 +113,7 @@ void CCameraInputHelper::UpdateCameraInput(Ang3 &deltaRotation, const float fram
 	vcStickPrev=vcStick;
 
 	Matrix33 camViewMtx = m_pHero->m_camViewMtxFinal;
+
 	//in flight mode the actual camera matrix changes
 	//the mtxFinal itself stays untouched, so that the camera can move back after the flight
 	if(CCameraFlight::GetInstance()->IsCameraFlightActive())
@@ -119,8 +121,8 @@ void CCameraInputHelper::UpdateCameraInput(Ang3 &deltaRotation, const float fram
 		Vec3 vCamDir = CCameraFlight::GetInstance()->GetLookingDirection();
 		camViewMtx.SetRotationVDir(vCamDir, 0.0f);
 	}
-	
-	const Matrix34& entityWorldTM = m_pHero->GetEntity()->GetWorldTM();
+
+	const Matrix34 &entityWorldTM = m_pHero->GetEntity()->GetWorldTM();
 	Vec3 vwEntPos = entityWorldTM.GetTranslation();
 	Vec3 vwDrawFrom = vwEntPos+Vec3(0,0,0.8f);
 	Vec3 vwEntityFront = entityWorldTM.GetColumn1();
@@ -147,6 +149,7 @@ void CCameraInputHelper::UpdateCameraInput(Ang3 &deltaRotation, const float fram
 		float yaw = 0.0f;
 
 		dotFront2 = clamp(dotFront2,-1.0f,1.0f);
+
 		if(dotRight2>=0)
 		{
 			yaw=-cry_acosf(dotFront2);
@@ -180,8 +183,8 @@ void CCameraInputHelper::UpdateCameraInput(Ang3 &deltaRotation, const float fram
 		deltaRotation.z=0;
 
 	float maxDeltaRot = 7.85f; // safety value //g_pGameCVars->cl_nav_SprintMaxTurnRate;
-	Limit( maxDeltaRot, 0.f, gf_PI * 10.f ); // limit to 3600 degrees per second, i.e. 'pretty fast'
-	maxDeltaRot *= frameTimeClamped;	
+	Limit(maxDeltaRot, 0.f, gf_PI * 10.f);   // limit to 3600 degrees per second, i.e. 'pretty fast'
+	maxDeltaRot *= frameTimeClamped;
 
 	// In Nav mode movement is always in the characters forward direction.
 	UpdatePitchYawDriver(stickMag, frameTimeNormalised);
@@ -191,14 +194,14 @@ void CCameraInputHelper::UpdateCameraInput(Ang3 &deltaRotation, const float fram
 
 void CCameraInputHelper::UpdatePitchYawDriver(float stickMag, float frameTimeNormalised)
 {
-	SCVars* pGameCVars = g_pGameCVars;
+	SCVars *pGameCVars = g_pGameCVars;
 
 	//normal update
 	CCameraManager *pCamMan = g_pGame->GetCameraManager();
 	SCamModeSettings settings;
 	pCamMan->GetCameraSettings(pCamMan->GetActiveCameraId(), settings);
 
-	if (m_pHero->m_stats.flyMode == 0)
+	if(m_pHero->m_stats.flyMode == 0)
 	{
 		m_pHeroInput->m_deltaMovement=Vec3(0,1,0)*stickMag;
 	}
@@ -206,6 +209,7 @@ void CCameraInputHelper::UpdatePitchYawDriver(float stickMag, float frameTimeNor
 	//camera flights overwrite everything
 	CCameraFlight *pFlight = CCameraFlight::GetInstance();
 	bool bFlightActive = pFlight->IsCameraFlightActive() || (pFlight->GetPaused() && pFlight->GetState() != eCFS_NONE);
+
 	if(bFlightActive && !(pFlight->GetState() == eCFS_FADE_OUT && pFlight->GetFadeProgress() > 0.8f))
 		return;
 
@@ -234,16 +238,19 @@ void CCameraInputHelper::UpdatePitchYawDriver(float stickMag, float frameTimeNor
 		else
 		{
 			g_fYawRotSpeed = InterpolateTo(g_fYawRotSpeed, fNewYawSpeed, g_pGameCVars->cl_cam_rotation_acceleration_time_yaw);
+
 			if(g_fYawRotSpeed < 0.0f)
 				g_fYawRotSpeed = min(g_fYawRotSpeed, -0.01f);
 			else
 				g_fYawRotSpeed = max(g_fYawRotSpeed, 0.01f);
 		}
+
 		if(fNewPitchSpeed == 0.0f)
 			g_fPitchRotSpeed = 0.0f;
 		else
 		{
 			g_fPitchRotSpeed = InterpolateTo(g_fPitchRotSpeed, fNewPitchSpeed, g_pGameCVars->cl_cam_rotation_acceleration_time_pitch);
+
 			if(g_fPitchRotSpeed < 0.0f)
 				g_fPitchRotSpeed = min(g_fPitchRotSpeed, -0.002f);
 			else
@@ -281,6 +288,7 @@ void CCameraInputHelper::UpdatePitchYawDriver(float stickMag, float frameTimeNor
 			m_fTrackingYawDelta = 0.0f;
 			bAutoTracking = true;
 		}
+
 		if(!bHasPitch && fabsf(m_fTrackingPitchDelta) > 0.001f)
 		{
 			deltaPitchBase = m_fTrackingPitchDelta;
@@ -293,6 +301,7 @@ void CCameraInputHelper::UpdatePitchYawDriver(float stickMag, float frameTimeNor
 	{
 		CCameraView *pCamView = g_pGame->GetCameraManager()->GetCamView();
 		ECamTypes eLastType = pCamView->GetLastMode()->camType;
+
 		if(eLastType != ECT_CamRear && eLastType != ECT_CamFirstPerson)
 		{
 			SetYawDelta(RetrieveYawDelta() - deltaYawBase);
@@ -309,6 +318,7 @@ void CCameraInputHelper::UpdatePitchYawDriver(float stickMag, float frameTimeNor
 
 		yawDeltaDamped = yawDeltaDamped * (dampeningStrength-1.0f) + deltaYawBase;
 		yawDeltaDamped /= dampeningStrength;
+
 		if(bAutoTracking || bAutoTracking != m_bAutoTracking || fabsf(yawDeltaDamped) < fabsf(deltaYawBase))
 			yawDeltaDamped = deltaYawBase;
 
@@ -317,7 +327,9 @@ void CCameraInputHelper::UpdatePitchYawDriver(float stickMag, float frameTimeNor
 			m_fInputYawDelta = yawDeltaDamped;
 		else
 			m_fInputYawDelta += yawDeltaDamped;
+
 		m_fYaw += yawDeltaDamped;
+
 		if(fabsf(yawDeltaDamped) > 0.002f)
 			m_bYawModified = true;
 
@@ -329,6 +341,7 @@ void CCameraInputHelper::UpdatePitchYawDriver(float stickMag, float frameTimeNor
 		dampeningStrength = max(1.0f, pGameCVars->cl_cam_pitch_input_inertia / frameTime);
 		pitchDamped = pitchDamped * (dampeningStrength-1.0f) + deltaPitchBase;
 		pitchDamped /= dampeningStrength;
+
 		if(bAutoTracking != m_bAutoTracking || fabsf(pitchDamped) < fabsf(deltaPitchBase))
 			pitchDamped = deltaPitchBase;
 
@@ -337,8 +350,10 @@ void CCameraInputHelper::UpdatePitchYawDriver(float stickMag, float frameTimeNor
 			m_fInputPitchDelta = pitchDamped;
 		else
 			m_fInputPitchDelta += pitchDamped;
+
 		if(fabsf(pitchDamped) > 0.002f)
 			m_bPitchModified = true;
+
 		//else
 		//	m_bPitchModified = false;
 		m_fPitch += pitchDamped;
@@ -363,7 +378,7 @@ void CCameraInputHelper::CombatModeChanged()
 	//OnActionAttack1("attack1",2,0);
 	m_pHero->CActor::OnAction("attack1", 2, 0);
 
-	SCVars* pGameCVars = g_pGameCVars;
+	SCVars *pGameCVars = g_pGameCVars;
 
 	pGameCVars->cl_tpvHOffCombatBias = 0;
 	pGameCVars->cl_tpvVOffCombatBias = 0;
@@ -397,6 +412,7 @@ void CCameraInputHelper::SetInterpolationTarget(float yaw, float pitch, float sp
 	SCamModeSettings settings;
 	int curCam = g_pGame->GetCameraManager()->GetActiveCameraId();
 	g_pGame->GetCameraManager()->GetCameraSettings(curCam, settings);
+
 	if(settings.camType != ECT_CamFollow)
 		return; //interpolation works in follow mode only at the moment
 
@@ -418,6 +434,7 @@ bool CCameraInputHelper::UpdateTargetInterpolation()
 
 	//check timeout just in case
 	m_fInterpolationTargetTimeout -= gEnv->pTimer->GetFrameTime();
+
 	if(m_fInterpolationTargetTimeout < 0.0f)
 	{
 		m_bInterpolationTargetActive = false;
@@ -430,6 +447,7 @@ bool CCameraInputHelper::UpdateTargetInterpolation()
 
 	//compute yaw delta
 	float yawDelta = targetYaw - curYaw;
+
 	if(yawDelta > gf_PI)
 		yawDelta = -(gf_PI2 - yawDelta);
 	else if(yawDelta < -gf_PI)
@@ -441,6 +459,7 @@ bool CCameraInputHelper::UpdateTargetInterpolation()
 	//termination
 	float absYawDelta = fabsf(yawDelta);
 	float absPitchDelta = fabsf(pitchDelta);
+
 	if(absYawDelta < m_fInterpolationTargetMaxError && absPitchDelta < m_fInterpolationTargetMaxError)
 	{
 		m_bInterpolationTargetActive = false;
@@ -449,28 +468,33 @@ bool CCameraInputHelper::UpdateTargetInterpolation()
 
 	//compute safe rotation speed
 	float interpolationSpeed = m_fInterpolationTargetSpeed * gEnv->pTimer->GetFrameTime();
+
 	if(absYawDelta < INTERPOLATION_SLOWDOWN_DIST && absYawDelta > INTERPOLATION_TARGET_MAX_ERROR)
 		interpolationSpeed *= max(0.02f, absYawDelta / INTERPOLATION_SLOWDOWN_DIST);
 	else if(absPitchDelta < INTERPOLATION_SLOWDOWN_DIST && absPitchDelta > INTERPOLATION_TARGET_MAX_ERROR)
 		interpolationSpeed *= max(0.02f, absPitchDelta / INTERPOLATION_SLOWDOWN_DIST);
+
 	//scale yaw and pitch delta
 	if(absYawDelta > interpolationSpeed)
 		yawDelta = ((yawDelta < 0.0f)?-1.0f:1.0f) * interpolationSpeed;
+
 	if(absPitchDelta > interpolationSpeed)
 		pitchDelta = ((pitchDelta < 0.0f)?-1.0f:1.0f) * interpolationSpeed * INTERPOLATION_PITCH_REL_SPEED;
 
 	//set deltas
 	if(absYawDelta >= INTERPOLATION_TARGET_MAX_ERROR)
 		SetYawDelta(yawDelta);
+
 	if(absPitchDelta >= INTERPOLATION_TARGET_MAX_ERROR)
 		SetPitchDelta(pitchDelta);
 
 	return true;
 }
 
-void CCameraInputHelper::SetYaw(const float yaw) 
-{ 
+void CCameraInputHelper::SetYaw(const float yaw)
+{
 	m_fYaw = yaw;
+
 	//clamp yaw range
 	if(g_pGameCVars->cl_cam_orbit == 0)
 		ClampPiRange(m_fYaw);

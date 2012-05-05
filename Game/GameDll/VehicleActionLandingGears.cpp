@@ -23,20 +23,20 @@ const float GEARS_RETRACTED_TIME = 1.0f;
 
 //------------------------------------------------------------------------
 CVehicleActionLandingGears::CVehicleActionLandingGears()
-: m_pVehicle(NULL),
-	m_pLandingGearsAnim(NULL),
-	m_landingGearOpenedId(InvalidVehicleAnimStateId),
-	m_landingGearClosedId(InvalidVehicleAnimStateId),
-	m_isDestroyed(false),
-	m_damageReceived(0.0f),
-	m_pPartToBlockRotation(NULL),
-	m_velocityMax(0.0f),
-	m_isOnlyAutoForPlayer(false),
-	m_isDriverPlayer(false),
-	m_animTime(0.0f),
-	m_animGoal(0.0f),
-	m_timer(0.0f),
-	m_minTimeForChange(0.5f)
+	: m_pVehicle(NULL),
+	  m_pLandingGearsAnim(NULL),
+	  m_landingGearOpenedId(InvalidVehicleAnimStateId),
+	  m_landingGearClosedId(InvalidVehicleAnimStateId),
+	  m_isDestroyed(false),
+	  m_damageReceived(0.0f),
+	  m_pPartToBlockRotation(NULL),
+	  m_velocityMax(0.0f),
+	  m_isOnlyAutoForPlayer(false),
+	  m_isDriverPlayer(false),
+	  m_animTime(0.0f),
+	  m_animGoal(0.0f),
+	  m_timer(0.0f),
+	  m_minTimeForChange(0.5f)
 {
 
 }
@@ -48,7 +48,7 @@ CVehicleActionLandingGears::~CVehicleActionLandingGears()
 }
 
 //------------------------------------------------------------------------
-bool CVehicleActionLandingGears::Init(IVehicle* pVehicle, const CVehicleParams& table)
+bool CVehicleActionLandingGears::Init(IVehicle *pVehicle, const CVehicleParams &table)
 {
 	m_pVehicle = pVehicle;
 	m_pLandingGearsAnim = m_pVehicle->GetAnimation("landingGears");
@@ -56,17 +56,17 @@ bool CVehicleActionLandingGears::Init(IVehicle* pVehicle, const CVehicleParams& 
 	m_altitudeToRetractGears = 10.0f;
 	m_landingDamages = 0.0f;
 
-	if (CVehicleParams landingGearsTable = table.findChild("LandingGears"))
+	if(CVehicleParams landingGearsTable = table.findChild("LandingGears"))
 	{
 		landingGearsTable.getAttr("altitudeToRetractGears", m_altitudeToRetractGears);
 		landingGearsTable.getAttr("landingDamages", m_landingDamages);
 		landingGearsTable.getAttr("velocityMax", m_velocityMax);
-		
-		if (landingGearsTable.haveAttr("blockPartRotation"))
+
+		if(landingGearsTable.haveAttr("blockPartRotation"))
 		{
 			m_pPartToBlockRotation = m_pVehicle->GetPart(landingGearsTable.getAttr("blockPartRotation"));
 
-			if (m_pPartToBlockRotation)
+			if(m_pPartToBlockRotation)
 			{
 				IVehiclePart::SVehiclePartEvent partEvent;
 				partEvent.type = IVehiclePart::eVPE_BlockRotation;
@@ -79,7 +79,7 @@ bool CVehicleActionLandingGears::Init(IVehicle* pVehicle, const CVehicleParams& 
 		landingGearsTable.getAttr("isOnlyAutoForPlayer", m_isOnlyAutoForPlayer);
 	}
 
-	if (!m_pLandingGearsAnim)
+	if(!m_pLandingGearsAnim)
 		return false;
 
 	m_pLandingGearsAnim->StartAnimation();
@@ -101,7 +101,7 @@ void CVehicleActionLandingGears::Reset()
 	m_isDestroyed = false;
 	m_damageReceived = 0.0f;
 
-	if (m_pPartToBlockRotation)
+	if(m_pPartToBlockRotation)
 	{
 		IVehiclePart::SVehiclePartEvent partEvent;
 		partEvent.type = IVehiclePart::eVPE_BlockRotation;
@@ -121,35 +121,35 @@ void CVehicleActionLandingGears::Reset()
 }
 
 //------------------------------------------------------------------------
-void CVehicleActionLandingGears::OnVehicleEvent(EVehicleEvent eventType, const SVehicleEventParams& params)
+void CVehicleActionLandingGears::OnVehicleEvent(EVehicleEvent eventType, const SVehicleEventParams &params)
 {
-	if (eventType == eVE_PassengerEnter || eventType == eVE_PassengerChangeSeat)
+	if(eventType == eVE_PassengerEnter || eventType == eVE_PassengerChangeSeat)
 	{
-		IVehicleSeat* pSeat = m_pVehicle->GetSeatById(params.iParam);
+		IVehicleSeat *pSeat = m_pVehicle->GetSeatById(params.iParam);
 		assert(pSeat);
 
-		if (pSeat->IsDriver())
+		if(pSeat->IsDriver())
 		{
-			IActorSystem* pActorSystem = gEnv->pGame->GetIGameFramework()->GetIActorSystem();
+			IActorSystem *pActorSystem = gEnv->pGame->GetIGameFramework()->GetIActorSystem();
 			assert(pActorSystem);
 
-			if (IActor* pActor = pActorSystem->GetActor(pSeat->GetPassenger(false)))
+			if(IActor *pActor = pActorSystem->GetActor(pSeat->GetPassenger(false)))
 			{
 				m_isDriverPlayer = pActor->IsPlayer();
 			}
 		}
 	}
-	else if (eventType == eVE_Destroyed)
+	else if(eventType == eVE_Destroyed)
 	{
 		m_pLandingGearsAnim->StopAnimation();
 		m_isDestroyed = true;
 	}
-	else if (eventType == eVE_ExtractGears)
+	else if(eventType == eVE_ExtractGears)
 	{
 		m_isOnlyAutoForPlayer = true;
 		ExtractGears();
 	}
-	else if (eventType == eVE_RetractGears)
+	else if(eventType == eVE_RetractGears)
 	{
 		m_isOnlyAutoForPlayer = false;
 		RetractGears();
@@ -157,50 +157,53 @@ void CVehicleActionLandingGears::OnVehicleEvent(EVehicleEvent eventType, const S
 }
 
 //------------------------------------------------------------------------
-int CVehicleActionLandingGears::OnEvent(int eventType, SVehicleEventParams& eventParams)
+int CVehicleActionLandingGears::OnEvent(int eventType, SVehicleEventParams &eventParams)
 {
 	const float velThresold = 6.0f;
 
-	if (eventType == eVAE_OnGroundCollision || eventType == eVAE_OnEntityCollision)
+	if(eventType == eVAE_OnGroundCollision || eventType == eVAE_OnEntityCollision)
 	{
 
-		if (!m_isDriverPlayer)
+		if(!m_isDriverPlayer)
 			return 0;	// no collision damage for ai
 
 		float velLen = 0.0f;
 
-		if (IPhysicalEntity* pPhysEntity = m_pVehicle->GetEntity()->GetPhysics())
+		if(IPhysicalEntity *pPhysEntity = m_pVehicle->GetEntity()->GetPhysics())
 		{
 			pe_status_dynamics dyn;
-			if (pPhysEntity->GetStatus(&dyn))
+
+			if(pPhysEntity->GetStatus(&dyn))
 				velLen = dyn.v.GetLength();
 		}
 
-		if (velLen < velThresold)
+		if(velLen < velThresold)
 			return 1;
 
 		TVehicleAnimStateId animStateId = m_pLandingGearsAnim->GetState();
-		if (animStateId != InvalidVehicleAnimStateId)
+
+		if(animStateId != InvalidVehicleAnimStateId)
 		{
 			float gearStatus = 0.0f; // 0 = in, 1 = out
-			if (m_isDestroyed)	
+
+			if(m_isDestroyed)
 				gearStatus = 0.0f;
-			else if (animStateId == m_landingGearClosedId)
+			else if(animStateId == m_landingGearClosedId)
 				gearStatus = 0.0f;
-			else if (animStateId == m_landingGearOpenedId)
+			else if(animStateId == m_landingGearOpenedId)
 				gearStatus = min(1.0f, max(0.0f, m_pLandingGearsAnim->GetAnimTime()));
 
-			if (gearStatus < 1.0f)
+			if(gearStatus < 1.0f)
 			{
 				EntityId shooterId = m_pVehicle->GetEntityId();
 
-				if (IVehicleSeat* pSeat = m_pVehicle->GetSeatById(1))
-					if (pSeat->GetPassenger() > 0)
+				if(IVehicleSeat *pSeat = m_pVehicle->GetSeatById(1))
+					if(pSeat->GetPassenger() > 0)
 						shooterId = pSeat->GetPassenger();
 
 				float damage;
 
-				if (gearStatus < 0.85f)
+				if(gearStatus < 0.85f)
 				{
 					// we got some damages, but did we break the landing gears?
 					//m_pLandingGearsAnim->StopAnimation();
@@ -213,13 +216,13 @@ int CVehicleActionLandingGears::OnEvent(int eventType, SVehicleEventParams& even
 					damage = m_landingDamages * 0.25f;
 				}
 
-				if (damage > m_damageReceived)
+				if(damage > m_damageReceived)
 				{
 					int hitType = g_pGame->GetGameRules()->GetHitTypeId("landingCollision");
 					m_pVehicle->OnHit(m_pVehicle->GetEntityId(), shooterId, damage, Vec3(0.0f, 0.0f, 0.0f), 1.0f, hitType, false);
 					m_damageReceived = damage;
 
-					if (IVehicleMovement* pMovement = m_pVehicle->GetMovement())
+					if(IVehicleMovement *pMovement = m_pVehicle->GetMovement())
 					{
 						SVehicleMovementEventParams movementEventParams;
 						movementEventParams.fValue = 0.5f;
@@ -241,8 +244,8 @@ void CVehicleActionLandingGears::Serialize(TSerialize ser, EEntityAspects aspect
 	ser.Value("damageReceived", m_damageReceived);
 	ser.Value("isDestroyed", m_isDestroyed);
 	ser.Value("animTime", m_animTime);
-	
-	if (ser.IsReading())
+
+	if(ser.IsReading())
 	{
 		m_pLandingGearsAnim->StartAnimation();
 		m_pLandingGearsAnim->ToggleManualUpdate(true);
@@ -253,27 +256,28 @@ void CVehicleActionLandingGears::Serialize(TSerialize ser, EEntityAspects aspect
 //------------------------------------------------------------------------
 void CVehicleActionLandingGears::Update(const float deltaTime)
 {
-	if (m_isDestroyed)
+	if(m_isDestroyed)
 		return;
 
 	float altitude = m_pVehicle->GetAltitude();
 
-	if (!m_isOnlyAutoForPlayer || m_isDriverPlayer)
+	if(!m_isOnlyAutoForPlayer || m_isDriverPlayer)
 	{
-		if (altitude > m_altitudeToRetractGears)
+		if(altitude > m_altitudeToRetractGears)
 			RetractGears();
 		else
 			ExtractGears();
 	}
 
-	if (m_timer > m_minTimeForChange)
+	if(m_timer > m_minTimeForChange)
 	{
 		float speed = 0.65f;
 
-		if (IPhysicalEntity* pPhysEntity = m_pVehicle->GetEntity()->GetPhysics())
+		if(IPhysicalEntity *pPhysEntity = m_pVehicle->GetEntity()->GetPhysics())
 		{
 			pe_status_dynamics dyn;
-			if (pPhysEntity->GetStatus(&dyn))
+
+			if(pPhysEntity->GetStatus(&dyn))
 				speed += min(abs(dyn.v.GetLength()) * 0.1f, 1.0f);
 		}
 
@@ -291,14 +295,14 @@ void CVehicleActionLandingGears::ExtractGears()
 {
 	float velLength = m_pVehicle->GetStatus().vel.GetLength();
 
-	if (iszero(m_velocityMax) || velLength <= m_velocityMax)
+	if(iszero(m_velocityMax) || velLength <= m_velocityMax)
 	{
-		if (m_animGoal != GEARS_EXTRACTED_TIME)
+		if(m_animGoal != GEARS_EXTRACTED_TIME)
 			m_timer = 0.0f;
 
 		m_animGoal = GEARS_EXTRACTED_TIME;
 
-		if (m_pPartToBlockRotation)
+		if(m_pPartToBlockRotation)
 		{
 			IVehiclePart::SVehiclePartEvent partEvent;
 
@@ -314,12 +318,12 @@ void CVehicleActionLandingGears::ExtractGears()
 //------------------------------------------------------------------------
 void CVehicleActionLandingGears::RetractGears()
 {
-	if (m_animGoal != GEARS_RETRACTED_TIME)
+	if(m_animGoal != GEARS_RETRACTED_TIME)
 		m_timer = 0.0f;
 
 	m_animGoal = GEARS_RETRACTED_TIME;
 
-	if (m_pPartToBlockRotation)
+	if(m_pPartToBlockRotation)
 	{
 		IVehiclePart::SVehiclePartEvent partEvent;
 		partEvent.type = IVehiclePart::eVPE_BlockRotation;

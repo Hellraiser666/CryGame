@@ -30,22 +30,25 @@ int CItem::TwoHandMode() const
 //------------------------------------------------------------------------
 bool CItem::SupportsDualWield(const char *itemName) const
 {
-	if (m_sharedparams->params.two_hand)
+	if(m_sharedparams->params.two_hand)
 		return false;
 
 	TDualWieldSupportMap::const_iterator it = m_sharedparams->dualWieldSupport.find(CONST_TEMPITEM_STRING(itemName));
-	if (it != m_sharedparams->dualWieldSupport.end())
+
+	if(it != m_sharedparams->dualWieldSupport.end())
 		return true;
+
 	return false;
 }
 
 //------------------------------------------------------------------------
 void CItem::ResetDualWield()
 {
-	if (m_dualWieldSlaveId)
+	if(m_dualWieldSlaveId)
 	{
 		IItem *pSlave = GetDualWieldSlave();
-		if (pSlave)
+
+		if(pSlave)
 			pSlave->ResetDualWield();
 	}
 
@@ -114,13 +117,15 @@ void CItem::SetDualWieldSlave(EntityId slaveId)
 {
 	m_dualWieldSlaveId = slaveId;
 	CItem *pSlave = static_cast<CItem *>(GetDualWieldSlave());
-	if (!pSlave)
+
+	if(!pSlave)
 		return;
 
 	SetActionSuffix(m_sharedparams->params.dual_wield_suffix.c_str());
 
 	pSlave->EnableSelect(false);
-	if (m_stats.hand == eIH_Left)
+
+	if(m_stats.hand == eIH_Left)
 		pSlave->SetHand(eIH_Right);
 	else
 		pSlave->SetHand(eIH_Left);
@@ -132,19 +137,21 @@ void CItem::SetDualSlaveAccessory(bool noNetwork)
 	if(!gEnv->bMultiplayer || (GetOwnerActor() && GetOwnerActor()->IsClient()))
 	{
 		CItem *pSlave = static_cast<CItem *>(GetDualWieldSlave());
-		if (!pSlave)
+
+		if(!pSlave)
 			return;
 
 		//Detach current accessories of the slave
 		TAccessoryMap temp = pSlave->m_accessories;
-		for (TAccessoryMap::const_iterator it=temp.begin(); it!=temp.end(); ++it)
+
+		for(TAccessoryMap::const_iterator it=temp.begin(); it!=temp.end(); ++it)
 		{
 			if(m_accessories.find(it->first)==m_accessories.end())
 				pSlave->SwitchAccessory(it->first.c_str()); //Only remove if not in the master
 		}
 
 		//Attach on the slave same accessories as "parent"
-		for (TAccessoryMap::const_iterator it=m_accessories.begin(); it!=m_accessories.end(); ++it)
+		for(TAccessoryMap::const_iterator it=m_accessories.begin(); it!=m_accessories.end(); ++it)
 		{
 			if(pSlave->m_accessories.find(it->first)==pSlave->m_accessories.end())
 			{

@@ -20,10 +20,10 @@ History:
 
 //------------------------------------------------------------------------
 CEMPField::CEMPField()
-: m_radius(5)
-, m_activationTime(3)
-, m_charging(false)
-, m_empEffectId(-1)
+	: m_radius(5)
+	, m_activationTime(3)
+	, m_charging(false)
+	, m_empEffectId(-1)
 {
 }
 
@@ -35,7 +35,7 @@ CEMPField::~CEMPField()
 
 bool CEMPField::Init(IGameObject *pGameObject)
 {
-	if (CProjectile::Init(pGameObject))
+	if(CProjectile::Init(pGameObject))
 	{
 		m_activationTime = GetParam("activationTime", m_activationTime);
 		m_radius = GetParam("radius", m_radius);
@@ -53,45 +53,53 @@ void CEMPField::ProcessEvent(SEntityEvent &event)
 	switch(event.event)
 	{
 	case ENTITY_EVENT_TIMER:
+	{
+		switch(event.nParam[0])
 		{
-			switch(event.nParam[0])
-			{
-			case ePTIMER_ACTIVATION:
-				OnEMPActivate();
-				break;
-			default:
-				CProjectile::ProcessEvent(event);
-				break;
-			}
+		case ePTIMER_ACTIVATION:
+			OnEMPActivate();
+			break;
+
+		default:
+			CProjectile::ProcessEvent(event);
+			break;
 		}
-		break;
+	}
+	break;
+
 	case ENTITY_EVENT_ENTERAREA:
+	{
+		IEntity *pEntity = gEnv->pEntitySystem->GetEntity((EntityId)event.nParam[0]);
+
+		if(pEntity)
 		{
-			IEntity * pEntity = gEnv->pEntitySystem->GetEntity((EntityId)event.nParam[0]);
-			if(pEntity)
+			CActor *pActor = static_cast<CActor *>(g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pEntity->GetId()));
+
+			if(pActor && pActor->GetSpectatorMode() == 0 && pActor->GetActorClass() == CPlayer::GetActorClassType())
 			{
-				CActor* pActor = static_cast<CActor*>(g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pEntity->GetId()));
-				if (pActor && pActor->GetSpectatorMode() == 0 && pActor->GetActorClass() == CPlayer::GetActorClassType())
-				{
-					OnPlayerEnter(static_cast<CPlayer*>(pActor));
-				}
+				OnPlayerEnter(static_cast<CPlayer *>(pActor));
 			}
 		}
-		break;
+	}
+	break;
+
 	case ENTITY_EVENT_LEAVEAREA:
+	{
+		IEntity *pEntity = gEnv->pEntitySystem->GetEntity((EntityId)event.nParam[0]);
+
+		if(pEntity)
 		{
-			IEntity * pEntity = gEnv->pEntitySystem->GetEntity((EntityId)event.nParam[0]);
-			if(pEntity)
+			CActor *pActor = static_cast<CActor *>(g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pEntity->GetId()));
+
+			if(pActor && pActor->GetSpectatorMode() == 0 && pActor->GetActorClass() == CPlayer::GetActorClassType())
 			{
-				CActor* pActor = static_cast<CActor*>(g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pEntity->GetId()));
-				if (pActor && pActor->GetSpectatorMode() == 0 && pActor->GetActorClass() == CPlayer::GetActorClassType())
-				{
-					OnPlayerLeave(static_cast<CPlayer*>(pActor));
-					RemoveEntity((EntityId)event.nParam[0]);
-				}
+				OnPlayerLeave(static_cast<CPlayer *>(pActor));
+				RemoveEntity((EntityId)event.nParam[0]);
 			}
 		}
-		break;
+	}
+	break;
+
 	default:
 		CProjectile::ProcessEvent(event);
 		break;
@@ -105,14 +113,14 @@ void CEMPField::Launch(const Vec3 &pos, const Vec3 &dir, const Vec3 &velocity, f
 
 void CEMPField::OnEMPActivate()
 {
-	if (gEnv->bServer)
+	if(gEnv->bServer)
 	{
-		IEntityTriggerProxy *pTriggerProxy = (IEntityTriggerProxy*)(GetEntity()->GetProxy(ENTITY_PROXY_TRIGGER));
+		IEntityTriggerProxy *pTriggerProxy = (IEntityTriggerProxy *)(GetEntity()->GetProxy(ENTITY_PROXY_TRIGGER));
 
-		if (!pTriggerProxy)
+		if(!pTriggerProxy)
 		{
 			GetEntity()->CreateProxy(ENTITY_PROXY_TRIGGER);
-			pTriggerProxy = (IEntityTriggerProxy*)GetEntity()->GetProxy(ENTITY_PROXY_TRIGGER);
+			pTriggerProxy = (IEntityTriggerProxy *)GetEntity()->GetProxy(ENTITY_PROXY_TRIGGER);
 		}
 
 		if(pTriggerProxy)
@@ -122,27 +130,28 @@ void CEMPField::OnEMPActivate()
 		}
 	}
 
-	const char* effect=0;
-	float scale=1.0f; 
+	const char *effect=0;
+	float scale=1.0f;
 	bool prime = true;
 	effect = GetParam("effect", effect);
 	scale = GetParam("scale", scale);
 	prime = GetParam("prime", prime);
-	if (g_pGame->GetCVars()->g_empStyle == 0 && effect && effect[0])
+
+	if(g_pGame->GetCVars()->g_empStyle == 0 && effect && effect[0])
 	{
 		m_empEffectId = AttachEffect(true, 0, effect, Vec3(0,0,0), Vec3(0,1,0), scale, prime);
 	}
 }
 
-void CEMPField::OnPlayerEnter(CPlayer* pPlayer)
+void CEMPField::OnPlayerEnter(CPlayer *pPlayer)
 {
 	m_players.push_back(pPlayer->GetEntity()->GetId());
 	pPlayer->GetGameObject()->InvokeRMI(CPlayer::ClEMP(), CPlayer::EMPParams(1.0f), eRMI_ToClientChannel, pPlayer->GetChannelId());
 }
 
-void CEMPField::OnPlayerLeave(CPlayer* pPlayer)
+void CEMPField::OnPlayerLeave(CPlayer *pPlayer)
 {
-	if (pPlayer->GetHealth()<=0)
+	if(pPlayer->GetHealth()<=0)
 		return;
 
 	pPlayer->GetGameObject()->InvokeRMI(CPlayer::ClEMP(), CPlayer::EMPParams(0.0f), eRMI_ToClientChannel, pPlayer->GetChannelId());
@@ -152,7 +161,7 @@ void CEMPField::RemoveEntity(EntityId id)
 {
 	for(TEntities::iterator it = m_players.begin(); it != m_players.end(); ++it)
 	{
-		if (id == *it)
+		if(id == *it)
 		{
 			m_players.erase(it);
 			break;
@@ -164,12 +173,14 @@ void CEMPField::ReleaseAll()
 {
 	for(TEntities::iterator it = m_players.begin(); it != m_players.end(); ++it)
 	{
-		IEntity * pEntity = gEnv->pEntitySystem->GetEntity(*it);
+		IEntity *pEntity = gEnv->pEntitySystem->GetEntity(*it);
+
 		if(pEntity)
 		{
-			CPlayer* pPlayer = static_cast<CPlayer*>(g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pEntity->GetId()));
+			CPlayer *pPlayer = static_cast<CPlayer *>(g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pEntity->GetId()));
 			OnPlayerLeave(pPlayer);
 		}
 	}
+
 	m_players.clear();
 }

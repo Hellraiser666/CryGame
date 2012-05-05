@@ -16,38 +16,42 @@ CTacBullet::~CTacBullet()
 
 void CTacBullet::HandleEvent(const SGameObjectEvent &event)
 {
-	if (m_destroying)
+	if(m_destroying)
 		return;
 
 	CProjectile::HandleEvent(event);
 
-	if (event.event == eGFE_OnCollision)
+	if(event.event == eGFE_OnCollision)
 	{
 		EventPhysCollision *pCollision = reinterpret_cast<EventPhysCollision *>(event.ptr);
-		if (!pCollision)
+
+		if(!pCollision)
 			return;
 
-		IEntity *pTarget = pCollision->iForeignData[1]==PHYS_FOREIGN_ID_ENTITY ? (IEntity*)pCollision->pForeignData[1]:0;
-		if (pTarget)
+		IEntity *pTarget = pCollision->iForeignData[1]==PHYS_FOREIGN_ID_ENTITY ? (IEntity *)pCollision->pForeignData[1]:0;
+
+		if(pTarget)
 		{
 			CGameRules *pGameRules = g_pGame->GetGameRules();
 
 			EntityId targetId = pTarget->GetId();
 			CActor *pActor = (CActor *)gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(targetId);
-			
+
 			if(pActor && pActor->CanSleep())
 			{
 				if(pActor->GetLinkedVehicle() && !gEnv->bMultiplayer)
 				{
 					SleepTargetInVehicle(m_ownerId,pActor);
 				}
-				else if(IEntity* pOwnerEntity = gEnv->pEntitySystem->GetEntity(m_ownerId))
+				else if(IEntity *pOwnerEntity = gEnv->pEntitySystem->GetEntity(m_ownerId))
 				{
-					if (pTarget->GetAI() && !pTarget->GetAI()->IsFriendly(pOwnerEntity->GetAI(), false))
+					if(pTarget->GetAI() && !pTarget->GetAI()->IsFriendly(pOwnerEntity->GetAI(), false))
 					{
 						float sleepTime = 30.0f;
+
 						if(m_pAmmoParams)
 							sleepTime = m_pAmmoParams->sleepTime;
+
 						SimpleHitInfo info(m_ownerId, targetId, m_weaponId, 1, sleepTime); // 0=tag,1=tac
 						info.remote=IsRemote();
 
@@ -58,12 +62,13 @@ void CTacBullet::HandleEvent(const SGameObjectEvent &event)
 			else
 			{
 				Vec3 dir(0, 0, 0);
-				if (pCollision->vloc[0].GetLengthSquared() > 1e-6f)
+
+				if(pCollision->vloc[0].GetLengthSquared() > 1e-6f)
 					dir = pCollision->vloc[0].GetNormalized();
 
 				HitInfo hitInfo(m_ownerId, pTarget->GetId(), m_weaponId,
-					(float)m_damage, 0.0f, pGameRules->GetHitMaterialIdFromSurfaceId(pCollision->idmat[1]), pCollision->partid[1],
-					m_hitTypeId, pCollision->pt, dir, pCollision->n);
+								(float)m_damage, 0.0f, pGameRules->GetHitMaterialIdFromSurfaceId(pCollision->idmat[1]), pCollision->partid[1],
+								m_hitTypeId, pCollision->pt, dir, pCollision->n);
 
 				hitInfo.remote = IsRemote();
 				hitInfo.projectileId = GetEntityId();
@@ -73,7 +78,7 @@ void CTacBullet::HandleEvent(const SGameObjectEvent &event)
 			}
 
 		}
-		else if (pCollision->pEntity[0]->GetType() == PE_PARTICLE)
+		else if(pCollision->pEntity[0]->GetType() == PE_PARTICLE)
 		{
 			float bouncy, friction;
 			uint32	pierceabilityMat;
@@ -81,10 +86,11 @@ void CTacBullet::HandleEvent(const SGameObjectEvent &event)
 			pierceabilityMat&=sf_pierceable_mask;
 
 			pe_params_particle params;
+
 			if(pCollision->pEntity[0]->GetParams(&params)==0)
 				SetDefaultParticleParams(&params);
 
-			if (pierceabilityMat>params.iPierceability && pCollision->idCollider!=-1) 
+			if(pierceabilityMat>params.iPierceability && pCollision->idCollider!=-1)
 				return;
 		}
 
@@ -93,24 +99,28 @@ void CTacBullet::HandleEvent(const SGameObjectEvent &event)
 }
 
 //---------------------------------------------------
-void CTacBullet::SleepTargetInVehicle(EntityId shooterId, CActor* pActor)
+void CTacBullet::SleepTargetInVehicle(EntityId shooterId, CActor *pActor)
 {
 	IAISystem *pAISystem=gEnv->pAISystem;
-	if (pAISystem)
+
+	if(pAISystem)
 	{
-		if(IEntity* pEntity=pActor->GetEntity())
+		if(IEntity *pEntity=pActor->GetEntity())
 		{
-			if(IAIObject* pAIObj=pEntity->GetAI())
+			if(IAIObject *pAIObj=pEntity->GetAI())
 			{
-				IAIActor* pAIActor = pAIObj->CastToIAIActor();
+				IAIActor *pAIActor = pAIObj->CastToIAIActor();
+
 				if(pAIActor)
 				{
-					IAISignalExtraData *pEData = pAISystem->CreateSignalExtraData();	
+					IAISignalExtraData *pEData = pAISystem->CreateSignalExtraData();
+
 					// try to retrieve the shooter position
-					if (IEntity* pOwnerEntity = gEnv->pEntitySystem->GetEntity(shooterId))
+					if(IEntity *pOwnerEntity = gEnv->pEntitySystem->GetEntity(shooterId))
 						pEData->point = pOwnerEntity->GetWorldPos();
 					else
 						pEData->point = pEntity->GetWorldPos();
+
 					pAIActor->SetSignal(1,"OnFallAndPlay",0,pEData);
 				}
 			}
@@ -118,11 +128,14 @@ void CTacBullet::SleepTargetInVehicle(EntityId shooterId, CActor* pActor)
 	}
 
 	pActor->CreateScriptEvent("sleep", 0);
-	if (IAnimationGraphState* animGraph = pActor->GetAnimationGraphState())
-		animGraph->SetInput( "Signal", "fall" );
+
+	if(IAnimationGraphState *animGraph = pActor->GetAnimationGraphState())
+		animGraph->SetInput("Signal", "fall");
 
 	float sleepTime = 30.0f;
+
 	if(m_pAmmoParams)
 		sleepTime = m_pAmmoParams->sleepTime;
+
 	pActor->SetSleepTimer(sleepTime);
 }

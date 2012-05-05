@@ -20,7 +20,7 @@ History:
 const static float RAY_SCAN_BUFFER_SCALE = 1.1f;
 const static float RAY_SCAN_OFFSET_DISTANCE = 0.2f;
 //raycast settings
-const int CCameraRayScan::g_objTypes = (ent_all | ent_water) & ~(ent_living | ent_independent | ent_rigid);
+const int CCameraRayScan::g_objTypes = (ent_all | ent_water) &~(ent_living | ent_independent | ent_rigid);
 const int CCameraRayScan::g_geomFlags = geom_colltype0|geom_colltype_player|rwi_stop_at_pierceable;
 //raycast vectors
 const static Vec3 g_vRayUpOffset(0,0,0.1f);
@@ -39,15 +39,18 @@ void CCameraRayScan::OnRayCastResult(const QueuedRayID &rayID, const RayCastResu
 {
 	for(int i = 0; i < eNUM_RAYS; ++i)
 	{
-		if (m_rayInfo[i].rayID == rayID)
+		if(m_rayInfo[i].rayID == rayID)
 		{
 			m_rayInfo[i].rayID = INVALID_RAY_ID;
 			m_rayInfo[i].hashit = result.hitCount > 0;
-			if (result.hitCount > 0)
+
+			if(result.hitCount > 0)
 				m_rayInfo[i].hit = result.hits[0];
+
 			return;
 		}
 	}
+
 	assert(m_ExternalRayCasts.find(rayID) == m_ExternalRayCasts.end());
 	m_ExternalRayCasts[rayID] = result;
 }
@@ -60,21 +63,24 @@ void CCameraRayScan::Reset()
 		m_rayInfo[i].rayID = INVALID_RAY_ID;
 		m_rayInfo[i].hashit = false;
 	}
+
 	m_ExternalRayCasts.clear();
 }
 
-ray_hit * CCameraRayScan::GetHit(ECameraRays nr)
+ray_hit *CCameraRayScan::GetHit(ECameraRays nr)
 {
 	if(nr >= 0 && nr < eNUM_RAYS)
 		return m_rayInfo[nr].hashit ? &(m_rayInfo[nr].hit) : NULL;
 
 	int nClosesHit = 0;
 	float dist = 9999.f;
+
 	for(int i = 0; i < eNUM_RAYS; ++i)
 	{
 		if(m_rayInfo[i].hashit)
 		{
-			ray_hit& hit = m_rayInfo[i].hit;
+			ray_hit &hit = m_rayInfo[i].hit;
+
 			if(m_rayInfo[i].hit.dist < dist)
 			{
 				dist = m_rayInfo[i].hit.dist;
@@ -82,28 +88,33 @@ ray_hit * CCameraRayScan::GetHit(ECameraRays nr)
 			}
 		}
 	}
+
 	return m_rayInfo[nClosesHit].hashit ? &(m_rayInfo[nClosesHit].hit) : NULL;
 }
 
-const Vec3& CCameraRayScan::GetRayDir(ECameraRays nr) const
+const Vec3 &CCameraRayScan::GetRayDir(ECameraRays nr) const
 {
 	if(nr >= 0 && nr < eNUM_RAYS)
 		return m_rayInfo[nr].dir;
+
 	return Vec3Constants<float>::fVec3_Zero;
 }
 
-const RayCastResult* CCameraRayScan::GetExternalHit(const QueuedRayID& queuedId) const
+const RayCastResult *CCameraRayScan::GetExternalHit(const QueuedRayID &queuedId) const
 {
 	TRayCastResultMap::const_iterator it = m_ExternalRayCasts.find(queuedId);
-	if (it != m_ExternalRayCasts.end())
+
+	if(it != m_ExternalRayCasts.end())
 		return &it->second;
+
 	return NULL;
 }
 
-void CCameraRayScan::RemoveExternalHit(const QueuedRayID& queuedId)
+void CCameraRayScan::RemoveExternalHit(const QueuedRayID &queuedId)
 {
 	TRayCastResultMap::iterator it = m_ExternalRayCasts.find(queuedId);
-	if (it != m_ExternalRayCasts.end())
+
+	if(it != m_ExternalRayCasts.end())
 		m_ExternalRayCasts.erase(it);
 }
 
@@ -149,11 +160,11 @@ void CCameraRayScan::ShootRays(const Vec3 &rayPos, const Vec3 &rayDir, IPhysical
 	ShootRayInt(eRAY_BOTTOM_CENTER, tempPos, tempDir, len, pSkipEnts, numSkipEnts);
 }
 
-void CCameraRayScan::ShootRayInt(ECameraRays camRay, const Vec3 &rayPos, const Vec3 &rayDir, const float& len, IPhysicalEntity **pSkipEnts, int numSkipEnts)
+void CCameraRayScan::ShootRayInt(ECameraRays camRay, const Vec3 &rayPos, const Vec3 &rayDir, const float &len, IPhysicalEntity **pSkipEnts, int numSkipEnts)
 {
-	if (camRay < eNUM_RAYS)
+	if(camRay < eNUM_RAYS)
 	{
-		if (m_rayInfo[camRay].rayID == INVALID_RAY_ID)
+		if(m_rayInfo[camRay].rayID == INVALID_RAY_ID)
 		{
 			m_rayInfo[camRay].dir = rayDir;
 			m_rayInfo[camRay].rayID = ShootRay(rayPos, rayDir * len, g_objTypes, g_geomFlags, pSkipEnts, numSkipEnts);
@@ -164,6 +175,6 @@ void CCameraRayScan::ShootRayInt(ECameraRays camRay, const Vec3 &rayPos, const V
 QueuedRayID CCameraRayScan::ShootRay(const Vec3 &rayPos, const Vec3 &rayDir, int objTypes /*= g_objTypes*/, int geomFlags /*= g_geomFlags*/, IPhysicalEntity **pSkipEnts /*= NULL*/, int numSkipEnts /*= 0*/)
 {
 	return g_pGame->GetRayCaster().Queue(RayCastRequest::MediumPriority,
-		RayCastRequest(rayPos, rayDir, objTypes, geomFlags, pSkipEnts, numSkipEnts),
-		functor(*this, &CCameraRayScan::OnRayCastResult));
+										 RayCastRequest(rayPos, rayDir, objTypes, geomFlags, pSkipEnts, numSkipEnts),
+										 functor(*this, &CCameraRayScan::OnRayCastResult));
 }

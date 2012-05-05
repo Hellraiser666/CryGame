@@ -13,17 +13,17 @@ CReferenceWeapon::~CReferenceWeapon(void)
 {
 }
 
-void CReferenceWeapon::OnAction(EntityId actorId, const ActionId& actionId, int activationMode, float value)
+void CReferenceWeapon::OnAction(EntityId actorId, const ActionId &actionId, int activationMode, float value)
 {
-	if (actionId == "attack1")  
-	{     
-		if (activationMode == eAAM_OnPress)
+	if(actionId == "attack1")
+	{
+		if(activationMode == eAAM_OnPress)
 		{
 			PlayAction(g_pItemStrings->fire, 0, true);
 		}
 		else if(activationMode == eAAM_OnRelease)
 		{
-			ICharacterInstance* pCharacterInstance = GetEntity()->GetCharacter(eIGS_FirstPerson);
+			ICharacterInstance *pCharacterInstance = GetEntity()->GetCharacter(eIGS_FirstPerson);
 
 			if(pCharacterInstance == NULL)
 				return;
@@ -35,7 +35,7 @@ void CReferenceWeapon::OnAction(EntityId actorId, const ActionId& actionId, int 
 			PlayAction(g_pItemStrings->idle, 0, true);
 		}
 	}
-	else if (actionId == "zoom")
+	else if(actionId == "zoom")
 	{
 		//
 	}

@@ -34,7 +34,7 @@
 
 
 //////////////////////////////////////////////////////////////////////////
-#define DEFAULT_MODEL_NAME "Objects/Characters/neutral_male/sdk_character_male_v2.cdf" 
+#define DEFAULT_MODEL_NAME "Objects/Characters/neutral_male/sdk_character_male_v2.cdf"
 
 #define IDLE_ANIMATION_NAME "relaxed_idle_01"
 #define WALK_ANIMATION_NAME "_RELAXED_WALK_NW"
@@ -42,14 +42,14 @@
 
 //////////////////////////////////////////////////////////////////////////
 CLivingEntitySample::CLivingEntitySample()
-: m_moveLocalForward( false )
-, m_moveLocalBackward( false )
-, m_moveLocalLeft( false )
-, m_moveLocalRight( false )
-, m_animationState( None )
-, m_previousEntityWorldPosition( ZERO )
-, m_worldEntityVelocity( ZERO )
-, m_localEntityVelocity( ZERO )
+	: m_moveLocalForward(false)
+	, m_moveLocalBackward(false)
+	, m_moveLocalLeft(false)
+	, m_moveLocalRight(false)
+	, m_animationState(None)
+	, m_previousEntityWorldPosition(ZERO)
+	, m_worldEntityVelocity(ZERO)
+	, m_localEntityVelocity(ZERO)
 {
 }
 
@@ -57,23 +57,25 @@ CLivingEntitySample::CLivingEntitySample()
 //////////////////////////////////////////////////////////////////////////
 CLivingEntitySample::~CLivingEntitySample()
 {
-	IInput* pInput = gEnv->pInput;
-	if ( pInput != NULL )
+	IInput *pInput = gEnv->pInput;
+
+	if(pInput != NULL)
 	{
-		pInput->RemoveEventListener( this );
+		pInput->RemoveEventListener(this);
 	}
 }
 
 
 //////////////////////////////////////////////////////////////////////////
-bool CLivingEntitySample::Init( IGameObject* pGameObject )
+bool CLivingEntitySample::Init(IGameObject *pGameObject)
 {
-	SetGameObject( pGameObject );
+	SetGameObject(pGameObject);
 
-	IInput* pInput = gEnv->pInput;
-	if ( pInput != NULL )
+	IInput *pInput = gEnv->pInput;
+
+	if(pInput != NULL)
 	{
-		pInput->AddEventListener( this );
+		pInput->AddEventListener(this);
 	}
 
 	return true;
@@ -81,29 +83,30 @@ bool CLivingEntitySample::Init( IGameObject* pGameObject )
 
 
 //////////////////////////////////////////////////////////////////////////
-void CLivingEntitySample::PostInit( IGameObject* pGameObject )
+void CLivingEntitySample::PostInit(IGameObject *pGameObject)
 {
-	Reset( true );
+	Reset(true);
 }
 
 
 //////////////////////////////////////////////////////////////////////////
-void CLivingEntitySample::Reset( const bool enteringGameMode )
+void CLivingEntitySample::Reset(const bool enteringGameMode)
 {
 	ResetCharacterModel();
 	ResetAnimationState();
 	Physicalize();
 
-	IGameObject* pGameObject = GetGameObject();
-	if ( enteringGameMode )
+	IGameObject *pGameObject = GetGameObject();
+
+	if(enteringGameMode)
 	{
-		pGameObject->EnablePostUpdates( this );
-		pGameObject->EnablePrePhysicsUpdate( ePPU_Always );
+		pGameObject->EnablePostUpdates(this);
+		pGameObject->EnablePrePhysicsUpdate(ePPU_Always);
 	}
 	else
 	{
-		pGameObject->DisablePostUpdates( this );
-		pGameObject->EnablePrePhysicsUpdate( ePPU_Never );
+		pGameObject->DisablePostUpdates(this);
+		pGameObject->EnablePrePhysicsUpdate(ePPU_Never);
 	}
 }
 
@@ -111,15 +114,15 @@ void CLivingEntitySample::Reset( const bool enteringGameMode )
 //////////////////////////////////////////////////////////////////////////
 void CLivingEntitySample::UnPhysicalize()
 {
-	IEntity* pEntity = GetEntity();
+	IEntity *pEntity = GetEntity();
 
 	const Ang3 oldRotation = pEntity->GetWorldAngles();
-	const Quat newRotation = Quat::CreateRotationZ( oldRotation.z );
-	pEntity->SetRotation( newRotation );
+	const Quat newRotation = Quat::CreateRotationZ(oldRotation.z);
+	pEntity->SetRotation(newRotation);
 
 	SEntityPhysicalizeParams pp;
 	pp.type = PE_NONE;
-	pEntity->Physicalize( pp );
+	pEntity->Physicalize(pp);
 }
 
 
@@ -144,14 +147,14 @@ void CLivingEntitySample::Physicalize()
 	pp.fStiffnessScale = 70;
 
 	playerDim.heightCollider = 1.2f;
-	playerDim.sizeCollider = Vec3( 0.4f, 0.4f, 0.2f );
+	playerDim.sizeCollider = Vec3(0.4f, 0.4f, 0.2f);
 	playerDim.heightPivot = 0;
 	playerDim.bUseCapsule = true;
 	playerDim.headRadius = 0;
 	playerDim.heightEye = 0;
 	playerDim.maxUnproj = 0;
 
-	playerDyn.gravity = Vec3( 0, 0, 9.81f );
+	playerDyn.gravity = Vec3(0, 0, 9.81f);
 	playerDyn.kAirControl = 0.9f;
 	playerDyn.mass = 80;
 	playerDyn.minSlideAngle = 45;
@@ -160,27 +163,28 @@ void CLivingEntitySample::Physicalize()
 	playerDyn.maxVelGround = 16;
 
 	const int surfaceTypeId = GetColliderSurfaceTypeId();
-	const bool validSurfaceTypeId = ( surfaceTypeId != 0 );
-	if ( validSurfaceTypeId )
+	const bool validSurfaceTypeId = (surfaceTypeId != 0);
+
+	if(validSurfaceTypeId)
 	{
 		playerDyn.surface_idx = surfaceTypeId;
 	}
 
-	IEntity* pEntity = GetEntity();
-	pEntity->Physicalize( pp );
+	IEntity *pEntity = GetEntity();
+	pEntity->Physicalize(pp);
 }
 
 
 //////////////////////////////////////////////////////////////////////////
 int CLivingEntitySample::GetColliderSurfaceTypeId() const
 {
-	I3DEngine* p3DEngine = gEnv->p3DEngine;
-	assert( p3DEngine != NULL );
+	I3DEngine *p3DEngine = gEnv->p3DEngine;
+	assert(p3DEngine != NULL);
 
-	IMaterialManager* pMaterialManager = p3DEngine->GetMaterialManager();
-	assert( pMaterialManager != NULL );
+	IMaterialManager *pMaterialManager = p3DEngine->GetMaterialManager();
+	assert(pMaterialManager != NULL);
 
-	const int surfaceTypeId = pMaterialManager->GetSurfaceTypeIdByName( "mat_player_collider" );
+	const int surfaceTypeId = pMaterialManager->GetSurfaceTypeIdByName("mat_player_collider");
 	return surfaceTypeId;
 }
 
@@ -188,35 +192,38 @@ int CLivingEntitySample::GetColliderSurfaceTypeId() const
 //////////////////////////////////////////////////////////////////////////
 void CLivingEntitySample::ResetCharacterModel()
 {
-	IEntity* pEntity = GetEntity();
+	IEntity *pEntity = GetEntity();
 
 	const int slot = 0;
-	const char* modelFilename = DEFAULT_MODEL_NAME;
-	pEntity->LoadCharacter( slot, modelFilename );
+	const char *modelFilename = DEFAULT_MODEL_NAME;
+	pEntity->LoadCharacter(slot, modelFilename);
 
-	ICharacterInstance* pCharacterInstance = pEntity->GetCharacter( slot );
-	if ( pCharacterInstance == NULL )
+	ICharacterInstance *pCharacterInstance = pEntity->GetCharacter(slot);
+
+	if(pCharacterInstance == NULL)
 	{
 		return;
 	}
 
-	ISkeletonAnim* pSkeletonAnim = pCharacterInstance->GetISkeletonAnim();
-	if ( pSkeletonAnim == NULL )
+	ISkeletonAnim *pSkeletonAnim = pCharacterInstance->GetISkeletonAnim();
+
+	if(pSkeletonAnim == NULL)
 	{
 		return;
 	}
 
-	ISkeletonPose* pSkeletonPose = pCharacterInstance->GetISkeletonPose();
-	if ( pSkeletonPose == NULL )
+	ISkeletonPose *pSkeletonPose = pCharacterInstance->GetISkeletonPose();
+
+	if(pSkeletonPose == NULL)
 	{
 		return;
 	}
 
- 	pSkeletonPose->SetFootAnchoring( 1 );
- 	pSkeletonAnim->SetAnimationDrivenMotion( 1 );
- 	
+	pSkeletonPose->SetFootAnchoring(1);
+	pSkeletonAnim->SetAnimationDrivenMotion(1);
+
 	// We will want to set motion parameters directly ourselves for this sample:
-	pSkeletonAnim->SetCharEditMode( 1 );
+	pSkeletonAnim->SetCharEditMode(1);
 }
 
 
@@ -231,14 +238,15 @@ void CLivingEntitySample::ResetAnimationState()
 //////////////////////////////////////////////////////////////////////////
 void CLivingEntitySample::OnPrePhysicsUpdate()
 {
-	IEntity* pEntity = GetEntity();
-	IPhysicalEntity* pPhysEntity = pEntity->GetPhysics();
-	if ( pPhysEntity == NULL )
+	IEntity *pEntity = GetEntity();
+	IPhysicalEntity *pPhysEntity = pEntity->GetPhysics();
+
+	if(pPhysEntity == NULL)
 	{
 		return;
 	}
 
-	// The desired speed is chosen with a value within the motion capabilities 
+	// The desired speed is chosen with a value within the motion capabilities
 	// of the walk animation used for this sample.
 	const float desiredSpeed = 1.5f;
 
@@ -250,44 +258,44 @@ void CLivingEntitySample::OnPrePhysicsUpdate()
 
 	pe_action_move pam;
 	pam.dir = desiredWorldVelocity;
-	
-	pPhysEntity->Action( &pam );
+
+	pPhysEntity->Action(&pam);
 }
 
 
 //////////////////////////////////////////////////////////////////////////
 Vec3 CLivingEntitySample::CalculateDesiredLocalDirection() const
 {
-	Vec3 desiredLocalDirection = Vec3( ZERO );
-	desiredLocalDirection += ( m_moveLocalForward ) ? Vec3( 0, 1, 0 ) : Vec3( ZERO );
-	desiredLocalDirection += ( m_moveLocalBackward ) ? Vec3( 0, -1, 0 ) : Vec3( ZERO );
-	desiredLocalDirection += ( m_moveLocalRight ) ? Vec3( 1, 0, 0 ) : Vec3( ZERO );
-	desiredLocalDirection += ( m_moveLocalLeft ) ? Vec3( -1, 0, 0 ) : Vec3( ZERO );
-	desiredLocalDirection.NormalizeSafe( Vec3( ZERO ) );
+	Vec3 desiredLocalDirection = Vec3(ZERO);
+	desiredLocalDirection += (m_moveLocalForward) ? Vec3(0, 1, 0) : Vec3(ZERO);
+	desiredLocalDirection += (m_moveLocalBackward) ? Vec3(0, -1, 0) : Vec3(ZERO);
+	desiredLocalDirection += (m_moveLocalRight) ? Vec3(1, 0, 0) : Vec3(ZERO);
+	desiredLocalDirection += (m_moveLocalLeft) ? Vec3(-1, 0, 0) : Vec3(ZERO);
+	desiredLocalDirection.NormalizeSafe(Vec3(ZERO));
 
 	return desiredLocalDirection;
 }
 
 
 //////////////////////////////////////////////////////////////////////////
-void CLivingEntitySample::PostUpdate( float frameTime )
+void CLivingEntitySample::PostUpdate(float frameTime)
 {
-	UpdateEntityVelocities( frameTime );
-	UpdateAnimationState( frameTime );
-	UpdateAnimationParams( frameTime );
+	UpdateEntityVelocities(frameTime);
+	UpdateAnimationState(frameTime);
+	UpdateAnimationParams(frameTime);
 }
 
 
 //////////////////////////////////////////////////////////////////////////
-void CLivingEntitySample::UpdateAnimationState( const float frameTime )
+void CLivingEntitySample::UpdateAnimationState(const float frameTime)
 {
-	const Vec2 localVelocity( m_localEntityVelocity.x, m_localEntityVelocity.y );
+	const Vec2 localVelocity(m_localEntityVelocity.x, m_localEntityVelocity.y);
 	const float speed = localVelocity.GetLength();
 
 	// Overly simplified selection between animation states for sample purposes:
-	AnimationState newAnimationState = ( speed < 0.1f ) ? Idle : Walk;
-	
-	if ( newAnimationState == m_animationState )
+	AnimationState newAnimationState = (speed < 0.1f) ? Idle : Walk;
+
+	if(newAnimationState == m_animationState)
 	{
 		return;
 	}
@@ -300,17 +308,19 @@ void CLivingEntitySample::UpdateAnimationState( const float frameTime )
 //////////////////////////////////////////////////////////////////////////
 void CLivingEntitySample::StartAnimationForCurrentAnimationState()
 {
-	IEntity* pEntity = GetEntity();
+	IEntity *pEntity = GetEntity();
 
 	const int slot = 0;
-	ICharacterInstance* pCharacterInstance = pEntity->GetCharacter( slot );
-	if ( pCharacterInstance == NULL )
+	ICharacterInstance *pCharacterInstance = pEntity->GetCharacter(slot);
+
+	if(pCharacterInstance == NULL)
 	{
 		return;
 	}
 
-	ISkeletonAnim* pSkeletonAnim = pCharacterInstance->GetISkeletonAnim();
-	if ( pSkeletonAnim == NULL )
+	ISkeletonAnim *pSkeletonAnim = pCharacterInstance->GetISkeletonAnim();
+
+	if(pSkeletonAnim == NULL)
 	{
 		return;
 	}
@@ -320,8 +330,9 @@ void CLivingEntitySample::StartAnimationForCurrentAnimationState()
 	animationParams.m_nLayerID = 0;
 	animationParams.m_fTransTime = 0.3f;
 
-	const char* animationName = IDLE_ANIMATION_NAME;
-	switch ( m_animationState )
+	const char *animationName = IDLE_ANIMATION_NAME;
+
+	switch(m_animationState)
 	{
 	case None:
 	case Idle:
@@ -333,52 +344,55 @@ void CLivingEntitySample::StartAnimationForCurrentAnimationState()
 		break;
 	}
 
-	pSkeletonAnim->StartAnimation( animationName, animationParams );
+	pSkeletonAnim->StartAnimation(animationName, animationParams);
 }
 
 
 //////////////////////////////////////////////////////////////////////////
-void CLivingEntitySample::UpdateAnimationParams( const float frameTime )
+void CLivingEntitySample::UpdateAnimationParams(const float frameTime)
 {
-	IEntity* pEntity = GetEntity();
+	IEntity *pEntity = GetEntity();
 
 	const int slot = 0;
-	ICharacterInstance* pCharacterInstance = pEntity->GetCharacter( slot );
-	if ( pCharacterInstance == NULL )
+	ICharacterInstance *pCharacterInstance = pEntity->GetCharacter(slot);
+
+	if(pCharacterInstance == NULL)
 	{
 		return;
 	}
 
-	ISkeletonAnim* pSkeletonAnim = pCharacterInstance->GetISkeletonAnim();
-	if ( pSkeletonAnim == NULL )
+	ISkeletonAnim *pSkeletonAnim = pCharacterInstance->GetISkeletonAnim();
+
+	if(pSkeletonAnim == NULL)
 	{
 		return;
 	}
 
-	ISkeletonPose* pSkeletonPose = pCharacterInstance->GetISkeletonPose();
-	if ( pSkeletonPose == NULL )
+	ISkeletonPose *pSkeletonPose = pCharacterInstance->GetISkeletonPose();
+
+	if(pSkeletonPose == NULL)
 	{
 		return;
 	}
 
-	const Vec2 localVelocity( m_localEntityVelocity.x, m_localEntityVelocity.y );
+	const Vec2 localVelocity(m_localEntityVelocity.x, m_localEntityVelocity.y);
 	const float speed = localVelocity.GetLength();
-	const float angle = atan2f( -localVelocity.x, localVelocity.y );
+	const float angle = atan2f(-localVelocity.x, localVelocity.y);
 
-	pSkeletonAnim->SetDesiredMotionParam( eMotionParamID_TravelSpeed, speed, frameTime );
-	pSkeletonAnim->SetDesiredMotionParam( eMotionParamID_TravelAngle, angle, frameTime );
+	pSkeletonAnim->SetDesiredMotionParam(eMotionParamID_TravelSpeed, speed, frameTime);
+	pSkeletonAnim->SetDesiredMotionParam(eMotionParamID_TravelAngle, angle, frameTime);
 }
 
 
 //////////////////////////////////////////////////////////////////////////
-bool CLivingEntitySample::OnInputEvent( const SInputEvent& event )
+bool CLivingEntitySample::OnInputEvent(const SInputEvent &event)
 {
-	// A more robust approach would be to use ActionMaps for this instead of registering ourselves 
+	// A more robust approach would be to use ActionMaps for this instead of registering ourselves
 	// as input listeners.
 
-	const bool eventStatePressedOrDown = ( event.state == eIS_Pressed || event.state == eIS_Down );
+	const bool eventStatePressedOrDown = (event.state == eIS_Pressed || event.state == eIS_Down);
 
-	switch ( event.keyId )
+	switch(event.keyId)
 	{
 	case eKI_W:
 		m_moveLocalForward = eventStatePressedOrDown;
@@ -402,16 +416,16 @@ bool CLivingEntitySample::OnInputEvent( const SInputEvent& event )
 
 
 //////////////////////////////////////////////////////////////////////////
-void CLivingEntitySample::ProcessEvent( SEntityEvent& event )
+void CLivingEntitySample::ProcessEvent(SEntityEvent &event)
 {
-	switch ( event.event )
+	switch(event.event)
 	{
 	case ENTITY_EVENT_RESET:
-		{
-			const bool enteringGameMode = ( event.nParam[ 0 ] == 1 );
-			Reset( enteringGameMode );
-		}
-		break;
+	{
+		const bool enteringGameMode = (event.nParam[ 0 ] == 1);
+		Reset(enteringGameMode);
+	}
+	break;
 
 	case ENTITY_EVENT_PREPHYSICSUPDATE:
 		OnPrePhysicsUpdate();
@@ -421,14 +435,14 @@ void CLivingEntitySample::ProcessEvent( SEntityEvent& event )
 
 
 //////////////////////////////////////////////////////////////////////////
-void CLivingEntitySample::UpdateEntityVelocities( const float frameTime )
+void CLivingEntitySample::UpdateEntityVelocities(const float frameTime)
 {
-	if ( frameTime == 0 )
+	if(frameTime == 0)
 	{
 		return;
 	}
-	
-	const IEntity* pEntity = GetEntity();
+
+	const IEntity *pEntity = GetEntity();
 	const Vec3 currentEntityWorldPosition = pEntity->GetWorldPos();
 
 	const Vec3 positionDelta = currentEntityWorldPosition - m_previousEntityWorldPosition;

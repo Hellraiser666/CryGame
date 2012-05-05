@@ -4,7 +4,7 @@
  -------------------------------------------------------------------------
   $Id$
   $DateTime$
-  
+
  -------------------------------------------------------------------------
   History:
   - 11:8:2004   10:50 : Created by Marcio Martins
@@ -36,56 +36,58 @@
 #include "HitDeathReactions.h"
 #include "HitDeathReactionsSystem.h"
 
-static void BroadcastChangeSafeMode( ICVar * )
+static void BroadcastChangeSafeMode(ICVar *)
 {
 	SGameObjectEvent event(eCGE_ResetMovementController, eGOEF_ToExtensions);
-	IEntitySystem * pES = gEnv->pEntitySystem;
+	IEntitySystem *pES = gEnv->pEntitySystem;
 	IEntityItPtr pIt = pES->GetEntityIterator();
-	while (!pIt->IsEnd())
+
+	while(!pIt->IsEnd())
 	{
-		if (IEntity * pEnt = pIt->Next())
-			if (IActor * pActor = g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pEnt->GetId()))
-				pActor->HandleEvent( event );
+		if(IEntity *pEnt = pIt->Next())
+			if(IActor *pActor = g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pEnt->GetId()))
+				pActor->HandleEvent(event);
 	}
 }
 
-void CmdLogFPS( IConsoleCmdArgs* cmdArgs )
+void CmdLogFPS(IConsoleCmdArgs *cmdArgs)
 {
 	CryLogAlways("FPS: %f", gEnv->pTimer->GetFrameRate());
 }
 
-void CmdLogFrameTime( IConsoleCmdArgs* cmdArgs )
+void CmdLogFrameTime(IConsoleCmdArgs *cmdArgs)
 {
 	CryLogAlways("Game frametime: %f", gEnv->pTimer->GetFrameTime(ITimer::ETIMER_GAME));
 	CryLogAlways("UI frametime: %f", gEnv->pTimer->GetFrameTime(ITimer::ETIMER_UI));
 	CryLogAlways("Real frametime: %f", gEnv->pTimer->GetRealFrameTime());
 }
 
-void CmdLogDrawCalls( IConsoleCmdArgs* cmdArgs )
+void CmdLogDrawCalls(IConsoleCmdArgs *cmdArgs)
 {
 	CryLogAlways("Drawcalls: %i", gEnv->pRenderer->GetCurrentNumberOfDrawCalls());
 }
 
-void CmdLogMemory( IConsoleCmdArgs* cmdArgs )
+void CmdLogMemory(IConsoleCmdArgs *cmdArgs)
 {
 	CryLogAlways("Used memory: %i", gEnv->pSystem->GetUsedMemory());
 }
 
-void CmdLogVisRegPos( IConsoleCmdArgs* cmdArgs )
+void CmdLogVisRegPos(IConsoleCmdArgs *cmdArgs)
 {
 	if(!cmdArgs)
 		return;
 
 	const int argCount = cmdArgs->GetArgCount();
 	int logData = 0;
-	if(argCount > 1 )
-	{		
+
+	if(argCount > 1)
+	{
 		for(int i = 1; i < argCount; ++i)
 		{
-			if( strcmp(cmdArgs->GetArg(i), "player") == 0 )
+			if(strcmp(cmdArgs->GetArg(i), "player") == 0)
 				logData |= 1;
 
-			if( strcmp(cmdArgs->GetArg(i), "camera") == 0 )
+			if(strcmp(cmdArgs->GetArg(i), "camera") == 0)
 				logData |= 2;
 		}
 	}
@@ -94,36 +96,38 @@ void CmdLogVisRegPos( IConsoleCmdArgs* cmdArgs )
 		logData = 3;
 	}
 
-	IGame*			pGame			= gEnv ? gEnv->pGame : NULL;
-	IGameFramework*	pGameFramework	= pGame ? pGame->GetIGameFramework() : NULL;
-	string levelName( pGameFramework ? pGameFramework->GetLevelName() : "");
+	IGame			*pGame			= gEnv ? gEnv->pGame : NULL;
+	IGameFramework	*pGameFramework	= pGame ? pGame->GetIGameFramework() : NULL;
+	string levelName(pGameFramework ? pGameFramework->GetLevelName() : "");
 
 	if(logData & 1)
-	{		
-		IViewSystem*	pViewSystem		= pGameFramework ? pGameFramework->GetIViewSystem() : NULL;
-		IView*			pView			= pViewSystem ? pViewSystem->GetActiveView() : NULL;
-		IEntity*		pEntity			= pView && gEnv->pEntitySystem ? gEnv->pEntitySystem->GetEntity(pView->GetLinkedId()) : NULL;
+	{
+		IViewSystem	*pViewSystem		= pGameFramework ? pGameFramework->GetIViewSystem() : NULL;
+		IView			*pView			= pViewSystem ? pViewSystem->GetActiveView() : NULL;
+		IEntity		*pEntity			= pView && gEnv->pEntitySystem ? gEnv->pEntitySystem->GetEntity(pView->GetLinkedId()) : NULL;
+
 		if(pEntity)
 		{
-			const Vec3&	pos = pEntity->GetPos();
-			const Ang3	rot = RAD2DEG(Ang3::GetAnglesXYZ( pEntity->GetRotation() ));
-			CryLogAlways("VisRegInfo: %s [player] <Position location=\"%f %f %f %f %f %f\" />", 
-				levelName.c_str(),
-				pos.x, pos.y, pos.z, rot.x, rot.y, rot.z);
-		}		
+			const Vec3	&pos = pEntity->GetPos();
+			const Ang3	rot = RAD2DEG(Ang3::GetAnglesXYZ(pEntity->GetRotation()));
+			CryLogAlways("VisRegInfo: %s [player] <Position location=\"%f %f %f %f %f %f\" />",
+						 levelName.c_str(),
+						 pos.x, pos.y, pos.z, rot.x, rot.y, rot.z);
+		}
 	}
+
 	if(logData & 2)
 	{
-		const CCamera&	rCam	= gEnv->pRenderer->GetCamera();
-		const Vec3&		pos		= rCam.GetPosition();
-		const Ang3		rot		= RAD2DEG(Ang3::GetAnglesXYZ( rCam.GetMatrix() ));				
-		CryLogAlways("VisRegInfo: %s [camera] <Position location=\"%f %f %f %f %f %f\" />", 
-			levelName.c_str(),
-			pos.x, pos.y, pos.z, rot.x, rot.y, rot.z);
+		const CCamera	&rCam	= gEnv->pRenderer->GetCamera();
+		const Vec3		&pos		= rCam.GetPosition();
+		const Ang3		rot		= RAD2DEG(Ang3::GetAnglesXYZ(rCam.GetMatrix()));
+		CryLogAlways("VisRegInfo: %s [camera] <Position location=\"%f %f %f %f %f %f\" />",
+					 levelName.c_str(),
+					 pos.x, pos.y, pos.z, rot.x, rot.y, rot.z);
 	}
 }
 
-void CmdBulletTimeMode( IConsoleCmdArgs* cmdArgs)
+void CmdBulletTimeMode(IConsoleCmdArgs *cmdArgs)
 {
 	g_pGameCVars->goc_enable = 0;
 	g_pGameCVars->g_show_crosshair_tp = 0;
@@ -136,11 +140,11 @@ void CmdBulletTimeMode( IConsoleCmdArgs* cmdArgs)
 	g_pGameCVars->bt_end_melee = 0;
 }
 
-void CmdGOCMode( IConsoleCmdArgs* cmdArgs)
+void CmdGOCMode(IConsoleCmdArgs *cmdArgs)
 {
 	g_pGameCVars->goc_enable = 1;
 	g_pGameCVars->g_show_crosshair_tp = 1;
-	
+
 	g_pGameCVars->bt_ironsight = 1;
 	g_pGameCVars->bt_speed = 0;
 	g_pGameCVars->bt_energy_decay = 0;
@@ -151,6 +155,7 @@ void CmdGOCMode( IConsoleCmdArgs* cmdArgs)
 
 	//
 	CPlayer *pPlayer = static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
+
 	if(pPlayer && !pPlayer->IsThirdPerson())
 	{
 		pPlayer->ToggleThirdPerson();
@@ -189,7 +194,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 	REGISTER_CVAR(cl_crouchToggle, 1, VF_DUMPTODISK, "To make the crouch key work as a toggle");
 	REGISTER_CVAR(cl_fpBody, 2, VF_NULL, "first person body");
 	REGISTER_CVAR(cl_player_landing_forcefeedback, 0, VF_NULL, "Play forcefeedback effect during player landing");
-	
+
 
 	//FIXME:just for testing
 	REGISTER_CVAR(cl_strengthscale, 1.0f, VF_NULL, "nanosuit strength scale");
@@ -231,7 +236,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 	REGISTER_CVAR(watch_text_render_start_pos_y, 180.0f, 0, "On-screen watch text render start y position");
 	REGISTER_CVAR(watch_text_render_size, 1.75f, 0, "On-screen watch text render size");
 	REGISTER_CVAR(watch_text_render_lineSpacing, 9.3f, 0, "On-screen watch text line spacing (to cram more text on screen without shrinking the font)");
-	REGISTER_CVAR(watch_text_render_fxscale, 13.0f, 0, "Draw2d label to IFFont x scale value (for calcing sizes)." );
+	REGISTER_CVAR(watch_text_render_fxscale, 13.0f, 0, "Draw2d label to IFFont x scale value (for calcing sizes).");
 
 	//autotest
 	REGISTER_CVAR(autotest_enabled, 0, 0, "1 = enabled autotesting, 2 = enabled autotesting with no output results written.");
@@ -260,8 +265,8 @@ void SCVars::InitCVars(IConsole *pConsole)
 	// the following CVars are for the free Third Person Cam
 	//////////////////////////////////////////////////////////////////////////
 	REGISTER_CVAR(cl_cam_orbit, 0, VF_DUMPTODISK,"In Third Person mode this will enable orbit camera\n"
-		"see cl_cam_orbit_offset how to setup offset for this camera\n"
-		"see cl_cam_orbit_slide and cl_cam_orbit_slidespeed how to setup slide for object clipping");
+				  "see cl_cam_orbit_offset how to setup offset for this camera\n"
+				  "see cl_cam_orbit_slide and cl_cam_orbit_slidespeed how to setup slide for object clipping");
 	REGISTER_CVAR(cl_cam_orbit_slide, 1, VF_DUMPTODISK,"Enable camera slide (Orbit mode).");
 	REGISTER_CVAR(cl_cam_orbit_slidespeed, 1.f, VF_DUMPTODISK,"Camera slide speed (Orbit mode).");
 	REGISTER_CVAR(cl_cam_orbit_offsetX, 0, VF_DUMPTODISK,"X Offset of orbit camera.");
@@ -283,7 +288,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 	pConsole->Register("cl_cam_rotation_acceleration_time_pitch", &cl_cam_rotation_acceleration_time_pitch, 0.4f, VF_DUMPTODISK, "Camera pitch acceleration time.");
 	pConsole->Register("cl_cam_mouseYawScale", &cl_cam_mouseYawScale, 0.35f, VF_DUMPTODISK, "Camera yaw dampening.");
 	pConsole->Register("cl_cam_mousePitchScale", &cl_cam_mousePitchScale, 0.75f, VF_DUMPTODISK, "Camera pitch dampening.");
-	
+
 	// camera tracking
 	pConsole->Register("cl_cam_tracking",&cl_cam_tracking,1,VF_DUMPTODISK,"Camera tracking enable/disable.");
 	pConsole->Register("cl_cam_tracking_allow_pitch",&cl_cam_tracking_allow_pitch,0,VF_DUMPTODISK,"Camera tracking changes also vertical movement.");
@@ -363,7 +368,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 	REGISTER_CVAR(i_unlimitedammo, 0, VF_CHEAT, "unlimited ammo");
 	REGISTER_CVAR(i_iceeffects, 0, VF_CHEAT, "Enable/Disable specific weapon effects for ice environments");
 
-	// marcok TODO: seem to be only used on script side ... 
+	// marcok TODO: seem to be only used on script side ...
 	REGISTER_FLOAT("cl_motionBlur", 0, VF_NULL, "motion blur type (0=off, 1=accumulation-based, 2=velocity-based)");
 	REGISTER_FLOAT("cl_sprintBlur", 0.6f, VF_NULL, "sprint blur");
 	REGISTER_FLOAT("cl_hitShake", 1.25f, VF_NULL, "hit shake");
@@ -371,7 +376,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 
 	REGISTER_INT("cl_righthand", 1, VF_NULL, "Select right-handed weapon!");
 	REGISTER_INT("cl_screeneffects", 1, VF_NULL, "Enable player screen effects (depth-of-field, motion blur, ...).");
-	
+
 	REGISTER_CVAR(cl_debugSwimming, 0, VF_CHEAT, "enable swimming debugging");
 
 	ca_GameControlledStrafingPtr = pConsole->GetCVar("ca_GameControlledStrafing");
@@ -409,23 +414,23 @@ void SCVars::InitCVars(IConsole *pConsole)
 	REGISTER_CVAR(g_footstepSoundMaxDistanceSq, 900.0f, 0, "Maximum squared distance for footstep sounds / fx spawned by AI Actors.");
 
 	// frozen shake vars (for tweaking only)
-	REGISTER_CVAR(cl_debugFreezeShake, 0, VF_CHEAT|VF_DUMPTODISK, "Toggle freeze shake debug draw");  
-	REGISTER_CVAR(cl_frozenSteps, 3, VF_CHEAT, "Number of steps for unfreeze shaking");  
+	REGISTER_CVAR(cl_debugFreezeShake, 0, VF_CHEAT|VF_DUMPTODISK, "Toggle freeze shake debug draw");
+	REGISTER_CVAR(cl_frozenSteps, 3, VF_CHEAT, "Number of steps for unfreeze shaking");
 	REGISTER_CVAR(cl_frozenSensMin, 1.0f, VF_CHEAT, "Frozen sensitivity min"); // was 0.2
 	REGISTER_CVAR(cl_frozenSensMax, 1.0f, VF_CHEAT, "Frozen sensitivity max"); // was 0.4
 	REGISTER_CVAR(cl_frozenAngleMin, 1.f, VF_CHEAT, "Frozen clamp angle min");
 	REGISTER_CVAR(cl_frozenAngleMax, 10.f, VF_CHEAT, "Frozen clamp angle max");
 	REGISTER_CVAR(cl_frozenMouseMult, 0.00015f, VF_CHEAT, "Frozen mouseshake multiplier");
-  REGISTER_CVAR(cl_frozenKeyMult, 0.02f, VF_CHEAT, "Frozen movement keys multiplier");
+	REGISTER_CVAR(cl_frozenKeyMult, 0.02f, VF_CHEAT, "Frozen movement keys multiplier");
 	REGISTER_CVAR(cl_frozenSoundDelta, 0.004f, VF_CHEAT, "Threshold for unfreeze shake to trigger a crack sound");
-	
+
 	REGISTER_CVAR(g_frostDecay, 0.25f, VF_CHEAT, "Frost decay speed when freezing actors");
 
 	REGISTER_CVAR(g_stanceTransitionSpeed, 15.0f, VF_CHEAT, "Set speed of camera transition from stance to stance");
 
 	REGISTER_CVAR(g_playerHealthValue, 100, VF_CHEAT, "Maximum player health.");
 	REGISTER_CVAR(g_walkMultiplier, 1, VF_CHEAT, "Modify movement speed");
-	
+
 	REGISTER_CVAR(g_difficultyLevel, 0, VF_CHEAT|VF_READONLY, "Difficulty level");
 	REGISTER_CVAR(g_difficultyHintSystem, 2, VF_CHEAT|VF_READONLY, "Lower difficulty hint system (0 is off, 1 is radius based, 2 is save-game based)");
 	REGISTER_CVAR(g_difficultyRadius, 300, VF_CHEAT|VF_READONLY, "Radius in which player needs to die to display lower difficulty level hint.");
@@ -436,7 +441,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 	REGISTER_CVAR(g_energy_scale_price, 0, VF_CHEAT, "Scales energy prices.");
 	REGISTER_CVAR(g_energy_scale_income, 1, VF_CHEAT, "Scales incoming energy.");
 	REGISTER_CVAR(g_enableFriendlyFallAndPlay, 0, VF_NULL, "Enables fall&play feedback for friendly actors.");
-	
+
 	REGISTER_CVAR(g_playerRespawns, 0, VF_CHEAT, "Sets the player lives.");
 	REGISTER_CVAR(g_playerLowHealthThreshold, 40.0f, VF_CHEAT, "The player health threshold when the low health effect kicks in.");
 	REGISTER_CVAR(g_punishFriendlyDeaths, 1, VF_CHEAT, "The player gets punished by death when killing a friendly unit.");
@@ -458,7 +463,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 	REGISTER_CVAR(g_dof_distAppart, 10.0f, VF_CHEAT, "Minimum distance that max and min can be apart. Default = 10");
 	REGISTER_CVAR(g_dof_ironsight, 1, VF_CHEAT, "Enable ironsight dof. Default = 1");
 	REGISTER_CVAR(g_ColorGradingBlendTime, 3.0f, VF_NULL, "Time to blend from the last color grading chart to the next.");
-	
+
 
 	// explosion culling
 	REGISTER_CVAR(g_ec_enable, 1, VF_CHEAT, "Enable/Disable explosion culling of small objects. Default = 1");
@@ -469,7 +474,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 
 	REGISTER_CVAR(g_radialBlur, 1.0f, VF_CHEAT, "Radial blur on explosions. Default = 1, 0 to disable");
 	REGISTER_CVAR(g_playerFallAndPlay, 0, VF_NULL, "When enabled, the player doesn't die from direct damage, but goes to fall and play.");
-	
+
 	REGISTER_CVAR(g_enableTracers, 1, VF_NULL, "Enable/Disable tracers.");
 	REGISTER_CVAR(g_enableAlternateIronSight, 0, VF_NULL, "Enable/Disable alternate ironsight mode");
 	REGISTER_CVAR(g_ragdollMinTime, 10.0f, VF_NULL, "minimum time in seconds that a ragdoll will be visible");
@@ -486,10 +491,10 @@ void SCVars::InitCVars(IConsole *pConsole)
 	REGISTER_CVAR(g_suddendeathtime, 30, VF_NULL, "Number of seconds before round end to start sudden death. Default if 30. 0 Disables sudden death.");
 	REGISTER_CVAR(g_roundlimit, 30, VF_NULL, "Maximum numbers of rounds to be played. Default is 0, 0 means no limit.");
 	REGISTER_CVAR(g_fraglimit, 0, VF_NULL, "Number of frags before a round restarts. Default is 0, 0 means no frag-limit.");
-  REGISTER_CVAR(g_fraglead, 1, VF_NULL, "Number of frags a player has to be ahead of other players once g_fraglimit is reached. Default is 1.");
-  REGISTER_CVAR(g_friendlyfireratio, 1.0f, VF_NULL, "Sets friendly damage ratio.");
-  REGISTER_CVAR(g_revivetime, 20, VF_NULL, "Revive wave timer.");
-  REGISTER_CVAR(g_autoteambalance, 0, VF_NULL, "Enables auto team balance.");
+	REGISTER_CVAR(g_fraglead, 1, VF_NULL, "Number of frags a player has to be ahead of other players once g_fraglimit is reached. Default is 1.");
+	REGISTER_CVAR(g_friendlyfireratio, 1.0f, VF_NULL, "Sets friendly damage ratio.");
+	REGISTER_CVAR(g_revivetime, 20, VF_NULL, "Revive wave timer.");
+	REGISTER_CVAR(g_autoteambalance, 0, VF_NULL, "Enables auto team balance.");
 	REGISTER_CVAR(g_minplayerlimit, 2, VF_NULL, "Minimum number of players to start a match.");
 	REGISTER_CVAR(g_minteamlimit, 1, VF_NULL, "Minimum number of players in each team to start a match.");
 	REGISTER_CVAR(g_tk_punish, 1, VF_NULL, "Turns on punishment for team kills");
@@ -506,12 +511,12 @@ void SCVars::InitCVars(IConsole *pConsole)
 	REGISTER_CVAR(g_cutsceneSkipDelay, 0.0f, VF_NULL, "Skip Delay for Cutscenes.");
 
 	//
-  REGISTER_CVAR(g_godMode, 0, VF_CHEAT, "God Mode");
-  REGISTER_CVAR(g_detachCamera, 0, VF_NULL, "Detach camera");
+	REGISTER_CVAR(g_godMode, 0, VF_CHEAT, "God Mode");
+	REGISTER_CVAR(g_detachCamera, 0, VF_NULL, "Detach camera");
 
-  REGISTER_CVAR(g_debugCollisionDamage, 0, VF_DUMPTODISK, "Log collision damage");
+	REGISTER_CVAR(g_debugCollisionDamage, 0, VF_DUMPTODISK, "Log collision damage");
 	REGISTER_CVAR(g_debugHits, 0, VF_DUMPTODISK, "Log hits");
-  
+
 	REGISTER_CVAR(pl_debug_ladders, 0, VF_CHEAT,"");
 	REGISTER_CVAR(pl_testGroundAlignOverride, 0, VF_CHEAT, "");
 	REGISTER_CVAR(pl_ladder_animOffset, -0.54f, VF_CHEAT, "Additional animation/position offset");
@@ -519,9 +524,9 @@ void SCVars::InitCVars(IConsole *pConsole)
 	REGISTER_CVAR(pl_debug_movement, 0, VF_CHEAT,"");
 	REGISTER_CVAR(pl_debug_jumping, 0, VF_CHEAT,"");
 	pl_debug_filter = REGISTER_STRING("pl_debug_filter","",VF_CHEAT,"");
-	
+
 	// PLAYERPREDICTION
-	REGISTER_CVAR(pl_velocityInterpAirControlScale, 1.0f, 0, "Use velocity based interpolation method with gravity adjustment");	
+	REGISTER_CVAR(pl_velocityInterpAirControlScale, 1.0f, 0, "Use velocity based interpolation method with gravity adjustment");
 	REGISTER_CVAR(pl_velocityInterpSynchJump, 2, 0, "Velocity interp jump velocity synching");
 	REGISTER_CVAR(pl_velocityInterpAirDeltaFactor, 0.75f, 0, "Interpolation air motion damping factor (0-1)");
 	REGISTER_CVAR(pl_velocityInterpPathCorrection, 1.0f, 0, "Percentage of velocity to apply tangentally to the current velocity, used to reduce oscillation");
@@ -533,14 +538,14 @@ void SCVars::InitCVars(IConsole *pConsole)
 	REGISTER_CVAR(pl_netAimLerpFactor, 0.5f, 0, "Factor to lerp the remote aim directions by");
 	REGISTER_CVAR(pl_netSerialiseMaxSpeed, 4.0f, 0, "Maximum char speed, used by interpolation");
 	REGISTER_CVAR(pl_playerErrorSnapDistSquare, 5.0f, 0, "Maximum distance between local and remote player pos to perform error snapping");
-	
+
 	// ~PLAYERPREDICTION
 
 	REGISTER_CVAR(aln_debug_movement, 0, VF_CHEAT,"");
 	aln_debug_filter = REGISTER_STRING("aln_debug_filter","",VF_CHEAT,"");
 
 	// emp grenade
-	REGISTER_CVAR(g_empStyle, 0, VF_CHEAT, "");	
+	REGISTER_CVAR(g_empStyle, 0, VF_CHEAT, "");
 
 	REGISTER_CVAR(pl_nightvisionModeBinocular, 4, 0, "Sets the default nightvision mode for binocular item");
 
@@ -554,7 +559,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 	REGISTER_CVAR(aim_assistRestrictionTimeout, 0.0f, VF_NULL, "The restriction timeout on aim assistance after user uses a mouse");
 
 
-	
+
 	// Controller control
 	REGISTER_CVAR(ctrl_aspectCorrection, 2, VF_NULL, "Aspect ratio corrections for controller rotation: 0-off, 1-direct, 2-inverse");
 	REGISTER_CVAR(ctrl_Curve_X, 3.0f, VF_NULL, "Analog controller X rotation curve");
@@ -575,33 +580,33 @@ void SCVars::InitCVars(IConsole *pConsole)
 
 	//movement cvars
 #if !defined(_RELEASE)
-	REGISTER_CVAR(v_debugMovement, 0, VF_CHEAT, "Cheat mode, freeze the vehicle and activate debug movement");    
-	REGISTER_CVAR(v_debugMovementMoveVertically, 0.f, VF_CHEAT, "Add this value to the vertical position of the vehicle");    
-	REGISTER_CVAR(v_debugMovementX, 0.f, VF_CHEAT, "Add this rotation to the x axis");    
-	REGISTER_CVAR(v_debugMovementY, 0.f, VF_CHEAT, "Add this rotation to the y axis");    
-	REGISTER_CVAR(v_debugMovementZ, 0.f, VF_CHEAT, "Add this rotation to the z axis");    
-	REGISTER_CVAR(v_debugMovementSensitivity, 30.f, VF_CHEAT, "if v_debugMovement is set you can rotate the vehicle, this controls the speed");    
+	REGISTER_CVAR(v_debugMovement, 0, VF_CHEAT, "Cheat mode, freeze the vehicle and activate debug movement");
+	REGISTER_CVAR(v_debugMovementMoveVertically, 0.f, VF_CHEAT, "Add this value to the vertical position of the vehicle");
+	REGISTER_CVAR(v_debugMovementX, 0.f, VF_CHEAT, "Add this rotation to the x axis");
+	REGISTER_CVAR(v_debugMovementY, 0.f, VF_CHEAT, "Add this rotation to the y axis");
+	REGISTER_CVAR(v_debugMovementZ, 0.f, VF_CHEAT, "Add this rotation to the z axis");
+	REGISTER_CVAR(v_debugMovementSensitivity, 30.f, VF_CHEAT, "if v_debugMovement is set you can rotate the vehicle, this controls the speed");
 #endif
 
-  REGISTER_CVAR(v_profileMovement, 0, VF_NULL, "Used to enable profiling of the current vehicle movement (1 to enable)");    
-  REGISTER_CVAR(v_pa_surface, 1, VF_CHEAT, "Enables/disables vehicle surface particles");
-  REGISTER_CVAR(v_wind_minspeed, 0.f, VF_CHEAT, "If non-zero, vehicle wind areas always set wind >= specified value");
-  REGISTER_CVAR(v_draw_suspension, 0, VF_DUMPTODISK, "Enables/disables display of wheel suspension, for the vehicle that has v_profileMovement enabled");
-  REGISTER_CVAR(v_draw_slip, 0, VF_DUMPTODISK, "Draw wheel slip status");  
-  REGISTER_CVAR(v_invertPitchControl, VF_NULL, VF_DUMPTODISK, "Invert the pitch control for driving some vehicles, including the helicopter and the vtol");
-  REGISTER_CVAR(v_sprintSpeed, 0.f, VF_NULL, "Set speed for acceleration measuring");
-  REGISTER_CVAR(v_rockBoats, 1, VF_NULL, "Enable/disable boats idle rocking");  
-  REGISTER_CVAR(v_dumpFriction, 0, VF_NULL, "Dump vehicle friction status");
-  REGISTER_CVAR(v_debugSounds, 0, VF_NULL, "Enable/disable vehicle sound debug drawing");
-  REGISTER_CVAR(v_debugMountedWeapon, 0, VF_NULL, "Enable/disable vehicle mounted weapon camera debug draw");
+	REGISTER_CVAR(v_profileMovement, 0, VF_NULL, "Used to enable profiling of the current vehicle movement (1 to enable)");
+	REGISTER_CVAR(v_pa_surface, 1, VF_CHEAT, "Enables/disables vehicle surface particles");
+	REGISTER_CVAR(v_wind_minspeed, 0.f, VF_CHEAT, "If non-zero, vehicle wind areas always set wind >= specified value");
+	REGISTER_CVAR(v_draw_suspension, 0, VF_DUMPTODISK, "Enables/disables display of wheel suspension, for the vehicle that has v_profileMovement enabled");
+	REGISTER_CVAR(v_draw_slip, 0, VF_DUMPTODISK, "Draw wheel slip status");
+	REGISTER_CVAR(v_invertPitchControl, VF_NULL, VF_DUMPTODISK, "Invert the pitch control for driving some vehicles, including the helicopter and the vtol");
+	REGISTER_CVAR(v_sprintSpeed, 0.f, VF_NULL, "Set speed for acceleration measuring");
+	REGISTER_CVAR(v_rockBoats, 1, VF_NULL, "Enable/disable boats idle rocking");
+	REGISTER_CVAR(v_dumpFriction, 0, VF_NULL, "Dump vehicle friction status");
+	REGISTER_CVAR(v_debugSounds, 0, VF_NULL, "Enable/disable vehicle sound debug drawing");
+	REGISTER_CVAR(v_debugMountedWeapon, 0, VF_NULL, "Enable/disable vehicle mounted weapon camera debug draw");
 
 	pAltitudeLimitCVar = REGISTER_CVAR(v_altitudeLimit, v_altitudeLimitDefault(), VF_CHEAT, "Used to restrict the helicopter and VTOL movement from going higher than a set altitude.\nIf set to zero, the altitude limit is disabled.");
 	pAltitudeLimitLowerOffsetCVar = REGISTER_CVAR(v_altitudeLimitLowerOffset, 0.1f, VF_CHEAT, "Used in conjunction with v_altitudeLimit to set the zone when gaining altitude start to be more difficult.");
-  REGISTER_CVAR(v_help_tank_steering, 0, VF_NULL, "Enable tank steering help for AI");
+	REGISTER_CVAR(v_help_tank_steering, 0, VF_NULL, "Enable tank steering help for AI");
 
 	REGISTER_CVAR(v_stabilizeVTOL, 0.35f, VF_DUMPTODISK, "Specifies if the air movements should automatically stabilize");
 
-  	
+
 	REGISTER_CVAR(pl_swimBaseSpeed, 4.0f, VF_CHEAT, "Swimming base speed.");
 	REGISTER_CVAR(pl_swimBackSpeedMul, 0.8f, VF_CHEAT, "Swimming backwards speed mul.");
 	REGISTER_CVAR(pl_swimSideSpeedMul, 0.9f, VF_CHEAT, "Swimming sideways speed mul.");
@@ -620,11 +625,11 @@ void SCVars::InitCVars(IConsole *pConsole)
 	REGISTER_CVAR(pl_fallDamage_Normal_SpeedFatal, 13.7f, VF_CHEAT, "Fatal fall speed in armor mode (13.5 m/s after falling freely for ca 20m).");
 	REGISTER_CVAR(pl_fallDamage_SpeedBias, 1.5f, VF_CHEAT, "Damage bias for medium fall speed: =1 linear, <1 more damage, >1 less damage.");
 	REGISTER_CVAR(pl_debugFallDamage, 0, VF_CHEAT, "Enables console output of fall damage information.");
-	
+
 
 	REGISTER_CVAR(pl_zeroGSpeedMultNormal, 1.2f, VF_CHEAT, "Modify movement speed in zeroG, in normal mode.");
 	REGISTER_CVAR(pl_zeroGSpeedMultNormalSprint, 1.7f, VF_CHEAT, "Modify movement speed in zeroG, in normal sprint.");
-  REGISTER_CVAR(pl_zeroGSpeedMultSpeed, 1.7f, VF_CHEAT, "Modify movement speed in zeroG, in speed mode.");
+	REGISTER_CVAR(pl_zeroGSpeedMultSpeed, 1.7f, VF_CHEAT, "Modify movement speed in zeroG, in speed mode.");
 	REGISTER_CVAR(pl_zeroGSpeedMultSpeedSprint, 5.0f, VF_CHEAT, "Modify movement speed in zeroG, in speed sprint.");
 	REGISTER_CVAR(pl_zeroGUpDown, 1.0f, VF_NULL, "Scales the z-axis movement speed in zeroG.");
 	REGISTER_CVAR(pl_zeroGBaseSpeed, 3.0f, VF_NULL, "Maximum player speed request limit for zeroG.");
@@ -660,33 +665,33 @@ void SCVars::InitCVars(IConsole *pConsole)
 	REGISTER_CVAR(i_auto_turret_target_tacshells, 0, VF_NULL, "Enables/Disables auto turrets aquiring TAC shells as targets");
 
 	REGISTER_CVAR(i_debug_zoom_mods, 0, VF_CHEAT, "Use zoom mode spread/recoil mods");
-  REGISTER_CVAR(i_debug_sounds, 0, VF_CHEAT, "Enable item sound debugging");
-  REGISTER_CVAR(i_debug_turrets, 0, VF_CHEAT, 
-    "Enable GunTurret debugging.\n"
-    "Values:\n"
-    "0:  off"
-    "1:  basics\n"
-    "2:  prediction\n"
-    "3:  sweeping\n"
-    "4:  searching\n"      
-    "5:  deviation\n"    
-    );
+	REGISTER_CVAR(i_debug_sounds, 0, VF_CHEAT, "Enable item sound debugging");
+	REGISTER_CVAR(i_debug_turrets, 0, VF_CHEAT,
+				  "Enable GunTurret debugging.\n"
+				  "Values:\n"
+				  "0:  off"
+				  "1:  basics\n"
+				  "2:  prediction\n"
+				  "3:  sweeping\n"
+				  "4:  searching\n"
+				  "5:  deviation\n"
+				 );
 	REGISTER_CVAR(i_debug_mp_flowgraph, 0, VF_CHEAT, "Displays info on the MP flowgraph node");
-  
-  // quick game
-  g_quickGame_map = REGISTER_STRING("g_quickGame_map","",VF_DUMPTODISK, "QuickGame option");
-  g_quickGame_mode = REGISTER_STRING("g_quickGame_mode","DeathMatch", VF_DUMPTODISK, "QuickGame option");
-  REGISTER_CVAR(g_quickGame_min_players,0,VF_DUMPTODISK,"QuickGame option");
-  REGISTER_CVAR(g_quickGame_prefer_lan,0,VF_DUMPTODISK,"QuickGame option");
-  REGISTER_CVAR(g_quickGame_prefer_favorites,0,VF_DUMPTODISK,"QuickGame option");
-  REGISTER_CVAR(g_quickGame_prefer_my_country,0,VF_DUMPTODISK,"QuickGame option");
-  REGISTER_CVAR(g_quickGame_ping1_level,80,VF_DUMPTODISK,"QuickGame option");
-  REGISTER_CVAR(g_quickGame_ping2_level,170,VF_DUMPTODISK,"QuickGame option");
+
+	// quick game
+	g_quickGame_map = REGISTER_STRING("g_quickGame_map","",VF_DUMPTODISK, "QuickGame option");
+	g_quickGame_mode = REGISTER_STRING("g_quickGame_mode","DeathMatch", VF_DUMPTODISK, "QuickGame option");
+	REGISTER_CVAR(g_quickGame_min_players,0,VF_DUMPTODISK,"QuickGame option");
+	REGISTER_CVAR(g_quickGame_prefer_lan,0,VF_DUMPTODISK,"QuickGame option");
+	REGISTER_CVAR(g_quickGame_prefer_favorites,0,VF_DUMPTODISK,"QuickGame option");
+	REGISTER_CVAR(g_quickGame_prefer_my_country,0,VF_DUMPTODISK,"QuickGame option");
+	REGISTER_CVAR(g_quickGame_ping1_level,80,VF_DUMPTODISK,"QuickGame option");
+	REGISTER_CVAR(g_quickGame_ping2_level,170,VF_DUMPTODISK,"QuickGame option");
 
 	REGISTER_CVAR(g_quickGame_debug,0,VF_CHEAT,"QuickGame option");
-	
+
 	REGISTER_CVAR(g_displayIgnoreList,1,VF_DUMPTODISK,"Display ignore list in chat tab.");
-  REGISTER_CVAR(g_buddyMessagesIngame,1,VF_DUMPTODISK,"Output incoming buddy messages in chat while playing game.");
+	REGISTER_CVAR(g_buddyMessagesIngame,1,VF_DUMPTODISK,"Output incoming buddy messages in chat while playing game.");
 
 	REGISTER_CVAR(g_showPlayerState,0,VF_DUMPTODISK,"Display all CPlayer entities (0=disabled, 1=only players, 2=also AI)");
 
@@ -696,20 +701,20 @@ void SCVars::InitCVars(IConsole *pConsole)
 	REGISTER_CVAR(g_battleDust_enable, 1, VF_NULL, "Enable/Disable battledust");
 	REGISTER_CVAR(g_battleDust_debug, 0, VF_NULL, "0: off, 1: text, 2: text+gfx");
 	g_battleDust_effect = REGISTER_STRING("g_battleDust_effect", "misc.battledust.light", VF_NULL, "Sets the effect to use for battledust");
-	
+
 	REGISTER_CVAR(g_proneNotUsableWeapon_FixType, 1, VF_NULL, "Test various fixes for not selecting hurricane while prone");
 	REGISTER_CVAR(g_proneAimAngleRestrict_Enable, 1, VF_NULL, "Test fix for matching aim restrictions between 1st and 3rd person");
-	
+
 	REGISTER_CVAR(ctrl_input_smoothing, 0.0f, VF_NULL, "Smooths rotation input in GDC demo.");
-	
+
 	REGISTER_CVAR(g_disable_throw, 0, VF_NULL, "Disable object throwing");
 	REGISTER_CVAR(g_disable_pickup, 0, VF_NULL, "Disable picking objects up");
 	REGISTER_CVAR(g_disable_grab, 0, VF_NULL, "Disable NPC grabbing");
 
 	REGISTER_CVAR(g_tpview_control, 0, VF_NULL, "Enables control of 3rd person view switching through cvar (F1 will be disabled!)");
-	REGISTER_CVAR(g_tpview_enable, 0, VF_NULL, "Enables 3rd person view if precedent cvar is true");	
+	REGISTER_CVAR(g_tpview_enable, 0, VF_NULL, "Enables 3rd person view if precedent cvar is true");
 	REGISTER_CVAR(g_tpview_force_goc, 0, VF_NULL, "Forces 'Gears of Crysis' (tm) when in 3rd person view");
-	
+
 	REGISTER_CVAR(sv_votingTimeout, 60, VF_NULL, "Voting timeout");
 	REGISTER_CVAR(sv_votingCooldown, 180, VF_NULL, "Voting cooldown");
 	REGISTER_CVAR(sv_votingRatio, 0.51f, VF_NULL, "Part of player's votes needed for successful vote.");
@@ -722,17 +727,18 @@ void SCVars::InitCVars(IConsole *pConsole)
 	REGISTER_CVAR(g_avmine_limit, 3, VF_NULL, "Max avmines a player can place (recycled above this value)");
 	REGISTER_CVAR(g_debugMines, 0, VF_NULL, "Enable debug output for mines and claymores");
 
-  REGISTER_CVAR(aim_assistCrosshairSize, 25, VF_CHEAT, "screen size used for crosshair aim assistance");
-  REGISTER_CVAR(aim_assistCrosshairDebug, 0, VF_CHEAT, "debug crosshair aim assistance");
+	REGISTER_CVAR(aim_assistCrosshairSize, 25, VF_CHEAT, "screen size used for crosshair aim assistance");
+	REGISTER_CVAR(aim_assistCrosshairDebug, 0, VF_CHEAT, "debug crosshair aim assistance");
 
 	REGISTER_CVAR(g_deathCam, 1, VF_NULL, "Enables / disables the MP death camera (shows the killer's location)");
 
 	REGISTER_CVAR(sv_pacifist, 0, VF_NULL, "Pacifist mode (only works on dedicated server)");
 
-	REGISTER_CVAR2( "e_Flocks",&CFlock::m_e_flocks,1,VF_NULL,"Enable Flocks (Birds/Fishes)" );
-	REGISTER_CVAR2( "e_FlocksHunt",&CFlock::m_e_flocks_hunt,1,VF_NULL,"Birds will fall down..." );
- 
-	pVehicleQuality = pConsole->GetCVar("v_vehicle_quality");		assert(pVehicleQuality);
+	REGISTER_CVAR2("e_Flocks",&CFlock::m_e_flocks,1,VF_NULL,"Enable Flocks (Birds/Fishes)");
+	REGISTER_CVAR2("e_FlocksHunt",&CFlock::m_e_flocks_hunt,1,VF_NULL,"Birds will fall down...");
+
+	pVehicleQuality = pConsole->GetCVar("v_vehicle_quality");
+	assert(pVehicleQuality);
 
 	REGISTER_COMMAND("g_Log_FPS", CmdLogFPS, VF_NULL, "logs current frame rate");
 	REGISTER_COMMAND("g_Log_Frametime", CmdLogFrameTime, VF_NULL, "logs current frame time");
@@ -759,13 +765,13 @@ void SCVars::InitCVars(IConsole *pConsole)
 	REGISTER_CVAR(g_hitDeathReactions_streaming, gEnv->bMultiplayer ? eHDRSP_EntityLifespanBased : eHDRSP_ActorsAliveAndNotInPool, 0, "Enables/Disables reactionAnims streaming. 0: Disabled, 1: DBA Registering-based, 2: Entity lifespan-based");
 	REGISTER_CVAR(g_animatorDebug, false, 0, "Animator Debug Info");
 
-  NetInputChainInitCVars();
+	NetInputChainInitCVars();
 
 	InitAIPerceptionCVars(pConsole);
 }
 
 //------------------------------------------------------------------------
-void SCVars::ReleaseAIPerceptionCVars(IConsole* pConsole)
+void SCVars::ReleaseAIPerceptionCVars(IConsole *pConsole)
 {
 	pConsole->UnregisterVariable("ai_perception.movement_useSurfaceType");
 	pConsole->UnregisterVariable("ai_perception.movement_movingSurfaceDefault");
@@ -778,7 +784,7 @@ void SCVars::ReleaseAIPerceptionCVars(IConsole* pConsole)
 //------------------------------------------------------------------------
 void SCVars::ReleaseCVars()
 {
-	IConsole* pConsole = gEnv->pConsole;
+	IConsole *pConsole = gEnv->pConsole;
 
 	pConsole->UnregisterVariable("cl_fov", true);
 	pConsole->UnregisterVariable("cl_bob", true);
@@ -828,7 +834,7 @@ void SCVars::ReleaseCVars()
 
 	pConsole->UnregisterVariable("pl_inputAccel", true);
 
-	pConsole->UnregisterVariable("cl_actorsafemode", true);	
+	pConsole->UnregisterVariable("cl_actorsafemode", true);
 	pConsole->UnregisterVariable("g_enableSpeedLean", true);
 
 	pConsole->UnregisterVariable("int_zoomAmount", true);
@@ -844,8 +850,8 @@ void SCVars::ReleaseCVars()
 	pConsole->UnregisterVariable("hr_fovAmt", true);
 	pConsole->UnregisterVariable("hr_fovTime", true);
 
-	pConsole->UnregisterVariable("cl_debugFreezeShake", true);  
-	pConsole->UnregisterVariable("cl_frozenSteps", true);  
+	pConsole->UnregisterVariable("cl_debugFreezeShake", true);
+	pConsole->UnregisterVariable("cl_frozenSteps", true);
 	pConsole->UnregisterVariable("cl_frozenSensMin", true);
 	pConsole->UnregisterVariable("cl_frozenSensMax", true);
 	pConsole->UnregisterVariable("cl_frozenAngleMin", true);
@@ -853,14 +859,14 @@ void SCVars::ReleaseCVars()
 	pConsole->UnregisterVariable("cl_frozenMouseMult", true);
 	pConsole->UnregisterVariable("cl_frozenKeyMult", true);
 	pConsole->UnregisterVariable("cl_frozenSoundDelta", true);
-	
+
 	pConsole->UnregisterVariable("g_frostDecay", true);
 
 	pConsole->UnregisterVariable("g_stanceTransitionSpeed", true);
 
 	pConsole->UnregisterVariable("g_playerHealthValue", true);
 	pConsole->UnregisterVariable("g_walkMultiplier", true);
-	
+
 	pConsole->UnregisterVariable("g_pp_scale_income", true);
 	pConsole->UnregisterVariable("g_pp_scale_price", true);
 
@@ -897,16 +903,16 @@ void SCVars::ReleaseCVars()
 
 	pConsole->UnregisterVariable("g_debugCollisionDamage", true);
 	pConsole->UnregisterVariable("g_debugHits", true);
-	
-	pConsole->UnregisterVariable("v_profileMovement", true);    
+
+	pConsole->UnregisterVariable("v_profileMovement", true);
 	pConsole->UnregisterVariable("v_pa_surface", true);
 	pConsole->UnregisterVariable("v_wind_minspeed", true);
 	pConsole->UnregisterVariable("v_draw_suspension", true);
-	pConsole->UnregisterVariable("v_draw_slip", true);  
+	pConsole->UnregisterVariable("v_draw_slip", true);
 	pConsole->UnregisterVariable("v_invertPitchControl", true);
 	pConsole->UnregisterVariable("v_sprintSpeed", true);
-	pConsole->UnregisterVariable("v_rockBoats", true);  
-  pConsole->UnregisterVariable("v_debugMountedWeapon", true);  
+	pConsole->UnregisterVariable("v_rockBoats", true);
+	pConsole->UnregisterVariable("v_debugMountedWeapon", true);
 	pConsole->UnregisterVariable("v_zeroGSpeedMultSpeed", true);
 	pConsole->UnregisterVariable("v_zeroGSpeedMultSpeedSprint", true);
 	pConsole->UnregisterVariable("v_zeroGSpeedMultNormal", true);
@@ -918,7 +924,7 @@ void SCVars::ReleaseCVars()
 	pConsole->UnregisterVariable("v_zeroGSwitchableGyro", true);
 	pConsole->UnregisterVariable("v_zeroGEnableGBoots", true);
 	pConsole->UnregisterVariable("v_dumpFriction", true);
-  pConsole->UnregisterVariable("v_debugSounds", true);
+	pConsole->UnregisterVariable("v_debugSounds", true);
 	pConsole->UnregisterVariable("v_altitudeLimit", true);
 	pConsole->UnregisterVariable("v_altitudeLimitLowerOffset", true);
 	pConsole->UnregisterVariable("v_airControlSensivity", true);
@@ -966,7 +972,7 @@ void SCVars::ReleaseCVars()
 	pConsole->UnregisterVariable("aim_assistTriggerEnabled", true);
 	pConsole->UnregisterVariable("hit_assistSingleplayerEnabled", true);
 	pConsole->UnregisterVariable("hit_assistMultiplayerEnabled", true);
-		
+
 	// weapon system
 	pConsole->UnregisterVariable("i_debuggun_1", true);
 	pConsole->UnregisterVariable("i_debuggun_2", true);
@@ -982,36 +988,36 @@ void SCVars::ReleaseCVars()
 	pConsole->UnregisterVariable("i_auto_turret_target", true);
 	pConsole->UnregisterVariable("i_auto_turret_target_tacshells", true);
 
-  pConsole->UnregisterVariable("i_debug_zoom_mods", true);
+	pConsole->UnregisterVariable("i_debug_zoom_mods", true);
 	pConsole->UnregisterVariable("i_debug_mp_flowgraph", true);
 
-  pConsole->UnregisterVariable("g_quickGame_map",true);
-  pConsole->UnregisterVariable("g_quickGame_mode",true);
-  pConsole->UnregisterVariable("g_quickGame_min_players",true);
-  pConsole->UnregisterVariable("g_quickGame_prefer_lan",true);
-  pConsole->UnregisterVariable("g_quickGame_prefer_favorites",true);
-  pConsole->UnregisterVariable("g_quickGame_prefer_mycountry",true);
-  pConsole->UnregisterVariable("g_quickGame_ping1_level",true);
-  pConsole->UnregisterVariable("g_quickGame_ping2_level",true);
+	pConsole->UnregisterVariable("g_quickGame_map",true);
+	pConsole->UnregisterVariable("g_quickGame_mode",true);
+	pConsole->UnregisterVariable("g_quickGame_min_players",true);
+	pConsole->UnregisterVariable("g_quickGame_prefer_lan",true);
+	pConsole->UnregisterVariable("g_quickGame_prefer_favorites",true);
+	pConsole->UnregisterVariable("g_quickGame_prefer_mycountry",true);
+	pConsole->UnregisterVariable("g_quickGame_ping1_level",true);
+	pConsole->UnregisterVariable("g_quickGame_ping2_level",true);
 	pConsole->UnregisterVariable("g_quickGame_debug",true);
 	pConsole->UnregisterVariable("g_skip_tutorial",true);
 
 	pConsole->UnregisterVariable("g_displayIgnoreList",true);
-  pConsole->UnregisterVariable("g_buddyMessagesIngame",true);
+	pConsole->UnregisterVariable("g_buddyMessagesIngame",true);
 
 	pConsole->UnregisterVariable("g_showPlayerState",true);
 
-  pConsole->UnregisterVariable("g_battleDust_enable", true);
-  pConsole->UnregisterVariable("g_battleDust_debug", true);
+	pConsole->UnregisterVariable("g_battleDust_enable", true);
+	pConsole->UnregisterVariable("g_battleDust_debug", true);
 	pConsole->UnregisterVariable("g_battleDust_effect", true);
 
-  pConsole->UnregisterVariable("g_proneNotUsableWeapon_FixType", true);
+	pConsole->UnregisterVariable("g_proneNotUsableWeapon_FixType", true);
 	pConsole->UnregisterVariable("g_proneAimAngleRestrict_Enable", true);
 
-  pConsole->UnregisterVariable("sv_voting_timeout",true);
-  pConsole->UnregisterVariable("sv_voting_cooldown",true);
-  pConsole->UnregisterVariable("sv_voting_ratio",true);
-  pConsole->UnregisterVariable("sv_voting_team_ratio",true);
+	pConsole->UnregisterVariable("sv_voting_timeout",true);
+	pConsole->UnregisterVariable("sv_voting_cooldown",true);
+	pConsole->UnregisterVariable("sv_voting_ratio",true);
+	pConsole->UnregisterVariable("sv_voting_team_ratio",true);
 
 	pConsole->UnregisterVariable("g_spectate_TeamOnly", true);
 	pConsole->UnregisterVariable("g_claymore_limit", true);
@@ -1019,10 +1025,10 @@ void SCVars::ReleaseCVars()
 	pConsole->UnregisterVariable("g_debugMines", true);
 
 	pConsole->UnregisterVariable("aim_assistCrosshairSize", true);
-  pConsole->UnregisterVariable("aim_assistCrosshairDebug", true);
+	pConsole->UnregisterVariable("aim_assistCrosshairDebug", true);
 
 	pConsole->UnregisterVariable("g_ColorGradingBlendTime", true);
-	
+
 	pConsole->UnregisterVariable("ctrl_input_smoothing", true);
 
 	pConsole->UnregisterVariable("g_disable_throw", true);
@@ -1079,9 +1085,9 @@ void CGame::RegisterConsoleVars()
 {
 	assert(m_pConsole);
 
-	if (m_pCVars)
+	if(m_pCVars)
 	{
-		m_pCVars->InitCVars(m_pConsole);    
+		m_pCVars->InitCVars(m_pConsole);
 	}
 }
 
@@ -1096,7 +1102,7 @@ void CGame::RegisterConsoleVars()
 	gEnv->pConsole->GetCVar(#cvar)->Set(start ?		\
 		default :																		\
 		sTemp_##cvar);															\
-
+ 
 
 void CaptureVideo(bool start, IConsoleCmdArgs *pArgs)
 {
@@ -1106,7 +1112,7 @@ void CaptureVideo(bool start, IConsoleCmdArgs *pArgs)
 
 	//timesteps
 	DECL_TEMP_STATIC(float, p_fixed_timestep, 0.033333f, 0.0f, start, GetFVal);
-	DECL_TEMP_STATIC(float, t_FixedStep,  0.033333f, 0.0f, start, GetFVal);	
+	DECL_TEMP_STATIC(float, t_FixedStep,  0.033333f, 0.0f, start, GetFVal);
 
 	//e_cvars
 	DECL_TEMP_STATIC(int, e_Lods, 0, 0, start, GetIVal);
@@ -1126,7 +1132,7 @@ void CaptureVideo(bool start, IConsoleCmdArgs *pArgs)
 	DECL_TEMP_STATIC(float, e_ViewDistRatioVegetation, 100.0f, 0.0f, start, GetFVal);
 	DECL_TEMP_STATIC(float, e_GsmRange, 100.0f, 0.0f, start, GetFVal);
 	DECL_TEMP_STATIC(float, e_LodDistShader, 100.0f, 0.0f, start, GetFVal);
-		
+
 	//capture_cvars
 	gEnv->pConsole->ExecuteString("capture_file_format tga");
 	//DECL_TEMP_STATIC(char*, capture_file_format, "tga", "jpg", start, GetString);	//fail?
@@ -1175,32 +1181,46 @@ void CmdGoto(IConsoleCmdArgs *pArgs)
 	if(iArgCount==1)
 	{
 		gEnv->pLog->LogWithType(ILog::eInputResponse,"$5GOTO %.3f %.3f %.3f %.3f %.3f %.3f",
-			vPos.x, vPos.y, vPos.z, aAngDeg.x, aAngDeg.y, aAngDeg.z);
+								vPos.x, vPos.y, vPos.z, aAngDeg.x, aAngDeg.y, aAngDeg.z);
 		return;
 	}
 
 	// complicated but maybe the best Entity we can move to the given spot
-	IGame *pGame = gEnv->pGame;																								if(!pGame)return;
-	IGameFramework *pGameFramework=pGame->GetIGameFramework();								if(!pGameFramework)return;
-	IViewSystem *pViewSystem=pGameFramework->GetIViewSystem();								if(!pViewSystem)return;
-	IView *pView=pViewSystem->GetActiveView();																if(!pView)return;
-	IEntity *pEntity = gEnv->pEntitySystem->GetEntity(pView->GetLinkedId());	if(!pEntity)return;
+	IGame *pGame = gEnv->pGame;
+
+	if(!pGame)return;
+
+	IGameFramework *pGameFramework=pGame->GetIGameFramework();
+
+	if(!pGameFramework)return;
+
+	IViewSystem *pViewSystem=pGameFramework->GetIViewSystem();
+
+	if(!pViewSystem)return;
+
+	IView *pView=pViewSystem->GetActiveView();
+
+	if(!pView)return;
+
+	IEntity *pEntity = gEnv->pEntitySystem->GetEntity(pView->GetLinkedId());
+
+	if(!pEntity)return;
 
 	if((iArgCount==4 || iArgCount==7)
-		&& sscanf(pArgs->GetArg(1),"%f",&vPos.x)==1
-		&& sscanf(pArgs->GetArg(2),"%f",&vPos.y)==1
-		&& sscanf(pArgs->GetArg(3),"%f",&vPos.z)==1)
+			&& sscanf(pArgs->GetArg(1),"%f",&vPos.x)==1
+			&& sscanf(pArgs->GetArg(2),"%f",&vPos.y)==1
+			&& sscanf(pArgs->GetArg(3),"%f",&vPos.z)==1)
 	{
 		Matrix34 tm = pEntity->GetWorldTM();
 
 		tm.SetTranslation(vPos);
 
 		if(iArgCount==7
-			&& sscanf(pArgs->GetArg(4),"%f",&aAngDeg.x)==1
-			&& sscanf(pArgs->GetArg(5),"%f",&aAngDeg.y)==1
-			&& sscanf(pArgs->GetArg(6),"%f",&aAngDeg.z)==1)
+				&& sscanf(pArgs->GetArg(4),"%f",&aAngDeg.x)==1
+				&& sscanf(pArgs->GetArg(5),"%f",&aAngDeg.y)==1
+				&& sscanf(pArgs->GetArg(6),"%f",&aAngDeg.z)==1)
 		{
-			tm.SetRotation33( Matrix33::CreateRotationXYZ(DEG2RAD(aAngDeg)) );
+			tm.SetRotation33(Matrix33::CreateRotationXYZ(DEG2RAD(aAngDeg)));
 		}
 
 		// if there is an editor
@@ -1219,7 +1239,7 @@ void CmdGoto(IConsoleCmdArgs *pArgs)
 void CmdCamGoto(IConsoleCmdArgs *pArgs)
 {
 	// todo:
-	// * move to CryAction along with CmdGoto	
+	// * move to CryAction along with CmdGoto
 
 	CCamera cam = gEnv->pRenderer->GetCamera();
 	Matrix33 m = Matrix33(cam.GetMatrix());
@@ -1233,50 +1253,50 @@ void CmdCamGoto(IConsoleCmdArgs *pArgs)
 	if(iArgCount==1)
 	{
 		gEnv->pLog->LogWithType(ILog::eInputResponse,"$5CAMGOTO %.3f %.3f %.3f %.3f %.3f %.3f",
-			vPos.x, vPos.y, vPos.z, aAngDeg.x, aAngDeg.y, aAngDeg.z);
+								vPos.x, vPos.y, vPos.z, aAngDeg.x, aAngDeg.y, aAngDeg.z);
 		return;
 	}
 
-	
+
 
 	if((iArgCount==4 || iArgCount==7)
-		&& sscanf(pArgs->GetArg(1),"%f",&vPos.x)==1
-		&& sscanf(pArgs->GetArg(2),"%f",&vPos.y)==1
-		&& sscanf(pArgs->GetArg(3),"%f",&vPos.z)==1)
+			&& sscanf(pArgs->GetArg(1),"%f",&vPos.x)==1
+			&& sscanf(pArgs->GetArg(2),"%f",&vPos.y)==1
+			&& sscanf(pArgs->GetArg(3),"%f",&vPos.z)==1)
 	{
 		cam.SetPosition(vPos);
 
 		if(iArgCount==7
-			&& sscanf(pArgs->GetArg(4),"%f",&aAngDeg.x)==1
-			&& sscanf(pArgs->GetArg(5),"%f",&aAngDeg.y)==1
-			&& sscanf(pArgs->GetArg(6),"%f",&aAngDeg.z)==1)
+				&& sscanf(pArgs->GetArg(4),"%f",&aAngDeg.x)==1
+				&& sscanf(pArgs->GetArg(5),"%f",&aAngDeg.y)==1
+				&& sscanf(pArgs->GetArg(6),"%f",&aAngDeg.z)==1)
 		{
 			cam.SetAngles(aAngDeg);
 		}
 
-		IGame*			pGame			= gEnv ? gEnv->pGame : NULL;
-		IGameFramework*	pGameFramework	= pGame ? pGame->GetIGameFramework() : NULL;
-		IViewSystem*	pViewSystem		= pGameFramework ? pGameFramework->GetIViewSystem() : NULL;
-		IView*			pView			= pViewSystem ? pViewSystem->GetActiveView() : NULL;
-		ISystem*		pSystem			= gEnv ? gEnv->pSystem : NULL;
-		IRenderer*		pRenderer		= gEnv ? gEnv->pRenderer : NULL;
+		IGame			*pGame			= gEnv ? gEnv->pGame : NULL;
+		IGameFramework	*pGameFramework	= pGame ? pGame->GetIGameFramework() : NULL;
+		IViewSystem	*pViewSystem		= pGameFramework ? pGameFramework->GetIViewSystem() : NULL;
+		IView			*pView			= pViewSystem ? pViewSystem->GetActiveView() : NULL;
+		ISystem		*pSystem			= gEnv ? gEnv->pSystem : NULL;
+		IRenderer		*pRenderer		= gEnv ? gEnv->pRenderer : NULL;
 
 		if(pView)
 		{
 			SViewParams viewParams = *pView->GetCurrentParams();
 			viewParams.position = vPos;
-			viewParams.rotation.SetRotationXYZ( aAng );
-			pView->SetCurrentParams( viewParams );
+			viewParams.rotation.SetRotationXYZ(aAng);
+			pView->SetCurrentParams(viewParams);
 		}
 		else if(pSystem)
 		{
-			pSystem->SetViewCamera( cam );
+			pSystem->SetViewCamera(cam);
 		}
 		else if(pRenderer)
 		{
-			pRenderer->SetCamera( cam );
+			pRenderer->SetCamera(cam);
 		}
-				
+
 		return;
 	}
 
@@ -1289,16 +1309,16 @@ void CGame::RegisterConsoleCommands()
 	assert(m_pConsole);
 
 	REGISTER_COMMAND("quit", "System.Quit()", VF_RESTRICTEDMODE, "Quits the game");
-	REGISTER_COMMAND("goto", CmdGoto, VF_CHEAT, 
-		"Get or set the current position and orientation for the player\n"
-		"Usage: goto\n"
-		"Usage: goto x y z\n"
-		"Usage: goto x y z wx wy wz");	
-	REGISTER_COMMAND("camgoto", CmdCamGoto, VF_CHEAT, 
-		"Get or set the current position and orientation for the camera\n"
-		"Usage: camgoto\n"
-		"Usage: camgoto x y z\n"
-		"Usage: camgoto x y z wx wy wz");
+	REGISTER_COMMAND("goto", CmdGoto, VF_CHEAT,
+					 "Get or set the current position and orientation for the player\n"
+					 "Usage: goto\n"
+					 "Usage: goto x y z\n"
+					 "Usage: goto x y z wx wy wz");
+	REGISTER_COMMAND("camgoto", CmdCamGoto, VF_CHEAT,
+					 "Get or set the current position and orientation for the camera\n"
+					 "Usage: camgoto\n"
+					 "Usage: camgoto x y z\n"
+					 "Usage: camgoto x y z wx wy wz");
 	REGISTER_COMMAND("gotoe", "local e=System.GetEntityByName(%1); if (e) then g_localActor:SetWorldPos(e:GetWorldPos()); end", VF_CHEAT, "Set the position of a entity with an given name");
 	REGISTER_COMMAND("freeze", "g_gameRules:SetFrozenAmount(g_localActor,1)", VF_NULL, "Freezes player");
 
@@ -1313,7 +1333,7 @@ void CGame::RegisterConsoleCommands()
 	REGISTER_COMMAND("spectator", CmdSpectator, VF_NULL, "Sets the player as a spectator.");
 	REGISTER_COMMAND("join_game", CmdJoinGame, VF_RESTRICTEDMODE, "Enter the current ongoing game.");
 	REGISTER_COMMAND("kill", CmdKill, VF_RESTRICTEDMODE, "Kills the player.");
-  REGISTER_COMMAND("v_kill", CmdVehicleKill, VF_CHEAT, "Kills the players vehicle.");
+	REGISTER_COMMAND("v_kill", CmdVehicleKill, VF_CHEAT, "Kills the players vehicle.");
 	REGISTER_COMMAND("sv_restart", CmdRestart, VF_NULL, "Restarts the round.");
 	REGISTER_COMMAND("sv_say", CmdSay, VF_NULL, "Broadcasts a message to all clients.");
 	REGISTER_COMMAND("i_reload", CmdReloadItems, VF_NULL, "Reloads item scripts.");
@@ -1321,17 +1341,17 @@ void CGame::RegisterConsoleCommands()
 	REGISTER_COMMAND("dumpss", CmdDumpSS, VF_NULL, "test synched storage.");
 	REGISTER_COMMAND("dumpnt", CmdDumpItemNameTable, VF_NULL, "Dump ItemString table.");
 
-  REGISTER_COMMAND("g_reloadGameRules", CmdReloadGameRules, VF_NULL, "Reload GameRules script");
-  REGISTER_COMMAND("g_quickGame", CmdQuickGame, VF_NULL, "Quick connect to good server.");
-  REGISTER_COMMAND("g_quickGameStop", CmdQuickGameStop, VF_NULL, "Cancel quick game search.");
+	REGISTER_COMMAND("g_reloadGameRules", CmdReloadGameRules, VF_NULL, "Reload GameRules script");
+	REGISTER_COMMAND("g_quickGame", CmdQuickGame, VF_NULL, "Quick connect to good server.");
+	REGISTER_COMMAND("g_quickGameStop", CmdQuickGameStop, VF_NULL, "Cancel quick game search.");
 
-  REGISTER_COMMAND("g_nextlevel", CmdNextLevel,VF_NULL,"Switch to next level in rotation or restart current one.");
-  REGISTER_COMMAND("vote", CmdVote, VF_RESTRICTEDMODE, "Vote on current topic.");
-  REGISTER_COMMAND("startKickVoting",CmdStartKickVoting, VF_RESTRICTEDMODE, "Initiate voting.");
-  REGISTER_COMMAND("startNextMapVoting",CmdStartNextMapVoting, VF_RESTRICTEDMODE, "Initiate voting.");
+	REGISTER_COMMAND("g_nextlevel", CmdNextLevel,VF_NULL,"Switch to next level in rotation or restart current one.");
+	REGISTER_COMMAND("vote", CmdVote, VF_RESTRICTEDMODE, "Vote on current topic.");
+	REGISTER_COMMAND("startKickVoting",CmdStartKickVoting, VF_RESTRICTEDMODE, "Initiate voting.");
+	REGISTER_COMMAND("startNextMapVoting",CmdStartNextMapVoting, VF_RESTRICTEDMODE, "Initiate voting.");
 
 	REGISTER_COMMAND("g_battleDust_reload", CmdBattleDustReload, VF_NULL, "Reload the battle dust parameters xml");
-  REGISTER_COMMAND("login",CmdLogin,0,"Log in as to CryNetwork using nickname and password as arguments");
+	REGISTER_COMMAND("login",CmdLogin,0,"Log in as to CryNetwork using nickname and password as arguments");
 	REGISTER_COMMAND("login_profile",CmdLoginProfile,VF_NULL,"Log in as to CryNetwork using email, profile and password as arguments");
 	REGISTER_COMMAND("connect_crynet",CmdCryNetConnect,VF_NULL,"Connect to online game server");
 	REGISTER_COMMAND("test_pathfinder",CmdTestPathfinder,VF_CHEAT,"");
@@ -1358,7 +1378,7 @@ void CGame::UnregisterConsoleCommands()
 	assert(m_pConsole);
 
 	m_pConsole->RemoveCommand("quit");
-	m_pConsole->RemoveCommand("goto");	
+	m_pConsole->RemoveCommand("goto");
 	m_pConsole->RemoveCommand("camgoto");
 	m_pConsole->RemoveCommand("freeze");
 
@@ -1368,7 +1388,7 @@ void CGame::UnregisterConsoleCommands()
 	m_pConsole->RemoveCommand("name");
 	m_pConsole->RemoveCommand("team");
 	m_pConsole->RemoveCommand("kill");
-  m_pConsole->RemoveCommand("v_kill");
+	m_pConsole->RemoveCommand("v_kill");
 	m_pConsole->RemoveCommand("sv_restart");
 	m_pConsole->RemoveCommand("sv_say");
 	m_pConsole->RemoveCommand("i_reload");
@@ -1376,13 +1396,13 @@ void CGame::UnregisterConsoleCommands()
 	m_pConsole->RemoveCommand("dumpss");
 
 	m_pConsole->RemoveCommand("g_reloadGameRules");
-  m_pConsole->RemoveCommand("g_quickGame");
-  m_pConsole->RemoveCommand("g_quickGameStop");
+	m_pConsole->RemoveCommand("g_quickGame");
+	m_pConsole->RemoveCommand("g_quickGameStop");
 
-  m_pConsole->RemoveCommand("g_nextlevel");
-  m_pConsole->RemoveCommand("g_vote");
-  m_pConsole->RemoveCommand("g_startKickVoting");
-  m_pConsole->RemoveCommand("g_startNextMapVoting");
+	m_pConsole->RemoveCommand("g_nextlevel");
+	m_pConsole->RemoveCommand("g_vote");
+	m_pConsole->RemoveCommand("g_startKickVoting");
+	m_pConsole->RemoveCommand("g_startNextMapVoting");
 
 
 	m_pConsole->RemoveCommand("g_battleDust_reload");
@@ -1403,50 +1423,55 @@ void CGame::UnregisterConsoleCommands()
 //------------------------------------------------------------------------
 void CGame::CmdLastInv(IConsoleCmdArgs *pArgs)
 {
-	if (!gEnv->IsClient())
+	if(!gEnv->IsClient())
 		return;
 
-	if (CActor *pClientActor=static_cast<CActor *>(g_pGame->GetIGameFramework()->GetClientActor()))
+	if(CActor *pClientActor=static_cast<CActor *>(g_pGame->GetIGameFramework()->GetClientActor()))
 		pClientActor->SelectLastItem(true);
 }
 
 //------------------------------------------------------------------------
 void CGame::CmdName(IConsoleCmdArgs *pArgs)
 {
-	if (!gEnv->IsClient())
+	if(!gEnv->IsClient())
 		return;
 
 	IActor *pClientActor=g_pGame->GetIGameFramework()->GetClientActor();
-	if (!pClientActor)
+
+	if(!pClientActor)
 		return;
 
 	CGameRules *pGameRules = g_pGame->GetGameRules();
-	if (pGameRules)
+
+	if(pGameRules)
 		pGameRules->RenamePlayer(pGameRules->GetActorByEntityId(pClientActor->GetEntityId()), pArgs->GetArg(1));
 }
 
 //------------------------------------------------------------------------
 void CGame::CmdTeam(IConsoleCmdArgs *pArgs)
 {
-	if (!gEnv->IsClient())
+	if(!gEnv->IsClient())
 		return;
 
 	IActor *pClientActor=g_pGame->GetIGameFramework()->GetClientActor();
-	if (!pClientActor)
+
+	if(!pClientActor)
 		return;
 
 	CGameRules *pGameRules = g_pGame->GetGameRules();
-	if (pGameRules)
+
+	if(pGameRules)
 		pGameRules->ChangeTeam(pGameRules->GetActorByEntityId(pClientActor->GetEntityId()), pArgs->GetArg(1));
 }
 
 //------------------------------------------------------------------------
 void CGame::CmdLoadLastSave(IConsoleCmdArgs *pArgs)
 {
-	if (!gEnv->IsClient() || gEnv->bMultiplayer)
+	if(!gEnv->IsClient() || gEnv->bMultiplayer)
 		return;
 
-	const string& file = g_pGame->GetLastSaveGame();
+	const string &file = g_pGame->GetLastSaveGame();
+
 	if(file.length())
 	{
 		if(!g_pGame->GetIGameFramework()->LoadGame(file.c_str(), true))
@@ -1457,19 +1482,23 @@ void CGame::CmdLoadLastSave(IConsoleCmdArgs *pArgs)
 //------------------------------------------------------------------------
 void CGame::CmdSpectator(IConsoleCmdArgs *pArgs)
 {
-	if (!gEnv->IsClient())
+	if(!gEnv->IsClient())
 		return;
 
 	IActor *pClientActor=g_pGame->GetIGameFramework()->GetClientActor();
-	if (!pClientActor)
+
+	if(!pClientActor)
 		return;
 
 	CGameRules *pGameRules = g_pGame->GetGameRules();
-	if (pGameRules)
+
+	if(pGameRules)
 	{
 		int mode=2;
-		if (pArgs->GetArgCount()==2)
+
+		if(pArgs->GetArgCount()==2)
 			mode=atoi(pArgs->GetArg(1));
+
 		pGameRules->ChangeSpectatorMode(pGameRules->GetActorByEntityId(pClientActor->GetEntityId()), mode, 0, true);
 	}
 }
@@ -1477,36 +1506,40 @@ void CGame::CmdSpectator(IConsoleCmdArgs *pArgs)
 //------------------------------------------------------------------------
 void CGame::CmdJoinGame(IConsoleCmdArgs *pArgs)
 {
-	if (!gEnv->IsClient())
+	if(!gEnv->IsClient())
 		return;
 
 	IActor *pClientActor=g_pGame->GetIGameFramework()->GetClientActor();
-	if (!pClientActor)
+
+	if(!pClientActor)
 		return;
 
-	if (g_pGame->GetGameRules()->GetTeamCount()>0)
+	if(g_pGame->GetGameRules()->GetTeamCount()>0)
 		return;
-	
+
 	CGameRules *pGameRules = g_pGame->GetGameRules();
-	if (pGameRules)
+
+	if(pGameRules)
 		pGameRules->ChangeSpectatorMode(pGameRules->GetActorByEntityId(pClientActor->GetEntityId()), 0, 0, true);
 }
 
 //------------------------------------------------------------------------
 void CGame::CmdKill(IConsoleCmdArgs *pArgs)
 {
-	if (!gEnv->IsClient())
+	if(!gEnv->IsClient())
 		return;
 
 	IActor *pClientActor=g_pGame->GetIGameFramework()->GetClientActor();
-	if (!pClientActor)
+
+	if(!pClientActor)
 		return;
 
 	CGameRules *pGameRules = g_pGame->GetGameRules();
-	if (pGameRules)
+
+	if(pGameRules)
 	{
 		HitInfo suicideInfo(pClientActor->GetEntityId(), pClientActor->GetEntityId(), pClientActor->GetEntityId(),
-			1000, 0, 0, -1, 0, ZERO, ZERO, ZERO);
+							1000, 0, 0, -1, 0, ZERO, ZERO, ZERO);
 		pGameRules->ClientHit(suicideInfo);
 	}
 }
@@ -1514,24 +1547,27 @@ void CGame::CmdKill(IConsoleCmdArgs *pArgs)
 //------------------------------------------------------------------------
 void CGame::CmdVehicleKill(IConsoleCmdArgs *pArgs)
 {
-  if (!gEnv->IsClient())
-    return;
+	if(!gEnv->IsClient())
+		return;
 
-  IActor *pClientActor=g_pGame->GetIGameFramework()->GetClientActor();
-  if (!pClientActor)
-    return;
+	IActor *pClientActor=g_pGame->GetIGameFramework()->GetClientActor();
 
-  IVehicle* pVehicle = pClientActor->GetLinkedVehicle();
-  if (!pVehicle)
-    return;
-  
-  CGameRules *pGameRules = g_pGame->GetGameRules();
-  if (pGameRules)
-  {
-    HitInfo suicideInfo(pVehicle->GetEntityId(), pVehicle->GetEntityId(), pVehicle->GetEntityId(),
-      10000, 0, 0, -1, 0, pVehicle->GetEntity()->GetWorldPos(), ZERO, ZERO);
-    pGameRules->ClientHit(suicideInfo);
-  }
+	if(!pClientActor)
+		return;
+
+	IVehicle *pVehicle = pClientActor->GetLinkedVehicle();
+
+	if(!pVehicle)
+		return;
+
+	CGameRules *pGameRules = g_pGame->GetGameRules();
+
+	if(pGameRules)
+	{
+		HitInfo suicideInfo(pVehicle->GetEntityId(), pVehicle->GetEntityId(), pVehicle->GetEntityId(),
+							10000, 0, 0, -1, 0, pVehicle->GetEntity()->GetWorldPos(), ZERO, ZERO);
+		pGameRules->ClientHit(suicideInfo);
+	}
 }
 
 //------------------------------------------------------------------------
@@ -1544,12 +1580,12 @@ void CGame::CmdRestart(IConsoleCmdArgs *pArgs)
 //------------------------------------------------------------------------
 void CGame::CmdSay(IConsoleCmdArgs *pArgs)
 {
-	if (pArgs->GetArgCount()>1 && gEnv->bServer)
+	if(pArgs->GetArgCount()>1 && gEnv->bServer)
 	{
 		const char *msg=pArgs->GetCommandLine()+strlen(pArgs->GetArg(0))+1;
 		g_pGame->GetGameRules()->SendTextMessage(eTextMessageServer, msg, eRMI_ToAllClients);
 
-		if (!gEnv->IsClient())
+		if(!gEnv->IsClient())
 			CryLogAlways("** Server: %s **", msg);
 	}
 }
@@ -1586,116 +1622,125 @@ void CGame::CmdReloadItems(IConsoleCmdArgs *pArgs)
 //------------------------------------------------------------------------
 void CGame::CmdReloadGameRules(IConsoleCmdArgs *pArgs)
 {
-  if (gEnv->bMultiplayer)
-    return;
+	if(gEnv->bMultiplayer)
+		return;
 
-  IGameRulesSystem* pGameRulesSystem = g_pGame->GetIGameFramework()->GetIGameRulesSystem();
-  IGameRules* pGameRules = pGameRulesSystem->GetCurrentGameRules();
-    
-  const char* name = "SinglePlayer";
-  IEntityClass* pEntityClass = 0; 
-  
-  if (pGameRules)    
-  {
-    pEntityClass = pGameRules->GetEntity()->GetClass();
-    name = pEntityClass->GetName();
-  }  
-  else
-    pEntityClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(name);
+	IGameRulesSystem *pGameRulesSystem = g_pGame->GetIGameFramework()->GetIGameRulesSystem();
+	IGameRules *pGameRules = pGameRulesSystem->GetCurrentGameRules();
 
-  if (pEntityClass)
-  {
-    pEntityClass->LoadScript(true);
-  
-    if (pGameRulesSystem->CreateGameRules(name))
-      CryLog("reloaded GameRules <%s>", name);
-    else
-      GameWarning("reloading GameRules <%s> failed!", name);
-  }  
+	const char *name = "SinglePlayer";
+	IEntityClass *pEntityClass = 0;
+
+	if(pGameRules)
+	{
+		pEntityClass = pGameRules->GetEntity()->GetClass();
+		name = pEntityClass->GetName();
+	}
+	else
+		pEntityClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(name);
+
+	if(pEntityClass)
+	{
+		pEntityClass->LoadScript(true);
+
+		if(pGameRulesSystem->CreateGameRules(name))
+			CryLog("reloaded GameRules <%s>", name);
+		else
+			GameWarning("reloading GameRules <%s> failed!", name);
+	}
 }
 
-void CGame::CmdNextLevel(IConsoleCmdArgs* pArgs)
+void CGame::CmdNextLevel(IConsoleCmdArgs *pArgs)
 {
-  ILevelRotation *pLevelRotation = g_pGame->GetIGameFramework()->GetILevelSystem()->GetLevelRotation();
-  if (pLevelRotation->GetLength())
-    pLevelRotation->ChangeLevel(pArgs);
+	ILevelRotation *pLevelRotation = g_pGame->GetIGameFramework()->GetILevelSystem()->GetLevelRotation();
+
+	if(pLevelRotation->GetLength())
+		pLevelRotation->ChangeLevel(pArgs);
 }
 
-void CGame::CmdStartKickVoting(IConsoleCmdArgs* pArgs)
+void CGame::CmdStartKickVoting(IConsoleCmdArgs *pArgs)
 {
-  if (!gEnv->IsClient())
-    return;
+	if(!gEnv->IsClient())
+		return;
 
-  if (pArgs->GetArgCount() < 2)
-  {
-    GameWarning("usage: g_startKickVoting player_name");
-    return;
-  }
+	if(pArgs->GetArgCount() < 2)
+	{
+		GameWarning("usage: g_startKickVoting player_name");
+		return;
+	}
 
-  IActor *pClientActor=g_pGame->GetIGameFramework()->GetClientActor();
-  if (!pClientActor)
-    return;
+	IActor *pClientActor=g_pGame->GetIGameFramework()->GetClientActor();
 
-  IEntity* pEntity = gEnv->pEntitySystem->FindEntityByName(pArgs->GetArg(1));
-  if(pEntity)
-  {
-    IActor* pActor = g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pEntity->GetId());
-    if(pActor && pActor->IsPlayer())
-    {
-      CGameRules *pGameRules = g_pGame->GetGameRules();
-      if (pGameRules)
-      {
-        pGameRules->StartVoting(pGameRules->GetActorByEntityId(pClientActor->GetEntityId()),eVS_kick,pEntity->GetId(),"");
-      }
-    }
-  }
+	if(!pClientActor)
+		return;
+
+	IEntity *pEntity = gEnv->pEntitySystem->FindEntityByName(pArgs->GetArg(1));
+
+	if(pEntity)
+	{
+		IActor *pActor = g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pEntity->GetId());
+
+		if(pActor && pActor->IsPlayer())
+		{
+			CGameRules *pGameRules = g_pGame->GetGameRules();
+
+			if(pGameRules)
+			{
+				pGameRules->StartVoting(pGameRules->GetActorByEntityId(pClientActor->GetEntityId()),eVS_kick,pEntity->GetId(),"");
+			}
+		}
+	}
 }
 
-void CGame::CmdStartNextMapVoting(IConsoleCmdArgs* pArgs)
+void CGame::CmdStartNextMapVoting(IConsoleCmdArgs *pArgs)
 {
-  if (!gEnv->IsClient())
-    return;
+	if(!gEnv->IsClient())
+		return;
 
-  IActor *pClientActor=g_pGame->GetIGameFramework()->GetClientActor();
-  if (!pClientActor)
-    return;
+	IActor *pClientActor=g_pGame->GetIGameFramework()->GetClientActor();
 
-  CGameRules *pGameRules = g_pGame->GetGameRules();
-  if (pGameRules)
-  {
-    pGameRules->StartVoting(pGameRules->GetActorByEntityId(pClientActor->GetEntityId()),eVS_nextMap,0,"");
-  }
+	if(!pClientActor)
+		return;
+
+	CGameRules *pGameRules = g_pGame->GetGameRules();
+
+	if(pGameRules)
+	{
+		pGameRules->StartVoting(pGameRules->GetActorByEntityId(pClientActor->GetEntityId()),eVS_nextMap,0,"");
+	}
 }
 
 
-void CGame::CmdVote(IConsoleCmdArgs* pArgs)
+void CGame::CmdVote(IConsoleCmdArgs *pArgs)
 {
-  if (!gEnv->IsClient())
-    return;
+	if(!gEnv->IsClient())
+		return;
 
-  IActor *pClientActor=g_pGame->GetIGameFramework()->GetClientActor();
-  if (!pClientActor)
-    return;
+	IActor *pClientActor=g_pGame->GetIGameFramework()->GetClientActor();
 
-  CGameRules *pGameRules = g_pGame->GetGameRules();
-  if (pGameRules)
-  {
-    pGameRules->Vote(pGameRules->GetActorByEntityId(pClientActor->GetEntityId()), true);
-  }
+	if(!pClientActor)
+		return;
+
+	CGameRules *pGameRules = g_pGame->GetGameRules();
+
+	if(pGameRules)
+	{
+		pGameRules->Vote(pGameRules->GetActorByEntityId(pClientActor->GetEntityId()), true);
+	}
 }
 
-void CGame::CmdQuickGame(IConsoleCmdArgs* pArgs)
+void CGame::CmdQuickGame(IConsoleCmdArgs *pArgs)
 {
 }
 
-void CGame::CmdQuickGameStop(IConsoleCmdArgs* pArgs)
+void CGame::CmdQuickGameStop(IConsoleCmdArgs *pArgs)
 {
-  
+
 }
 
-void CGame::CmdBattleDustReload(IConsoleCmdArgs* pArgs)
+void CGame::CmdBattleDustReload(IConsoleCmdArgs *pArgs)
 {
-	if(CBattleDust* pBD = g_pGame->GetGameRules()->GetBattleDust())
+	if(CBattleDust *pBD = g_pGame->GetGameRules()->GetBattleDust())
 	{
 		pBD->ReloadXml();
 	}
@@ -1703,10 +1748,12 @@ void CGame::CmdBattleDustReload(IConsoleCmdArgs* pArgs)
 
 static bool GSCheckComplete()
 {
-  INetworkService* serv = gEnv->pNetwork->GetService("GameSpy");
-  if(!serv)
-    return true;
-  return serv->GetState() != eNSS_Initializing;
+	INetworkService *serv = gEnv->pNetwork->GetService("GameSpy");
+
+	if(!serv)
+		return true;
+
+	return serv->GetState() != eNSS_Initializing;
 }
 
 static bool GSLoggingIn_DEPRECATED()
@@ -1714,34 +1761,38 @@ static bool GSLoggingIn_DEPRECATED()
 	return true;
 }
 
-void CGame::CmdLogin(IConsoleCmdArgs* pArgs)
+void CGame::CmdLogin(IConsoleCmdArgs *pArgs)
 {
-  if(pArgs->GetArgCount()>2)
-  {
-    g_pGame->BlockingProcess(&GSCheckComplete);
-    INetworkService* serv = gEnv->pNetwork->GetService("GameSpy");
-    if(!serv || serv->GetState() != eNSS_Ok)
-      return;
+	if(pArgs->GetArgCount()>2)
+	{
+		g_pGame->BlockingProcess(&GSCheckComplete);
+		INetworkService *serv = gEnv->pNetwork->GetService("GameSpy");
+
+		if(!serv || serv->GetState() != eNSS_Ok)
+			return;
+
 		if(gEnv->IsDedicated())
 		{
-			if(INetworkProfile* profile = serv->GetNetworkProfile())
+			if(INetworkProfile *profile = serv->GetNetworkProfile())
 			{
 				profile->Login(pArgs->GetArg(1),pArgs->GetArg(2));
-			}			
-		}		
-  }
-  else
-    GameWarning("Invalid parameters.");
+			}
+		}
+	}
+	else
+		GameWarning("Invalid parameters.");
 }
 
-void CGame::CmdLoginProfile(IConsoleCmdArgs* pArgs)
+void CGame::CmdLoginProfile(IConsoleCmdArgs *pArgs)
 {
 	if(pArgs->GetArgCount()>3)
 	{
 		g_pGame->BlockingProcess(&GSCheckComplete);
-		INetworkService* serv = gEnv->pNetwork->GetService("GameSpy");
+		INetworkService *serv = gEnv->pNetwork->GetService("GameSpy");
+
 		if(!serv || serv->GetState() != eNSS_Ok)
 			return;
+
 		g_pGame->BlockingProcess(&GSLoggingIn_DEPRECATED);
 	}
 	else
@@ -1752,107 +1803,114 @@ static bool gGSConnecting = false;
 
 struct SCryNetConnectListener : public IServerListener
 {
-  virtual void RemoveServer(const int id){}
-  virtual void UpdatePing(const int id,const int ping){}
-  virtual void UpdateValue(const int id,const char* name,const char* value){}
-  virtual void UpdatePlayerValue(const int id,const int playerNum,const char* name,const char* value){}
-  virtual void UpdateTeamValue(const int id,const int teamNum,const char *name,const char* value){}
-  virtual void UpdateComplete(bool cancelled){}
+	virtual void RemoveServer(const int id) {}
+	virtual void UpdatePing(const int id,const int ping) {}
+	virtual void UpdateValue(const int id,const char *name,const char *value) {}
+	virtual void UpdatePlayerValue(const int id,const int playerNum,const char *name,const char *value) {}
+	virtual void UpdateTeamValue(const int id,const int teamNum,const char *name,const char *value) {}
+	virtual void UpdateComplete(bool cancelled) {}
 
-  //we only need this thing to connect to server
-  
-  virtual void OnError(const EServerBrowserError)
-  {
-    End(false);
-  }
-  
-  virtual void NewServer(const int id,const SBasicServerInfo* info)
-  {	
-    UpdateServer(id, info);
-  }
+	//we only need this thing to connect to server
 
-  virtual void UpdateServer(const int id,const SBasicServerInfo* info)
-  {
-    m_port = info->m_hostPort;
-  }
+	virtual void OnError(const EServerBrowserError)
+	{
+		End(false);
+	}
 
-  virtual void ServerUpdateFailed(const int id)
-  {
-    End(false);
-  }
-  virtual void ServerUpdateComplete(const int id)
-  { 
-    m_browser->CheckDirectConnect(id,m_port);
-  }
+	virtual void NewServer(const int id,const SBasicServerInfo *info)
+	{
+		UpdateServer(id, info);
+	}
 
-  virtual void ServerDirectConnect(bool neednat, uint32 ip, uint16 port)
-  {
-    string connect;
-    if(neednat)
-    {
-      int cookie = rand() + (rand()<<16);
-      connect.Format("connect <nat>%d|%d.%d.%d.%d:%d",cookie,ip&0xFF,(ip>>8)&0xFF,(ip>>16)&0xFF,(ip>>24)&0xFF,port);
-      m_browser->SendNatCookie(ip,port,cookie);
-    }
-    else
-    {
-      connect.Format("connect %d.%d.%d.%d:%d",ip&0xFF,(ip>>8)&0xFF,(ip>>16)&0xFF,(ip>>24)&0xFF,port);
-    }
-    m_browser->Stop();
-    End(true);
-    g_pGame->GetIGameFramework()->ExecuteCommandNextFrame(connect.c_str());
-  }
+	virtual void UpdateServer(const int id,const SBasicServerInfo *info)
+	{
+		m_port = info->m_hostPort;
+	}
 
-  void End(bool success)
-  {
-    if(!success)
-      CryLog("Server is not responding.");
-    gGSConnecting = false;
-    m_browser->Stop();
-    m_browser->SetListener(0);
-    delete this;
-  }
+	virtual void ServerUpdateFailed(const int id)
+	{
+		End(false);
+	}
+	virtual void ServerUpdateComplete(const int id)
+	{
+		m_browser->CheckDirectConnect(id,m_port);
+	}
 
-  IServerBrowser* m_browser;
-  uint16 m_port;
+	virtual void ServerDirectConnect(bool neednat, uint32 ip, uint16 port)
+	{
+		string connect;
+
+		if(neednat)
+		{
+			int cookie = rand() + (rand()<<16);
+			connect.Format("connect <nat>%d|%d.%d.%d.%d:%d",cookie,ip&0xFF,(ip>>8)&0xFF,(ip>>16)&0xFF,(ip>>24)&0xFF,port);
+			m_browser->SendNatCookie(ip,port,cookie);
+		}
+		else
+		{
+			connect.Format("connect %d.%d.%d.%d:%d",ip&0xFF,(ip>>8)&0xFF,(ip>>16)&0xFF,(ip>>24)&0xFF,port);
+		}
+
+		m_browser->Stop();
+		End(true);
+		g_pGame->GetIGameFramework()->ExecuteCommandNextFrame(connect.c_str());
+	}
+
+	void End(bool success)
+	{
+		if(!success)
+			CryLog("Server is not responding.");
+
+		gGSConnecting = false;
+		m_browser->Stop();
+		m_browser->SetListener(0);
+		delete this;
+	}
+
+	IServerBrowser *m_browser;
+	uint16 m_port;
 };
 
 
 static bool GSConnect()
 {
-  return !gGSConnecting;
+	return !gGSConnecting;
 }
 
-void CGame::CmdCryNetConnect(IConsoleCmdArgs* pArgs)
+void CGame::CmdCryNetConnect(IConsoleCmdArgs *pArgs)
 {
-  uint16 port = 64087;
+	uint16 port = 64087;
 
-  if(pArgs->GetArgCount()>2)
-    port = atoi(pArgs->GetArg(2));
-  else
-  {
-    ICVar* pv = gEnv->pConsole->GetCVar("cl_serverport");
-    if(pv)
-      port = pv->GetIVal();
-  }
-  if(pArgs->GetArgCount()>1)
-  {
-    g_pGame->BlockingProcess(&GSCheckComplete);
-    INetworkService* serv = gEnv->pNetwork->GetService("GameSpy");
-    if(!serv || serv->GetState() != eNSS_Ok)
-      return;
-    IServerBrowser* sb = serv->GetServerBrowser();
+	if(pArgs->GetArgCount()>2)
+		port = atoi(pArgs->GetArg(2));
+	else
+	{
+		ICVar *pv = gEnv->pConsole->GetCVar("cl_serverport");
 
-    SCryNetConnectListener* lst = new SCryNetConnectListener();
-    lst->m_browser = sb;
-    sb->SetListener(lst);
-    sb->Start(false);
-    sb->BrowseForServer(pArgs->GetArg(1),port);
-    gGSConnecting = true;
-    g_pGame->BlockingProcess(&GSConnect);
-  }
-  else
-    GameWarning("Invalid parameters.");
+		if(pv)
+			port = pv->GetIVal();
+	}
+
+	if(pArgs->GetArgCount()>1)
+	{
+		g_pGame->BlockingProcess(&GSCheckComplete);
+		INetworkService *serv = gEnv->pNetwork->GetService("GameSpy");
+
+		if(!serv || serv->GetState() != eNSS_Ok)
+			return;
+
+		IServerBrowser *sb = serv->GetServerBrowser();
+
+		SCryNetConnectListener *lst = new SCryNetConnectListener();
+		lst->m_browser = sb;
+		sb->SetListener(lst);
+		sb->Start(false);
+		sb->BrowseForServer(pArgs->GetArg(1),port);
+		gGSConnecting = true;
+		g_pGame->BlockingProcess(&GSConnect);
+	}
+	else
+		GameWarning("Invalid parameters.");
 }
 
 
@@ -1865,7 +1923,7 @@ Vec3 g_vel(ZERO);
 
 void CGame::CmdTestPathfinder(IConsoleCmdArgs *pArgs)
 {
-	if (pArgs->GetArgCount()<3)
+	if(pArgs->GetArgCount()<3)
 	{
 		GameWarning("Invalid parameters.");
 
@@ -1916,7 +1974,7 @@ void CGame::CmdTestPathfinder(IConsoleCmdArgs *pArgs)
 
 		virtual void PathEvent(SAIEVENT *pEvent)
 		{
-			if (!pEvent->bPathFound)
+			if(!pEvent->bPathFound)
 			{
 				CryLogAlways("A path was not found!");
 				delete this;
@@ -1925,7 +1983,7 @@ void CGame::CmdTestPathfinder(IConsoleCmdArgs *pArgs)
 
 			CryLogAlways("A path was found! Following it!");
 
-			if (!g_testPath)
+			if(!g_testPath)
 			{
 				g_testPath=gEnv->pAISystem->GetIAIPathFinder()->CreateEmptyPath();
 				assert(g_testPath);
@@ -1965,31 +2023,50 @@ void CGame::CmdTestPathfinder(IConsoleCmdArgs *pArgs)
 			return lastNavNode;
 		}
 
-		virtual void SetPathAgentLastNavNode(unsigned int lastNavNode) 
+		virtual void SetPathAgentLastNavNode(unsigned int lastNavNode)
 		{
 			this->lastNavNode=lastNavNode;
 		}
 
-		virtual Vec3 GetForcedStartPos() const { return ZERO; }
+		virtual Vec3 GetForcedStartPos() const
+		{
+			return ZERO;
+		}
 
-		virtual void SetPathToFollow( const char* pathName ){}
-		virtual void SetPathAttributeToFollow( bool bSpline ){}
-		virtual void SetPointListToFollow( const std::list<Vec3>& pointList,IAISystem::ENavigationType navType,bool bSpline ){}
+		virtual void SetPathToFollow(const char *pathName) {}
+		virtual void SetPathAttributeToFollow(bool bSpline) {}
+		virtual void SetPointListToFollow(const std::list<Vec3> &pointList,IAISystem::ENavigationType navType,bool bSpline) {}
 
-		//Path finding avoids blocker type by radius. 
-		virtual void SetPFBlockerRadius(int blockerType, float radius){}
+		//Path finding avoids blocker type by radius.
+		virtual void SetPFBlockerRadius(int blockerType, float radius) {}
 
 
 		//Can path be modified to use request.targetPoint?  Results are cacheded in request.
-		virtual ETriState CanTargetPointBeReached(CTargetPointRequest& request){ETriState garbage = eTS_maybe; return garbage;}
+		virtual ETriState CanTargetPointBeReached(CTargetPointRequest &request)
+		{
+			ETriState garbage = eTS_maybe;
+			return garbage;
+		}
 
 		//Is request still valid/use able
-		virtual bool UseTargetPointRequest(const CTargetPointRequest& request){return false;}//??
+		virtual bool UseTargetPointRequest(const CTargetPointRequest &request)
+		{
+			return false;   //??
+		}
 
-		virtual bool GetValidPositionNearby(const Vec3& proposedPosition, Vec3& adjustedPosition) const{return false;}
-		virtual bool GetTeleportPosition(Vec3& teleportPos) const{return false;}
+		virtual bool GetValidPositionNearby(const Vec3 &proposedPosition, Vec3 &adjustedPosition) const
+		{
+			return false;
+		}
+		virtual bool GetTeleportPosition(Vec3 &teleportPos) const
+		{
+			return false;
+		}
 
-		virtual class IPathFollower* GetPathFollower() const { return NULL; }
+		virtual class IPathFollower *GetPathFollower() const
+		{
+			return NULL;
+		}
 
 		AgentMovementAbility movementAbility;
 		unsigned int lastNavNode;
@@ -1997,9 +2074,9 @@ void CGame::CmdTestPathfinder(IConsoleCmdArgs *pArgs)
 
 	PathAgent *pRequester=new PathAgent();
 	pRequester->movementAbility.pathfindingProperties=AgentPathfindingProperties(
-		IAISystem::NAV_TRIANGULAR | IAISystem::NAV_WAYPOINT_HUMAN | IAISystem::NAV_SMARTOBJECT, 
-		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 
-		5.0f, 0.5f, -10000.0f, 0.0f, 20.0f, 7.0f);
+				IAISystem::NAV_TRIANGULAR | IAISystem::NAV_WAYPOINT_HUMAN | IAISystem::NAV_SMARTOBJECT,
+				0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+				5.0f, 0.5f, -10000.0f, 0.0f, 20.0f, 7.0f);
 
 	pRequester->movementAbility.b3DMove=false;
 	pRequester->movementAbility.bUsePathfinder=true;
@@ -2015,7 +2092,7 @@ void CGame::CmdTestPathfinder(IConsoleCmdArgs *pArgs)
 
 	Vec3 start=g_pGame->GetIGameFramework()->GetClientActor()->GetEntity()->GetWorldPos();
 	Vec3 endDir(0,1,0);
-	
+
 	g_pos=start;
 	g_vel.zero();
 
@@ -2023,43 +2100,48 @@ void CGame::CmdTestPathfinder(IConsoleCmdArgs *pArgs)
 }
 
 //------------------------------------------------------------------------
-void CGame::CmdReloadHitDeathReactions(IConsoleCmdArgs* pArgs)
+void CGame::CmdReloadHitDeathReactions(IConsoleCmdArgs *pArgs)
 {
-		g_pGame->GetHitDeathReactionsSystem().Reload();
+	g_pGame->GetHitDeathReactionsSystem().Reload();
 
-		if (pArgs->GetArgCount() > 1)
+	if(pArgs->GetArgCount() > 1)
+	{
+		IEntity *pEntity = gEnv->pEntitySystem->FindEntityByName(pArgs->GetArg(1));
+
+		if(pEntity)
 		{
-				IEntity* pEntity = gEnv->pEntitySystem->FindEntityByName(pArgs->GetArg(1));
-				if (pEntity)
-				{
-						IActor* pIActor = g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pEntity->GetId());
-						if (pIActor && (pIActor->GetActorClass() == CPlayer::GetActorClassType()))
-						{
-								CPlayer* pActor = static_cast<CPlayer*>(pIActor);
-								CHitDeathReactionsPtr pHitDeathReactions = pActor->GetHitDeathReactions();
-								if (pHitDeathReactions)
-										pHitDeathReactions->Reload();
-						}
-				}
+			IActor *pIActor = g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pEntity->GetId());
+
+			if(pIActor && (pIActor->GetActorClass() == CPlayer::GetActorClassType()))
+			{
+				CPlayer *pActor = static_cast<CPlayer *>(pIActor);
+				CHitDeathReactionsPtr pHitDeathReactions = pActor->GetHitDeathReactions();
+
+				if(pHitDeathReactions)
+					pHitDeathReactions->Reload();
+			}
 		}
-		else
+	}
+	else
+	{
+		IActorIteratorPtr pIt = g_pGame->GetIGameFramework()->GetIActorSystem()->CreateActorIterator();
+
+		while(IActor *pIActor = pIt->Next())
 		{
-				IActorIteratorPtr pIt = g_pGame->GetIGameFramework()->GetIActorSystem()->CreateActorIterator();
-				while (IActor* pIActor = pIt->Next())
-				{
-						if (pIActor->GetActorClass() == CPlayer::GetActorClassType())
-						{
-								CPlayer* pActor = static_cast<CPlayer*>(pIActor);
-								CHitDeathReactionsPtr pHitDeathReactions = pActor->GetHitDeathReactions();
-								if (pHitDeathReactions)
-										pHitDeathReactions->Reload();
-						}
-				}
+			if(pIActor->GetActorClass() == CPlayer::GetActorClassType())
+			{
+				CPlayer *pActor = static_cast<CPlayer *>(pIActor);
+				CHitDeathReactionsPtr pHitDeathReactions = pActor->GetHitDeathReactions();
+
+				if(pHitDeathReactions)
+					pHitDeathReactions->Reload();
+			}
 		}
+	}
 }
 
 //------------------------------------------------------------------------
-void CGame::CmdDumpHitDeathReactionsAssetUsage(IConsoleCmdArgs* pArgs)
+void CGame::CmdDumpHitDeathReactionsAssetUsage(IConsoleCmdArgs *pArgs)
 {
-		g_pGame->GetHitDeathReactionsSystem().DumpHitDeathReactionsAssetUsage();
+	g_pGame->GetHitDeathReactionsSystem().DumpHitDeathReactionsAssetUsage();
 }

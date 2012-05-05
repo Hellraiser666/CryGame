@@ -23,10 +23,10 @@ History:
 
 //------------------------------------------------------------------------
 CAVMine::CAVMine()
-: m_currentWeight(0)
-, m_triggerWeight(100)
-, m_teamId(0)
-, m_frozen(false)
+	: m_currentWeight(0)
+	, m_triggerWeight(100)
+	, m_teamId(0)
+	, m_frozen(false)
 {
 }
 
@@ -35,10 +35,11 @@ CAVMine::~CAVMine()
 {
 	if(gEnv->bMultiplayer && gEnv->bServer)
 	{
-		IActor* pOwner = g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(m_ownerId);
+		IActor *pOwner = g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(m_ownerId);
+
 		if(pOwner && pOwner->IsPlayer())
 		{
-			((CPlayer*)pOwner)->RecordExplosiveDestroyed(GetEntityId(), 1);
+			((CPlayer *)pOwner)->RecordExplosiveDestroyed(GetEntityId(), 1);
 		}
 	}
 }
@@ -72,10 +73,11 @@ void CAVMine::Launch(const Vec3 &pos, const Vec3 &dir, const Vec3 &velocity, flo
 
 	if(gEnv->bMultiplayer && gEnv->bServer)
 	{
-		CActor* pOwner = GetWeapon()->GetOwnerActor();
+		CActor *pOwner = GetWeapon()->GetOwnerActor();
+
 		if(pOwner && pOwner->IsPlayer())
 		{
-			((CPlayer*)pOwner)->RecordExplosivePlaced(GetEntityId(), 1);
+			((CPlayer *)pOwner)->RecordExplosivePlaced(GetEntityId(), 1);
 		}
 	}
 
@@ -85,12 +87,12 @@ void CAVMine::Launch(const Vec3 &pos, const Vec3 &dir, const Vec3 &velocity, flo
 
 	if(gEnv->bServer)
 	{
-		IEntityTriggerProxy *pTriggerProxy = (IEntityTriggerProxy*)(GetEntity()->GetProxy(ENTITY_PROXY_TRIGGER));
-		
-		if (!pTriggerProxy)
+		IEntityTriggerProxy *pTriggerProxy = (IEntityTriggerProxy *)(GetEntity()->GetProxy(ENTITY_PROXY_TRIGGER));
+
+		if(!pTriggerProxy)
 		{
 			GetEntity()->CreateProxy(ENTITY_PROXY_TRIGGER);
-			pTriggerProxy = (IEntityTriggerProxy*)GetEntity()->GetProxy(ENTITY_PROXY_TRIGGER);
+			pTriggerProxy = (IEntityTriggerProxy *)GetEntity()->GetProxy(ENTITY_PROXY_TRIGGER);
 		}
 
 		if(pTriggerProxy)
@@ -107,70 +109,78 @@ void CAVMine::HandleEvent(const SGameObjectEvent &event)
 {
 	CProjectile::HandleEvent(event);
 
-	if (event.event==eCGE_PostFreeze)
+	if(event.event==eCGE_PostFreeze)
 		m_frozen=event.param!=0;
 }
 
 
 void CAVMine::ProcessEvent(SEntityEvent &event)
 {
-	if (m_frozen)
+	if(m_frozen)
 		return;
 
 	switch(event.event)
 	{
-		case ENTITY_EVENT_ENTERAREA:
+	case ENTITY_EVENT_ENTERAREA:
+	{
+		IEntity *pEntity = gEnv->pEntitySystem->GetEntity((EntityId)event.nParam[0]);
+		CGameRules *pGR = g_pGame->GetGameRules();
+
+		if(pEntity && pGR)
 		{
-			IEntity * pEntity = gEnv->pEntitySystem->GetEntity((EntityId)event.nParam[0]);
-			CGameRules* pGR = g_pGame->GetGameRules();
-			if(pEntity && pGR)
+			// if this is a team game, mines aren't set off by their own team
+			if(pGR->GetTeamCount() > 0 && (m_teamId != 0 && pGR->GetTeam(pEntity->GetId()) == m_teamId))
+				break;
+
+			IPhysicalEntity *pPhysics = pEntity->GetPhysics();
+
+			if(pPhysics)
 			{
-				// if this is a team game, mines aren't set off by their own team
-				if(pGR->GetTeamCount() > 0 && (m_teamId != 0 && pGR->GetTeam(pEntity->GetId()) == m_teamId))
-					break;
+				pe_status_dynamics physStatus;
 
-				IPhysicalEntity *pPhysics = pEntity->GetPhysics();
-				if(pPhysics)
+				if(0 != pPhysics->GetStatus(&physStatus))
 				{
-					pe_status_dynamics physStatus;
-					if(0 != pPhysics->GetStatus(&physStatus))
-					{
-						// only count moving objects
-						if(physStatus.v.GetLengthSquared() > 0.1f)
-							m_currentWeight += physStatus.mass;
+					// only count moving objects
+					if(physStatus.v.GetLengthSquared() > 0.1f)
+						m_currentWeight += physStatus.mass;
 
-						if (m_currentWeight > m_triggerWeight)
-							Explode(true);
-					}
+					if(m_currentWeight > m_triggerWeight)
+						Explode(true);
 				}
 			}
-			break;
 		}
-		
 
-		case ENTITY_EVENT_LEAVEAREA:
+		break;
+	}
+
+
+	case ENTITY_EVENT_LEAVEAREA:
+	{
+		IEntity *pEntity = gEnv->pEntitySystem->GetEntity((EntityId)event.nParam[0]);
+
+		if(pEntity)
 		{
-			IEntity * pEntity = gEnv->pEntitySystem->GetEntity((EntityId)event.nParam[0]);
-			if(pEntity)
-			{
-				IPhysicalEntity *pPhysics = pEntity->GetPhysics();
-				if(pPhysics)
-				{
-					pe_status_dynamics physStatus;
-					if(0 != pPhysics->GetStatus(&physStatus))
-					{
-						m_currentWeight -= physStatus.mass;
+			IPhysicalEntity *pPhysics = pEntity->GetPhysics();
 
-						if(m_currentWeight < 0)
-							m_currentWeight = 0;
-					}
+			if(pPhysics)
+			{
+				pe_status_dynamics physStatus;
+
+				if(0 != pPhysics->GetStatus(&physStatus))
+				{
+					m_currentWeight -= physStatus.mass;
+
+					if(m_currentWeight < 0)
+						m_currentWeight = 0;
 				}
 			}
-			break;
 		}
 
-		default:
-			break;
+		break;
+	}
+
+	default:
+		break;
 	}
 
 	return CProjectile::ProcessEvent(event);
@@ -181,7 +191,7 @@ void CAVMine::SetParams(EntityId ownerId, EntityId hostId, EntityId weaponId, in
 	// if this is a team game, record which team placed this mine...
 	if(gEnv->bServer)
 	{
-		if(CGameRules* pGameRules = g_pGame->GetGameRules())
+		if(CGameRules *pGameRules = g_pGame->GetGameRules())
 		{
 			m_teamId = pGameRules->GetTeam(ownerId);
 			pGameRules->SetTeam(m_teamId, GetEntityId());

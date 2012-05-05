@@ -23,23 +23,26 @@ History:
 //===========AUX FUNCTIONS====================
 namespace
 {
-	void GetOffHandInfo(CWeapon* pThis, bool &offHandSelected, COffHand** pOffHand)
+	void GetOffHandInfo(CWeapon *pThis, bool &offHandSelected, COffHand **pOffHand)
 	{
 		CActor *pOwnerActor=pThis->GetOwnerActor();
-		if (pOwnerActor)
+
+		if(pOwnerActor)
 		{
-			(*pOffHand) = static_cast<COffHand*>(pOwnerActor->GetWeaponByClass(CItem::sOffHandClass));
+			(*pOffHand) = static_cast<COffHand *>(pOwnerActor->GetWeaponByClass(CItem::sOffHandClass));
+
 			if((*pOffHand) && (*pOffHand)->IsSelected())
 				offHandSelected = true;
 		}
 	}
 
-	void GetDualWieldInfo(CWeapon* pThis, bool &isDualWield, CWeapon** pSlave)
+	void GetDualWieldInfo(CWeapon *pThis, bool &isDualWield, CWeapon **pSlave)
 	{
-		if (pThis->IsDualWieldMaster())
+		if(pThis->IsDualWieldMaster())
 		{
 			IItem *slave = pThis->GetDualWieldSlave();
-			if (slave && slave->GetIWeapon())
+
+			if(slave && slave->GetIWeapon())
 			{
 				(*pSlave) = static_cast<CWeapon *>(slave);
 				isDualWield = true;
@@ -53,10 +56,10 @@ TActionHandler<CWeapon>	CWeapon::s_actionHandler;
 
 void CWeapon::RegisterActions()
 {
-	if (s_actionHandler.GetNumHandlers() == 0)
+	if(s_actionHandler.GetNumHandlers() == 0)
 	{
-		#define ADD_HANDLER(action, func) s_actionHandler.AddHandler(actions.action, &CWeapon::func)
-		const CGameActions& actions = g_pGame->Actions();
+#define ADD_HANDLER(action, func) s_actionHandler.AddHandler(actions.action, &CWeapon::func)
+		const CGameActions &actions = g_pGame->Actions();
 
 		ADD_HANDLER(attack1,OnActionAttack);
 		ADD_HANDLER(reload,OnActionReload);
@@ -68,11 +71,11 @@ void CWeapon::RegisterActions()
 		ADD_HANDLER(zoom,OnActionZoom);
 		ADD_HANDLER(xi_zoom,OnActionZoomXI);
 
-		#undef ADD_HANDLER
+#undef ADD_HANDLER
 	}
 }
 //-----------------------------------------------------
-void CWeapon::OnAction(EntityId actorId, const ActionId& actionId, int activationMode, float value)
+void CWeapon::OnAction(EntityId actorId, const ActionId &actionId, int activationMode, float value)
 {
 	CItem::OnAction(actorId, actionId, activationMode, value);
 
@@ -84,7 +87,8 @@ void CWeapon::ForcePendingActions(uint8 blockedActions)
 {
 	CItem::ForcePendingActions(blockedActions);
 
-	CActor* pOwner = GetOwnerActor();
+	CActor *pOwner = GetOwnerActor();
+
 	if(!pOwner || !pOwner->IsClient())
 		return;
 
@@ -99,6 +103,7 @@ void CWeapon::ForcePendingActions(uint8 blockedActions)
 		else if(IsDualWield() && IsDualWieldMaster())
 		{
 			IItem *slave = GetDualWieldSlave();
+
 			if(!IsWeaponRaised())
 			{
 				m_requestedFire = false;
@@ -106,7 +111,8 @@ void CWeapon::ForcePendingActions(uint8 blockedActions)
 			}
 			else if(slave && slave->GetIWeapon())
 			{
-				CWeapon* dualwield = static_cast<CWeapon*>(slave);
+				CWeapon *dualwield = static_cast<CWeapon *>(slave);
+
 				if(!dualwield->IsWeaponRaised())
 				{
 					m_requestedFire = false;
@@ -121,7 +127,8 @@ void CWeapon::ForcePendingActions(uint8 blockedActions)
 bool CWeapon::PreActionAttack(bool startFire)
 {
 	// Melee while pressing SHIFT for SP
-	CPlayer *pPlayer = static_cast<CPlayer*>(GetOwnerActor());
+	CPlayer *pPlayer = static_cast<CPlayer *>(GetOwnerActor());
+
 	if(!pPlayer)
 		return false;
 
@@ -130,7 +137,8 @@ bool CWeapon::PreActionAttack(bool startFire)
 		if(startFire && pPlayer->IsSprinting())
 		{
 			//Stop sprinting, start firing
-			SPlayerStats *pStats = static_cast<SPlayerStats*>(pPlayer->GetActorStats());
+			SPlayerStats *pStats = static_cast<SPlayerStats *>(pPlayer->GetActorStats());
+
 			if(pStats)
 			{
 				pStats->bSprinting = false;
@@ -140,7 +148,8 @@ bool CWeapon::PreActionAttack(bool startFire)
 		else if(!startFire)
 		{
 			//Stop firing, continue sprinting
-			SPlayerStats *pStats = static_cast<SPlayerStats*>(pPlayer->GetActorStats());
+			SPlayerStats *pStats = static_cast<SPlayerStats *>(pPlayer->GetActorStats());
+
 			if(pStats)
 				pStats->bIgnoreSprinting = false;
 
@@ -151,22 +160,22 @@ bool CWeapon::PreActionAttack(bool startFire)
 }
 
 //--------------------------------------------------------------------
-bool CWeapon::OnActionAttack(EntityId actorId, const ActionId& actionId, int activationMode, float value)
+bool CWeapon::OnActionAttack(EntityId actorId, const ActionId &actionId, int activationMode, float value)
 {
 	if(!m_modifying)
 	{
 		if(IsTwoHand())
 		{
-			COffHand * offHandWeapon = NULL;
+			COffHand *offHandWeapon = NULL;
 			bool isOffHandSelected = false;
 			GetOffHandInfo(this,isOffHandSelected,&offHandWeapon);
 
-			if(offHandWeapon && 
-				(offHandWeapon->GetOffHandState()&(eOHS_HOLDING_GRENADE|eOHS_SWITCHING_GRENADE|eOHS_PICKING_ITEM)))
+			if(offHandWeapon &&
+					(offHandWeapon->GetOffHandState()&(eOHS_HOLDING_GRENADE|eOHS_SWITCHING_GRENADE|eOHS_PICKING_ITEM)))
 				return false;
 		}
 
-		if (activationMode == eAAM_OnPress)
+		if(activationMode == eAAM_OnPress)
 		{
 
 			if(PreActionAttack(true))
@@ -176,19 +185,19 @@ bool CWeapon::OnActionAttack(EntityId actorId, const ActionId& actionId, int act
 			CWeapon *dualWield = NULL;
 			GetDualWieldInfo(this,isDualWield,&dualWield);
 
-			if (isDualWield)
+			if(isDualWield)
 			{
 				m_fire_alternation = !m_fire_alternation;
 				m_requestedFire = true;
 
-				if (m_fire_alternation || !dualWield->CanFire())
+				if(m_fire_alternation || !dualWield->CanFire())
 				{
 					if(!IsWeaponRaised() && CanFire())
 						StartFire();
 					else if(!dualWield->IsWeaponRaised())
 						dualWield->StartFire();
 				}
-				else if (dualWield->CanFire())
+				else if(dualWield->CanFire())
 				{
 					if(!dualWield->IsWeaponRaised() && dualWield->CanFire())
 						dualWield->StartFire();
@@ -209,7 +218,7 @@ bool CWeapon::OnActionAttack(EntityId actorId, const ActionId& actionId, int act
 				m_requestedFire = true;
 			}
 		}
-		else if (activationMode == eAAM_OnRelease)
+		else if(activationMode == eAAM_OnRelease)
 		{
 			PreActionAttack(false);
 
@@ -222,15 +231,15 @@ bool CWeapon::OnActionAttack(EntityId actorId, const ActionId& actionId, int act
 }
 
 //---------------------------------------------------------
-bool CWeapon::OnActionReload(EntityId actorId, const ActionId& actionId, int activationMode, float value)
+bool CWeapon::OnActionReload(EntityId actorId, const ActionId &actionId, int activationMode, float value)
 {
 	if(activationMode==eAAM_OnPress)
 	{
-		COffHand * offHandWeapon = NULL;
+		COffHand *offHandWeapon = NULL;
 		bool isOffHandSelected = false;
 		GetOffHandInfo(this,isOffHandSelected,&offHandWeapon);
 
-		if (!IsBusy() && !m_modifying && !isOffHandSelected)
+		if(!IsBusy() && !m_modifying && !isOffHandSelected)
 		{
 			bool isDualWield = false;
 			CWeapon *dualWield = NULL;
@@ -241,10 +250,11 @@ bool CWeapon::OnActionReload(EntityId actorId, const ActionId& actionId, int act
 
 			Reload();
 
-			if (isDualWield)
+			if(isDualWield)
 			{
 				if(dualWield->IsWeaponRaised() && dualWield->CanReload())
 					dualWield->RaiseWeapon(false);
+
 				dualWield->Reload();
 			}
 		}
@@ -254,15 +264,15 @@ bool CWeapon::OnActionReload(EntityId actorId, const ActionId& actionId, int act
 }
 
 //---------------------------------------------------------------------------------
-bool CWeapon::OnActionFiremode(EntityId actorId, const ActionId& actionId, int activationMode, float value)
+bool CWeapon::OnActionFiremode(EntityId actorId, const ActionId &actionId, int activationMode, float value)
 {
-	if (activationMode==eAAM_OnPress)
+	if(activationMode==eAAM_OnPress)
 	{
 		bool isDualWield = false;
 		CWeapon *dualWield = NULL;
 		GetDualWieldInfo(this,isDualWield,&dualWield);
 
-		if (isDualWield)
+		if(isDualWield)
 		{
 			if(IsWeaponRaised())
 				RaiseWeapon(false,true);
@@ -278,6 +288,7 @@ bool CWeapon::OnActionFiremode(EntityId actorId, const ActionId& actionId, int a
 			{
 				RaiseWeapon(false,true);
 			}
+
 			StartChangeFireMode();
 		}
 	}
@@ -286,20 +297,20 @@ bool CWeapon::OnActionFiremode(EntityId actorId, const ActionId& actionId, int a
 }
 
 //---------------------------------------------------------------------
-bool CWeapon::OnActionSpecial(EntityId actorId, const ActionId& actionId, int activationMode, float value)
+bool CWeapon::OnActionSpecial(EntityId actorId, const ActionId &actionId, int activationMode, float value)
 {
-	if (activationMode == eAAM_OnPress)
+	if(activationMode == eAAM_OnPress)
 	{
 		if(m_weaponRaised)
 		{
 			RaiseWeapon(false,true);
 		}
 
-		COffHand * offHandWeapon = NULL;
+		COffHand *offHandWeapon = NULL;
 		bool isOffHandSelected = false;
 		GetOffHandInfo(this,isOffHandSelected,&offHandWeapon);
 
-		if (CanMeleeAttack() && (!isOffHandSelected || (offHandWeapon->GetOffHandState()&(eOHS_HOLDING_NPC|eOHS_TRANSITIONING))))
+		if(CanMeleeAttack() && (!isOffHandSelected || (offHandWeapon->GetOffHandState()&(eOHS_HOLDING_NPC|eOHS_TRANSITIONING))))
 			MeleeAttack();
 	}
 
@@ -314,7 +325,8 @@ public:
 	{
 		_pWeapon = wep;
 	}
-	void execute(CItem *item) {
+	void execute(CItem *item)
+	{
 		_pWeapon->m_transitioning = false;
 		gEnv->p3DEngine->SetPostEffectParam("Dof_Active", 0.0f);
 		_pWeapon->s_dofSpeed=0.0f;
@@ -330,7 +342,7 @@ public:
 	{
 		_pWeapon = wep;
 	}
-	void execute(CItem *item) 
+	void execute(CItem *item)
 	{
 		_pWeapon->PlayLayer(g_pItemStrings->modify_layer, eIPAF_Default|eIPAF_NoBlend, false);
 		_pWeapon->m_transitioning = false;
@@ -343,15 +355,15 @@ private:
 };
 
 //-------------------------------------------------------------------------
-bool CWeapon::OnActionModify(EntityId actorId, const ActionId& actionId, int activationMode, float value)
+bool CWeapon::OnActionModify(EntityId actorId, const ActionId &actionId, int activationMode, float value)
 {
-	COffHand * offHandWeapon = NULL;
+	COffHand *offHandWeapon = NULL;
 	bool isOffHandSelected = false;
 	GetOffHandInfo(this,isOffHandSelected,&offHandWeapon);
 
-	if (!IsBusy() && !isOffHandSelected)
+	if(!IsBusy() && !isOffHandSelected)
 	{
-		if (m_fm)
+		if(m_fm)
 			m_fm->StopFire();
 
 		if(m_zm && m_zm->IsZoomed())
@@ -361,7 +373,8 @@ bool CWeapon::OnActionModify(EntityId actorId, const ActionId& actionId, int act
 		{
 			RaiseWeapon(false,true);
 		}
-		if (m_modifying && !m_transitioning)
+
+		if(m_modifying && !m_transitioning)
 		{
 			StopLayer(g_pItemStrings->modify_layer, eIPAF_Default, false);
 			PlayAction(g_pItemStrings->leave_modify, 0);
@@ -376,7 +389,7 @@ bool CWeapon::OnActionModify(EntityId actorId, const ActionId& actionId, int act
 
 			GetGameObject()->InvokeRMI(CItem::SvRequestLeaveModify(), CItem::EmptyParams(), eRMI_ToServer);
 		}
-		else if (!m_modifying && !m_transitioning)
+		else if(!m_modifying && !m_transitioning)
 		{
 			gEnv->p3DEngine->SetPostEffectParam("Dof_Active", 1.0f);
 			gEnv->p3DEngine->SetPostEffectParam("Dof_FocusRange", -1.0f);
@@ -401,24 +414,26 @@ bool CWeapon::OnActionModify(EntityId actorId, const ActionId& actionId, int act
 }
 
 //---------------------------------------------------------
-bool CWeapon::OnActionZoomIn(EntityId actorId, const ActionId& actionId, int activationMode, float value)
+bool CWeapon::OnActionZoomIn(EntityId actorId, const ActionId &actionId, int activationMode, float value)
 {
 	if(m_zm && m_zm->IsZoomed())
 	{
 		int numSteps = m_zm->GetMaxZoomSteps();
+
 		if((numSteps>1) && (m_zm->GetCurrentStep()<numSteps))
-			StartZoom(actorId,1);	
+			StartZoom(actorId,1);
 	}
 
 	return true;
 }
 
 //----------------------------------------------------------
-bool CWeapon::OnActionZoomOut(EntityId actorId, const ActionId& actionId, int activationMode, float value)
+bool CWeapon::OnActionZoomOut(EntityId actorId, const ActionId &actionId, int activationMode, float value)
 {
 	if(m_zm && m_zm->IsZoomed())
 	{
 		int numSteps = m_zm->GetMaxZoomSteps();
+
 		if((numSteps>1) && (m_zm->GetCurrentStep()>1))
 			m_zm->ZoomOut();
 	}
@@ -427,23 +442,23 @@ bool CWeapon::OnActionZoomOut(EntityId actorId, const ActionId& actionId, int ac
 }
 
 //----------------------------------------------------------
-bool CWeapon::OnActionZoom(EntityId actorId, const ActionId& actionId, int activationMode, float value)
+bool CWeapon::OnActionZoom(EntityId actorId, const ActionId &actionId, int activationMode, float value)
 {
-	COffHand * offHandWeapon = NULL;
+	COffHand *offHandWeapon = NULL;
 	bool isOffHandSelected = false;
 	GetOffHandInfo(this,isOffHandSelected,&offHandWeapon);
 
-	if (!m_modifying && (!isOffHandSelected || (offHandWeapon->GetOffHandState()&eOHS_TRANSITIONING)))
+	if(!m_modifying && (!isOffHandSelected || (offHandWeapon->GetOffHandState()&eOHS_TRANSITIONING)))
 	{
 		bool isDualWield = false;
 		CWeapon *dualWield = NULL;
 		GetDualWieldInfo(this,isDualWield,&dualWield);
 
-		if (!isDualWield)
+		if(!isDualWield)
 		{
-			if (m_fm && !m_fm->IsReloading())
+			if(m_fm && !m_fm->IsReloading())
 			{
-				if (activationMode == eAAM_OnPress)
+				if(activationMode == eAAM_OnPress)
 				{
 					if(!m_fm->AllowZoom())
 					{
@@ -459,12 +474,12 @@ bool CWeapon::OnActionZoom(EntityId actorId, const ActionId& actionId, int activ
 					}
 
 					//Use mouse wheel for scopes with several steps/stages
-					if (m_zm && m_zm->IsZoomed() && m_zm->GetMaxZoomSteps()>1)
+					if(m_zm && m_zm->IsZoomed() && m_zm->GetMaxZoomSteps()>1)
 						m_zm->StopZoom();
 					else
 						StartZoom(actorId,1);
 				}
-				else if (activationMode == eAAM_OnRelease)
+				else if(activationMode == eAAM_OnRelease)
 				{
 					if(m_zm && !m_zm->IsToggle())
 						m_zm->StopZoom();
@@ -477,28 +492,28 @@ bool CWeapon::OnActionZoom(EntityId actorId, const ActionId& actionId, int activ
 }
 
 //------------------------------------------------------------------------------
-bool CWeapon::OnActionZoomXI(EntityId actorId, const ActionId& actionId, int activationMode, float value)
+bool CWeapon::OnActionZoomXI(EntityId actorId, const ActionId &actionId, int activationMode, float value)
 {
-	COffHand * offHandWeapon = NULL;
+	COffHand *offHandWeapon = NULL;
 	bool isOffHandSelected = false;
 	GetOffHandInfo(this,isOffHandSelected,&offHandWeapon);
 
-	if (!m_modifying && !isOffHandSelected && !IsWeaponRaised())
+	if(!m_modifying && !isOffHandSelected && !IsWeaponRaised())
 	{
 		bool isDualWield = false;
 		CWeapon *dualWield = NULL;
 		GetDualWieldInfo(this,isDualWield,&dualWield);
 
-		if (g_pGameCVars->ctrl_ZoomMode)
+		if(g_pGameCVars->ctrl_ZoomMode)
 		{
-			if (activationMode == eAAM_OnPress)
+			if(activationMode == eAAM_OnPress)
 			{
-				if (!isDualWield)
+				if(!isDualWield)
 				{
 					if(m_fm && !m_fm->IsReloading())
 					{
 						// The zoom code includes the aim assistance
-						if (m_fm->AllowZoom())
+						if(m_fm->AllowZoom())
 							StartZoom(actorId,1);
 						else
 							m_fm->Cancel();
@@ -510,9 +525,9 @@ bool CWeapon::OnActionZoomXI(EntityId actorId, const ActionId& actionId, int act
 					AssistAiming(1, true);
 				}
 			}
-			else if (activationMode == eAAM_OnRelease)
+			else if(activationMode == eAAM_OnRelease)
 			{
-				if (!isDualWield)
+				if(!isDualWield)
 				{
 					if(m_fm && !m_fm->IsReloading())
 						StopZoom(actorId);
@@ -521,12 +536,12 @@ bool CWeapon::OnActionZoomXI(EntityId actorId, const ActionId& actionId, int act
 		}
 		else
 		{
-			if (activationMode == eAAM_OnPress && m_fm && !m_fm->IsReloading())
+			if(activationMode == eAAM_OnPress && m_fm && !m_fm->IsReloading())
 			{
-				if (!isDualWield)
+				if(!isDualWield)
 				{
-					if (m_fm->AllowZoom())
-						StartZoom(actorId,1);		
+					if(m_fm->AllowZoom())
+						StartZoom(actorId,1);
 					else
 						m_fm->Cancel();
 				}

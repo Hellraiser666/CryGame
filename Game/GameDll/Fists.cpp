@@ -26,22 +26,22 @@ TActionHandler<CFists>	CFists::s_actionHandler;
 #define TIMEOUT			2.5f
 //------------------------------------------------------------------------
 CFists::CFists()
-:m_underWater(false)
-,m_currentAnimState(eFAS_FIGHT)
-,m_inFreeFall(false)
-,m_timeOut(0.0f)
+	:m_underWater(false)
+	,m_currentAnimState(eFAS_FIGHT)
+	,m_inFreeFall(false)
+	,m_timeOut(0.0f)
 {
 	m_useFPCamSpacePP = true; //Overwritten by OffHand
 
-	if (s_actionHandler.GetNumHandlers() == 0)
+	if(s_actionHandler.GetNumHandlers() == 0)
 	{
-	#define ADD_HANDLER(action, func) s_actionHandler.AddHandler(actions.action, &CFists::func)
-		const CGameActions& actions = g_pGame->Actions();
+#define ADD_HANDLER(action, func) s_actionHandler.AddHandler(actions.action, &CFists::func)
+		const CGameActions &actions = g_pGame->Actions();
 
 		ADD_HANDLER(attack1, OnActionAttack);
 		ADD_HANDLER(attack2, OnActionAttack);
 		ADD_HANDLER(special, OnActionSpecial);
-		#undef ADD_HANDLER
+#undef ADD_HANDLER
 	}
 }
 
@@ -55,7 +55,7 @@ CFists::~CFists()
 void CFists::Reset()
 {
 	CItem::Reset();
-	
+
 	m_currentAnimState = eFAS_FIGHT;
 	m_underWater = false;
 	m_inFreeFall = false;
@@ -65,7 +65,7 @@ void CFists::Update(SEntityUpdateContext &ctx, int slot)
 {
 	CWeapon::Update(ctx, slot);
 
-	if ( slot == eIUS_General )
+	if(slot == eIUS_General)
 		UpdateAnimState(ctx.fFrameTime);
 }
 
@@ -76,11 +76,11 @@ void CFists::UpdateFPView(float frameTime)
 }
 
 //------------------------------------------------------------------------
-void CFists::OnAction(EntityId actorId, const ActionId& actionId, int activationMode, float value)
+void CFists::OnAction(EntityId actorId, const ActionId &actionId, int activationMode, float value)
 {
-	if (IsSelected() && !m_underWater)
+	if(IsSelected() && !m_underWater)
 	{
-		if (!s_actionHandler.Dispatch(this, actorId, actionId, activationMode, value))
+		if(!s_actionHandler.Dispatch(this, actorId, actionId, activationMode, value))
 		{
 			CWeapon::OnAction(actorId, actionId, activationMode, value);
 		}
@@ -160,57 +160,68 @@ void CFists::RequestAnimState(EFistAnimState eFAS, bool force /*=false*/)
 	{
 		switch(eFAS)
 		{
-					case eFAS_NOSTATE:	m_currentAnimState = eFAS_NOSTATE;
-															m_timeOut = TIMEOUT;
-															break;
+		case eFAS_NOSTATE:
+			m_currentAnimState = eFAS_NOSTATE;
+			m_timeOut = TIMEOUT;
+			break;
 
-					case eFAS_RELAXED: if(m_currentAnimState!=eFAS_NOSTATE && m_currentAnimState!=eFAS_RELAXED)
-															{
-																m_currentAnimState = eFAS_RELAXED;
-																m_timeOut = TIMEOUT;
-																PlayAction(g_pItemStrings->deselect);
-																SetDefaultIdleAnimation( eIGS_FirstPerson,g_pItemStrings->idle_relaxed);
-															 }
-																break;
+		case eFAS_RELAXED:
+			if(m_currentAnimState!=eFAS_NOSTATE && m_currentAnimState!=eFAS_RELAXED)
+			{
+				m_currentAnimState = eFAS_RELAXED;
+				m_timeOut = TIMEOUT;
+				PlayAction(g_pItemStrings->deselect);
+				SetDefaultIdleAnimation(eIGS_FirstPerson,g_pItemStrings->idle_relaxed);
+			}
 
-					case eFAS_FIGHT:		//if(m_currentAnimState!=eFAS_RUNNING)
-															{
-																SetDefaultIdleAnimation( eIGS_FirstPerson,g_pItemStrings->idle);
-																m_currentAnimState = eFAS_FIGHT;
-																m_timeOut = TIMEOUT;
-															}
-															break;
+			break;
 
-					case eFAS_RUNNING:	if(m_currentAnimState==eFAS_RELAXED || CanMeleeAttack())
-															{
-																PlayAction(g_pItemStrings->run_forward,0,true);
-																m_currentAnimState = eFAS_RUNNING;
-															}
-															break;
+		case eFAS_FIGHT:		//if(m_currentAnimState!=eFAS_RUNNING)
+		{
+			SetDefaultIdleAnimation(eIGS_FirstPerson,g_pItemStrings->idle);
+			m_currentAnimState = eFAS_FIGHT;
+			m_timeOut = TIMEOUT;
+		}
+		break;
 
-					case eFAS_JUMPING:	if(m_currentAnimState==eFAS_RUNNING)
-															{
-																PlayAction(g_pItemStrings->jump_start);
-																SetDefaultIdleAnimation( eIGS_FirstPerson,g_pItemStrings->jump_idle);
-																m_currentAnimState = eFAS_JUMPING;
-															}
-															break;
+		case eFAS_RUNNING:
+			if(m_currentAnimState==eFAS_RELAXED || CanMeleeAttack())
+			{
+				PlayAction(g_pItemStrings->run_forward,0,true);
+				m_currentAnimState = eFAS_RUNNING;
+			}
 
-					case eFAS_LANDING:	 if(m_currentAnimState==eFAS_JUMPING)
-															{
-																PlayAction(g_pItemStrings->jump_end);
-																SetDefaultIdleAnimation( eIGS_FirstPerson,g_pItemStrings->idle_relaxed);
-																m_currentAnimState = eFAS_RELAXED;
-															}
-															 break;
+			break;
 
-					case eFAS_CRAWL:		if(m_currentAnimState!=eFAS_CRAWL)
-															{
-																PlayAction(g_pItemStrings->crawl,0,true);
-																//SetDefaultIdleAnimation( eIGS_FirstPerson,g_pItemStrings->crawl);
-																m_currentAnimState = eFAS_CRAWL;
-															}
-															break;
+		case eFAS_JUMPING:
+			if(m_currentAnimState==eFAS_RUNNING)
+			{
+				PlayAction(g_pItemStrings->jump_start);
+				SetDefaultIdleAnimation(eIGS_FirstPerson,g_pItemStrings->jump_idle);
+				m_currentAnimState = eFAS_JUMPING;
+			}
+
+			break;
+
+		case eFAS_LANDING:
+			if(m_currentAnimState==eFAS_JUMPING)
+			{
+				PlayAction(g_pItemStrings->jump_end);
+				SetDefaultIdleAnimation(eIGS_FirstPerson,g_pItemStrings->idle_relaxed);
+				m_currentAnimState = eFAS_RELAXED;
+			}
+
+			break;
+
+		case eFAS_CRAWL:
+			if(m_currentAnimState!=eFAS_CRAWL)
+			{
+				PlayAction(g_pItemStrings->crawl,0,true);
+				//SetDefaultIdleAnimation( eIGS_FirstPerson,g_pItemStrings->crawl);
+				m_currentAnimState = eFAS_CRAWL;
+			}
+
+			break;
 
 
 		}
@@ -219,45 +230,55 @@ void CFists::RequestAnimState(EFistAnimState eFAS, bool force /*=false*/)
 	{
 		switch(eFAS)
 		{
-					case eFAS_SWIM_IDLE:		if(m_currentAnimState!=eFAS_SWIM_IDLE)
-																	{
-																		m_currentAnimState = eFAS_SWIM_IDLE;
-																		PlayAction(g_pItemStrings->swim_idle,0,true,eIPAF_Default|eIPAF_CleanBlending);
-																		//SetDefaultIdleAnimation( eIGS_FirstPerson,g_pItemStrings->swim_idle);
-																	}
-																	break;
+		case eFAS_SWIM_IDLE:
+			if(m_currentAnimState!=eFAS_SWIM_IDLE)
+			{
+				m_currentAnimState = eFAS_SWIM_IDLE;
+				PlayAction(g_pItemStrings->swim_idle,0,true,eIPAF_Default|eIPAF_CleanBlending);
+				//SetDefaultIdleAnimation( eIGS_FirstPerson,g_pItemStrings->swim_idle);
+			}
 
-					case eFAS_SWIM_FORWARD:	if(m_currentAnimState!=eFAS_SWIM_FORWARD)
-																	{
-																		m_currentAnimState = eFAS_SWIM_FORWARD;
-																		PlayAction(g_pItemStrings->swim_forward,0,true,eIPAF_Default|eIPAF_CleanBlending);
-																		//SetDefaultIdleAnimation( eIGS_FirstPerson,g_pItemStrings->swim_forward);
-																	}
-																	break;
+			break;
 
-					case eFAS_SWIM_BACKWARD: if(m_currentAnimState!=eFAS_SWIM_BACKWARD)
-																	 {
-																		 m_currentAnimState = eFAS_SWIM_BACKWARD;
-																		 PlayAction(g_pItemStrings->swim_backward,0,true,eIPAF_Default|eIPAF_CleanBlending);
-																		 //SetDefaultIdleAnimation( eIGS_FirstPerson,g_pItemStrings->swim_backward);
-																	 }
-																	 break;
+		case eFAS_SWIM_FORWARD:
+			if(m_currentAnimState!=eFAS_SWIM_FORWARD)
+			{
+				m_currentAnimState = eFAS_SWIM_FORWARD;
+				PlayAction(g_pItemStrings->swim_forward,0,true,eIPAF_Default|eIPAF_CleanBlending);
+				//SetDefaultIdleAnimation( eIGS_FirstPerson,g_pItemStrings->swim_forward);
+			}
 
-					case eFAS_SWIM_SPEED:		if(m_currentAnimState!=eFAS_SWIM_SPEED)
-																	{
-																		m_currentAnimState = eFAS_SWIM_SPEED;
-																		PlayAction(g_pItemStrings->speed_swim,0,true,eIPAF_Default|eIPAF_CleanBlending);
-																		//SetDefaultIdleAnimation( eIGS_FirstPerson,g_pItemStrings->speed_swim);
-																	}
-																	break;
+			break;
 
-					case eFAS_SWIM_FORWARD_S: if(m_currentAnimState!=eFAS_SWIM_FORWARD_S)
-																		{
-																			m_currentAnimState = eFAS_SWIM_FORWARD_S;
-																			PlayAction(g_pItemStrings->swim_forward_2,0,true,eIPAF_Default|eIPAF_CleanBlending);
-																			//SetDefaultIdleAnimation( eIGS_FirstPerson,g_pItemStrings->swim_forward_2);
-																		}
-																		break;
+		case eFAS_SWIM_BACKWARD:
+			if(m_currentAnimState!=eFAS_SWIM_BACKWARD)
+			{
+				m_currentAnimState = eFAS_SWIM_BACKWARD;
+				PlayAction(g_pItemStrings->swim_backward,0,true,eIPAF_Default|eIPAF_CleanBlending);
+				//SetDefaultIdleAnimation( eIGS_FirstPerson,g_pItemStrings->swim_backward);
+			}
+
+			break;
+
+		case eFAS_SWIM_SPEED:
+			if(m_currentAnimState!=eFAS_SWIM_SPEED)
+			{
+				m_currentAnimState = eFAS_SWIM_SPEED;
+				PlayAction(g_pItemStrings->speed_swim,0,true,eIPAF_Default|eIPAF_CleanBlending);
+				//SetDefaultIdleAnimation( eIGS_FirstPerson,g_pItemStrings->speed_swim);
+			}
+
+			break;
+
+		case eFAS_SWIM_FORWARD_S:
+			if(m_currentAnimState!=eFAS_SWIM_FORWARD_S)
+			{
+				m_currentAnimState = eFAS_SWIM_FORWARD_S;
+				PlayAction(g_pItemStrings->swim_forward_2,0,true,eIPAF_Default|eIPAF_CleanBlending);
+				//SetDefaultIdleAnimation( eIGS_FirstPerson,g_pItemStrings->swim_forward_2);
+			}
+
+			break;
 		}
 	}
 
@@ -269,7 +290,7 @@ void CFists::RequestAnimState(EFistAnimState eFAS, bool force /*=false*/)
 
 struct CFists::EndRaiseWeaponAction
 {
-	EndRaiseWeaponAction(CFists *_fists): fists(_fists){};
+	EndRaiseWeaponAction(CFists *_fists): fists(_fists) {};
 	CFists *fists;
 
 	void execute(CItem *_this)
@@ -289,23 +310,26 @@ void CFists::RaiseWeapon(bool raise, bool faster /*= false*/)
 
 		PlayAction(g_pItemStrings->raise);
 
-		SetDefaultIdleAnimation( eIGS_FirstPerson,g_pItemStrings->idle_relaxed);
+		SetDefaultIdleAnimation(eIGS_FirstPerson,g_pItemStrings->idle_relaxed);
 		SetWeaponRaised(true);
 
 		//Also give the player some impulse into the opposite direction
 		CActor *pPlayer = GetOwnerActor();
 		Vec3		pos;
+
 		if(pPlayer)
 		{
-			IPhysicalEntity* playerPhysics = pPlayer->GetEntity()->GetPhysics();
+			IPhysicalEntity *playerPhysics = pPlayer->GetEntity()->GetPhysics();
+
 			if(playerPhysics)
 			{
 				IMovementController *pMC = pPlayer->GetMovementController();
+
 				if(pMC)
 				{
 					SMovementState state;
 					pMC->GetMovementState(state);
-					
+
 					pe_action_impulse impulse;
 					impulse.iApplyTime = 1;
 					impulse.impulse = -state.eyeDirection*600.0f;
@@ -313,7 +337,7 @@ void CFists::RaiseWeapon(bool raise, bool faster /*= false*/)
 
 					pos = state.eyePosition + state.eyeDirection*0.5f;
 				}
-				
+
 			}
 		}
 
@@ -331,47 +355,53 @@ void CFists::RaiseWeapon(bool raise, bool faster /*= false*/)
 void CFists::CollisionFeeback(Vec3 &pos, int eFAS)
 {
 
-	CPlayer *pPlayer = static_cast<CPlayer*>(GetOwnerActor());
+	CPlayer *pPlayer = static_cast<CPlayer *>(GetOwnerActor());
+
 	if(pPlayer)
 	{
 		switch(eFAS)
 		{
-			case eFAS_RUNNING:
-				pPlayer->PlaySound(CPlayer::ESound_Hit_Wall,true,true,"speed",0.4f);
-				break;
+		case eFAS_RUNNING:
+			pPlayer->PlaySound(CPlayer::ESound_Hit_Wall,true,true,"speed",0.4f);
+			break;
 
-			case eFAS_JUMPING:
-				pPlayer->PlaySound(CPlayer::ESound_Hit_Wall,true,true,"speed",0.8f);
-				break;
+		case eFAS_JUMPING:
+			pPlayer->PlaySound(CPlayer::ESound_Hit_Wall,true,true,"speed",0.8f);
+			break;
 
-			default:
-				break;
+		default:
+			break;
 		}
 	}
 
 	//FX feedback
 	IParticleEffect *pEffect = gEnv->pParticleManager->FindEffect("collisions.footsteps.dirt");
-	if (pEffect)
+
+	if(pEffect)
 	{
 		Matrix34 tm = IParticleEffect::ParticleLoc(pos);
 		pEffect->Spawn(true,tm);
-	}	
+	}
 }
 
 //---------------------------------------------------------------
-bool CFists::OnActionAttack(EntityId actorId, const ActionId& actionId, int activationMode, float value)
+bool CFists::OnActionAttack(EntityId actorId, const ActionId &actionId, int activationMode, float value)
 {
 	CWeapon::OnAction(actorId, actionId, activationMode, value);
+
 	if(m_fm && m_fm->IsFiring())
 		RequestAnimState(eFAS_FIGHT);
+
 	return false;
 }
 
-bool CFists::OnActionSpecial(EntityId actorId, const ActionId& actionId, int activationMode, float value)
+bool CFists::OnActionSpecial(EntityId actorId, const ActionId &actionId, int activationMode, float value)
 {
 	CWeapon::OnAction(actorId, actionId, activationMode, value);
+
 	if(m_melee && m_melee->IsFiring())
 		RequestAnimState(eFAS_FIGHT);
+
 	return false;
 }
 

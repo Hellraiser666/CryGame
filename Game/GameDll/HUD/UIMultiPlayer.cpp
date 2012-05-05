@@ -6,7 +6,7 @@
 //  File name:   UIMultiPlayer.cpp
 //  Version:     v1.00
 //  Created:     26/8/2011 by Paul Reindell.
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -30,12 +30,13 @@ CUIMultiPlayer::CUIMultiPlayer()
 ////////////////////////////////////////////////////////////////////////////
 void CUIMultiPlayer::InitEventSystem()
 {
-	if (!gEnv->pFlashUI)
+	if(!gEnv->pFlashUI)
 		return;
 
-	ICVar* pServerVar = gEnv->pConsole->GetCVar("cl_serveraddr");
+	ICVar *pServerVar = gEnv->pConsole->GetCVar("cl_serveraddr");
 	m_ServerName = pServerVar ? pServerVar->GetString() : "";
-	if (m_ServerName == "")
+
+	if(m_ServerName == "")
 		m_ServerName = "localhost";
 
 	// events to send from this class to UI flowgraphs
@@ -127,7 +128,7 @@ void CUIMultiPlayer::InitEventSystem()
 ////////////////////////////////////////////////////////////////////////////
 void CUIMultiPlayer::UnloadEventSystem()
 {
-	if (gEnv->pFlashUI)
+	if(gEnv->pFlashUI)
 		gEnv->pFlashUI->UnregisterModule(this);
 }
 
@@ -147,13 +148,13 @@ void CUIMultiPlayer::EnteredGame()
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void CUIMultiPlayer::PlayerJoined(EntityId playerid, const string& name)
+void CUIMultiPlayer::PlayerJoined(EntityId playerid, const string &name)
 {
-	CryLogAlways("[CUIMultiPlayer] PlayerJoined %i %s", playerid, name.c_str() );
+	CryLogAlways("[CUIMultiPlayer] PlayerJoined %i %s", playerid, name.c_str());
 
 	m_Players[playerid].name = name;
 
-	if (gEnv->pGame->GetIGameFramework()->GetClientActorId() == playerid)
+	if(gEnv->pGame->GetIGameFramework()->GetClientActorId() == playerid)
 	{
 		SubmitNewName();
 		return;
@@ -163,19 +164,19 @@ void CUIMultiPlayer::PlayerJoined(EntityId playerid, const string& name)
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void CUIMultiPlayer::PlayerLeft(EntityId playerid, const string& name)
+void CUIMultiPlayer::PlayerLeft(EntityId playerid, const string &name)
 {
-	CryLogAlways("[CUIMultiPlayer] PlayerLeft %i %s", playerid, name.c_str() );
+	CryLogAlways("[CUIMultiPlayer] PlayerLeft %i %s", playerid, name.c_str());
 
-	if (gEnv->pGame->GetIGameFramework()->GetClientActorId() == playerid)
+	if(gEnv->pGame->GetIGameFramework()->GetClientActorId() == playerid)
 		return;
 
 	// fix up player id in case that the entity was already removed and the Network was not able to resolve entity id
-	if (playerid == NULL)
+	if(playerid == NULL)
 	{
-		for (TPlayers::const_iterator it = m_Players.begin(); it != m_Players.end(); ++it)
+		for(TPlayers::const_iterator it = m_Players.begin(); it != m_Players.end(); ++it)
 		{
-			if (it->second.name == name)
+			if(it->second.name == name)
 			{
 				playerid = it->first;
 			}
@@ -183,7 +184,7 @@ void CUIMultiPlayer::PlayerLeft(EntityId playerid, const string& name)
 	}
 
 	const bool ok = stl::member_find_and_erase(m_Players, playerid);
- 	assert( ok );
+	assert(ok);
 
 	m_eventSender.SendEvent<eUIE_PlayerLeft>(playerid, name);
 }
@@ -195,9 +196,9 @@ void CUIMultiPlayer::PlayerKilled(EntityId playerid, EntityId shooterid)
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void CUIMultiPlayer::PlayerRenamed(EntityId playerid, const string& newName)
+void CUIMultiPlayer::PlayerRenamed(EntityId playerid, const string &newName)
 {
-	CryLogAlways("[CUIMultiPlayer] PlayerRenamed %i %s", playerid, newName.c_str() );
+	CryLogAlways("[CUIMultiPlayer] PlayerRenamed %i %s", playerid, newName.c_str());
 
 	m_Players[playerid].name = newName;
 
@@ -210,9 +211,10 @@ void CUIMultiPlayer::PlayerRenamed(EntityId playerid, const string& newName)
 void CUIMultiPlayer::RequestPlayers()
 {
 	IActorIteratorPtr actors = gEnv->pGame->GetIGameFramework()->GetIActorSystem()->CreateActorIterator();
-	while (IActor* pActor = actors->Next())
+
+	while(IActor *pActor = actors->Next())
 	{
-		if (pActor->IsPlayer() && m_Players.find(pActor->GetEntityId()) == m_Players.end())
+		if(pActor->IsPlayer() && m_Players.find(pActor->GetEntityId()) == m_Players.end())
 		{
 			PlayerJoined(pActor->GetEntityId(), pActor->GetEntity()->GetName());
 		}
@@ -226,16 +228,16 @@ void CUIMultiPlayer::GetPlayerName()
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void CUIMultiPlayer::SetPlayerName( const string& newname )
+void CUIMultiPlayer::SetPlayerName(const string &newname)
 {
 	m_LocalPlayerName = newname;
 	SubmitNewName();
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void CUIMultiPlayer::ConnectToServer( const string& server )
+void CUIMultiPlayer::ConnectToServer(const string &server)
 {
-	if (gEnv->IsEditor()) return;
+	if(gEnv->IsEditor()) return;
 
 	m_ServerName = server;
 	g_pGame->GetIGameFramework()->ExecuteCommandNextFrame(string().Format("connect %s", server.c_str()));
@@ -252,49 +254,53 @@ void CUIMultiPlayer::GetServerName()
 ////////////////////////////////////////////////////////////////////////////
 void CUIMultiPlayer::SubmitNewName()
 {
-	if (m_LocalPlayerName.empty())
+	if(m_LocalPlayerName.empty())
 		return;
 
-	INetChannel* pNetChannel = g_pGame->GetIGameFramework()->GetClientChannel();
-	if (pNetChannel && pNetChannel->GetNickname() && strcmp(pNetChannel->GetNickname(), m_LocalPlayerName.c_str()) == 0 )
+	INetChannel *pNetChannel = g_pGame->GetIGameFramework()->GetClientChannel();
+
+	if(pNetChannel && pNetChannel->GetNickname() && strcmp(pNetChannel->GetNickname(), m_LocalPlayerName.c_str()) == 0)
 		return;
 
-	CActor* pLocalPlayer = (CActor*) g_pGame->GetIGameFramework()->GetClientActor();
-	if (pLocalPlayer && g_pGame->GetGameRules())
-		g_pGame->GetGameRules()->RenamePlayer( pLocalPlayer, m_LocalPlayerName.c_str() );
+	CActor *pLocalPlayer = (CActor *) g_pGame->GetIGameFramework()->GetClientActor();
+
+	if(pLocalPlayer && g_pGame->GetGameRules())
+		g_pGame->GetGameRules()->RenamePlayer(pLocalPlayer, m_LocalPlayerName.c_str());
 };
 
 ////////////////////////////////////////////////////////////////////////////
-string CUIMultiPlayer::GetPlayerNameById( EntityId playerid )
+string CUIMultiPlayer::GetPlayerNameById(EntityId playerid)
 {
 	TPlayers::const_iterator it = m_Players.find(playerid);
-	if (it != m_Players.end() )
+
+	if(it != m_Players.end())
 	{
 		return it->second.name;
 	}
 
-	IEntity* pEntity = gEnv->pEntitySystem->GetEntity(playerid);
+	IEntity *pEntity = gEnv->pEntitySystem->GetEntity(playerid);
 	return pEntity ? pEntity->GetName() : "<UNDEFINED>";
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void CUIMultiPlayer::LoadProfile(IPlayerProfile* pProfile)
+void CUIMultiPlayer::LoadProfile(IPlayerProfile *pProfile)
 {
-	pProfile->GetAttribute( "mp_username", m_LocalPlayerName);
-	pProfile->GetAttribute( "mp_server",  m_ServerName);
+	pProfile->GetAttribute("mp_username", m_LocalPlayerName);
+	pProfile->GetAttribute("mp_server",  m_ServerName);
 
 	// override if setup in system cfg
-	ICVar* pServerVar = gEnv->pConsole->GetCVar("cl_serveraddr");
-	if (pServerVar && pServerVar->GetString() != "")
+	ICVar *pServerVar = gEnv->pConsole->GetCVar("cl_serveraddr");
+
+	if(pServerVar && pServerVar->GetString() != "")
 		m_ServerName = pServerVar->GetString();
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void CUIMultiPlayer::SaveProfile(IPlayerProfile* pProfile) const
+void CUIMultiPlayer::SaveProfile(IPlayerProfile *pProfile) const
 {
-	pProfile->SetAttribute( "mp_username", m_LocalPlayerName);
-	pProfile->SetAttribute( "mp_server",  m_ServerName);
+	pProfile->SetAttribute("mp_username", m_LocalPlayerName);
+	pProfile->SetAttribute("mp_server",  m_ServerName);
 }
 
 ////////////////////////////////////////////////////////////////////////////
-REGISTER_UI_EVENTSYSTEM( CUIMultiPlayer );
+REGISTER_UI_EVENTSYSTEM(CUIMultiPlayer);

@@ -56,25 +56,29 @@ void CShotgun::StartReload(int zoomed)
 		return;
 
 	int ammoCount = m_pWeapon->GetAmmoCount(m_pShared->fireparams.ammo_type_class);
-	if ((ammoCount >= m_pShared->fireparams.clip_size) || m_reloading)
+
+	if((ammoCount >= m_pShared->fireparams.clip_size) || m_reloading)
 		return;
 
 	m_max_shells = m_pShared->fireparams.clip_size - ammoCount;
 
 	m_reload_was_broken = false;
 	m_reloading = true;
-	if (zoomed)
+
+	if(zoomed)
 		m_pWeapon->ExitZoom();
 
-	IEntityClass* ammo = m_pShared->fireparams.ammo_type_class;
+	IEntityClass *ammo = m_pShared->fireparams.ammo_type_class;
 	m_pWeapon->OnStartReload(m_pWeapon->GetOwnerId(), ammo);
 
 	m_pWeapon->PlayAction(g_pItemStrings->begin_reload, 0, false, CItem::eIPAF_Default|CItem::eIPAF_RepeatLastFrame);
 
 	m_reload_pump = ammoCount > 0 ? false : true;
-	uint32 animTime = m_pWeapon->GetCurrentAnimationTime( eIGS_FirstPerson);
+	uint32 animTime = m_pWeapon->GetCurrentAnimationTime(eIGS_FirstPerson);
+
 	if(animTime==0)
 		animTime = 500; //For DS
+
 	m_pWeapon->GetScheduler()->TimerAction(animTime, CSchedulerAction<BeginReloadLoop>::Create(BeginReloadLoop(this, zoomed)), false);
 
 	m_pWeapon->GetScheduler()->TimerAction((uint32)((m_pShared->fireparams.reload_time-0.125f)*1000), CSchedulerAction<SliderBack>::Create(this), false);
@@ -96,9 +100,9 @@ public:
 		if(fm->m_reload_was_broken)
 			return;
 
-		IEntityClass* pAmmoType = fm->GetAmmoType();
+		IEntityClass *pAmmoType = fm->GetAmmoType();
 
-		if (pWep->IsServer())
+		if(pWep->IsServer())
 		{
 			const int ammoCount = pWep->GetAmmoCount(pAmmoType);
 			const int inventoryCount = pWep->GetInventoryAmmoCount(pAmmoType);
@@ -108,9 +112,10 @@ public:
 			pWep->SetAmmoCount(pAmmoType, ammoCount + refill);
 			pWep->SetInventoryAmmoCount(pAmmoType, pWep->GetInventoryAmmoCount(pAmmoType) - refill);
 		}
+
 		g_pGame->GetIGameFramework()->GetIGameplayRecorder()->Event(pWep->GetOwner(), GameplayEvent(eGE_WeaponReload, pAmmoType->GetName(), 1, (void *)(pWep->GetEntityId())));
 
-		if (!fm->m_break_reload)
+		if(!fm->m_break_reload)
 			fm->ReloadShell(rzoomed);
 		else
 			fm->EndReload(rzoomed);
@@ -125,19 +130,22 @@ void CShotgun::ReloadShell(int zoomed)
 	if(m_reload_was_broken)
 		return;
 
-	CActor* pOwner = m_pWeapon->GetOwnerActor();
+	CActor *pOwner = m_pWeapon->GetOwnerActor();
 	bool isAI = pOwner && (pOwner->IsPlayer() == false);
 	int ammoCount = m_pWeapon->GetAmmoCount(m_pShared->fireparams.ammo_type_class);
-	if ((ammoCount < m_pShared->fireparams.clip_size) && (m_max_shells>0) &&
-		(isAI || (m_pWeapon->GetInventoryAmmoCount(m_pShared->fireparams.ammo_type_class) > 0)) ) // AI has unlimited ammo
+
+	if((ammoCount < m_pShared->fireparams.clip_size) && (m_max_shells>0) &&
+			(isAI || (m_pWeapon->GetInventoryAmmoCount(m_pShared->fireparams.ammo_type_class) > 0)))  // AI has unlimited ammo
 	{
 		m_max_shells --;
-		
+
 		// reload a shell
 		m_pWeapon->PlayAction(g_pItemStrings->reload_shell, 0, false, CItem::eIPAF_Default|CItem::eIPAF_RepeatLastFrame|CItem::eIPAF_RestartAnimation);
-		uint32 animTime = m_pWeapon->GetCurrentAnimationTime( eIGS_FirstPerson);
+		uint32 animTime = m_pWeapon->GetCurrentAnimationTime(eIGS_FirstPerson);
+
 		if(animTime==0)
 			animTime = 530; //For DS
+
 		m_pWeapon->GetScheduler()->TimerAction(animTime, CSchedulerAction<PartialReloadAction>::Create(PartialReloadAction(m_pWeapon, zoomed)), false);
 		// call this again
 	}
@@ -159,14 +167,14 @@ public:
 	void execute(CItem *_this)
 	{
 		CShotgun *fm = (CShotgun *)pWep->GetFireMode(pWep->GetCurrentFireMode());
-		IEntityClass* ammo = fm->GetAmmoType();
+		IEntityClass *ammo = fm->GetAmmoType();
 		pWep->OnEndReload(pWep->GetOwnerId(), ammo);
 
 		fm->m_reloading = false;
 		fm->m_emptyclip = false;
 		fm->m_spinUpTime = fm->m_firing?fm->m_pShared->fireparams.spin_up_time:0.0f;
 
-		if (fm->m_break_reload)
+		if(fm->m_break_reload)
 		{
 			fm->Shoot(true, true);
 			fm->m_break_reload=false;
@@ -188,17 +196,18 @@ void CShotgun::EndReload(int zoomed)
 	CActor *pActor = m_pWeapon->GetOwnerActor();
 
 	float speedOverride = 1.0f;
+
 	if(m_reload_was_broken)
 		speedOverride = 1.75f;
 
 	uint32 animTime = 100;
 
-	if (m_reload_pump && !m_reload_was_broken)
+	if(m_reload_pump && !m_reload_was_broken)
 		m_pWeapon->PlayAction(g_pItemStrings->exit_reload_pump,0,false,CItem::eIPAF_Default,speedOverride);
 	else
 		m_pWeapon->PlayAction(g_pItemStrings->exit_reload_nopump,0,false,CItem::eIPAF_Default,speedOverride);
 
-	animTime = m_pWeapon->GetCurrentAnimationTime( eIGS_FirstPerson);
+	animTime = m_pWeapon->GetCurrentAnimationTime(eIGS_FirstPerson);
 
 	if(!m_reload_was_broken)
 		m_pWeapon->GetScheduler()->TimerAction(animTime, CSchedulerAction<ReloadEndAction>::Create(ReloadEndAction(m_pWeapon, zoomed)), false);
@@ -211,8 +220,8 @@ void CShotgun::EndReload(int zoomed)
 bool CShotgun::CanFire(bool considerAmmo) const
 {
 	return (m_next_shot<=0.0f) && (m_spinUpTime<=0.0f) &&
-		!m_pWeapon->IsBusy() && !m_pWeapon->IsSwitchingFireMode() && (!considerAmmo || !OutOfAmmo() || !m_pShared->fireparams.ammo_type_class || m_pShared->fireparams.clip_size == -1)
-		&& (!m_reloading || m_pShared->shotgunparams.partial_reload);
+		   !m_pWeapon->IsBusy() && !m_pWeapon->IsSwitchingFireMode() && (!considerAmmo || !OutOfAmmo() || !m_pShared->fireparams.ammo_type_class || m_pShared->fireparams.clip_size == -1)
+		   && (!m_reloading || m_pShared->shotgunparams.partial_reload);
 }
 
 class CShotgun::ScheduleReload
@@ -222,7 +231,7 @@ public:
 	{
 		_pWeapon = wep;
 	}
-	void execute(CItem *item) 
+	void execute(CItem *item)
 	{
 		_pWeapon->Reload();
 	}
@@ -232,23 +241,24 @@ private:
 
 bool CShotgun::Shoot(bool resetAnimation, bool autoreload/* =true */, bool noSound /* =false */)
 {
-	IEntityClass* ammo = m_pShared->fireparams.ammo_type_class;
+	IEntityClass *ammo = m_pShared->fireparams.ammo_type_class;
 	int ammoCount = m_pWeapon->GetAmmoCount(ammo);
 
-	if (m_pShared->fireparams.clip_size==0)
+	if(m_pShared->fireparams.clip_size==0)
 		ammoCount = m_pWeapon->GetInventoryAmmoCount(ammo);
 
 	CActor *pActor = m_pWeapon->GetOwnerActor();
 	bool playerIsShooter = pActor?pActor->IsPlayer():false;
 
-	if (!CanFire(true))
+	if(!CanFire(true))
 	{
-		if ((ammoCount <= 0) && (!m_reloading))
+		if((ammoCount <= 0) && (!m_reloading))
 		{
 			m_pWeapon->PlayAction(m_pShared->actions.empty_clip);
 			//Auto reload
 			m_pWeapon->Reload();
-		}	
+		}
+
 		return false;
 	}
 	else if(m_pWeapon->IsWeaponLowered())
@@ -257,16 +267,17 @@ bool CShotgun::Shoot(bool resetAnimation, bool autoreload/* =true */, bool noSou
 		return false;
 	}
 
-	if (m_reloading)
+	if(m_reloading)
 	{
 		if(m_pWeapon->IsBusy())
 			m_pWeapon->SetBusy(false);
-		
+
 		if(CanFire(true) && !m_break_reload)
 		{
 			m_break_reload = true;
 			m_pWeapon->RequestCancelReload();
 		}
+
 		return false;
 	}
 
@@ -274,7 +285,8 @@ bool CShotgun::Shoot(bool resetAnimation, bool autoreload/* =true */, bool noSou
 	m_pWeapon->AssistAiming();
 
 	const char *action = m_pShared->actions.fire_cock.c_str();
-	if (ammoCount == 1 || (m_pShared->fireparams.no_cock && m_pWeapon->IsZoomed()))
+
+	if(ammoCount == 1 || (m_pShared->fireparams.no_cock && m_pWeapon->IsZoomed()))
 		action = m_pShared->actions.fire.c_str();
 
 	m_pWeapon->PlayAction(action, 0, false, CItem::eIPAF_Default|CItem::eIPAF_RestartAnimation|CItem::eIPAF_CleanBlending);
@@ -286,23 +298,24 @@ bool CShotgun::Shoot(bool resetAnimation, bool autoreload/* =true */, bool noSou
 	Vec3 dir;
 
 	CheckNearMisses(hit, pos, fdir, WEAPON_HIT_RANGE, m_pShared->shotgunparams.spread);
-	
+
 	bool serverSpawn = m_pWeapon->IsServerSpawn(ammo);
 
 	// SHOT HERE
-	for (int i = 0; i < m_pShared->shotgunparams.pellets; i++)
+	for(int i = 0; i < m_pShared->shotgunparams.pellets; i++)
 	{
 		CProjectile *pAmmo = m_pWeapon->SpawnAmmo(ammo, false);
-		if (pAmmo)
+
+		if(pAmmo)
 		{
-			dir = ApplySpread(fdir, m_pShared->shotgunparams.spread);      
-      int hitTypeId = g_pGame->GetGameRules()->GetHitTypeId(m_pShared->fireparams.hit_type.c_str());			
-      
+			dir = ApplySpread(fdir, m_pShared->shotgunparams.spread);
+			int hitTypeId = g_pGame->GetGameRules()->GetHitTypeId(m_pShared->fireparams.hit_type.c_str());
+
 			pAmmo->SetParams(m_pWeapon->GetOwnerId(), m_pWeapon->GetHostId(), m_pWeapon->GetEntityId(), m_pShared->shotgunparams.pelletdamage, hitTypeId, playerIsShooter?m_pShared->fireparams.damage_drop_per_meter:0.0f, m_pShared->fireparams.damage_drop_min_distance);
 			pAmmo->SetDestination(m_pWeapon->GetDestination());
 			pAmmo->Launch(pos, dir, vel);
 
-			if ((!m_pShared->tracerparams.geometry.empty() || !m_pShared->tracerparams.effect.empty()) && (ammoCount==GetClipSize() || (ammoCount%m_pShared->tracerparams.frequency==0)))
+			if((!m_pShared->tracerparams.geometry.empty() || !m_pShared->tracerparams.effect.empty()) && (ammoCount==GetClipSize() || (ammoCount%m_pShared->tracerparams.frequency==0)))
 			{
 				EmitTracer(pos,hit,false);
 			}
@@ -313,7 +326,7 @@ bool CShotgun::Shoot(bool resetAnimation, bool autoreload/* =true */, bool noSou
 
 	m_pWeapon->OnShoot(m_pWeapon->GetOwnerId(), 0, ammo, pos, dir, vel);
 
-	if (m_pWeapon->IsServer())
+	if(m_pWeapon->IsServer())
 	{
 		const char *ammoName = ammo != NULL ? ammo->GetName() : NULL;
 		g_pGame->GetIGameFramework()->GetIGameplayRecorder()->Event(m_pWeapon->GetOwner(), GameplayEvent(eGE_WeaponShot, ammoName, m_pShared->shotgunparams.pellets, (void *)m_pWeapon->GetEntityId()));
@@ -327,14 +340,15 @@ bool CShotgun::Shoot(bool resetAnimation, bool autoreload/* =true */, bool noSou
 	m_zoomtimeout = m_next_shot + 0.5f;
 	ammoCount--;
 
-	if (playerIsShooter)
+	if(playerIsShooter)
 	{
-		if (pActor->InZeroG())
+		if(pActor->InZeroG())
 		{
-			IEntityPhysicalProxy *pPhysicsProxy = (IEntityPhysicalProxy*)pActor->GetEntity()->GetProxy(ENTITY_PROXY_PHYSICS);
+			IEntityPhysicalProxy *pPhysicsProxy = (IEntityPhysicalProxy *)pActor->GetEntity()->GetProxy(ENTITY_PROXY_PHYSICS);
 			SMovementState ms;
 			pActor->GetMovementController()->GetMovementState(ms);
 			CPlayer *plr = (CPlayer *)pActor;
+
 			if(m_recoilparams.back_impulse > 0.0f)
 			{
 				Vec3 impulseDir = ms.aimDirection * -1.0f;
@@ -342,36 +356,40 @@ bool CShotgun::Shoot(bool resetAnimation, bool autoreload/* =true */, bool noSou
 				float impulse = m_recoilparams.back_impulse;
 				pPhysicsProxy->AddImpulse(-1, impulsePos, impulseDir * impulse * 100.0f, true, 1.0f);
 			}
+
 			if(m_recoilparams.angular_impulse > 0.0f)
 			{
 				float impulse = m_recoilparams.angular_impulse;
 				pActor->AddAngularImpulse(Ang3(0,impulse,0), 1.0f);
 			}
 		}
+
 		if(pActor->IsClient())
-			if (gEnv->pInput) 
-				gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.15f, 0.0f, fabsf(m_recoilparams.back_impulse)*3.0f) );
+			if(gEnv->pInput)
+				gEnv->pInput->ForceFeedbackEvent(SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.15f, 0.0f, fabsf(m_recoilparams.back_impulse)*3.0f));
 	}
-	if (m_pShared->fireparams.clip_size != -1)
+
+	if(m_pShared->fireparams.clip_size != -1)
 	{
-		if (m_pShared->fireparams.clip_size!=0)
+		if(m_pShared->fireparams.clip_size!=0)
 			m_pWeapon->SetAmmoCount(ammo, ammoCount);
 		else
 			m_pWeapon->SetInventoryAmmoCount(ammo, ammoCount);
 	}
 
-	if ((ammoCount<1) && !m_pShared->fireparams.slider_layer.empty())
+	if((ammoCount<1) && !m_pShared->fireparams.slider_layer.empty())
 	{
 		const char *slider_back_layer = m_pShared->fireparams.slider_layer.c_str();
 		m_pWeapon->PlayLayer(slider_back_layer, CItem::eIPAF_Default|CItem::eIPAF_NoBlend);
 	}
 
-	if (OutOfAmmo())
+	if(OutOfAmmo())
 	{
 		m_pWeapon->OnOutOfAmmo(ammo);
-		if (autoreload)
+
+		if(autoreload)
 		{
-			m_pWeapon->GetScheduler()->TimerAction(m_pWeapon->GetCurrentAnimationTime( eIGS_FirstPerson), CSchedulerAction<ScheduleReload>::Create(m_pWeapon), false);
+			m_pWeapon->GetScheduler()->TimerAction(m_pWeapon->GetCurrentAnimationTime(eIGS_FirstPerson), CSchedulerAction<ScheduleReload>::Create(m_pWeapon), false);
 		}
 	}
 
@@ -385,17 +403,18 @@ void CShotgun::NetShootEx(const Vec3 &pos, const Vec3 &dir, const Vec3 &vel, con
 {
 	assert(0 == ph);
 
-	IEntityClass* ammo = m_pShared->fireparams.ammo_type_class;
+	IEntityClass *ammo = m_pShared->fireparams.ammo_type_class;
 	const char *action = m_pShared->actions.fire_cock.c_str();
 
 	CActor *pActor = m_pWeapon->GetOwnerActor();
 	bool playerIsShooter = pActor?pActor->IsPlayer():false;
 
 	int ammoCount = m_pWeapon->GetAmmoCount(ammo);
-	if (m_pShared->fireparams.clip_size==0)
+
+	if(m_pShared->fireparams.clip_size==0)
 		ammoCount = m_pWeapon->GetInventoryAmmoCount(ammo);
 
-	if (ammoCount == 1)
+	if(ammoCount == 1)
 		action = m_pShared->actions.fire.c_str();
 
 	m_pWeapon->ResetAnimation();
@@ -404,13 +423,14 @@ void CShotgun::NetShootEx(const Vec3 &pos, const Vec3 &dir, const Vec3 &vel, con
 	Vec3 pdir;
 
 	// SHOT HERE
-	for (int i = 0; i < m_pShared->shotgunparams.pellets; i++)
+	for(int i = 0; i < m_pShared->shotgunparams.pellets; i++)
 	{
 		CProjectile *pAmmo = m_pWeapon->SpawnAmmo(ammo, true);
-		if (pAmmo)
+
+		if(pAmmo)
 		{
 			pdir = ApplySpread(dir, m_pShared->shotgunparams.spread);
-      int hitTypeId = g_pGame->GetGameRules()->GetHitTypeId(m_pShared->fireparams.hit_type.c_str());			
+			int hitTypeId = g_pGame->GetGameRules()->GetHitTypeId(m_pShared->fireparams.hit_type.c_str());
 
 			pAmmo->SetParams(m_pWeapon->GetOwnerId(), m_pWeapon->GetHostId(), m_pWeapon->GetEntityId(), m_pShared->shotgunparams.pelletdamage, hitTypeId, playerIsShooter?m_pShared->fireparams.damage_drop_per_meter:0.0f, m_pShared->fireparams.damage_drop_min_distance);
 			pAmmo->SetDestination(m_pWeapon->GetDestination());
@@ -418,12 +438,13 @@ void CShotgun::NetShootEx(const Vec3 &pos, const Vec3 &dir, const Vec3 &vel, con
 			pAmmo->Launch(pos, pdir, vel);
 
 			bool emit = false;
+
 			if(m_pWeapon->GetStats().fp)
 				emit = (!m_pShared->tracerparams.geometryFP.empty() || !m_pShared->tracerparams.effectFP.empty()) && (ammoCount==GetClipSize() || (ammoCount%m_pShared->tracerparams.frequency==0));
 			else
 				emit = (!m_pShared->tracerparams.geometry.empty() || !m_pShared->tracerparams.effect.empty()) && (ammoCount==GetClipSize() || (ammoCount%m_pShared->tracerparams.frequency==0));
 
-			if (emit)
+			if(emit)
 				EmitTracer(pos,hit,false);
 
 			m_projectileId = pAmmo->GetEntity()->GetId();
@@ -432,7 +453,7 @@ void CShotgun::NetShootEx(const Vec3 &pos, const Vec3 &dir, const Vec3 &vel, con
 
 	m_pWeapon->OnShoot(m_pWeapon->GetOwnerId(), 0, ammo, pos, dir, vel);
 
-	if (m_pWeapon->IsServer())
+	if(m_pWeapon->IsServer())
 	{
 		const char *ammoName = ammo != NULL ? ammo->GetName() : NULL;
 		g_pGame->GetIGameFramework()->GetIGameplayRecorder()->Event(m_pWeapon->GetOwner(), GameplayEvent(eGE_WeaponShot, ammoName, m_pShared->shotgunparams.pellets, (void *)m_pWeapon->GetEntityId()));
@@ -445,18 +466,19 @@ void CShotgun::NetShootEx(const Vec3 &pos, const Vec3 &dir, const Vec3 &vel, con
 	m_next_shot = 0.0f;
 
 	ammoCount--;
-	if (m_pWeapon->IsServer())
+
+	if(m_pWeapon->IsServer())
 	{
-		if (m_pShared->fireparams.clip_size != -1)
+		if(m_pShared->fireparams.clip_size != -1)
 		{
-			if (m_pShared->fireparams.clip_size!=0)
+			if(m_pShared->fireparams.clip_size!=0)
 				m_pWeapon->SetAmmoCount(ammo, ammoCount);
 			else
 				m_pWeapon->SetInventoryAmmoCount(ammo, ammoCount);
 		}
 	}
 
-	if ((ammoCount<1) && !m_pShared->fireparams.slider_layer.empty())
+	if((ammoCount<1) && !m_pShared->fireparams.slider_layer.empty())
 	{
 		const char *slider_back_layer = m_pShared->fireparams.slider_layer.c_str();
 		m_pWeapon->PlayLayer(slider_back_layer, CItem::eIPAF_Default|CItem::eIPAF_NoBlend);
@@ -503,7 +525,7 @@ void CShotgun::CancelReload()
 //------------------------------------------------------------------
 void CShotgun::InitSharedParams()
 {
-	CWeaponSharedParams * pWSP = m_pWeapon->GetWeaponSharedParams();
+	CWeaponSharedParams *pWSP = m_pWeapon->GetWeaponSharedParams();
 	assert(pWSP);
 
 	m_fireParams	= pWSP->GetFireSharedParams("ShotgunData", m_fmIdx);
@@ -514,7 +536,7 @@ void CShotgun::CacheSharedParamsPtr()
 {
 	CSingle::CacheSharedParamsPtr();
 
-	m_pShared			= static_cast<CShotgunSharedData*>(m_fireParams.get());
+	m_pShared			= static_cast<CShotgunSharedData *>(m_fireParams.get());
 }
 
 //------------------------------------------------------------------------
@@ -524,10 +546,11 @@ const char *CShotgun::GetType() const
 }
 
 //------------------------------------------------
-void CShotgun::GetMemoryUsage(ICrySizer * s) const
+void CShotgun::GetMemoryUsage(ICrySizer *s) const
 {
-	s->Add(*this); 
+	s->Add(*this);
 	CSingle::GetMemoryUsage(s);
+
 	if(m_useCustomParams)
 	{
 		m_pShared->shotgunparams.GetMemoryUsage(s);

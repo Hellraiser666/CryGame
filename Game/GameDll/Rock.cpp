@@ -19,12 +19,13 @@ History:
 
 #include "WeaponSystem.h"
 
-VectorSet<CRock*> CRock::s_rocks;
+VectorSet<CRock *> CRock::s_rocks;
 
 //------------------------------------------------------------------------
 CRock::CRock()
 {
 	s_rocks.insert(this);
+
 	if(s_rocks.size()>MAX_SPAWNED_ROCKS)
 	{
 		if(s_rocks[0]!=this)
@@ -45,29 +46,31 @@ void CRock::HandleEvent(const SGameObjectEvent &event)
 {
 	CProjectile::HandleEvent(event);
 
-	if (event.event == eGFE_OnCollision)
+	if(event.event == eGFE_OnCollision)
 	{
-		if (m_destroying)
+		if(m_destroying)
 			return;
 
 		EventPhysCollision *pCollision = reinterpret_cast<EventPhysCollision *>(event.ptr);
-		if (!pCollision)
+
+		if(!pCollision)
 			return;
 
-		IEntity *pTarget = pCollision->iForeignData[1]==PHYS_FOREIGN_ID_ENTITY ? (IEntity*)pCollision->pForeignData[1]:0;
+		IEntity *pTarget = pCollision->iForeignData[1]==PHYS_FOREIGN_ID_ENTITY ? (IEntity *)pCollision->pForeignData[1]:0;
 
-		if (!pTarget || pTarget->GetId()==m_ownerId || pTarget->GetId()==GetEntityId())
+		if(!pTarget || pTarget->GetId()==m_ownerId || pTarget->GetId()==GetEntityId())
 			return;
 
 		Vec3 dir(0, 0, 0);
-		if (pCollision->vloc[0].GetLengthSquared() > 1e-6f)
+
+		if(pCollision->vloc[0].GetLengthSquared() > 1e-6f)
 			dir = pCollision->vloc[0].GetNormalized();
 
 		CGameRules *pGameRules = g_pGame->GetGameRules();
 
 		HitInfo hitInfo(m_ownerId, pTarget?pTarget->GetId():0, m_weaponId,
-			(float)m_damage, 0.0f, pGameRules->GetHitMaterialIdFromSurfaceId(pCollision->idmat[1]), pCollision->partid[1],
-			pGameRules->GetHitTypeId("melee"), pCollision->pt, dir, pCollision->n);
+						(float)m_damage, 0.0f, pGameRules->GetHitMaterialIdFromSurfaceId(pCollision->idmat[1]), pCollision->partid[1],
+						pGameRules->GetHitTypeId("melee"), pCollision->pt, dir, pCollision->n);
 
 		hitInfo.remote = IsRemote();
 		hitInfo.projectileId = GetEntityId();

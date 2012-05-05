@@ -4,7 +4,7 @@
  -------------------------------------------------------------------------
   $Id$
   $DateTime$
-  
+
  -------------------------------------------------------------------------
   History:
   - 27:10:2004   11:26 : Created by Marcio Martins
@@ -45,60 +45,60 @@ int gInstanceCount = 0;
 IEntitySystem *CItem::m_pEntitySystem=0;
 IItemSystem *CItem::m_pItemSystem=0;
 IGameFramework *CItem::m_pGameFramework=0;
-IGameplayRecorder*CItem::m_pGameplayRecorder=0;
+IGameplayRecorder *CItem::m_pGameplayRecorder=0;
 
-IEntityClass* CItem::sOffHandClass = 0;
-IEntityClass* CItem::sFistsClass = 0;
-IEntityClass* CItem::sAlienCloak = 0;
-IEntityClass* CItem::sSOCOMClass = 0;
-IEntityClass* CItem::sDetonatorClass = 0;
-IEntityClass* CItem::sC4Class = 0;
-IEntityClass* CItem::sBinocularsClass = 0;
-IEntityClass* CItem::sGaussRifleClass = 0;
-IEntityClass* CItem::sDebugGunClass = 0;
-IEntityClass* CItem::sRefWeaponClass = 0;
-IEntityClass* CItem::sClaymoreExplosiveClass = 0;
-IEntityClass* CItem::sAVExplosiveClass = 0;
-IEntityClass* CItem::sDSG1Class = 0;
-IEntityClass* CItem::sLAMFlashLight = 0;
-IEntityClass* CItem::sLAMRifleFlashLight = 0;
-IEntityClass* CItem::sTACGunClass = 0;
-IEntityClass* CItem::sTACGunFleetClass = 0;
-IEntityClass* CItem::sAlienMountClass = 0;
-IEntityClass* CItem::sRocketLauncherClass = 0;
+IEntityClass *CItem::sOffHandClass = 0;
+IEntityClass *CItem::sFistsClass = 0;
+IEntityClass *CItem::sAlienCloak = 0;
+IEntityClass *CItem::sSOCOMClass = 0;
+IEntityClass *CItem::sDetonatorClass = 0;
+IEntityClass *CItem::sC4Class = 0;
+IEntityClass *CItem::sBinocularsClass = 0;
+IEntityClass *CItem::sGaussRifleClass = 0;
+IEntityClass *CItem::sDebugGunClass = 0;
+IEntityClass *CItem::sRefWeaponClass = 0;
+IEntityClass *CItem::sClaymoreExplosiveClass = 0;
+IEntityClass *CItem::sAVExplosiveClass = 0;
+IEntityClass *CItem::sDSG1Class = 0;
+IEntityClass *CItem::sLAMFlashLight = 0;
+IEntityClass *CItem::sLAMRifleFlashLight = 0;
+IEntityClass *CItem::sTACGunClass = 0;
+IEntityClass *CItem::sTACGunFleetClass = 0;
+IEntityClass *CItem::sAlienMountClass = 0;
+IEntityClass *CItem::sRocketLauncherClass = 0;
 
-IEntityClass* CItem::sFlashbangGrenade = 0;
-IEntityClass* CItem::sExplosiveGrenade = 0;
-IEntityClass* CItem::sEMPGrenade = 0;
-IEntityClass* CItem::sSmokeGrenade = 0;
+IEntityClass *CItem::sFlashbangGrenade = 0;
+IEntityClass *CItem::sExplosiveGrenade = 0;
+IEntityClass *CItem::sEMPGrenade = 0;
+IEntityClass *CItem::sSmokeGrenade = 0;
 
-IEntityClass* CItem::sIncendiaryAmmo = 0;
+IEntityClass *CItem::sIncendiaryAmmo = 0;
 
 //------------------------------------------------------------------------
 CItem::CItem()
-: m_scheduler(this),	// just to store the pointer.
-	m_dualWieldMasterId(0),
-	m_dualWieldSlaveId(0),
-	m_ownerId(0),
-	m_postSerializeMountedOwner(0),
-	m_parentId(0),
-	m_effectGenId(0),
-	m_pForcedArms(0),
-  m_hostId(0),
-	m_pEntityScript(0),
-	m_modifying(false),
-	m_transitioning(false),
-	m_frozen(false),
-	m_cloaked(false),
-	m_serializeCloaked(false),
-	m_enableAnimations(true),
-	m_noDrop(false),
-	m_constraintId(0),
-	m_useFPCamSpacePP(true),
-	m_serializeActivePhysics(0),
-	m_serializeDestroyed(false),
-	m_registeredAs1pUser(false),
-	m_registeredAs3pUser(false)
+	: m_scheduler(this),	// just to store the pointer.
+	  m_dualWieldMasterId(0),
+	  m_dualWieldSlaveId(0),
+	  m_ownerId(0),
+	  m_postSerializeMountedOwner(0),
+	  m_parentId(0),
+	  m_effectGenId(0),
+	  m_pForcedArms(0),
+	  m_hostId(0),
+	  m_pEntityScript(0),
+	  m_modifying(false),
+	  m_transitioning(false),
+	  m_frozen(false),
+	  m_cloaked(false),
+	  m_serializeCloaked(false),
+	  m_enableAnimations(true),
+	  m_noDrop(false),
+	  m_constraintId(0),
+	  m_useFPCamSpacePP(true),
+	  m_serializeActivePhysics(0),
+	  m_serializeDestroyed(false),
+	  m_registeredAs1pUser(false),
+	  m_registeredAs3pUser(false)
 {
 #ifdef ITEM_DEBUG_MEMALLOC
 	++gInstanceCount;
@@ -118,13 +118,14 @@ CItem::~CItem()
 	//Auto-detach from the parent
 	if(m_parentId)
 	{
-		CItem *pParent= static_cast<CItem*>(m_pItemSystem->GetItem(m_parentId));
+		CItem *pParent= static_cast<CItem *>(m_pItemSystem->GetItem(m_parentId));
+
 		if(pParent)
 		{
 			//When destroyed the item parent should not be busy
 			pParent->SetBusy(false);
 
-			for (TAccessoryMap::iterator it=pParent->m_accessories.begin(); it!=pParent->m_accessories.end(); ++it)
+			for(TAccessoryMap::iterator it=pParent->m_accessories.begin(); it!=pParent->m_accessories.end(); ++it)
 			{
 				if(GetEntityId()==it->second)
 				{
@@ -137,25 +138,25 @@ CItem::~CItem()
 
 	GetGameObject()->ReleaseProfileManager(this);
 
-	if (GetOwnerActor() && GetOwnerActor()->GetInventory())
+	if(GetOwnerActor() && GetOwnerActor()->GetInventory())
 		GetOwnerActor()->GetInventory()->RemoveItem(GetEntityId());
 
 	if(!(GetISystem()->IsSerializingFile() && GetGameObject()->IsJustExchanging()))
-		for (TAccessoryMap::iterator it=m_accessories.begin(); it!=m_accessories.end(); ++it)
+		for(TAccessoryMap::iterator it=m_accessories.begin(); it!=m_accessories.end(); ++it)
 			gEnv->pEntitySystem->RemoveEntity(it->second);
 
 	if(m_pItemSystem)
 		m_pItemSystem->RemoveItem(GetEntityId(),GetEntity()->GetClass()->GetName());
 
-	 Quiet();
+	Quiet();
 
 #ifdef ITEM_DEBUG_MEMALLOC
-	 --gInstanceCount;
+	--gInstanceCount;
 #endif
 }
 
 //------------------------------------------------------------------------
-bool CItem::Init( IGameObject *pGameObject )
+bool CItem::Init(IGameObject *pGameObject)
 {
 	SetGameObject(pGameObject);
 
@@ -165,7 +166,7 @@ bool CItem::Init( IGameObject *pGameObject )
 
 	m_pEntityScript = GetEntity()->GetScriptTable();
 
-	if (!m_pGameFramework)
+	if(!m_pGameFramework)
 	{
 		m_pEntitySystem = gEnv->pEntitySystem;
 		m_pGameFramework= gEnv->pGame->GetIGameFramework();
@@ -199,13 +200,13 @@ bool CItem::Init( IGameObject *pGameObject )
 		sIncendiaryAmmo   = gEnv->pEntitySystem->GetClassRegistry()->FindClass("incendiarybullet");
 	}
 
-	if (!GetGameObject()->CaptureProfileManager(this))
+	if(!GetGameObject()->CaptureProfileManager(this))
 		return false;
 
 	// bind to network
-	if (0 == (GetEntity()->GetFlags() & (ENTITY_FLAG_CLIENT_ONLY | ENTITY_FLAG_SERVER_ONLY)))
+	if(0 == (GetEntity()->GetFlags() & (ENTITY_FLAG_CLIENT_ONLY | ENTITY_FLAG_SERVER_ONLY)))
 	{
-		if (!GetGameObject()->BindToNetwork())
+		if(!GetGameObject()->BindToNetwork())
 		{
 			GetGameObject()->ReleaseProfileManager(this);
 			return false;
@@ -237,18 +238,20 @@ void CItem::Reset()
 	CGame::DumpMemInfo("CItem::Reset Start %p Id=%d Class=%s", GetGameObject(), GetEntityId(), gEnv->pEntitySystem->GetEntity(GetEntityId())->GetClass()->GetName());
 #endif
 
-	if (IsModifying())
+	if(IsModifying())
 		ResetAccessoriesScreen(GetOwnerActor());
 
-	ResetOwner();  
+	ResetOwner();
 	m_scheduler.Reset();
-  
+
 	m_enableAnimations = true;
 	// detach any effects
 	TEffectInfoMap temp = m_effects;
 	TEffectInfoMap::iterator end = temp.end();
-	for (TEffectInfoMap::iterator it=temp.begin(); it!=end;++it)
+
+	for(TEffectInfoMap::iterator it=temp.begin(); it!=end; ++it)
 		AttachEffect(it->second.slot, it->first, false);
+
 	m_effectGenId=0;
 
 #ifdef ITEM_DEBUG_MEMALLOC
@@ -261,7 +264,7 @@ void CItem::Reset()
 	const IItemParamsNode *root = m_pItemSystem->GetItemParams(GetEntity()->GetClass()->GetName());
 	ReadItemParams(root);
 
-	if (GetEntity()->GetScriptTable())
+	if(GetEntity()->GetScriptTable())
 	{
 		SmartScriptTable props;
 		GetEntity()->GetScriptTable()->GetValue("Properties", props);
@@ -271,12 +274,12 @@ void CItem::Reset()
 	//create/set a trigger proxy if we need autopickup support for this item
 	if(m_properties.pickable && m_properties.autopickup)
 	{
-		IEntityTriggerProxy *pTriggerProxy = static_cast<IEntityTriggerProxy*>(GetEntity()->GetProxy(ENTITY_PROXY_TRIGGER));
+		IEntityTriggerProxy *pTriggerProxy = static_cast<IEntityTriggerProxy *>(GetEntity()->GetProxy(ENTITY_PROXY_TRIGGER));
 
-		if (!pTriggerProxy)
+		if(!pTriggerProxy)
 		{
 			GetEntity()->CreateProxy(ENTITY_PROXY_TRIGGER);
-			pTriggerProxy = static_cast<IEntityTriggerProxy*>(GetEntity()->GetProxy(ENTITY_PROXY_TRIGGER));
+			pTriggerProxy = static_cast<IEntityTriggerProxy *>(GetEntity()->GetProxy(ENTITY_PROXY_TRIGGER));
 		}
 
 		if(pTriggerProxy)
@@ -292,7 +295,8 @@ void CItem::Reset()
 #endif
 
 	m_stateTable[0] = GetEntity()->GetScriptTable();
-	if (!!m_stateTable[0])
+
+	if(!!m_stateTable[0])
 	{
 		m_stateTable[0]->GetValue("Server", m_stateTable[1]);
 		m_stateTable[0]->GetValue("Client", m_stateTable[2]);
@@ -305,7 +309,7 @@ void CItem::Reset()
 	ReAttachAccessories();
 	AccessoriesChanged();
 
-	for (TAccessoryMap::iterator it=m_accessories.begin(); it!=m_accessories.end(); ++it)
+	for(TAccessoryMap::iterator it=m_accessories.begin(); it!=m_accessories.end(); ++it)
 		FixAccessories(GetAccessoryParams(it->first), true);
 
 	InitRespawn();
@@ -329,28 +333,28 @@ void CItem::Reset()
 //------------------------------------------------------------------------
 void CItem::ResetOwner()
 {
-  if (m_ownerId)
-  {
-    if (m_stats.used)
-      StopUse(m_ownerId);
+	if(m_ownerId)
+	{
+		if(m_stats.used)
+			StopUse(m_ownerId);
 
-    CActor *pOwner=GetOwnerActor();
+		CActor *pOwner=GetOwnerActor();
 
-    if (!pOwner || pOwner->GetInventory()->FindItem(GetEntityId())<0)
-      SetOwnerId(0);
-  }
+		if(!pOwner || pOwner->GetInventory()->FindItem(GetEntityId())<0)
+			SetOwnerId(0);
+	}
 }
 
 //------------------------------------------------------------------------
-void CItem::PostInit( IGameObject * pGameObject )
+void CItem::PostInit(IGameObject *pGameObject)
 {
 	// prevent ai from automatically disabling weapons
-	for (int i=0; i<4;i++)
+	for(int i=0; i<4; i++)
 		pGameObject->SetUpdateSlotEnableCondition(this, i, eUEC_WithoutAI);
 
 	Reset();
 	//InitialSetup();
-	PatchInitialSetup();	
+	PatchInitialSetup();
 	InitialSetup();		//Must be called after Patch
 }
 
@@ -361,14 +365,14 @@ void CItem::Release()
 }
 
 //------------------------------------------------------------------------
-void CItem::Update( SEntityUpdateContext& ctx, int slot )
+void CItem::Update(SEntityUpdateContext &ctx, int slot)
 {
 	FUNCTION_PROFILER(GetISystem(), PROFILE_GAME);
 
-	if (m_frozen || IsDestroyed())
+	if(m_frozen || IsDestroyed())
 		return;
 
-	switch (slot)
+	switch(slot)
 	{
 	case eIUS_Scheduler:
 		m_scheduler.Update(ctx.fFrameTime);
@@ -376,85 +380,93 @@ void CItem::Update( SEntityUpdateContext& ctx, int slot )
 	}
 
 	// update mounted
-	if (slot==eIUS_General)
+	if(slot==eIUS_General)
 	{
-		if (m_stats.mounted)
-  		UpdateMounted(ctx.fFrameTime);
+		if(m_stats.mounted)
+			UpdateMounted(ctx.fFrameTime);
 	}
 }
 
 //------------------------------------------------------------------------
-bool CItem::SetAspectProfile( EEntityAspects aspect, uint8 profile )
+bool CItem::SetAspectProfile(EEntityAspects aspect, uint8 profile)
 {
 	//CryLogAlways("%s::SetProfile(%d: %s)", GetEntity()->GetName(), profile, profile==eIPhys_Physicalized?"Physicalized":"NotPhysicalized");
 
-	if (aspect == eEA_Physics)
+	if(aspect == eEA_Physics)
 	{
-		switch (profile)
+		switch(profile)
 		{
 		case eIPhys_PhysicalizedStatic:
-			{
-				SEntityPhysicalizeParams params;
-				params.type = PE_STATIC;
-				params.nSlot = eIGS_ThirdPerson;
+		{
+			SEntityPhysicalizeParams params;
+			params.type = PE_STATIC;
+			params.nSlot = eIGS_ThirdPerson;
 
-				GetEntity()->Physicalize(params);
+			GetEntity()->Physicalize(params);
 
-				return true;
-			}
-			break;
+			return true;
+		}
+		break;
+
 		case eIPhys_PhysicalizedRigid:
+		{
+			SEntityPhysicalizeParams params;
+			params.type = PE_RIGID;
+			params.nSlot = eIGS_ThirdPerson;
+			params.mass = m_sharedparams->params.mass;
+
+			pe_params_buoyancy buoyancy;
+			buoyancy.waterDamping = 1.5;
+			buoyancy.waterResistance = 1000;
+			buoyancy.waterDensity = 1;
+			params.pBuoyancy = &buoyancy;
+
+			GetEntity()->Physicalize(params);
+
+			IPhysicalEntity *pPhysics = GetEntity()->GetPhysics();
+
+			if(pPhysics)
+			{
+				pe_action_awake action;
+				action.bAwake = m_ownerId!=0;
+				pPhysics->Action(&action);
+			}
+		}
+
+		return true;
+
+		case eIPhys_NotPhysicalized:
+		{
+			IEntityPhysicalProxy *pPhysicsProxy = GetPhysicalProxy();
+
+			if(pPhysicsProxy)
 			{
 				SEntityPhysicalizeParams params;
-				params.type = PE_RIGID;
+				params.type = PE_NONE;
 				params.nSlot = eIGS_ThirdPerson;
-				params.mass = m_sharedparams->params.mass;
-
-				pe_params_buoyancy buoyancy;
-				buoyancy.waterDamping = 1.5;
-				buoyancy.waterResistance = 1000;
-				buoyancy.waterDensity = 1;
-				params.pBuoyancy = &buoyancy;
-
-				GetEntity()->Physicalize(params);
-
-				IPhysicalEntity *pPhysics = GetEntity()->GetPhysics();
-				if (pPhysics)
-				{
-					pe_action_awake action;
-					action.bAwake = m_ownerId!=0;
-					pPhysics->Action(&action);
-				}
+				pPhysicsProxy->Physicalize(params);
 			}
-			return true;
-		case eIPhys_NotPhysicalized:
-			{
-				IEntityPhysicalProxy *pPhysicsProxy = GetPhysicalProxy();
-				if (pPhysicsProxy)
-				{
-					SEntityPhysicalizeParams params;
-					params.type = PE_NONE;
-					params.nSlot = eIGS_ThirdPerson;
-					pPhysicsProxy->Physicalize(params);
-				}
-			}
-			return true;
+		}
+
+		return true;
 		}
 	}
 
 	return false;
 }
 
-uint8 CItem::GetDefaultProfile( EEntityAspects aspect )
+uint8 CItem::GetDefaultProfile(EEntityAspects aspect)
 {
-	if (aspect == eEA_Physics)
+	if(aspect == eEA_Physics)
 	{
-		if (m_properties.pickable)
+		if(m_properties.pickable)
 		{
-			if (m_properties.physics)
+			if(m_properties.physics)
 				return eIPhys_PhysicalizedRigid;
+
 			return eIPhys_PhysicalizedStatic;
 		}
+
 		return eIPhys_NotPhysicalized;
 	}
 	else
@@ -464,17 +476,17 @@ uint8 CItem::GetDefaultProfile( EEntityAspects aspect )
 }
 
 //------------------------------------------------------------------------
-void CItem::HandleEvent( const SGameObjectEvent &evt )
+void CItem::HandleEvent(const SGameObjectEvent &evt)
 {
-	if (evt.event == eCGE_PostFreeze)
+	if(evt.event == eCGE_PostFreeze)
 	{
 		Freeze(evt.param != 0);
 
 		// re-apply mounted weapon view limits after unfreezing, since the freezing will disrupt them...
-		if ((evt.param == 0) && IsMounted() && GetOwnerId())
+		if((evt.param == 0) && IsMounted() && GetOwnerId())
 			ApplyViewLimit(GetOwnerId(), true);
 	}
-	else if (evt.event == eCGE_PostShatter)
+	else if(evt.event == eCGE_PostShatter)
 		m_stats.health = 0.0f;
 }
 
@@ -483,86 +495,96 @@ void CItem::ProcessEvent(SEntityEvent &event)
 {
 	FUNCTION_PROFILER(gEnv->pSystem, PROFILE_GAME);
 
-	switch (event.event)
+	switch(event.event)
 	{
 	case ENTITY_EVENT_TIMER:
+	{
+		switch(event.nParam[0])
 		{
-			switch (event.nParam[0])
-			{
-			case eIT_Flying:
-				m_stats.flying = false;
-				if (IsServer())
-					IgnoreCollision(false);
+		case eIT_Flying:
+			m_stats.flying = false;
 
-				//Add an small impulse, sometimes item keeps floating in the air
-				IEntityPhysicalProxy *pPhysics = GetPhysicalProxy();
-				if (pPhysics)
-					pPhysics->AddImpulse(-1, Vec3(0.0f,0.0f,0.0f), Vec3(0.0f,0.0f,-1.0f)*m_sharedparams->params.drop_impulse, false, 1.0f);
-				break;
-			}
-      break;
-		}
-	case ENTITY_EVENT_ENTERAREA:
-		{
-				IActor* pActor = g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(static_cast<EntityId>(event.nParam[0]));
+			if(IsServer())
+				IgnoreCollision(false);
 
-				if(pActor && pActor->IsPlayer() && !GetEntity()->IsHidden() && (pActor->GetCurrentItem() != this))
-						PickUp(pActor->GetEntityId(), true);
-	
+			//Add an small impulse, sometimes item keeps floating in the air
+			IEntityPhysicalProxy *pPhysics = GetPhysicalProxy();
+
+			if(pPhysics)
+				pPhysics->AddImpulse(-1, Vec3(0.0f,0.0f,0.0f), Vec3(0.0f,0.0f,-1.0f)*m_sharedparams->params.drop_impulse, false, 1.0f);
+
 			break;
 		}
+
+		break;
+	}
+
+	case ENTITY_EVENT_ENTERAREA:
+	{
+		IActor *pActor = g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(static_cast<EntityId>(event.nParam[0]));
+
+		if(pActor && pActor->IsPlayer() && !GetEntity()->IsHidden() && (pActor->GetCurrentItem() != this))
+			PickUp(pActor->GetEntityId(), true);
+
+		break;
+	}
+
 	case ENTITY_EVENT_PICKUP:
+	{
+		if(event.nParam[0] == 1 && GetIWeapon())
 		{
-			if (event.nParam[0] == 1 && GetIWeapon())
+			// check if the entity picking up the item is cloaked
+			IEntity *pEntity = gEnv->pEntitySystem->GetEntity((EntityId)event.nParam[1]);
+
+			if(!pEntity)
+				return;
+
+			IEntityRenderProxy *pOwnerRP = (IEntityRenderProxy *) pEntity->GetProxy(ENTITY_PROXY_RENDER);
+			IEntityRenderProxy *pItemRP = (IEntityRenderProxy *) GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
+
+			if(pItemRP && pOwnerRP)
 			{
-				// check if the entity picking up the item is cloaked
-				IEntity* pEntity = gEnv->pEntitySystem->GetEntity((EntityId)event.nParam[1]);
+				pItemRP->SetMaterialLayersMask(pOwnerRP->GetMaterialLayersMask());
+				pItemRP->SetMaterialLayersBlend(pOwnerRP->GetMaterialLayersBlend());
+			}
 
-				if(!pEntity)
-					return;
+			for(TAccessoryMap::iterator it = m_accessories.begin(); it != m_accessories.end(); it++)
+			{
+				EntityId cur = (EntityId)it->second;
+				IItem *attachment = m_pItemSystem->GetItem(cur);
 
-				IEntityRenderProxy * pOwnerRP = (IEntityRenderProxy*) pEntity->GetProxy(ENTITY_PROXY_RENDER);
-				IEntityRenderProxy * pItemRP = (IEntityRenderProxy*) GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
-
-				if (pItemRP && pOwnerRP)
-				{ 
-					pItemRP->SetMaterialLayersMask( pOwnerRP->GetMaterialLayersMask() );
-					pItemRP->SetMaterialLayersBlend( pOwnerRP->GetMaterialLayersBlend() );
-				}
-
-				for (TAccessoryMap::iterator it = m_accessories.begin(); it != m_accessories.end(); it++)
+				if(attachment)
 				{
-					EntityId cur = (EntityId)it->second;
-					IItem *attachment = m_pItemSystem->GetItem(cur);
-					if (attachment)
+					pItemRP = (IEntityRenderProxy *) attachment->GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
+
+					if(pItemRP && pOwnerRP)
 					{
-						pItemRP = (IEntityRenderProxy*) attachment->GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
-						if (pItemRP && pOwnerRP)
-						{
-							pItemRP->SetMaterialLayersMask( pOwnerRP->GetMaterialLayersMask() );
-							pItemRP->SetMaterialLayersBlend( pOwnerRP->GetMaterialLayersBlend() );
-						}
+						pItemRP->SetMaterialLayersMask(pOwnerRP->GetMaterialLayersMask());
+						pItemRP->SetMaterialLayersBlend(pOwnerRP->GetMaterialLayersBlend());
 					}
 				}
 			}
 		}
-		break;
-  case ENTITY_EVENT_RESET:
+	}
+	break;
+
+	case ENTITY_EVENT_RESET:
 
 		Reset();
 
-		if (gEnv->IsEditor() && !m_stats.mounted)
+		if(gEnv->IsEditor() && !m_stats.mounted)
 		{
 			IInventory *pInventory=GetActorInventory(GetOwnerActor());
 
-			if (event.nParam[0]) // entering game mode in editor
+			if(event.nParam[0])  // entering game mode in editor
 				m_editorstats=SEditorStats(GetOwnerId(), pInventory?pInventory->GetCurrentItem()==GetEntityId():0);
 			else // leaving game mode
 			{
 
-				if (m_editorstats.ownerId)
+				if(m_editorstats.ownerId)
 				{
 					m_noDrop=true;
+
 					if(IsDualWieldMaster())
 						ResetDualWield();
 
@@ -577,13 +599,13 @@ void CItem::ProcessEvent(SEntityEvent &event)
 
 					IItemSystem *pItemSystem=g_pGame->GetIGameFramework()->GetIItemSystem();
 
-					if (m_editorstats.current && pInventory && pInventory->GetCurrentItem()==GetEntityId())
+					if(m_editorstats.current && pInventory && pInventory->GetCurrentItem()==GetEntityId())
 					{
 						//if (pInventory)
 						pInventory->SetCurrentItem(0);
 						pItemSystem->SetActorItem(GetActor(m_editorstats.ownerId), GetEntityId(), false);
 					}
-					else if (pInventory && pInventory->GetCurrentItem()==GetEntityId())
+					else if(pInventory && pInventory->GetCurrentItem()==GetEntityId())
 						pItemSystem->SetActorItem(GetActor(m_editorstats.ownerId), (EntityId)0, false);
 
 				}
@@ -600,57 +622,65 @@ void CItem::ProcessEvent(SEntityEvent &event)
 				}
 			}
 		}
-    break;
+
+		break;
 	}
 }
 
 //------------------------------------------------------------------------
-bool CItem::NetSerialize( TSerialize ser, EEntityAspects aspect, uint8 profile, int pflags )
+bool CItem::NetSerialize(TSerialize ser, EEntityAspects aspect, uint8 profile, int pflags)
 {
-	if (aspect == eEA_Physics)
+	if(aspect == eEA_Physics)
 	{
 		pe_type type = PE_NONE;
-		switch (profile)
+
+		switch(profile)
 		{
 		case eIPhys_PhysicalizedStatic:
 			type = PE_STATIC;
 			break;
+
 		case eIPhys_PhysicalizedRigid:
 			type = PE_RIGID;
 			break;
+
 		case eIPhys_NotPhysicalized:
 			type = PE_NONE;
 			break;
+
 		default:
 			return false;
 		}
 
-		if (type == PE_NONE)
+		if(type == PE_NONE)
 			return true;
 
-		IEntityPhysicalProxy * pEPP = (IEntityPhysicalProxy *) GetEntity()->GetProxy(ENTITY_PROXY_PHYSICS);
-		if (ser.IsWriting())
+		IEntityPhysicalProxy *pEPP = (IEntityPhysicalProxy *) GetEntity()->GetProxy(ENTITY_PROXY_PHYSICS);
+
+		if(ser.IsWriting())
 		{
-			if (!pEPP || !pEPP->GetPhysicalEntity() || pEPP->GetPhysicalEntity()->GetType() != type)
+			if(!pEPP || !pEPP->GetPhysicalEntity() || pEPP->GetPhysicalEntity()->GetType() != type)
 			{
-				gEnv->pPhysicalWorld->SerializeGarbageTypedSnapshot( ser, type, 0 );
+				gEnv->pPhysicalWorld->SerializeGarbageTypedSnapshot(ser, type, 0);
 				return true;
 			}
 		}
-		else if (!pEPP)
+		else if(!pEPP)
 		{
 			return false;
 		}
 
-		pEPP->SerializeTyped( ser, type, pflags );
+		pEPP->SerializeTyped(ser, type, pflags);
 	}
+
 	return true;
 }
 
 //------------------------------------------------------------------------
-void CItem::FullSerialize( TSerialize ser )
+void CItem::FullSerialize(TSerialize ser)
 {
 	assert(ser.GetSerializationTarget() != eST_Network);
+
 	if(ser.IsReading())
 	{
 		AttachToBack(false);
@@ -678,7 +708,8 @@ void CItem::FullSerialize( TSerialize ser )
 		{
 			m_serializeRigidPhysics = (pPhys->GetType()==PE_RIGID);
 			pe_status_dynamics dyn;
-			if (pPhys->GetStatus(&dyn))
+
+			if(pPhys->GetStatus(&dyn))
 			{
 				if(dyn.v.len() > 0.1f)
 					m_serializeActivePhysics = dyn.v.GetNormalized();
@@ -692,12 +723,13 @@ void CItem::FullSerialize( TSerialize ser )
 	m_actionSuffixSerializationHelper = m_actionSuffix;
 	ser.Value("actionSuffix", m_actionSuffixSerializationHelper);
 
-	if (ser.IsReading() && m_stats.mounted && m_sharedparams->params.usable)
+	if(ser.IsReading() && m_stats.mounted && m_sharedparams->params.usable)
 	{
 		if(m_ownerId)
 		{
 			IActor *pActor = gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(m_ownerId);
-			CPlayer *pPlayer = static_cast<CPlayer*> (pActor);
+			CPlayer *pPlayer = static_cast<CPlayer *>(pActor);
+
 			if(pPlayer)
 			{
 				if(m_stats.used)
@@ -705,6 +737,7 @@ void CItem::FullSerialize( TSerialize ser )
 				else
 					StopUse(m_ownerId);
 			}
+
 			m_stats.used = false;
 		}
 
@@ -716,9 +749,11 @@ void CItem::FullSerialize( TSerialize ser )
 	//serialize attachments
 	int attachmentAmount = m_accessories.size();
 	ser.Value("attachmentAmount", attachmentAmount);
+
 	if(ser.IsWriting())
 	{
 		TAccessoryMap::iterator it = m_accessories.begin();
+
 		for(; it != m_accessories.end(); ++it)
 		{
 			string name((it->first).c_str());
@@ -733,6 +768,7 @@ void CItem::FullSerialize( TSerialize ser )
 	{
 		m_accessories.clear();
 		string name;
+
 		for(int i = 0; i < attachmentAmount; ++i)
 		{
 			EntityId id = 0;
@@ -762,36 +798,45 @@ void CItem::FullSerialize( TSerialize ser )
 	//Extra ammo given by some accessories
 	{
 		ser.BeginGroup("AccessoryAmmo");
+
 		if(ser.IsReading())
 			m_bonusAccessoryAmmo.clear();
+
 		TAccessoryAmmoMap::iterator it = m_bonusAccessoryAmmo.begin();
 		int ammoTypeAmount = m_bonusAccessoryAmmo.size();
 		ser.Value("AccessoryAmmoAmount", ammoTypeAmount);
+
 		for(int i = 0; i < ammoTypeAmount; ++i)
 		{
 			string name;
 			int amount = 0;
+
 			if(ser.IsWriting())
 			{
 				name = it->first->GetName();
 				amount = it->second;
 			}
+
 			ser.BeginGroup("Ammo");
 			ser.Value("AmmoName", name);
 			ser.Value("Bullets", amount);
 			ser.EndGroup();
+
 			if(ser.IsReading())
 			{
-				IEntityClass* pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(name);
+				IEntityClass *pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(name);
 				assert(pClass);
+
 				if(pClass)
 					m_bonusAccessoryAmmo[pClass] = amount;
 			}
+
 			if(ser.IsWriting())
 			{
 				++it;
 			}
 		}
+
 		ser.EndGroup();
 	}
 }
@@ -799,48 +844,51 @@ void CItem::FullSerialize( TSerialize ser )
 //------------------------------------------------------------------------
 void CItem::PostSerialize()
 {
-	CActor* pOwner = GetOwnerActor();
+	CActor *pOwner = GetOwnerActor();
 
 	if(m_ownerId)
 	{
 		EntityId owner = m_ownerId;
+
 		//Select(m_stats.selected);
 		if(pOwner)
 		{
 
 			//if(pOwner->GetActorClass() == CPlayer::GetActorClassType())
 			//{
-				if (!m_stats.mounted && !IsDualWield())
-				{
-					EntityId holstered = pOwner->GetInventory()->GetHolsteredItem();
+			if(!m_stats.mounted && !IsDualWield())
+			{
+				EntityId holstered = pOwner->GetInventory()->GetHolsteredItem();
 
-					if(GetEntity()->GetClass() != CItem::sBinocularsClass &&
+				if(GetEntity()->GetClass() != CItem::sBinocularsClass &&
 						GetEntity()->GetClass() != CItem::sOffHandClass)
-					{			  
-						if(m_stats.selected)
+				{
+					if(m_stats.selected)
+					{
+						if(holstered != GetEntityId())
 						{
-							if(holstered != GetEntityId())
-							{
-								Drop(0,false,false);
-								PickUp(owner, false, true, false);
-								if(pOwner->GetEntity()->IsHidden())
-									Hide(true); //Some AI is hidden in the levels by designers
-							}      
-						}
-						else
-						{ 
-							if(holstered != GetEntityId())
-								AttachToHand(false, true);
+							Drop(0,false,false);
+							PickUp(owner, false, true, false);
+
+							if(pOwner->GetEntity()->IsHidden())
+								Hide(true); //Some AI is hidden in the levels by designers
 						}
 					}
+					else
+					{
+						if(holstered != GetEntityId())
+							AttachToHand(false, true);
+					}
 				}
+			}
+
 			//}
 		}
 		else
 			CryWarning(VALIDATOR_MODULE_GAME, VALIDATOR_WARNING, "Item %s has ownerId %i but owner actor does not exist!", GetEntity()->GetName(), m_ownerId);
 	}
 
-	if (m_stats.mounted && !m_hostId)
+	if(m_stats.mounted && !m_hostId)
 	{
 		Vec3 olddir=m_stats.mount_dir;
 		Vec3 oldaimdir=m_stats.mount_last_aimdir;
@@ -864,7 +912,7 @@ void CItem::PostSerialize()
 	if(!pOwner && m_stats.dropped)
 	{
 		SetViewMode(eIVM_ThirdPerson);
-		
+
 		Pickalize(true, false);
 		GetEntity()->EnablePhysics(true);
 
@@ -873,26 +921,31 @@ void CItem::PostSerialize()
 		if(m_serializeActivePhysics.len())	//this fixes objects being frozen in air because they were rephysicalized
 		{
 			IEntityPhysicalProxy *pPhysics = GetPhysicalProxy();
-			if (pPhysics)
+
+			if(pPhysics)
 				pPhysics->AddImpulse(-1, m_sharedparams->params.drop_impulse_pos, m_serializeActivePhysics*m_sharedparams->params.drop_impulse, true, 1.0f);
+
 			m_serializeActivePhysics = Vec3(0,0,0);
 		}
 
 	}
 
 	m_actionSuffix = m_actionSuffixSerializationHelper;
+
 	if(pOwner && pOwner->IsPlayer() && IsSelected() && !stricmp(m_actionSuffixSerializationHelper.c_str(), "akimbo_"))
 	{
 		PlayAction(g_pItemStrings->idle);
 	}
 	else
 		m_actionSuffix.clear();
+
 	m_actionSuffixSerializationHelper.clear();
 
 	if(m_postSerializeMountedOwner)
 	{
 		IActor *pActor = gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(m_postSerializeMountedOwner);
-		CPlayer *pPlayer = static_cast<CPlayer*> (pActor);
+		CPlayer *pPlayer = static_cast<CPlayer *>(pActor);
+
 		if(pPlayer && m_sharedparams->params.usable)
 		{
 			m_stats.used = false;
@@ -901,7 +954,8 @@ void CItem::PostSerialize()
 			pPlayer->UseItem(GetEntityId());
 			assert(m_ownerId);
 		}
-		m_postSerializeMountedOwner = 0;		
+
+		m_postSerializeMountedOwner = 0;
 	}
 
 	if(m_serializeCloaked)
@@ -912,9 +966,9 @@ void CItem::PostSerialize()
 	if(m_serializeDestroyed)
 		OnDestroyed();
 
-	if (CActor* pActor = GetOwnerActor())
+	if(CActor *pActor = GetOwnerActor())
 	{
-		if (!pActor->IsDead())
+		if(!pActor->IsDead())
 		{
 			RegisterAsUser();
 		}
@@ -922,7 +976,7 @@ void CItem::PostSerialize()
 }
 
 //------------------------------------------------------------------------
-void CItem::SerializeLTL( TSerialize ser )
+void CItem::SerializeLTL(TSerialize ser)
 {
 	ser.BeginGroup("ItemLTLSerialization");
 
@@ -935,9 +989,11 @@ void CItem::SerializeLTL( TSerialize ser )
 	//serialize attachments
 	int attachmentAmount = m_accessories.size();
 	ser.Value("attachmentAmount", attachmentAmount);
+
 	if(ser.IsWriting())
 	{
 		TAccessoryMap::iterator it = m_accessories.begin();
+
 		for(; it != m_accessories.end(); ++it)
 		{
 			string name((it->first.c_str()));
@@ -952,10 +1008,12 @@ void CItem::SerializeLTL( TSerialize ser )
 		{
 			RemoveAccessory((m_accessories.begin())->first);
 		}
+
 		assert(m_accessories.size() == 0);
 
 		string name;
 		CActor *pActor = GetOwnerActor();
+
 		for(int i = 0; i < attachmentAmount; ++i)
 		{
 			ser.BeginGroup("Accessory");
@@ -965,6 +1023,7 @@ void CItem::SerializeLTL( TSerialize ser )
 			if(pActor)
 				AddAccessory(name.c_str());
 		}
+
 		if(attachmentAmount)
 		{
 			ReAttachAccessories();
@@ -975,9 +1034,10 @@ void CItem::SerializeLTL( TSerialize ser )
 				Hide(true);
 				TAccessoryMap::const_iterator it=m_accessories.begin();
 				TAccessoryMap::const_iterator end=m_accessories.end();
-				for(;it!=end;++it)
+
+				for(; it!=end; ++it)
 				{
-					if(CItem* pItem = static_cast<CItem*>(m_pItemSystem->GetItem(it->second)))
+					if(CItem *pItem = static_cast<CItem *>(m_pItemSystem->GetItem(it->second)))
 						pItem->Hide(true);
 				}
 			}
@@ -985,7 +1045,7 @@ void CItem::SerializeLTL( TSerialize ser )
 
 		if(GetEntity()->GetClass() == CItem::sOffHandClass)
 		{
-			COffHand *pOffHand = static_cast<COffHand*>(this);
+			COffHand *pOffHand = static_cast<COffHand *>(this);
 			pOffHand->PostSerReset();
 		}
 	}
@@ -1023,7 +1083,7 @@ EntityId CItem::GetParentId() const
 
 int CItem::GetDefaultHand() const
 {
-	if (m_sharedparams->params.hand == g_pItemStrings->left_hand)
+	if(m_sharedparams->params.hand == g_pItemStrings->left_hand)
 		return IItem::eIH_Left;
 
 	return IItem::eIH_Right;
@@ -1035,55 +1095,58 @@ void CItem::SetHand(int hand)
 	m_stats.hand = hand;
 
 	int idx = 0;
-	if (hand == eIH_Right)
+
+	if(hand == eIH_Right)
 		idx = 1;
-	else if (hand == eIH_Left)
+	else if(hand == eIH_Left)
 		idx = 2;
 
-	if (m_fpgeometry[idx].name.empty())
+	if(m_fpgeometry[idx].name.empty())
 		idx = 0;
 
 	bool result=false;
 	bool ok=true;
 
-	CItem *pParent=m_parentId?static_cast<CItem*>(m_pItemSystem->GetItem(m_parentId)):NULL;
-	if (pParent)
-			ok = pParent->IsSelected();
+	CItem *pParent=m_parentId?static_cast<CItem *>(m_pItemSystem->GetItem(m_parentId)):NULL;
 
-	if (m_stats.mounted || (pParent && pParent->GetStats().mounted))
+	if(pParent)
+		ok = pParent->IsSelected();
+
+	if(m_stats.mounted || (pParent && pParent->GetStats().mounted))
 		ok=true;
 
-	if (m_stats.viewmode&eIVM_FirstPerson && ok)
+	if(m_stats.viewmode&eIVM_FirstPerson && ok)
 	{
 		SGeometry &geometry = m_fpgeometry[idx];
 		result=SetGeometry(eIGS_FirstPerson, geometry.name, geometry.position, geometry.angles, geometry.scale);
 	}
 
-	if (idx == 0)
+	if(idx == 0)
 	{
 		ICharacterInstance *pCharacter = GetEntity()->GetCharacter(eIGS_FirstPerson);
-		if (!pCharacter)
+
+		if(!pCharacter)
 			return;
-		
-	/*	if (hand == eIH_Left)
-			pCharacter->SetScale(Vec3(-1,1,1));
-		else
-			pCharacter->SetScale(Vec3(1,1,1));
-			*/
+
+		/*	if (hand == eIH_Left)
+				pCharacter->SetScale(Vec3(-1,1,1));
+			else
+				pCharacter->SetScale(Vec3(1,1,1));
+				*/
 	}
 
-	if (result)
+	if(result)
 		PlayAction(m_idleAnimation[eIGS_FirstPerson], 0, true, (eIPAF_Default|eIPAF_NoBlend)&~eIPAF_Owner);
 }
 
 //------------------------------------------------------------------------
 void CItem::Use(EntityId userId)
 {
-	if (m_sharedparams->params.usable && m_stats.mounted)
+	if(m_sharedparams->params.usable && m_stats.mounted)
 	{
-		if (!m_ownerId)
+		if(!m_ownerId)
 			StartUse(userId);
-		else if (m_ownerId == userId)
+		else if(m_ownerId == userId)
 			StopUse(userId);
 	}
 }
@@ -1095,6 +1158,7 @@ struct CItem::SelectAction
 	{
 		_item->SetBusy(false);
 		_item->ForcePendingActions();
+
 		if(_item->m_stats.first_selection)
 			_item->m_stats.first_selection = false;
 	}
@@ -1109,40 +1173,43 @@ void CItem::Select(bool select)
 
 	CheckViewChange();
 
-	for (TAccessoryMap::iterator it = m_accessories.begin(); it != m_accessories.end(); it++)
+	for(TAccessoryMap::iterator it = m_accessories.begin(); it != m_accessories.end(); it++)
 	{
 		EntityId cur = (EntityId)it->second;
 		IItem *attachment = m_pItemSystem->GetItem(cur);
-		if (attachment)
+
+		if(attachment)
 		{
 			attachment->OnParentSelect(select);
 		}
 	}
 
-  IAISystem* pAISystem = gEnv->pAISystem;
+	IAISystem *pAISystem = gEnv->pAISystem;
 
-	CWeaponAttachmentManager* pWAM = GetOwnerActor()?GetOwnerActor()->GetWeaponAttachmentManager():NULL;
+	CWeaponAttachmentManager *pWAM = GetOwnerActor()?GetOwnerActor()->GetWeaponAttachmentManager():NULL;
 
-	if (select)
+	if(select)
 	{
-		if (IsDualWield())
+		if(IsDualWield())
 		{
 			//SetActionSuffix(m_params.dual_wield_suffix.c_str());
 			if(m_dualWieldSlaveId)
 				SetDualWieldSlave(m_dualWieldSlaveId);
+
 			if(m_dualWieldMasterId)
 				SetDualWieldMaster(m_dualWieldMasterId);
 		}
 
 		Hide(false);
 
-		if (!m_stats.mounted && GetOwner())
-		  GetEntity()->SetWorldTM(GetOwner()->GetWorldTM());	// move somewhere near the owner so the sound can play
+		if(!m_stats.mounted && GetOwner())
+			GetEntity()->SetWorldTM(GetOwner()->GetWorldTM());	// move somewhere near the owner so the sound can play
+
 		float speedOverride = -1.0f;
 		CActor *pOwner = GetOwnerActor();
-		
-		const char* select_animation;
-	
+
+		const char *select_animation;
+
 		//LAW, shotgun have 2 different select animations
 		if(m_sharedparams->params.has_first_select && m_stats.first_selection)
 			select_animation = g_pItemStrings->first_select;
@@ -1153,36 +1220,38 @@ void CItem::Select(bool select)
 
 		//ForceSkinning(true);
 		uint32 selectBusyTimer = 0;
-		if (m_sharedparams->params.select_override == 0.0f)
+
+		if(m_sharedparams->params.select_override == 0.0f)
 			selectBusyTimer = MAX(250, GetCurrentAnimationTime(eIGS_FirstPerson)) - 250;
 		else
 			selectBusyTimer = (uint32)m_sharedparams->params.select_override*1000;
+
 		SetBusy(true);
 		GetScheduler()->TimerAction(selectBusyTimer, CSchedulerAction<SelectAction>::Create(), false);
 
-		if (m_stats.fp)
+		if(m_stats.fp)
 			AttachArms(true, true);
 		else
 			AttachToHand(true);
 
 		AttachToBack(false);
 
-    if (pOwner)
-    {
+		if(pOwner)
+		{
 			// update smart objects states
-			if (pAISystem)
+			if(pAISystem)
 			{
-				IEntity* pOwnerEntity = pOwner->GetEntity();
-				pAISystem->GetSmartObjectManager()->ModifySmartObjectStates( pOwnerEntity, GetEntity()->GetClass()->GetName() );
-				pAISystem->GetSmartObjectManager()->ModifySmartObjectStates( pOwnerEntity, "WeaponDrawn" );
+				IEntity *pOwnerEntity = pOwner->GetEntity();
+				pAISystem->GetSmartObjectManager()->ModifySmartObjectStates(pOwnerEntity, GetEntity()->GetClass()->GetName());
+				pAISystem->GetSmartObjectManager()->ModifySmartObjectStates(pOwnerEntity, "WeaponDrawn");
 			}
-    }    
+		}
 	}
 	else
 	{
 		GetScheduler()->Reset(true);
 
-		if (!m_stats.mounted && !AttachToBack(true))
+		if(!m_stats.mounted && !AttachToBack(true))
 		{
 			SetViewMode(0);
 			Hide(true);
@@ -1190,36 +1259,39 @@ void CItem::Select(bool select)
 
 		// set no-weapon pose on actor (except for the Offhand)
 		CActor *pOwner = GetOwnerActor();
-		if (pOwner && (GetEntity()->GetClass()!=CItem::sOffHandClass) && g_pItemStrings)
+
+		if(pOwner && (GetEntity()->GetClass()!=CItem::sOffHandClass) && g_pItemStrings)
 			pOwner->PlayAction(g_pItemStrings->idle, ITEM_DESELECT_POSE);
 
 		EnableUpdate(false);
 
 		ReleaseStaticSounds();
+
 		if(!m_stats.dropped) //This is done already in CItem::Drop (could cause problems with dual socom)
 			ResetAccessoriesScreen(pOwner);
 
 		if(!m_stats.dropped)
 			AttachToHand(false);
+
 		AttachArms(false, false);
 
-		if (m_stats.mounted)
+		if(m_stats.mounted)
 			m_stats.fp=false; // so that OnEnterFirstPerson is called next select
 
 		// update smart objects states
-		if ( pAISystem && pOwner )
+		if(pAISystem && pOwner)
 		{
-			CryFixedStringT<256> tmpString( "-WeaponDrawn," );
+			CryFixedStringT<256> tmpString("-WeaponDrawn,");
 			tmpString += GetEntity()->GetClass()->GetName();
-			pAISystem->GetSmartObjectManager()->ModifySmartObjectStates( pOwner->GetEntity(), tmpString.c_str() );
+			pAISystem->GetSmartObjectManager()->ModifySmartObjectStates(pOwner->GetEntity(), tmpString.c_str());
 		}
 	}
 
-	if (IItem *pSlave=GetDualWieldSlave())
+	if(IItem *pSlave=GetDualWieldSlave())
 		pSlave->Select(select);
 
 	// ensure attachments get cloaked
-	if (select)
+	if(select)
 	{
 		CloakSync(false);
 		FrostSync(false);
@@ -1227,6 +1299,7 @@ void CItem::Select(bool select)
 	}
 	else
 		CloakEnable(false, false);
+
 	OnSelected(select);
 }
 //------------------------------------------------------------------------
@@ -1234,50 +1307,55 @@ void CItem::Drop(float impulseScale, bool selectNext, bool byDeath)
 {
 	bool isDWSlave=IsDualWieldSlave();
 	bool isDWMaster=IsDualWieldMaster();
-		
+
 	CActor *pOwner = GetOwnerActor();
-	
-	if (isDWMaster)
+
+	if(isDWMaster)
 	{
 		IItem *pSlave=GetDualWieldSlave();
-		if (pSlave)
+
+		if(pSlave)
 		{
 			pSlave->Drop(impulseScale, false, byDeath);
 			ResetDualWield();
-			
-			if (!byDeath)
+
+			if(!byDeath)
 				Select(true);
 
-			if (IsServer() && pOwner)
+			if(IsServer() && pOwner)
 			{
 				GetGameObject()->SetNetworkParent(0);
-				if ((GetEntity()->GetFlags()&(ENTITY_FLAG_CLIENT_ONLY|ENTITY_FLAG_SERVER_ONLY)) == 0)
+
+				if((GetEntity()->GetFlags()&(ENTITY_FLAG_CLIENT_ONLY|ENTITY_FLAG_SERVER_ONLY)) == 0)
 					pOwner->GetGameObject()->InvokeRMIWithDependentObject(CActor::ClDrop(), CActor::DropItemParams(GetEntityId(), impulseScale, selectNext, byDeath), eRMI_ToAllClients|eRMI_NoLocalCalls, GetEntityId());
+
 				//pOwner->GetGameObject()->InvokeRMI(CActor::ClDrop(), CActor::DropItemParams(GetEntityId(), impulseScale), eRMI_ToRemoteClients);
 			}
+
 			m_pItemSystem->DropActorAccessory(pOwner, GetEntity()->GetId());
 
 			//AI drop both socoms
-			if (!byDeath || (pOwner && !pOwner->IsPlayer()))
+			if(!byDeath || (pOwner && !pOwner->IsPlayer()))
 				return;
 		}
 	}
 
 	ResetDualWield();
 
-	if (pOwner)
+	if(pOwner)
 	{
 		IInventory *pInventory = GetActorInventory(pOwner);
-		if (pInventory && pInventory->GetCurrentItem() == GetEntity()->GetId())
+
+		if(pInventory && pInventory->GetCurrentItem() == GetEntity()->GetId())
 			pInventory->SetCurrentItem(0);
 
-		if (IsServer()) // don't send slave drops over network, the master is sent instead
+		if(IsServer())  // don't send slave drops over network, the master is sent instead
 		{
 			GetGameObject()->SetNetworkParent(0);
 
-			if (!isDWSlave)
+			if(!isDWSlave)
 			{
-				if ((GetEntity()->GetFlags()&(ENTITY_FLAG_CLIENT_ONLY|ENTITY_FLAG_SERVER_ONLY)) == 0)
+				if((GetEntity()->GetFlags()&(ENTITY_FLAG_CLIENT_ONLY|ENTITY_FLAG_SERVER_ONLY)) == 0)
 					pOwner->GetGameObject()->InvokeRMIWithDependentObject(CActor::ClDrop(), CActor::DropItemParams(GetEntityId(), impulseScale, selectNext, byDeath), eRMI_ToAllClients|eRMI_NoLocalCalls, GetEntityId());
 			}
 		}
@@ -1290,11 +1368,13 @@ void CItem::Drop(float impulseScale, bool selectNext, bool byDeath)
 	bool performCloakFade = m_cloaked;
 
 	Select(false);
-	if (performCloakFade)
+
+	if(performCloakFade)
 	{
 		// marcok: select calls Cloak already, but here we make sure we uncloak "smoothly"
 		CloakEnable(false, true);
 	}
+
 	SetViewMode(eIVM_ThirdPerson);
 	AttachToHand(false,true);
 	AttachToBack(false);
@@ -1307,18 +1387,18 @@ void CItem::Drop(float impulseScale, bool selectNext, bool byDeath)
 	GetEntity()->EnablePhysics(true);
 	Physicalize(true, true);
 
-	if (gEnv->bServer)
+	if(gEnv->bServer)
 		IgnoreCollision(true);
 
 	EntityId ownerId = GetOwnerId();
 
-	if (pOwner && gEnv->bServer)
+	if(pOwner && gEnv->bServer)
 	{
 		// bump network priority for a moment
 		pOwner->GetGameObject()->Pulse('bang');
 		GetGameObject()->Pulse('bang');
 
-		if (IMovementController * pMC = pOwner->GetMovementController())
+		if(IMovementController *pMC = pOwner->GetMovementController())
 		{
 			SMovementState moveState;
 			pMC->GetMovementState(moveState);
@@ -1334,16 +1414,19 @@ void CItem::Drop(float impulseScale, bool selectNext, bool byDeath)
 					Vec3 pos = moveState.eyePosition;
 					dir = moveState.aimDirection;
 
-					if (IPhysicalEntity *pPE=pOwner->GetEntity()->GetPhysics())
+					if(IPhysicalEntity *pPE=pOwner->GetEntity()->GetPhysics())
 					{
 						pe_status_dynamics sv;
-						if (pPE->GetStatus(&sv))
+
+						if(pPE->GetStatus(&sv))
 						{
-							if (sv.v.len2()>0.0f)
+							if(sv.v.len2()>0.0f)
 							{
 								float dot=sv.v.GetNormalized().Dot(dir);
-								if (dot<0.0f)
+
+								if(dot<0.0f)
 									dot=0.0f;
+
 								vel=sv.v*dot;
 							}
 						}
@@ -1356,11 +1439,11 @@ void CItem::Drop(float impulseScale, bool selectNext, bool byDeath)
 						newPos.SetTranslation(pos+(dir*0.2f));
 						GetEntity()->SetWorldTM(newPos);
 					}
-					
+
 					ray_hit hit;
 
 					if(gEnv->pPhysicalWorld->RayWorldIntersection(pos-dir*0.25f, dir, ent_static|ent_terrain|ent_rigid|ent_sleeping_rigid,
-						rwi_stop_at_pierceable|14,&hit, 1, GetEntity()->GetPhysics()))
+							rwi_stop_at_pierceable|14,&hit, 1, GetEntity()->GetPhysics()))
 					{
 						pos += (dir*MIN((hit.dist-0.25f), 0.5f));
 						dir = Vec3(0.0f,0.0f,-1.0f);
@@ -1377,11 +1460,12 @@ void CItem::Drop(float impulseScale, bool selectNext, bool byDeath)
 			}
 
 			IEntityPhysicalProxy *pPhysics = GetPhysicalProxy();
-			if (pPhysics)
+
+			if(pPhysics)
 			{
-				if (vel.len2()>0.0f)
+				if(vel.len2()>0.0f)
 				{
-					if (IPhysicalEntity *pPE=pPhysics->GetPhysicalEntity())
+					if(IPhysicalEntity *pPE=pPhysics->GetPhysicalEntity())
 					{
 						pe_action_set_velocity asv;
 						asv.v=vel;
@@ -1389,44 +1473,46 @@ void CItem::Drop(float impulseScale, bool selectNext, bool byDeath)
 						pPE->Action(&asv);
 					}
 				}
-				
+
 				pPhysics->AddImpulse(-1, m_sharedparams->params.drop_impulse_pos, dir*m_sharedparams->params.drop_impulse*impulseScale, true, 1.0f);
 			}
 		}
 	}
 
-	if (GetOwnerId())
+	if(GetOwnerId())
 	{
-		if (CActor *pActor = GetOwnerActor()) // remove from inventory
+		if(CActor *pActor = GetOwnerActor())  // remove from inventory
 		{
 			if(IInventory *pInventory = GetActorInventory(pActor))
 				pInventory->RemoveItem(GetEntity()->GetId());
 		}
+
 		SetOwnerId(0);
 	}
 
 	Pickalize(true, true);
 	EnableUpdate(false);
 
-	if (IsServer() && g_pGame->GetGameRules())
+	if(IsServer() && g_pGame->GetGameRules())
 		g_pGame->GetGameRules()->OnItemDropped(GetEntityId(), pOwner?pOwner->GetEntityId():0);
 
-	if (pOwner && pOwner->IsClient())
+	if(pOwner && pOwner->IsClient())
 	{
 		if(!isDWSlave)
 			ResetAccessoriesScreen(pOwner);
 
-		if (CanSelect() && selectNext && pOwner->GetHealth()>0 && !isDWSlave)
+		if(CanSelect() && selectNext && pOwner->GetHealth()>0 && !isDWSlave)
 		{
-			CBinocular *pBinoculars = static_cast<CBinocular*>(pOwner->GetItemByClass(CItem::sBinocularsClass));
+			CBinocular *pBinoculars = static_cast<CBinocular *>(pOwner->GetItemByClass(CItem::sBinocularsClass));
 
-			if (pOwner->GetInventory() && pOwner->GetInventory()->GetLastItem()
-				  && (!pBinoculars || pBinoculars->GetEntityId()!=pOwner->GetInventory()->GetLastItem()))
+			if(pOwner->GetInventory() && pOwner->GetInventory()->GetLastItem()
+					&& (!pBinoculars || pBinoculars->GetEntityId()!=pOwner->GetInventory()->GetLastItem()))
 				pOwner->SelectLastItem(false);
 			else
 				pOwner->SelectNextItem(1, false);
 		}
-		if (CanSelect())
+
+		if(CanSelect())
 			m_pItemSystem->DropActorItem(pOwner, GetEntity()->GetId());
 		else
 			m_pItemSystem->DropActorAccessory(pOwner, GetEntity()->GetId());
@@ -1443,19 +1529,22 @@ void CItem::Drop(float impulseScale, bool selectNext, bool byDeath)
 void CItem::PickUp(EntityId pickerId, bool sound, bool select, bool keepHistory, const char *setup)
 {
 	CActor *pActor=GetActor(pickerId);
-	if (!pActor)
+
+	if(!pActor)
 		return;
 
-	if (!pActor->CheckInventoryRestrictions(GetEntity()->GetClass()->GetName()))
+	if(!pActor->CheckInventoryRestrictions(GetEntity()->GetClass()->GetName()))
 	{
-		if (IsServer())
+		if(IsServer())
 			g_pGame->GetGameRules()->SendTextMessage(eTextMessageError, "@mp_CannotCarryMore", eRMI_ToClientChannel, pActor->GetChannelId());
+
 		return;
 	}
 	else if(!CheckAmmoRestrictions(pickerId))
 	{
-		if (IsServer())
+		if(IsServer())
 			g_pGame->GetGameRules()->SendTextMessage(eTextMessageCenter, "@ammo_maxed_out", eRMI_ToClientChannel, pActor->GetChannelId(), (string("@")+GetEntity()->GetClass()->GetName()).c_str());
+
 		return;
 	}
 
@@ -1467,7 +1556,7 @@ void CItem::PickUp(EntityId pickerId, bool sound, bool select, bool keepHistory,
 	bool soundEnabled = IsSoundEnabled();
 	EnableSound(sound);
 
-	SetViewMode(0);		
+	SetViewMode(0);
 	SetOwnerId(pickerId);
 
 	CopyRenderFlags(GetOwner());
@@ -1484,33 +1573,37 @@ void CItem::PickUp(EntityId pickerId, bool sound, bool select, bool keepHistory,
 	bool alone = true;
 	bool slave = false;
 	IInventory *pInventory = pActor->GetInventory();
-	if (!pInventory)
+
+	if(!pInventory)
 	{
 		GameWarning("Actor '%s' has no inventory, when trying to pickup '%s'!",pActor->GetEntity()->GetName(),GetEntity()->GetName());
 		return;
 	}
 
-	if (IsServer() && pActor->IsPlayer())
+	if(IsServer() && pActor->IsPlayer())
 	{
 		// go through through accessories map and give a copy of each to the player
-		for (TAccessoryMap::iterator it = m_accessories.begin(); it != m_accessories.end(); it++)
+		for(TAccessoryMap::iterator it = m_accessories.begin(); it != m_accessories.end(); it++)
 		{
 			const char *name=it->first.c_str();
-			IEntityClass* pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(name);
+			IEntityClass *pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(name);
+
 			if(!pInventory->HasAccessory(pClass))
 				g_pGame->GetIGameFramework()->GetIItemSystem()->GiveItem(pActor, name, false, false, true);
-			else if(CItem* pAccessory = static_cast<CItem*>(m_pItemSystem->GetItem(it->second)))
+			else if(CItem *pAccessory = static_cast<CItem *>(m_pItemSystem->GetItem(it->second)))
 				pAccessory->OnPickedUp(pickerId,true);
-				
+
 		}
 
 		// Handle any custom initial setup
 		TInitialSetupMap::iterator initSetupIter = m_initialSetup.end();
-		if (setup && setup[0])
+
+		if(setup && setup[0])
 		{
 			m_currentInitialSetup = setup;
 			initSetupIter = m_initialSetup.find(CONST_TEMPITEM_STRING(m_currentInitialSetup.c_str()));
-			if (initSetupIter == m_initialSetup.end())
+
+			if(initSetupIter == m_initialSetup.end())
 			{
 				CryWarning(VALIDATOR_MODULE_GAME, VALIDATOR_WARNING, "Tried to load invalid initial setup [%s] for item [%s]", setup, GetDisplayName());
 				m_currentInitialSetup = "default"; // set to default instead
@@ -1520,56 +1613,63 @@ void CItem::PickUp(EntityId pickerId, bool sound, bool select, bool keepHistory,
 		}
 
 		// Handle default initial setup
-		if (initSetupIter != m_initialSetup.end())
-			initSetupIter = m_initialSetup.find(m_currentInitialSetup.c_str()); 
-		
+		if(initSetupIter != m_initialSetup.end())
+			initSetupIter = m_initialSetup.find(m_currentInitialSetup.c_str());
+
 		// Apply the initial setup
-		if (initSetupIter != m_initialSetup.end())
-		{		 
+		if(initSetupIter != m_initialSetup.end())
+		{
 			const TInitialSetup &initSetup = initSetupIter->second;
 			TInitialSetup::const_iterator it = initSetup.begin();
 			TInitialSetup::const_iterator itEnd = initSetup.end();
+
 			for(; it != itEnd; ++it)
 			{
 				const char *name=it->c_str();
-				IEntityClass* pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(name);
+				IEntityClass *pClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(name);
+
 				if(!pInventory->HasAccessory(pClass))
 					g_pGame->GetIGameFramework()->GetIItemSystem()->GiveItem(pActor, name, false, false, true);
 			}
 
 			// Re-initialize to take new setup into account
-			PatchInitialSetup();	
+			PatchInitialSetup();
 			InitialSetup();		//Must be called after Patch
-		}	
+		}
 	}
 
 	CItem *pBuddy=0;
-	pBuddy = static_cast<CItem*>(m_pItemSystem->GetItem(pInventory->GetItemByClass(GetEntity()->GetClass())));
+	pBuddy = static_cast<CItem *>(m_pItemSystem->GetItem(pInventory->GetItemByClass(GetEntity()->GetClass())));
+
 	if(pBuddy && pBuddy!=this)
 	{
-		if (!pBuddy->IsDualWield() && pBuddy->SupportsDualWield(GetEntity()->GetClass()->GetName()))
+		if(!pBuddy->IsDualWield() && pBuddy->SupportsDualWield(GetEntity()->GetClass()->GetName()))
 		{
 			bool wasSelected = false;
-			if (pBuddy->GetEntity()->GetId() == pInventory->GetCurrentItem())
+
+			if(pBuddy->GetEntity()->GetId() == pInventory->GetCurrentItem())
 			{
 				pBuddy->Select(false);
 				wasSelected = true;
 			}
+
 			EnableUpdate(true, eIUS_General);
 
-			if(!pInventory->IsSerializingForLevelChange())			
+			if(!pInventory->IsSerializingForLevelChange())
 			{
 				SetDualWieldMaster(pBuddy->GetEntity()->GetId());
 				pBuddy->SetDualWieldSlave(GetEntity()->GetId());
 				pBuddy->SetDualSlaveAccessory();
 				slave = true;
 			}
-			if (wasSelected)
+
+			if(wasSelected)
 				pBuddy->Select(true);
 
 			//Set the same fire mode for both weapons
 			IWeapon *pMasterWeapon = pBuddy->GetIWeapon();
 			IWeapon *pSlaveWeapon = GetIWeapon();
+
 			if(pMasterWeapon && pSlaveWeapon)
 			{
 				if(pMasterWeapon->GetCurrentFireMode()!=pSlaveWeapon->GetCurrentFireMode())
@@ -1586,17 +1686,19 @@ void CItem::PickUp(EntityId pickerId, bool sound, bool select, bool keepHistory,
 
 
 	OnPickedUp(pickerId, m_sharedparams->params.unique && !alone);	// some weapons will get ammo when picked up
-																										// this will dictate the result of CanSelect() below
-																										// so we'll grab the ammo before trying to select
-	if (slave || alone || !m_sharedparams->params.unique)
+
+	// this will dictate the result of CanSelect() below
+	// so we'll grab the ammo before trying to select
+	if(slave || alone || !m_sharedparams->params.unique)
 	{
 		// add to inventory
 		pInventory->AddItem(GetEntity()->GetId());
 		SPlayerStats *pStats = NULL;
-		if(pActor && pActor->GetActorClassType() == CPlayer::GetActorClassType())
-			pStats = static_cast<SPlayerStats*>(pActor->GetActorStats());
 
-		if (select && !pActor->GetLinkedVehicle() && !pActor->ShouldSwim() && (!pStats || !pStats->isOnLadder))
+		if(pActor && pActor->GetActorClassType() == CPlayer::GetActorClassType())
+			pStats = static_cast<SPlayerStats *>(pActor->GetActorStats());
+
+		if(select && !pActor->GetLinkedVehicle() && !pActor->ShouldSwim() && (!pStats || !pStats->isOnLadder))
 		{
 			if(CanSelect() && !slave)
 				m_pItemSystem->SetActorItem(pActor, GetEntity()->GetId(), keepHistory);
@@ -1608,7 +1710,7 @@ void CItem::PickUp(EntityId pickerId, bool sound, bool select, bool keepHistory,
 
 		EnableSound(soundEnabled);
 
-		if (IsServer() && g_pGame->GetGameRules())
+		if(IsServer() && g_pGame->GetGameRules())
 		{
 			g_pGame->GetGameRules()->OnItemPickedUp(GetEntityId(), pickerId);
 		}
@@ -1617,26 +1719,27 @@ void CItem::PickUp(EntityId pickerId, bool sound, bool select, bool keepHistory,
 		{
 			PlayAction(g_pItemStrings->pickedup);
 		}
-		
+
 		//AI back weapon attachments
 		if(!gEnv->bMultiplayer && !IsSelected())
 		{
 			AttachToBack(true);
 		}
 	}
-	else if (!slave && m_sharedparams->params.unique && !alone)
+	else if(!slave && m_sharedparams->params.unique && !alone)
 	{
-		if (IsServer() && !IsDemoPlayback())
+		if(IsServer() && !IsDemoPlayback())
 			RemoveEntity();
 
-		if (pBuddy)
+		if(pBuddy)
 			pBuddy->PlayAction(g_pItemStrings->pickedup);
 	}
 
-	if (IsServer() && pActor)
+	if(IsServer() && pActor)
 	{
 		GetGameObject()->SetNetworkParent(pickerId);
-		if ((GetEntity()->GetFlags()&(ENTITY_FLAG_CLIENT_ONLY|ENTITY_FLAG_SERVER_ONLY)) == 0)
+
+		if((GetEntity()->GetFlags()&(ENTITY_FLAG_CLIENT_ONLY|ENTITY_FLAG_SERVER_ONLY)) == 0)
 		{
 			pActor->GetGameObject()->InvokeRMIWithDependentObject(CActor::ClPickUp(), CActor::PickItemParams(GetEntityId(), m_stats.selected, sound), eRMI_ToAllClients|eRMI_NoLocalCalls, GetEntityId());
 
@@ -1649,17 +1752,18 @@ void CItem::PickUp(EntityId pickerId, bool sound, bool select, bool keepHistory,
 void CItem::Physicalize(bool enable, bool rigid)
 {
 	int profile=eIPhys_NotPhysicalized;
-	if (enable)
+
+	if(enable)
 		profile=rigid?eIPhys_PhysicalizedRigid:eIPhys_PhysicalizedStatic;
 
-	if (IsServer())
+	if(IsServer())
 		GetGameObject()->SetAspectProfile(eEA_Physics, profile);
 }
 
 //------------------------------------------------------------------------
 void CItem::Pickalize(bool enable, bool dropped)
 {
-	if (enable)
+	if(enable)
 	{
 		m_stats.flying = dropped;
 		m_stats.dropped = true;
@@ -1682,17 +1786,20 @@ void CItem::Pickalize(bool enable, bool dropped)
 void CItem::IgnoreCollision(bool ignore)
 {
 	IPhysicalEntity *pPE=GetEntity()->GetPhysics();
-	if (!pPE)
+
+	if(!pPE)
 		return;
 
-	if (ignore)
+	if(ignore)
 	{
 		CActor *pActor=GetOwnerActor();
-		if (!pActor)
+
+		if(!pActor)
 			return;
 
 		IPhysicalEntity *pActorPE=pActor->GetEntity()->GetPhysics();
-		if (!pActorPE)
+
+		if(!pActorPE)
 			return;
 
 		pe_action_add_constraint ic;
@@ -1714,14 +1821,15 @@ void CItem::IgnoreCollision(bool ignore)
 //------------------------------------------------------------------------
 void CItem::AttachArms(bool attach, bool shadow)
 {
-	if (!m_sharedparams->params.arms)
+	if(!m_sharedparams->params.arms)
 		return;
 
 	CActor *pOwner = static_cast<CActor *>(GetOwnerActor());
-	if (!pOwner)
+
+	if(!pOwner)
 		return;
 
-	if (attach)
+	if(attach)
 		SetGeometry(eIGS_Arms, 0);
 	else
 		ResetCharacterAttachment(eIGS_FirstPerson, ITEM_ARMS_ATTACHMENT_NAME);
@@ -1730,30 +1838,31 @@ void CItem::AttachArms(bool attach, bool shadow)
 
 	if(!pOwner->IsThirdPerson())
 		GetEntity()->SetFlags(GetEntity()->GetFlags() & ~ENTITY_FLAG_CASTSHADOW);
-	
-	if (shadow && !m_stats.mounted)
+
+	if(shadow && !m_stats.mounted)
 	{
 		ICharacterInstance *pOwnerCharacter = pOwner->GetEntity()->GetCharacter(0);
-		if (!pOwnerCharacter)
+
+		if(!pOwnerCharacter)
 			return;
 
 		IAttachmentManager *pAttachmentManager = pOwnerCharacter->GetIAttachmentManager();
 		IAttachment *pAttachment = pAttachmentManager->GetInterfaceByName(m_sharedparams->params.attachment[m_stats.hand].c_str());
 
-		if (!pAttachment)
+		if(!pAttachment)
 		{
 			GameWarning("Item owner '%s' doesn't have third-person item attachment point '%s'!", pOwner->GetEntity()->GetName(), m_sharedparams->params.attachment[m_stats.hand].c_str());
 			return;
 		}
 
-		if (!shadow)
+		if(!shadow)
 			pAttachment->ClearBinding();
-		else if (IStatObj *pStatObj=GetEntity()->GetStatObj(eIGS_ThirdPerson))
+		else if(IStatObj *pStatObj=GetEntity()->GetStatObj(eIGS_ThirdPerson))
 		{
 			CCGFAttachment *pCGFAttachment = new CCGFAttachment();
 			pCGFAttachment->pObj = pStatObj;
 
-			IEntityRenderProxy * pOwnerRP = (IEntityRenderProxy*) pOwner->GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
+			IEntityRenderProxy *pOwnerRP = (IEntityRenderProxy *) pOwner->GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
 
 			//if (pOwnerActor->GetReplacementMaterial())
 			{
@@ -1775,7 +1884,8 @@ void CItem::SetFPWeapon(float dt, bool registerByPosition /*=false*/)
 		if(ICharacterInstance *pWepChar = GetEntity()->GetCharacter(0))
 			pWepChar->SetFPWeapon(dt);
 
-		IEntityRenderProxy* pProxy = GetRenderProxy();
+		IEntityRenderProxy *pProxy = GetRenderProxy();
+
 		if(pProxy && pProxy->GetRenderNode())
 			pProxy->GetRenderNode()->SetRndFlags(ERF_REGISTER_BY_POSITION,registerByPosition);
 	}
@@ -1783,42 +1893,46 @@ void CItem::SetFPWeapon(float dt, bool registerByPosition /*=false*/)
 //------------------------------------------------------------------------
 void CItem::Impulse(const Vec3 &position, const Vec3 &direction, float impulse)
 {
-	if (direction.len2() <= 0.001f)
+	if(direction.len2() <= 0.001f)
 		return;
 
 	IEntityPhysicalProxy *pPhysicsProxy = GetPhysicalProxy();
-	if (pPhysicsProxy)
+
+	if(pPhysicsProxy)
 		pPhysicsProxy->AddImpulse(-1, position, direction.GetNormalized()*impulse, true, 1);
 }
 
 //------------------------------------------------------------------------
 bool CItem::CanPickUp(EntityId userId) const
 {
-	if (m_sharedparams->params.pickable && m_stats.pickable && !m_stats.flying && !m_frozen &&(!m_ownerId || m_ownerId==userId) && !m_stats.selected && !m_stats.used && !GetEntity()->IsHidden())
+	if(m_sharedparams->params.pickable && m_stats.pickable && !m_stats.flying && !m_frozen &&(!m_ownerId || m_ownerId==userId) && !m_stats.selected && !m_stats.used && !GetEntity()->IsHidden())
 	{
 		CActor *pActor = GetActor(userId);
 		IInventory *pInventory=GetActorInventory(pActor);
-		
+
 		//Kits stuff (all kits have the same uniqueId, player can only have one)
 		uint8 uniqueId = m_pItemSystem->GetItemUniqueId(GetEntity()->GetClass()->GetName());
-		if (pInventory && (pInventory->GetCountOfUniqueId(uniqueId)>0))
+
+		if(pInventory && (pInventory->GetCountOfUniqueId(uniqueId)>0))
 		{
 			//A bit workaround (kits have uniqueId 1)
 			if(pActor->IsClient() && (uniqueId==1))
 				g_pGame->GetGameRules()->OnTextMessage(eTextMessageCenter, "@mp_CannotCarryMoreKit");
+
 			return false;
 		}
 
-		if (pInventory && pInventory->FindItem(GetEntityId())==-1)
+		if(pInventory && pInventory->FindItem(GetEntityId())==-1)
 			return true;
 	}
+
 	return false;
 }
 
 //------------------------------------------------------------------------
 bool CItem::CanDrop() const
 {
-	if (m_sharedparams->params.droppable)
+	if(m_sharedparams->params.droppable)
 		return true;
 
 	return false;
@@ -1828,23 +1942,26 @@ bool CItem::CanDrop() const
 bool CItem::CanUse(EntityId userId) const
 {
 	bool bUsable=m_sharedparams->params.usable && m_properties.usable && IsMounted() && (!m_stats.used || (m_ownerId == userId) && !GetEntity()->IsHidden());
-	if (!bUsable)
+
+	if(!bUsable)
 		return (false);
 
-	if (IsMounted())
-	{	
-		// if not a machine gun on a vehicle, check if we're in front of it 
+	if(IsMounted())
+	{
+		// if not a machine gun on a vehicle, check if we're in front of it
 		CActor *pActor = GetActor(userId);
-		if (!pActor)
-			return (true); 
-		if (pActor->GetLinkedVehicle())
+
+		if(!pActor)
+			return (true);
+
+		if(pActor->GetLinkedVehicle())
 			return (true);
 
 		Vec3 vActorDir=pActor->GetEntity()->GetWorldTM().TransformVector(FORWARD_DIRECTION);
 		float fDot=vActorDir*m_stats.mount_dir;
 
-		if (fDot<0)
-			return (false);		
+		if(fDot<0)
+			return (false);
 	}
 
 	return (true);
@@ -1857,26 +1974,26 @@ bool CItem::IsMounted() const
 }
 
 //-------------------------------------------------------------------------
-bool CItem::IsMountable() const 
-{ 
-	return m_sharedparams->params.mountable; 
+bool CItem::IsMountable() const
+{
+	return m_sharedparams->params.mountable;
 }
 
 //--------------------------------------------------------------------------
-const CItem::SParams &CItem::GetParams() const 
-{ 
-	return m_sharedparams->params; 
+const CItem::SParams &CItem::GetParams() const
+{
+	return m_sharedparams->params;
 };
 
 //---------------------------------------------------------------------
-bool CItem::GivesAmmo() 
-{ 
+bool CItem::GivesAmmo()
+{
 	return (!m_bonusAccessoryAmmo.empty() || m_sharedparams->params.attachment_gives_ammo);
 }
 
 //---------------------------------------------------------------------
-bool CItem::IsAutoDroppable() 
-{ 
+bool CItem::IsAutoDroppable()
+{
 	return m_sharedparams->params.auto_droppable;
 }
 
@@ -1894,7 +2011,7 @@ Vec3 CItem::GetMountedAngleLimits() const
 {
 	if(m_stats.mounted)
 		return Vec3(m_mountparams.min_pitch, m_mountparams.max_pitch, m_mountparams.yaw_range);
-	else 
+	else
 		return ZERO;
 }
 
@@ -1907,11 +2024,12 @@ bool CItem::IsUsed() const
 //------------------------------------------------------------------------
 bool CItem::InitRespawn()
 {
-	if (IsServer() && m_respawnprops.respawn)
+	if(IsServer() && m_respawnprops.respawn)
 	{
 		CGameRules *pGameRules=g_pGame->GetGameRules();
 		assert(pGameRules);
-		if (pGameRules)
+
+		if(pGameRules)
 			pGameRules->CreateEntityRespawnData(GetEntityId());
 
 		return true;
@@ -1923,15 +2041,16 @@ bool CItem::InitRespawn()
 //------------------------------------------------------------------------
 void CItem::TriggerRespawn()
 {
-	if (!m_stats.brandnew || !IsServer())
+	if(!m_stats.brandnew || !IsServer())
 		return;
-	
-	if (m_respawnprops.respawn)
+
+	if(m_respawnprops.respawn)
 	{
 
 		CGameRules *pGameRules=g_pGame->GetGameRules();
 		assert(pGameRules);
-		if (pGameRules)
+
+		if(pGameRules)
 			pGameRules->ScheduleEntityRespawn(GetEntityId(), m_respawnprops.unique, m_respawnprops.timer);
 	}
 }
@@ -1979,13 +2098,13 @@ bool CItem::IsSoundEnabled() const
 //------------------------------------------------------------------------
 void CItem::MountAt(const Vec3 &pos)
 {
-	if (!m_sharedparams->params.mountable)
+	if(!m_sharedparams->params.mountable)
 		return;
 
 	m_stats.mounted = true;
 
 	SetViewMode(eIVM_FirstPerson);
-	
+
 	Matrix34 tm(GetEntity()->GetWorldTM());
 	tm.SetTranslation(pos);
 	GetEntity()->SetWorldTM(tm);
@@ -1996,11 +2115,12 @@ void CItem::MountAt(const Vec3 &pos)
 //------------------------------------------------------------------------
 void CItem::MountAtEntity(EntityId entityId, const Vec3 &pos, const Ang3 &angles)
 {
-	if (!m_sharedparams->params.mountable)
+	if(!m_sharedparams->params.mountable)
 		return;
 
 	IEntity *pHost = m_pEntitySystem->GetEntity(entityId);
-	if (!pHost)
+
+	if(!pHost)
 		return;
 
 	m_hostId = entityId;
@@ -2021,7 +2141,7 @@ void CItem::MountAtEntity(EntityId entityId, const Vec3 &pos, const Ang3 &angles
 //------------------------------------------------------------------------
 IEntity *CItem::GetOwner() const
 {
-	if (!m_ownerId)
+	if(!m_ownerId)
 		return 0;
 
 	return m_pEntitySystem->GetEntity(m_ownerId);
@@ -2032,6 +2152,7 @@ CActor *CItem::GetOwnerActor() const
 {
 	if(!m_pGameFramework)
 		return NULL;
+
 	return static_cast<CActor *>(m_pGameFramework->GetIActorSystem()->GetActor(m_ownerId));
 }
 
@@ -2044,7 +2165,7 @@ CActor *CItem::GetActor(EntityId actorId) const
 //------------------------------------------------------------------------
 IInventory *CItem::GetActorInventory(IActor *pActor) const
 {
-	if (!pActor)
+	if(!pActor)
 		return 0;
 
 	return pActor->GetInventory();
@@ -2053,15 +2174,17 @@ IInventory *CItem::GetActorInventory(IActor *pActor) const
 //------------------------------------------------------------------------
 CItem *CItem::GetActorItem(IActor *pActor) const
 {
-	if (!pActor)
+	if(!pActor)
 		return 0;
 
 	IInventory *pInventory=pActor->GetInventory();
-	if (!pInventory)
+
+	if(!pInventory)
 		return 0;
 
 	EntityId id = pInventory->GetCurrentItem();
-	if (!id)
+
+	if(!id)
 		return 0;
 
 	return static_cast<CItem *>(m_pItemSystem->GetItem(id));
@@ -2070,15 +2193,17 @@ CItem *CItem::GetActorItem(IActor *pActor) const
 //------------------------------------------------------------------------
 EntityId CItem::GetActorItemId(IActor *pActor) const
 {
-	if (!pActor)
+	if(!pActor)
 		return 0;
 
 	IInventory *pInventory=pActor->GetInventory();
-	if (!pInventory)
+
+	if(!pInventory)
 		return 0;
 
 	EntityId id = pInventory->GetCurrentItem();
-	if (!id)
+
+	if(!id)
 		return 0;
 
 	return id;
@@ -2097,25 +2222,26 @@ const char *CItem::GetDisplayName() const
 }
 
 //------------------------------------------------------------------------
-void CItem::OnAction(EntityId actorId, const ActionId& actionId, int activationMode, float value)
+void CItem::OnAction(EntityId actorId, const ActionId &actionId, int activationMode, float value)
 {
-	const char* temp = actionId.c_str();
+	const char *temp = actionId.c_str();
 	CallScriptEvent(eISET_Client, "OnAction", actorId, temp, activationMode, value, 0, 0, 0);
 }
 
 //------------------------------------------------------------------------
 void CItem::StartUse(EntityId userId)
 {
-	if (!m_sharedparams->params.usable || m_ownerId)
+	if(!m_sharedparams->params.usable || m_ownerId)
 		return;
 
 	// holster user item here
 	SetOwnerId(userId);
 
-	CActor* pOwner=GetOwnerActor();
-	if (!pOwner)
+	CActor *pOwner=GetOwnerActor();
+
+	if(!pOwner)
 		return;
-	
+
 	m_pItemSystem->SetActorItem(pOwner, GetEntityId(), true);
 
 	m_stats.used = true;
@@ -2135,50 +2261,53 @@ void CItem::StartUse(EntityId userId)
 	pOwner->LinkToMountedWeapon(GetEntityId());
 
 	//Don't draw legs for the FP player (prevents legs clipping in the view)
-	if (pOwner->IsClient() && !pOwner->IsThirdPerson())
+	if(pOwner->IsClient() && !pOwner->IsThirdPerson())
 	{
-		ICharacterInstance* pChar = pOwner->GetEntity()->GetCharacter(0);
+		ICharacterInstance *pChar = pOwner->GetEntity()->GetCharacter(0);
+
 		if(pChar)
 			pChar->HideMaster(1);
 	}
-		
+
 	if(pOwner->GetAnimatedCharacter())
 		pOwner->GetAnimatedCharacter()->SetNoMovementOverride(true);
 
-	if (IsServer())
+	if(IsServer())
 		pOwner->GetGameObject()->InvokeRMI(CActor::ClStartUse(), CActor::ItemIdParam(GetEntityId()), eRMI_ToAllClients|eRMI_NoLocalCalls);
 }
 
 //------------------------------------------------------------------------
 void CItem::StopUse(EntityId userId)
 {
-	if (userId != m_ownerId)
+	if(userId != m_ownerId)
 		return;
 
 	CActor *pActor = GetOwnerActor();
-	if (!pActor)
+
+	if(!pActor)
 		return;
 
 	//Draw legs again for the FP player
-	if (pActor->IsClient() && !pActor->IsThirdPerson())
+	if(pActor->IsClient() && !pActor->IsThirdPerson())
 	{
-		ICharacterInstance* pChar = pActor->GetEntity()->GetCharacter(0);
+		ICharacterInstance *pChar = pActor->GetEntity()->GetCharacter(0);
+
 		if(pChar)
 			pChar->HideMaster(0);
 	}
 
-	if (pActor->GetHealth()>0)
+	if(pActor->GetHealth()>0)
 		pActor->SelectLastItem(true);
 
 	pActor->GetAnimationGraphState()->SetInput("Action","idle");
 
 	ApplyViewLimit(userId, false);
 
-  if (m_stats.mounted)
-  {
-    AttachArms(false, false);
-  }
-		
+	if(m_stats.mounted)
+	{
+		AttachArms(false, false);
+	}
+
 	EnableUpdate(false);
 
 	m_stats.used = false;
@@ -2199,7 +2328,7 @@ void CItem::StopUse(EntityId userId)
 	if(pActor->GetAnimatedCharacter())
 		pActor->GetAnimatedCharacter()->SetNoMovementOverride(false);
 
-	if (IsServer())
+	if(IsServer())
 		pActor->GetGameObject()->InvokeRMI(CActor::ClStopUse(), CActor::ItemIdParam(GetEntityId()), eRMI_ToAllClients|eRMI_NoLocalCalls);
 }
 
@@ -2207,12 +2336,13 @@ void CItem::StopUse(EntityId userId)
 void CItem::ApplyViewLimit(EntityId userId, bool apply)
 {
 	CActor *pActor = GetActor(userId);
-	if (!pActor)
+
+	if(!pActor)
 		return;
 
 	SActorParams *pParams = pActor->GetActorParams();
 
-	if (apply)
+	if(apply)
 	{
 		pParams->viewPivot = GetEntity()->GetWorldPos();
 		pParams->viewDistance = -m_mountparams.eye_distance;
@@ -2241,44 +2371,47 @@ void CItem::ApplyViewLimit(EntityId userId, bool apply)
 //------------------------------------------------------------------------
 void CItem::UseManualBlending(bool enable)
 {
-  IActor* pActor = GetOwnerActor();
-  if (!pActor)
-    return;
+	IActor *pActor = GetOwnerActor();
 
-  if (ICharacterInstance* pCharInstance = pActor->GetEntity()->GetCharacter(0))
-  {
-    if (ISkeletonAnim* pSkeletonAnim = pCharInstance->GetISkeletonAnim())
-    { 
-      pSkeletonAnim->SetBlendSpaceOverride(eMotionParamID_TurnSpeed, 0.f, enable);
-    }        
-  } 
+	if(!pActor)
+		return;
+
+	if(ICharacterInstance *pCharInstance = pActor->GetEntity()->GetCharacter(0))
+	{
+		if(ISkeletonAnim *pSkeletonAnim = pCharInstance->GetISkeletonAnim())
+		{
+			pSkeletonAnim->SetBlendSpaceOverride(eMotionParamID_TurnSpeed, 0.f, enable);
+		}
+	}
 }
 
 //------------------------------------------------------------------------
 bool CItem::AttachToHand(bool attach, bool checkAttachment)
 {
 	//Skip mounted
-	if (m_stats.mounted)
-    return false;
+	if(m_stats.mounted)
+		return false;
 
 	IEntity *pOwner = GetOwner();
-	if (!pOwner)
+
+	if(!pOwner)
 		return false;
 
 	ICharacterInstance *pOwnerCharacter = pOwner->GetCharacter(0);
-	if (!pOwnerCharacter)
+
+	if(!pOwnerCharacter)
 		return false;
 
 	IAttachmentManager *pAttachmentManager = pOwnerCharacter->GetIAttachmentManager();
 	IAttachment *pAttachment = pAttachmentManager->GetInterfaceByName(m_sharedparams->params.attachment[m_stats.hand].c_str());
 
-	if (!pAttachment)
+	if(!pAttachment)
 	{
 		GameWarning("Item owner '%s' doesn't have third-person item attachment point '%s'!", pOwner->GetName(), m_sharedparams->params.attachment[m_stats.hand].c_str());
 		return false;
 	}
 
-	if (!attach)
+	if(!attach)
 	{
 		if(checkAttachment)
 		{
@@ -2287,7 +2420,8 @@ bool CItem::AttachToHand(bool attach, bool checkAttachment)
 				//The item can only be detached by itself
 				if(pAO->GetAttachmentType()==IAttachmentObject::eAttachment_Entity)
 				{
-					CEntityAttachment* pEA = static_cast<CEntityAttachment*>(pAO);
+					CEntityAttachment *pEA = static_cast<CEntityAttachment *>(pAO);
+
 					if(pEA->GetEntityId()!=GetEntityId())
 						return false;
 				}
@@ -2311,15 +2445,16 @@ bool CItem::AttachToHand(bool attach, bool checkAttachment)
 //------------------------------------------------------------------------
 bool CItem::AttachToBack(bool attach)
 {
-	if (gEnv->bMultiplayer || !m_sharedparams->params.attach_to_back)
+	if(gEnv->bMultiplayer || !m_sharedparams->params.attach_to_back)
 		return false;
 
 	IEntity *pOwner = GetOwner();
-	if (!pOwner)
+
+	if(!pOwner)
 		return false;
 
-	CActor* pActor = GetOwnerActor();
-	CWeaponAttachmentManager* pWAM = pActor?pActor->GetWeaponAttachmentManager():NULL;
+	CActor *pActor = GetOwnerActor();
+	CWeaponAttachmentManager *pWAM = pActor?pActor->GetWeaponAttachmentManager():NULL;
 
 	//Do not attach on drop
 	if(attach && m_stats.dropped)
@@ -2328,12 +2463,13 @@ bool CItem::AttachToBack(bool attach)
 	if(!pWAM)
 		return false;
 
-	if(SActorStats* pStats = pActor->GetActorStats())
+	if(SActorStats *pStats = pActor->GetActorStats())
 		if(pStats->isGrabbed && attach)
 			return false;
 
 	ICharacterInstance *pOwnerCharacter = pOwner->GetCharacter(0);
-	if (!pOwnerCharacter)
+
+	if(!pOwnerCharacter)
 		return false;
 
 	IAttachmentManager *pAttachmentManager = pOwnerCharacter->GetIAttachmentManager();
@@ -2369,6 +2505,7 @@ bool CItem::AttachToBack(bool attach)
 		{
 			pAttachment = pAttachmentManager->GetInterfaceByName(m_sharedparams->params.bone_attachment_01.c_str());
 			m_stats.backAttachment = eIBA_Primary;
+
 			if(pAttachment && pAttachment->GetIAttachmentObject())
 			{
 				pAttachment = pAttachmentManager->GetInterfaceByName(m_sharedparams->params.bone_attachment_02.c_str());
@@ -2388,8 +2525,8 @@ bool CItem::AttachToBack(bool attach)
 	{
 		return false;
 	}
-	
-	if (!pAttachment)
+
+	if(!pAttachment)
 	{
 		if(m_stats.backAttachment == eIBA_Primary)
 			GameWarning("Item owner '%s' doesn't have third-person item attachment point '%s'!", pOwner->GetName(), m_sharedparams->params.bone_attachment_01.c_str());
@@ -2400,25 +2537,29 @@ bool CItem::AttachToBack(bool attach)
 		return false;
 	}
 
-	if (!attach)
+	if(!attach)
 	{
 		eItemBackAttachment temp = m_stats.backAttachment;
 		m_stats.backAttachment = eIBA_Unknown;
+
 		if(IAttachmentObject *pAO = pAttachment->GetIAttachmentObject())
 		{
 			//The item can only be detached by itself
 			if(pAO->GetAttachmentType()==IAttachmentObject::eAttachment_Entity)
 			{
-				CEntityAttachment* pEA = static_cast<CEntityAttachment*>(pAO);
+				CEntityAttachment *pEA = static_cast<CEntityAttachment *>(pAO);
+
 				if(pEA->GetEntityId()!=GetEntityId())
 					return false;
 			}
 		}
+
 		pAttachment->ClearBinding();
+
 		if(temp == eIBA_Primary)
 			pWAM->SetWeaponAttachment(false,m_sharedparams->params.bone_attachment_01.c_str(),GetEntityId());
 		else
-			pWAM->SetWeaponAttachment(false,m_sharedparams->params.bone_attachment_02.c_str(),GetEntityId());	
+			pWAM->SetWeaponAttachment(false,m_sharedparams->params.bone_attachment_02.c_str(),GetEntityId());
 	}
 	else
 	{
@@ -2427,14 +2568,15 @@ bool CItem::AttachToBack(bool attach)
 			SetViewMode(0);
 			Hide(true);
 
-			if (IStatObj *pStatObj=GetEntity()->GetStatObj(eIGS_ThirdPerson))
+			if(IStatObj *pStatObj=GetEntity()->GetStatObj(eIGS_ThirdPerson))
 			{
 				CCGFAttachment *pCGFAttachment = new CCGFAttachment();
 				pCGFAttachment->pObj = pStatObj;
 
 				pAttachment->AddBinding(pCGFAttachment);
 				pAttachment->HideAttachment(1);
-				if (isCloaked)
+
+				if(isCloaked)
 					pAttachment->GetIAttachmentObject()->SetMaterial(pActor->GetReplacementMaterial());
 				else
 					pAttachment->HideInShadow(0);
@@ -2453,13 +2595,14 @@ bool CItem::AttachToBack(bool attach)
 			//After QS/QL, hide if owner is hidden
 			if(pOwner->IsHidden())
 				Hide(true);
-			else 
+			else
 				Hide(false);
 		}
+
 		if(m_stats.backAttachment == eIBA_Primary)
 			pWAM->SetWeaponAttachment(true,m_sharedparams->params.bone_attachment_01.c_str(),GetEntityId());
 		else
-			pWAM->SetWeaponAttachment(true,m_sharedparams->params.bone_attachment_02.c_str(),GetEntityId());	
+			pWAM->SetWeaponAttachment(true,m_sharedparams->params.bone_attachment_02.c_str(),GetEntityId());
 	}
 
 	return true;
@@ -2468,9 +2611,9 @@ bool CItem::AttachToBack(bool attach)
 //------------------------------------------------------------------------
 void CItem::RequireUpdate(int slot)
 {
-	if (slot==-1)
-		for (int i=0;i<4;i++)
-			GetGameObject()->ForceUpdateExtension(this, i);	
+	if(slot==-1)
+		for(int i=0; i<4; i++)
+			GetGameObject()->ForceUpdateExtension(this, i);
 	else
 		GetGameObject()->ForceUpdateExtension(this, slot);
 }
@@ -2478,10 +2621,10 @@ void CItem::RequireUpdate(int slot)
 //------------------------------------------------------------------------
 void CItem::EnableUpdate(bool enable, int slot)
 {
-	if (enable)
+	if(enable)
 	{
-		if (slot==-1)
-			for (int i=0;i<4;i++)
+		if(slot==-1)
+			for(int i=0; i<4; i++)
 				GetGameObject()->EnableUpdateSlot(this, i);
 		else
 			GetGameObject()->EnableUpdateSlot(this, slot);
@@ -2489,9 +2632,9 @@ void CItem::EnableUpdate(bool enable, int slot)
 	}
 	else
 	{
-		if (slot==-1)
+		if(slot==-1)
 		{
-			for (int i=0;i<4;i++)
+			for(int i=0; i<4; i++)
 				GetGameObject()->DisableUpdateSlot(this, i);
 		}
 		else
@@ -2504,8 +2647,8 @@ void CItem::Hide(bool hide)
 {
 	GetEntity()->SetFlags(GetEntity()->GetFlags()&~ENTITY_FLAG_UPDATE_HIDDEN);
 
-	if ((hide && m_stats.fp) || IsServer())
-		GetEntity()->SetFlags(GetEntity()->GetFlags()|ENTITY_FLAG_UPDATE_HIDDEN);	
+	if((hide && m_stats.fp) || IsServer())
+		GetEntity()->SetFlags(GetEntity()->GetFlags()|ENTITY_FLAG_UPDATE_HIDDEN);
 
 	GetEntity()->Hide(hide);
 }
@@ -2522,29 +2665,34 @@ void CItem::HideItem(bool hide)
 	HideCharacterAttachmentMaster(eIGS_FirstPerson, ITEM_ARMS_ATTACHMENT_NAME, hide);
 
 	IEntity *pOwner = GetOwner();
-	if (!pOwner)
+
+	if(!pOwner)
 		return;
 
 	ICharacterInstance *pOwnerCharacter = pOwner->GetCharacter(0);
-	if (!pOwnerCharacter)
+
+	if(!pOwnerCharacter)
 		return;
 
 	IAttachmentManager *pAttachmentManager = pOwnerCharacter->GetIAttachmentManager();
 	IAttachment *pAttachment = pAttachmentManager->GetInterfaceByName(m_sharedparams->params.attachment[m_stats.hand].c_str());
-	if (pAttachment)
+
+	if(pAttachment)
 		pAttachment->HideAttachment(hide?1:0);
 }
 
 //------------------------------------------------------------------------
 void CItem::Freeze(bool freeze)
 {
-	if (freeze)
+	if(freeze)
 	{
 		m_frozen = true;
-		for (int i=0; i<eIGS_Last; i++)
+
+		for(int i=0; i<eIGS_Last; i++)
 		{
 			ICharacterInstance *pCharacter = GetEntity()->GetCharacter(i);
-			if (pCharacter)
+
+			if(pCharacter)
 				pCharacter->SetAnimationSpeed(0);
 		}
 
@@ -2553,38 +2701,42 @@ void CItem::Freeze(bool freeze)
 	else
 	{
 		m_frozen = false;
-		for (int i=0; i<eIGS_Last; i++)
+
+		for(int i=0; i<eIGS_Last; i++)
 		{
 			ICharacterInstance *pCharacter = GetEntity()->GetCharacter(i);
-			if (pCharacter)
+
+			if(pCharacter)
 				pCharacter->SetAnimationSpeed(m_animationSpeed[i]);
 		}
 	}
 
-	if (IsDualWieldMaster())
+	if(IsDualWieldMaster())
 	{
-		if (CItem *pItem=static_cast<CItem *>(GetDualWieldSlave()))
+		if(CItem *pItem=static_cast<CItem *>(GetDualWieldSlave()))
 			pItem->Freeze(freeze);
 	}
 }
 
 void CItem::Cloak(bool cloak, IMaterial *cloakMat)
 {
-	if (cloak == m_cloaked || IsMounted())
+	if(cloak == m_cloaked || IsMounted())
 		return;
 
 	// check if the actor is cloaked
-	CActor* pOwner = GetOwnerActor();
-	if (!pOwner)
-		return;
-	if (!pOwner->GetEntity())
+	CActor *pOwner = GetOwnerActor();
+
+	if(!pOwner)
 		return;
 
-	IEntityRenderProxy * pOwnerRP = (IEntityRenderProxy*) pOwner->GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
-	IEntityRenderProxy * pItemRP = (IEntityRenderProxy*) GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
+	if(!pOwner->GetEntity())
+		return;
 
-	if (pItemRP && pOwnerRP)
-	{ 
+	IEntityRenderProxy *pOwnerRP = (IEntityRenderProxy *) pOwner->GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
+	IEntityRenderProxy *pItemRP = (IEntityRenderProxy *) GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
+
+	if(pItemRP && pOwnerRP)
+	{
 		IRenderNode *pOwnerRN =  pOwnerRP->GetRenderNode();
 		IRenderNode *pItemRN =  pItemRP->GetRenderNode();
 
@@ -2592,48 +2744,49 @@ void CItem::Cloak(bool cloak, IMaterial *cloakMat)
 		//pItemRP->SetMaterialLayersBlend( pOwnerRP->GetMaterialLayersBlend() );
 	}
 
-	for (TAccessoryMap::iterator it=m_accessories.begin(); it!=m_accessories.end(); ++it)
+	for(TAccessoryMap::iterator it=m_accessories.begin(); it!=m_accessories.end(); ++it)
 	{
-		if (CItem *pAccessory=static_cast<CItem *>(m_pItemSystem->GetItem(it->second)))
+		if(CItem *pAccessory=static_cast<CItem *>(m_pItemSystem->GetItem(it->second)))
 			pAccessory->Cloak(cloak, cloakMat);
 	}
 
-/*
-	if(cloak)	//when switching view there are some errors without this check
-	{
-    CActor* pActor = GetOwnerActor();
-    if (pActor && pActor->GetActorClass() == CPlayer::GetActorClassType())
-    {
-      CPlayer *plr = (CPlayer *)pActor;
-      if(plr->GetNanoSuit() && plr->GetNanoSuit()->GetMode() != NANOMODE_CLOAK)
-			{
-				if (CItem *pSlave=static_cast<CItem *>(GetDualWieldSlave()))
-					pSlave->Cloak(cloak, cloakMat);
-        return;
-			}
-    }
-	}
-*/
+	/*
+		if(cloak)	//when switching view there are some errors without this check
+		{
+	    CActor* pActor = GetOwnerActor();
+	    if (pActor && pActor->GetActorClass() == CPlayer::GetActorClassType())
+	    {
+	      CPlayer *plr = (CPlayer *)pActor;
+	      if(plr->GetNanoSuit() && plr->GetNanoSuit()->GetMode() != NANOMODE_CLOAK)
+				{
+					if (CItem *pSlave=static_cast<CItem *>(GetDualWieldSlave()))
+						pSlave->Cloak(cloak, cloakMat);
+	        return;
+				}
+	    }
+		}
+	*/
 
 	SEntitySlotInfo slotInfo;
-	
 
-	if (GetEntity()->GetSlotInfo(eIGS_FirstPerson, slotInfo))
+
+	if(GetEntity()->GetSlotInfo(eIGS_FirstPerson, slotInfo))
 	{
-		if (slotInfo.pCharacter)
+		if(slotInfo.pCharacter)
 			SetMaterialRecursive(slotInfo.pCharacter, !cloak, NULL);
 	}
 
 	slotInfo=SEntitySlotInfo();
-	if (GetEntity()->GetSlotInfo(eIGS_ThirdPerson, slotInfo))
+
+	if(GetEntity()->GetSlotInfo(eIGS_ThirdPerson, slotInfo))
 	{
-		if (slotInfo.pStatObj)
+		if(slotInfo.pStatObj)
 			GetEntity()->SetSlotMaterial(eIGS_ThirdPerson, NULL);
-		else if (slotInfo.pCharacter)
+		else if(slotInfo.pCharacter)
 			SetMaterialRecursive(slotInfo.pCharacter, !cloak, NULL);
 	}
 
-	if (CItem *pSlave=static_cast<CItem *>(GetDualWieldSlave()))
+	if(CItem *pSlave=static_cast<CItem *>(GetDualWieldSlave()))
 		pSlave->Cloak(cloak, cloakMat);
 
 	m_cloaked = cloak;
@@ -2641,12 +2794,14 @@ void CItem::Cloak(bool cloak, IMaterial *cloakMat)
 
 void CItem::CloakEnable(bool enable, bool fade)
 {
-	IEntityRenderProxy * pItemRP = (IEntityRenderProxy*) GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
-	if (pItemRP)
+	IEntityRenderProxy *pItemRP = (IEntityRenderProxy *) GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
+
+	if(pItemRP)
 	{
 		uint8 mask = pItemRP->GetMaterialLayersMask();
 		uint32 blend = pItemRP->GetMaterialLayersBlend();
-		if (!fade)
+
+		if(!fade)
 		{
 			blend = (blend & 0xffff00ff) | (enable?0xff00 : 0x0000);
 		}
@@ -2655,25 +2810,28 @@ void CItem::CloakEnable(bool enable, bool fade)
 			blend = (blend & 0xffff00ff) | (enable?0x0000 : 0xff00);
 		}
 
-		if (enable)
+		if(enable)
 			mask = mask|MTL_LAYER_CLOAK;
 		else
 			mask = mask&~MTL_LAYER_CLOAK;
+
 		ApplyMaterialLayerSettings(mask, blend);
 	}
+
 	m_cloaked = enable;
 }
 
 void CItem::CloakSync(bool fade)
 {
 	// check if the actor is cloaked
-	CActor* pOwner = GetOwnerActor();
+	CActor *pOwner = GetOwnerActor();
 
 	if(!pOwner)
 		return;
 
-	IEntityRenderProxy* pOwnerRP = (IEntityRenderProxy*) pOwner->GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
-	if (pOwnerRP)
+	IEntityRenderProxy *pOwnerRP = (IEntityRenderProxy *) pOwner->GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
+
+	if(pOwnerRP)
 	{
 		uint8 ownerMask = pOwnerRP->GetMaterialLayersMask();
 		uint32 ownerBlend = pOwnerRP->GetMaterialLayersBlend();
@@ -2681,26 +2839,29 @@ void CItem::CloakSync(bool fade)
 		CloakEnable(isCloaked, fade);
 	}
 
-	if (CItem* pSlave=static_cast<CItem*>(GetDualWieldSlave()))
+	if(CItem *pSlave=static_cast<CItem *>(GetDualWieldSlave()))
 		pSlave->CloakSync(fade);
 }
 
 void CItem::FrostEnable(bool enable, bool fade)
 {
-	IEntityRenderProxy * pItemRP = (IEntityRenderProxy*) GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
-	if (pItemRP)
+	IEntityRenderProxy *pItemRP = (IEntityRenderProxy *) GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
+
+	if(pItemRP)
 	{
 		uint8 mask = pItemRP->GetMaterialLayersMask();
 		uint32 blend = pItemRP->GetMaterialLayersBlend();
-		if (!fade)
+
+		if(!fade)
 		{
 			blend = (blend & 0xffffff00) | (enable?0xff : 0x00);
 		}
 
-		if (enable)
+		if(enable)
 			mask = mask|MTL_LAYER_DYNAMICFROZEN;
 		else
 			mask = mask&~MTL_LAYER_DYNAMICFROZEN;
+
 		ApplyMaterialLayerSettings(mask, blend);
 	}
 }
@@ -2708,13 +2869,14 @@ void CItem::FrostEnable(bool enable, bool fade)
 void CItem::FrostSync(bool fade)
 {
 	// check if the actor is cloaked
-	CActor* pOwner = GetOwnerActor();
+	CActor *pOwner = GetOwnerActor();
 
 	if(!pOwner)
 		return;
 
-	IEntityRenderProxy* pOwnerRP = (IEntityRenderProxy*) pOwner->GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
-	if (pOwnerRP)
+	IEntityRenderProxy *pOwnerRP = (IEntityRenderProxy *) pOwner->GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
+
+	if(pOwnerRP)
 	{
 		uint8 ownerMask = pOwnerRP->GetMaterialLayersMask();
 		uint32 ownerBlend = pOwnerRP->GetMaterialLayersBlend();
@@ -2722,26 +2884,29 @@ void CItem::FrostSync(bool fade)
 		FrostEnable(isCloaked, fade);
 	}
 
-	if (CItem* pSlave=static_cast<CItem*>(GetDualWieldSlave()))
+	if(CItem *pSlave=static_cast<CItem *>(GetDualWieldSlave()))
 		pSlave->FrostSync(fade);
 }
 
 void CItem::WetEnable(bool enable, bool fade)
 {
-	IEntityRenderProxy * pItemRP = (IEntityRenderProxy*) GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
-	if (pItemRP)
+	IEntityRenderProxy *pItemRP = (IEntityRenderProxy *) GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
+
+	if(pItemRP)
 	{
 		uint8 mask = pItemRP->GetMaterialLayersMask();
 		uint32 blend = pItemRP->GetMaterialLayersBlend();
-		if (!fade)
+
+		if(!fade)
 		{
 			blend = (blend & 0xff00ffff) | (enable?0xff0000 : 0x000000);
 		}
 
-		if (enable)
+		if(enable)
 			mask = mask|MTL_LAYER_WET;
 		else
 			mask = mask&~MTL_LAYER_WET;
+
 		ApplyMaterialLayerSettings(mask, blend);
 	}
 }
@@ -2749,13 +2914,14 @@ void CItem::WetEnable(bool enable, bool fade)
 void CItem::WetSync(bool fade)
 {
 	// check if the actor is cloaked
-	CActor* pOwner = GetOwnerActor();
+	CActor *pOwner = GetOwnerActor();
 
 	if(!pOwner)
 		return;
 
-	IEntityRenderProxy* pOwnerRP = (IEntityRenderProxy*) pOwner->GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
-	if (pOwnerRP)
+	IEntityRenderProxy *pOwnerRP = (IEntityRenderProxy *) pOwner->GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
+
+	if(pOwnerRP)
 	{
 		uint8 ownerMask = pOwnerRP->GetMaterialLayersMask();
 		uint32 ownerBlend = pOwnerRP->GetMaterialLayersBlend();
@@ -2763,27 +2929,30 @@ void CItem::WetSync(bool fade)
 		WetEnable(isCloaked, fade);
 	}
 
-	if (CItem* pSlave=static_cast<CItem*>(GetDualWieldSlave()))
+	if(CItem *pSlave=static_cast<CItem *>(GetDualWieldSlave()))
 		pSlave->WetSync(fade);
 }
 
 void CItem::ApplyMaterialLayerSettings(uint8 mask, uint32 blend)
 {
-	IEntityRenderProxy * pItemRP = (IEntityRenderProxy*) GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
-	if (pItemRP)
-	{ 
+	IEntityRenderProxy *pItemRP = (IEntityRenderProxy *) GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
+
+	if(pItemRP)
+	{
 		pItemRP->SetMaterialLayersMask(mask);
 		pItemRP->SetMaterialLayersBlend(blend);
 	}
 
-	for (TAccessoryMap::iterator it = m_accessories.begin(); it != m_accessories.end(); it++)
+	for(TAccessoryMap::iterator it = m_accessories.begin(); it != m_accessories.end(); it++)
 	{
 		EntityId cur = (EntityId)it->second;
 		IItem *attachment = m_pItemSystem->GetItem(cur);
-		if (attachment)
+
+		if(attachment)
 		{
-			pItemRP = (IEntityRenderProxy*) attachment->GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
-			if (pItemRP)
+			pItemRP = (IEntityRenderProxy *) attachment->GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
+
+			if(pItemRP)
 			{
 				pItemRP->SetMaterialLayersMask(mask);
 				pItemRP->SetMaterialLayersBlend(blend);
@@ -2795,36 +2964,42 @@ void CItem::ApplyMaterialLayerSettings(uint8 mask, uint32 blend)
 
 void CItem::SetMaterialRecursive(ICharacterInstance *charInst, bool undo, IMaterial *newMat)
 {
-	if (!charInst || (!undo && !newMat))
+	if(!charInst || (!undo && !newMat))
 		return;
 
-	if (undo)
+	if(undo)
 		charInst->SetMaterial(NULL);
 	else
 	{
 		IMaterial *oldMat = charInst->GetMaterial();
-		if (newMat != oldMat)
+
+		if(newMat != oldMat)
 		{
 			charInst->SetMaterial(newMat);
 		}
 	}
-	for (int i = 0; i < charInst->GetIAttachmentManager()->GetAttachmentCount(); i++)
+
+	for(int i = 0; i < charInst->GetIAttachmentManager()->GetAttachmentCount(); i++)
 	{
 		IAttachment *attch = charInst->GetIAttachmentManager()->GetInterfaceByIndex(i);
-		if (attch)
+
+		if(attch)
 		{
 			IAttachmentObject *obj = attch->GetIAttachmentObject();
-			if (obj)
+
+			if(obj)
 			{
 				SetMaterialRecursive(obj->GetICharacterInstance(), undo, newMat);
-				if (!obj->GetICharacterInstance())
+
+				if(!obj->GetICharacterInstance())
 				{
-					if (undo)
+					if(undo)
 						obj->SetMaterial(NULL);
 					else
 					{
 						IMaterial *oldMat = obj->GetMaterial();
-						if (oldMat != newMat)
+
+						if(oldMat != newMat)
 						{
 							obj->SetMaterial(newMat);
 						}
@@ -2840,35 +3015,40 @@ void CItem::TakeAccessories(EntityId receiver)
 	IActor *pActor = g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(receiver);
 	IInventory *pInventory = GetActorInventory(pActor);
 
-	if (pInventory)
+	if(pInventory)
 	{
-		for (TAccessoryMap::iterator it = m_accessories.begin(); it != m_accessories.end(); it++)
+		for(TAccessoryMap::iterator it = m_accessories.begin(); it != m_accessories.end(); it++)
 		{
 			const EntityId id = it->second;
-			const char* name = it->first;
-			if (!pInventory->GetCountOfClass(name))
+			const char *name = it->first;
+
+			if(!pInventory->GetCountOfClass(name))
 				g_pGame->GetIGameFramework()->GetIItemSystem()->GiveItem(pActor, name, false, false, false);
 		}
 	}
 }
 
-void CItem::AddAccessoryAmmoToInventory(IEntityClass* pAmmoType, int count, CActor *pOwner /*= NULL */)
+void CItem::AddAccessoryAmmoToInventory(IEntityClass *pAmmoType, int count, CActor *pOwner /*= NULL */)
 {
 	if(!pOwner)
 		pOwner = GetOwnerActor();
+
 	IInventory *pInventory=GetActorInventory(pOwner);
-	if (!pInventory)
+
+	if(!pInventory)
 		return;
 
 	int capacity = pInventory->GetAmmoCapacity(pAmmoType);
 	int current = pInventory->GetAmmoCount(pAmmoType);
+
 	if((!gEnv->IsEditor()) && ((current+count) > capacity))
 	{
 		//If still there's some place, full inventory to maximum...
 		if(current<capacity)
 		{
 			pInventory->SetAmmoCount(pAmmoType,capacity);
-			if (IsServer())
+
+			if(IsServer())
 				pOwner->GetGameObject()->InvokeRMI(CActor::ClSetAmmo(), CActor::AmmoParams(pAmmoType->GetName(), capacity), eRMI_ToRemoteClients);
 		}
 	}
@@ -2877,16 +3057,17 @@ void CItem::AddAccessoryAmmoToInventory(IEntityClass* pAmmoType, int count, CAct
 		int newCount = current+count;
 		pInventory->SetAmmoCount(pAmmoType, newCount);
 
-		if (IsServer())
+		if(IsServer())
 			pOwner->GetGameObject()->InvokeRMI(CActor::ClSetAmmo(), CActor::AmmoParams(pAmmoType->GetName(), newCount), eRMI_ToRemoteClients);
 
 	}
 }
 
-int CItem::GetAccessoryAmmoCount(IEntityClass* pAmmoType)
+int CItem::GetAccessoryAmmoCount(IEntityClass *pAmmoType)
 {
 	IInventory *pInventory=GetActorInventory(GetOwnerActor());
-	if (!pInventory)
+
+	if(!pInventory)
 		return 0;
 
 	return pInventory->GetAmmoCount(pAmmoType);
@@ -2900,10 +3081,12 @@ bool CItem::CheckAmmoRestrictions(EntityId pickerId)
 	if(gEnv->IsEditor())
 		return true;
 
-	IActor* pPicker = g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pickerId);
+	IActor *pPicker = g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pickerId);
+
 	if(pPicker)
 	{
 		IInventory *pInventory = pPicker->GetInventory();
+
 		if(pInventory)
 		{
 			if(pInventory->GetCountOfClass(GetEntity()->GetClass()->GetName()) == 0)
@@ -2911,7 +3094,7 @@ bool CItem::CheckAmmoRestrictions(EntityId pickerId)
 
 			if(!m_bonusAccessoryAmmo.empty())
 			{
-				for (TAccessoryAmmoMap::const_iterator it=m_bonusAccessoryAmmo.begin(); it!=m_bonusAccessoryAmmo.end(); ++it)
+				for(TAccessoryAmmoMap::const_iterator it=m_bonusAccessoryAmmo.begin(); it!=m_bonusAccessoryAmmo.end(); ++it)
 				{
 					int invAmmo  = pInventory->GetAmmoCount(it->first);
 					int invLimit = pInventory->GetAmmoCapacity(it->first);
@@ -2926,7 +3109,7 @@ bool CItem::CheckAmmoRestrictions(EntityId pickerId)
 	return true;
 }
 
-void CItem::GetMemoryUsage(ICrySizer * s) const
+void CItem::GetMemoryUsage(ICrySizer *s) const
 {
 	s->Add(*this);
 	m_mountparams.GetMemoryUsage(s);
@@ -2939,35 +3122,42 @@ void CItem::GetMemoryUsage(ICrySizer * s) const
 	s->AddContainer(m_initialSetup);
 	s->AddContainer(m_instanceActions);
 	m_scheduler.GetMemoryUsage(s);
-	for (int i=0; i<eIGS_Last; i++)
+
+	for(int i=0; i<eIGS_Last; i++)
 		s->Add(m_idleAnimation[i]);
+
 	s->Add(m_actionSuffix);
-	for (int i=0; i<3; i++)
+
+	for(int i=0; i<3; i++)
 		m_fpgeometry[i].GetMemoryUsage(s);
-	for (int i=0; i<eIGS_Last; i++)
+
+	for(int i=0; i<eIGS_Last; i++)
 		s->Add(m_geometry[i]);
 
-	for (TInitialSetupMap::const_iterator iter = m_initialSetup.begin(); iter != m_initialSetup.end(); ++iter)
-		for (TInitialSetup::const_iterator iter2 = iter->second.begin(); iter2 != iter->second.end(); ++iter2)
+	for(TInitialSetupMap::const_iterator iter = m_initialSetup.begin(); iter != m_initialSetup.end(); ++iter)
+		for(TInitialSetup::const_iterator iter2 = iter->second.begin(); iter2 != iter->second.end(); ++iter2)
 			s->Add(*iter2);
-	for (TEffectInfoMap::const_iterator iter = m_effects.begin(); iter != m_effects.end(); ++iter)
+
+	for(TEffectInfoMap::const_iterator iter = m_effects.begin(); iter != m_effects.end(); ++iter)
 		iter->second.GetMemoryUsage(s);
-	for (TInstanceActionMap::const_iterator iter = m_instanceActions.begin(); iter != m_instanceActions.end(); ++iter)
+
+	for(TInstanceActionMap::const_iterator iter = m_instanceActions.begin(); iter != m_instanceActions.end(); ++iter)
 		iter->second.GetMemoryUsage(s);
 }
 
 bool CItem::IsOwnerInGame() const
 {
-		const EntityId clientActorId = g_pGame->GetIGameFramework()->GetClientActorId();
-		if(m_ownerId == 0 || clientActorId == 0)
-				return false;
+	const EntityId clientActorId = g_pGame->GetIGameFramework()->GetClientActorId();
 
-		// every weapon owner that is not the local player is definitely in-game already
-		if(m_ownerId != clientActorId)
-				return true;
+	if(m_ownerId == 0 || clientActorId == 0)
+		return false;
 
-		CGameRules* pGameRules = static_cast<CGameRules*>(g_pGame->GetIGameFramework()->GetIGameRulesSystem()->GetCurrentGameRules());
-		return pGameRules ? pGameRules->IsPlayerInGame(m_ownerId) : false;
+	// every weapon owner that is not the local player is definitely in-game already
+	if(m_ownerId != clientActorId)
+		return true;
+
+	CGameRules *pGameRules = static_cast<CGameRules *>(g_pGame->GetIGameFramework()->GetIGameRulesSystem()->GetCurrentGameRules());
+	return pGameRules ? pGameRules->IsPlayerInGame(m_ownerId) : false;
 }
 
 void CItem::RegisterAs1pAudioCacheUser()
@@ -2998,23 +3188,23 @@ void CItem::UnRegisterAs3pAudioCacheUser()
 	AudioCacheItemAndAccessories(false, "_3p");
 }
 
-void CItem::AudioCacheItemAndAccessories(const bool enable, const char* type)
+void CItem::AudioCacheItemAndAccessories(const bool enable, const char *type)
 {
 	MEMSTAT_CONTEXT(EMemStatContextTypes::MSC_Other, 0, "CItem::AudioCacheItem");
-	IEntityClass* pClass = GetEntity()->GetClass();
+	IEntityClass *pClass = GetEntity()->GetClass();
 	AudioCacheItem(enable, pClass, "", type);
 
-	for (TAccessoryMap::const_iterator it=m_accessories.begin(); it!=m_accessories.end(); ++it)
+	for(TAccessoryMap::const_iterator it=m_accessories.begin(); it!=m_accessories.end(); ++it)
 	{
-		if(IEntity* pEntity = gEnv->pEntitySystem->GetEntity(it->second))
+		if(IEntity *pEntity = gEnv->pEntitySystem->GetEntity(it->second))
 		{
-			const IEntityClass* pAccClass = pEntity->GetClass();
+			const IEntityClass *pAccClass = pEntity->GetClass();
 			AudioCacheItem(enable, pAccClass, "att_", type);
 		}
 	}
 }
 
-void CItem::AudioCacheItem(const bool enable, const IEntityClass* pClass, const char* prefix, const char* postfix)
+void CItem::AudioCacheItem(const bool enable, const IEntityClass *pClass, const char *prefix, const char *postfix)
 {
 	CryFixedStringT<32> soundCache;
 	soundCache.Format("%s%s%s", prefix, pClass->GetName(), postfix);
@@ -3029,10 +3219,10 @@ void CItem::AudioCacheItem(const bool enable, const IEntityClass* pClass, const 
 	}
 }
 
-bool CItem::IsAudioCached(const IEntityClass *pClass, const char* type)
+bool CItem::IsAudioCached(const IEntityClass *pClass, const char *type)
 {
 	CryFixedStringT<32> soundCache;
-	IEntityClass *local_pClass = (IEntityClass*) pClass;
+	IEntityClass *local_pClass = (IEntityClass *) pClass;
 
 	soundCache.Format("%s%s", local_pClass->GetName(), type);
 
@@ -3043,8 +3233,9 @@ bool CItem::IsAudioCached(const IEntityClass *pClass, const char* type)
 
 void CItem::RegisterAsUser()
 {
-	CActor* pOwnerActor = GetOwnerActor();
-	if (pOwnerActor)
+	CActor *pOwnerActor = GetOwnerActor();
+
+	if(pOwnerActor)
 	{
 		if(pOwnerActor->IsClient())
 		{
@@ -3080,7 +3271,7 @@ void CItem::UnRegisterAsUser()
 	}
 }
 
-SItemStrings* g_pItemStrings = 0;
+SItemStrings *g_pItemStrings = 0;
 
 SItemStrings::~SItemStrings()
 {
@@ -3135,7 +3326,7 @@ SItemStrings::SItemStrings()
 	swim_forward_2 = "swim_forward_2";
 	swim_backward = "swim_backward";
 	speed_swim = "speed_swim";
-	turret = "turret";  
+	turret = "turret";
 	enable_light = "enable_light";
 	disable_light = "disable_light";
 	use_light = "use_light";

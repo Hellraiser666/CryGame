@@ -4,7 +4,7 @@
  -------------------------------------------------------------------------
   $Id$
   $DateTime$
-  
+
  -------------------------------------------------------------------------
   History:
   - 3:8:2004   11:26 : Created by Marcio Martins
@@ -84,15 +84,15 @@
 #define CRYSIS_GUID "{CDC82B4A-7540-45A5-B92E-9A7C7033DBF2}"
 
 //FIXME: really horrible. Remove ASAP
-int OnImpulse( const EventPhys *pEvent ) 
-{ 
+int OnImpulse(const EventPhys *pEvent)
+{
 	//return 1;
 	return 0;
 }
 
 #if !defined(FINAL_RELEASE)
 #include "Editor/GameRealtimeRemoteUpdate.h"
-#endif 
+#endif
 
 #define GAME_DEBUG_MEM  // debug memory usage
 #undef  GAME_DEBUG_MEM
@@ -106,26 +106,26 @@ SCVars *g_pGameCVars = 0;
 CGameActions *g_pGameActions = 0;
 
 CGame::CGame()
-: m_pFramework(0),
-	m_pConsole(0),
-	m_pWeaponSystem(0),
-	m_pScriptBindActor(0),
-	m_pScriptBindGame(0),
-	m_pPlayerProfileManager(0),
-	m_pBulletTime(0),
-	m_pGameAudio(0),
-	m_pServerSynchedStorage(0),
-	m_pClientSynchedStorage(0),
-	m_pServerGameTokenSynch(0),
-	m_pClientGameTokenSynch(0),
-	m_uiPlayerID(~0),
-	m_pSPAnalyst(0),
-	m_colorGradientManager(0),
-	m_pBitmapUi(0),
-  m_pRayCaster(0),
-	m_pScriptBindHitDeathReactions(0),
-	m_pHitDeathReactionsSystem(NULL),
-	m_pIntersectionTester(NULL)
+	: m_pFramework(0),
+	  m_pConsole(0),
+	  m_pWeaponSystem(0),
+	  m_pScriptBindActor(0),
+	  m_pScriptBindGame(0),
+	  m_pPlayerProfileManager(0),
+	  m_pBulletTime(0),
+	  m_pGameAudio(0),
+	  m_pServerSynchedStorage(0),
+	  m_pClientSynchedStorage(0),
+	  m_pServerGameTokenSynch(0),
+	  m_pClientGameTokenSynch(0),
+	  m_uiPlayerID(~0),
+	  m_pSPAnalyst(0),
+	  m_colorGradientManager(0),
+	  m_pBitmapUi(0),
+	  m_pRayCaster(0),
+	  m_pScriptBindHitDeathReactions(0),
+	  m_pHitDeathReactionsSystem(NULL),
+	  m_pIntersectionTester(NULL)
 {
 	m_pCVars = new SCVars();
 	g_pGameCVars = m_pCVars;
@@ -147,15 +147,15 @@ CGame::CGame()
 	m_pDefaultAM = 0;
 	m_pMultiplayerAM = 0;
 
-	GetISystem()->SetIGame( this );
+	GetISystem()->SetIGame(this);
 }
 
 CGame::~CGame()
 {
-  m_pFramework->EndGameContext();
-  m_pFramework->UnregisterListener(this);
+	m_pFramework->EndGameContext();
+	m_pFramework->UnregisterListener(this);
 	gEnv->pSystem->GetISystemEventDispatcher()->RemoveListener(this);
-  ReleaseScriptBinds();
+	ReleaseScriptBinds();
 	SAFE_DELETE(m_pBulletTime);
 	SAFE_DELETE(m_pGameAudio);
 	//SAFE_DELETE(m_pCameraManager);
@@ -244,15 +244,16 @@ CGame::~CGame()
 
 //A callback used to return game specific information to the Networking system via the lobby
 //These specify several essential bits of information necessary for trophies on PS3 and matchmaking
-void LobbyConfigurationCallback( ECryLobbyService service, SConfigurationParams *requestedParams, uint32 paramCount )
+void LobbyConfigurationCallback(ECryLobbyService service, SConfigurationParams *requestedParams, uint32 paramCount)
 {
 	uint32 a;
-	for (a=0;a<paramCount;a++)
+
+	for(a=0; a<paramCount; a++)
 	{
-		switch (requestedParams[a].m_fourCCID)
+		switch(requestedParams[a].m_fourCCID)
 		{
 		case CLCC_LAN_USER_NAME:
-			break;	
+			break;
 
 
 
@@ -271,14 +272,14 @@ void LobbyConfigurationCallback( ECryLobbyService service, SConfigurationParams 
 	}
 }
 
-void LobbyInitialiseCallback(ECryLobbyService service, ECryLobbyError error, void* arg)
+void LobbyInitialiseCallback(ECryLobbyService service, ECryLobbyError error, void *arg)
 {
-	assert( error == eCLE_Success );
+	assert(error == eCLE_Success);
 }
 
 bool CGame::Init(IGameFramework *pFramework)
 {
-  LOADING_TIME_PROFILE_SECTION(GetISystem());
+	LOADING_TIME_PROFILE_SECTION(GetISystem());
 
 #ifdef GAME_DEBUG_MEM
 	DumpMemInfo("CGame::Init start");
@@ -299,16 +300,18 @@ bool CGame::Init(IGameFramework *pFramework)
 	m_pItemSharedParamsList = new CItemSharedParamsList();
 	m_pWeaponSharedParamsList = new CWeaponSharedParamsList();
 
-	LoadActionMaps( ACTIONMAP_DEFAULT_PROFILE );
+	LoadActionMaps(ACTIONMAP_DEFAULT_PROFILE);
 
 	InitScriptBinds();
 
 	//load user levelnames for ingame text and savegames
 	XmlNodeRef lnames = GetISystem()->LoadXmlFromFile(PathUtil::GetGameFolder() + "/Scripts/GameRules/LevelNames.xml");
+
 	if(lnames)
 	{
 		int num = lnames->getNumAttributes();
 		const char *nameA, *nameB;
+
 		for(int n = 0; n < num; ++n)
 		{
 			lnames->getAttributeByIndex(n, &nameA, &nameB);
@@ -316,16 +319,16 @@ bool CGame::Init(IGameFramework *pFramework)
 		}
 	}
 
-  // Register all the games factory classes e.g. maps "Player" to CPlayer
-  InitGameFactory(m_pFramework);
+	// Register all the games factory classes e.g. maps "Player" to CPlayer
+	InitGameFactory(m_pFramework);
 
 	m_colorGradientManager = new Graphics::CColorGradientManager();
 
 	//FIXME: horrible, remove this ASAP
-	//gEnv->pPhysicalWorld->AddEventClient( EventPhysImpulse::id,OnImpulse,0 );  
+	//gEnv->pPhysicalWorld->AddEventClient( EventPhysImpulse::id,OnImpulse,0 );
 
 	m_pSPAnalyst = new CSPAnalyst();
- 
+
 	gEnv->pConsole->CreateKeyBind("f12", "r_getscreenshot 2");
 
 	//Ivo: initialites the Crysis conversion file.
@@ -347,34 +350,41 @@ bool CGame::Init(IGameFramework *pFramework)
 
 	bool bIsFirstTime = false;
 	const bool bResetProfile = gEnv->pSystem->GetICmdLine()->FindArg(eCLAT_Pre,"ResetProfile") != 0;
-	if (m_pPlayerProfileManager)
+
+	if(m_pPlayerProfileManager)
 	{
-		const char* userName = gEnv->pSystem->GetLoggedInUserName();
+		const char *userName = gEnv->pSystem->GetLoggedInUserName();
 
 		bool ok = m_pPlayerProfileManager->LoginUser(userName, bIsFirstTime);
-		if (ok)
+
+		if(ok)
 		{
 			m_pPlayerProfileManager->SetExclusiveControllerDeviceIndex(0);
 
 			// activate the always present profile "default"
 			int profileCount = m_pPlayerProfileManager->GetProfileCount(userName);
-			if (profileCount > 0)
+
+			if(profileCount > 0)
 			{
 				bool handled = false;
+
 				if(gEnv->IsDedicated())
 				{
-					for(int i = 0; i < profileCount; ++i )
+					for(int i = 0; i < profileCount; ++i)
 					{
 						IPlayerProfileManager::SProfileDescription profDesc;
 						ok = m_pPlayerProfileManager->GetProfileInfo(userName, i, profDesc);
+
 						if(ok)
 						{
 							const IPlayerProfile *preview = m_pPlayerProfileManager->PreviewProfile(userName, profDesc.name);
 							int iActive = 0;
+
 							if(preview)
 							{
 								preview->GetAttribute("Activated",iActive);
 							}
+
 							if(iActive>0)
 							{
 								m_pPlayerProfileManager->ActivateProfile(userName,profDesc.name);
@@ -385,6 +395,7 @@ bool CGame::Init(IGameFramework *pFramework)
 							}
 						}
 					}
+
 					m_pPlayerProfileManager->PreviewProfile(userName,NULL);
 				}
 
@@ -392,31 +403,34 @@ bool CGame::Init(IGameFramework *pFramework)
 				{
 					IPlayerProfileManager::SProfileDescription desc;
 					ok = m_pPlayerProfileManager->GetProfileInfo(userName, 0, desc);
-					if (ok)
-					{
-						IPlayerProfile* pProfile = m_pPlayerProfileManager->ActivateProfile(userName, desc.name);
 
-						if (pProfile == 0)
+					if(ok)
+					{
+						IPlayerProfile *pProfile = m_pPlayerProfileManager->ActivateProfile(userName, desc.name);
+
+						if(pProfile == 0)
 						{
 							GameWarning("[GameProfiles]: Cannot activate profile '%s' for user '%s'. Trying to re-create.", desc.name, userName);
 							IPlayerProfileManager::EProfileOperationResult profileResult;
 							m_pPlayerProfileManager->CreateProfile(userName, desc.name, true, profileResult); // override if present!
 							pProfile = m_pPlayerProfileManager->ActivateProfile(userName, desc.name);
-							if (pProfile == 0)
+
+							if(pProfile == 0)
 								GameWarning("[GameProfiles]: Cannot activate profile '%s' for user '%s'.", desc.name, userName);
 							else
 								GameWarning("[GameProfiles]: Successfully re-created profile '%s' for user '%s'.", desc.name, userName);
 						}
 
-						if (pProfile)
+						if(pProfile)
 						{
-							if (bResetProfile)
+							if(bResetProfile)
 							{
 								bIsFirstTime = true;
 								pProfile->Reset();
 								gEnv->pCryPak->RemoveFile("%USER%/game.cfg");
 								CryLogAlways("[GameProfiles]: Successfully reset and activated profile '%s' for user '%s'", desc.name, userName);
 							}
+
 							CryLogAlways("[GameProfiles]: Successfully activated profile '%s' for user '%s'", desc.name, userName);
 							m_pFramework->GetILevelSystem()->LoadRotation();
 						}
@@ -438,45 +452,48 @@ bool CGame::Init(IGameFramework *pFramework)
 	else
 		GameWarning("[GameProfiles]: PlayerProfileManager not available. Running without.");
 
-	if (!m_pServerSynchedStorage)
+	if(!m_pServerSynchedStorage)
 		m_pServerSynchedStorage = new CServerSynchedStorage(GetIGameFramework());
 
-	if (!m_pBulletTime)
+	if(!m_pBulletTime)
 	{
 		m_pBulletTime = new CBulletTime();
 	}
 
-	if (!m_pGameAudio)
+	if(!m_pGameAudio)
 	{
 		m_pGameAudio = new CGameAudio();
 	}
 
-  m_pFramework->RegisterListener(this,"Game", eFLPriority_Game);
+	m_pFramework->RegisterListener(this,"Game", eFLPriority_Game);
 
 	//Even if there's no online multiplayer, we're still required to initialize the lobby as it hosts the PS3 trophies.
 	//As info from the trophies must be considered when enumerating disk space on PS3, we can't finish the PlatformOS_PS3 init process
 	//without the lobby having been created.
 	gEnv->pNetwork->SetMultithreadingMode(INetwork::NETWORK_MT_PRIORITY_NORMAL);
-	ECryLobbyServiceFeatures	features = ECryLobbyServiceFeatures( eCLSO_Base | eCLSO_Reward | eCLSO_LobbyUI );
+	ECryLobbyServiceFeatures	features = ECryLobbyServiceFeatures(eCLSO_Base | eCLSO_Reward | eCLSO_LobbyUI);
 	ECryLobbyError						error;
 	error = gEnv->pNetwork->GetLobby()->Initialise(eCLS_Online, features, LobbyConfigurationCallback, LobbyInitialiseCallback, this);
-	if( error != eCLE_Success )
+
+	if(error != eCLE_Success)
 	{
-		CryWarning( VALIDATOR_MODULE_GAME, VALIDATOR_ERROR, "Failed to initialise CryLobby in Game. Return value is 0x%X", error );
+		CryWarning(VALIDATOR_MODULE_GAME, VALIDATOR_ERROR, "Failed to initialise CryLobby in Game. Return value is 0x%X", error);
 	}
+
 	gEnv->pNetwork->GetLobby()->SetLobbyService(eCLS_Online);
 
-	if ( gEnv->pScaleformGFx && gEnv->pScaleformGFx->IsScaleformSupported() )
+	if(gEnv->pScaleformGFx && gEnv->pScaleformGFx->IsScaleformSupported())
 	{
 		CUIManager::Init();
 	}
 	else
 	{
-		if ( m_pBitmapUi == NULL )
+		if(m_pBitmapUi == NULL)
 		{
 			m_pBitmapUi = new CBitmapUi();
 		}
 	}
+
 #if ENABLE_FEATURE_TESTER
 	new CFeatureTester();
 #endif
@@ -487,19 +504,19 @@ bool CGame::Init(IGameFramework *pFramework)
 	m_pIntersectionTester = new GlobalIntersectionTester;
 	m_pIntersectionTester->SetQuota(6);
 
-	if (m_pServerSynchedStorage == NULL)
+	if(m_pServerSynchedStorage == NULL)
 		m_pServerSynchedStorage = new CServerSynchedStorage(GetIGameFramework());
 
-	if (m_pServerGameTokenSynch == NULL)
+	if(m_pServerGameTokenSynch == NULL)
 		m_pServerGameTokenSynch = new CServerGameTokenSynch(m_pFramework->GetIGameTokenSystem());
-	
+
 #ifdef GAME_DEBUG_MEM
 	DumpMemInfo("CGame::Init end");
 #endif
 
 	m_pWeaponSystem = new CWeaponSystem(this, GetISystem());
 
-	const char* itemFolder = "scripts/entities/items/xml";
+	const char *itemFolder = "scripts/entities/items/xml";
 	m_pFramework->GetIItemSystem()->Scan(itemFolder);
 	m_pWeaponSystem->Scan(itemFolder);
 
@@ -509,7 +526,7 @@ bool CGame::Init(IGameFramework *pFramework)
 bool CGame::CompleteInit()
 {
 	//Perform crucial post-localization boot checks and processing as the menu screen is going to be skipped
-	if( gEnv && gEnv->pSystem && gEnv->pSystem->GetPlatformOS() )
+	if(gEnv && gEnv->pSystem && gEnv->pSystem->GetPlatformOS())
 	{
 		gEnv->pSystem->GetPlatformOS()->PostLocalizationBootChecks();
 		gEnv->pSystem->GetPlatformOS()->PostBootCheckProcessing();
@@ -527,13 +544,13 @@ bool CGame::CompleteInit()
 void CGame::RegisterGameFlowNodes()
 {
 	// Initialize Game02 flow nodes
-	if (IFlowSystem *pFlow = m_pFramework->GetIFlowSystem())
+	if(IFlowSystem *pFlow = m_pFramework->GetIFlowSystem())
 	{
 		CG2AutoRegFlowNodeBase *pFactory = CG2AutoRegFlowNodeBase::m_pFirst;
 
-		while (pFactory)
+		while(pFactory)
 		{
-			pFlow->RegisterType( pFactory->m_sClassName,pFactory );
+			pFlow->RegisterType(pFactory->m_sClassName,pFactory);
 			pFactory = pFactory->m_pNext;
 		}
 	}
@@ -541,7 +558,7 @@ void CGame::RegisterGameFlowNodes()
 
 void CGame::ResetServerGameTokenSynch()
 {
-	if (m_pServerGameTokenSynch)
+	if(m_pServerGameTokenSynch)
 	{
 		m_pServerGameTokenSynch->~CServerGameTokenSynch();
 		new(m_pServerGameTokenSynch) CServerGameTokenSynch(m_pFramework->GetIGameTokenSystem());
@@ -562,7 +579,7 @@ extern Vec3 g_vel;
 
 int CGame::Update(bool haveFocus, unsigned int updateFlags)
 {
-	bool bRun = m_pFramework->PreUpdate( true, updateFlags );
+	bool bRun = m_pFramework->PreUpdate(true, updateFlags);
 
 	float frameTime = gEnv->pTimer->GetFrameTime();
 	m_colorGradientManager->UpdateForThisFrame(frameTime);
@@ -572,15 +589,15 @@ int CGame::Update(bool haveFocus, unsigned int updateFlags)
 		m_pRayCaster->Update(frameTime);
 	}
 
-	if (m_pIntersectionTester)
+	if(m_pIntersectionTester)
 	{
-			FRAME_PROFILER("GlobalIntersectionTester", gEnv->pSystem, PROFILE_AI);
+		FRAME_PROFILER("GlobalIntersectionTester", gEnv->pSystem, PROFILE_AI);
 
-			m_pIntersectionTester->SetQuota(6);
-			m_pIntersectionTester->Update(frameTime);
+		m_pIntersectionTester->SetQuota(6);
+		m_pIntersectionTester->Update(frameTime);
 	}
 
-	if (m_pFramework->IsGamePaused() == false)
+	if(m_pFramework->IsGamePaused() == false)
 	{
 		m_pWeaponSystem->Update(frameTime);
 
@@ -600,7 +617,7 @@ int CGame::Update(bool haveFocus, unsigned int updateFlags)
 
 
 	// Small test for the IPathfinder.h interfaces
-	/* 
+	/*
 	if (g_testPath && !g_testPath->Empty())
 	{
 		float dt=gEnv->pTimer->GetFrameTime();
@@ -625,17 +642,17 @@ int CGame::Update(bool haveFocus, unsigned int updateFlags)
 
 #if !defined(FINAL_RELEASE)
 	m_pRemoteUpdateListener->Update();
-#endif 
+#endif
 
-	m_pFramework->PostUpdate( true, updateFlags );
+	m_pFramework->PostUpdate(true, updateFlags);
 
 	if(m_inDevMode != gEnv->pSystem->IsDevMode())
 	{
 		m_inDevMode = gEnv->pSystem->IsDevMode();
 		m_pFramework->GetIActionMapManager()->EnableActionMap("debug", m_inDevMode);
 	}
-	
-  Stereo3D::Update(frameTime);
+
+	Stereo3D::Update(frameTime);
 
 	CheckReloadLevel();
 
@@ -644,7 +661,7 @@ int CGame::Update(bool haveFocus, unsigned int updateFlags)
 
 void CGame::ConfigureGameChannel(bool isServer, IProtocolBuilder *pBuilder)
 {
-	if (isServer)
+	if(isServer)
 	{
 		m_pServerSynchedStorage->DefineProtocol(pBuilder);
 		m_pServerGameTokenSynch->DefineProtocol(pBuilder);
@@ -665,47 +682,55 @@ void CGame::EditorResetGame(bool bStart)
 
 	if(bStart)
 	{
-		IActionMapManager* pAM = m_pFramework->GetIActionMapManager();
-		if (pAM)
+		IActionMapManager *pAM = m_pFramework->GetIActionMapManager();
+
+		if(pAM)
 		{
 			pAM->EnableActionMap(0, true); // enable all action maps
 			pAM->EnableFilter(0, false); // disable all filters
-		}		
-	}	
+		}
+	}
 }
 
 void CGame::PlayerIdSet(EntityId playerId)
 {
-	m_uiPlayerID = playerId;	
+	m_uiPlayerID = playerId;
 }
 
 string CGame::InitMapReloading()
 {
 	string levelFileName = GetIGameFramework()->GetLevelName();
 	levelFileName = PathUtil::GetFileName(levelFileName);
-	if(const char* visibleName = GetMappedLevelName(levelFileName))
+
+	if(const char *visibleName = GetMappedLevelName(levelFileName))
 		levelFileName = visibleName;
+
 	//levelFileName.append("_levelstart.crysisjmsf"); //because of the french law we can't do this ...
 	levelFileName.append("_crysis.crysisjmsf");
-	if (m_pPlayerProfileManager)
+
+	if(m_pPlayerProfileManager)
 	{
-		const char* userName = GetISystem()->GetLoggedInUserName();
-		IPlayerProfile* pProfile = m_pPlayerProfileManager->GetCurrentProfile(userName);
-		if (pProfile)
+		const char *userName = GetISystem()->GetLoggedInUserName();
+		IPlayerProfile *pProfile = m_pPlayerProfileManager->GetCurrentProfile(userName);
+
+		if(pProfile)
 		{
-			const char* sharedSaveGameFolder = m_pPlayerProfileManager->GetSharedSaveGameFolder();
-			if (sharedSaveGameFolder && *sharedSaveGameFolder)
+			const char *sharedSaveGameFolder = m_pPlayerProfileManager->GetSharedSaveGameFolder();
+
+			if(sharedSaveGameFolder && *sharedSaveGameFolder)
 			{
 				string prefix = pProfile->GetName();
 				prefix+="_";
 				levelFileName = prefix + levelFileName;
 			}
+
 			ISaveGameEnumeratorPtr pSGE = pProfile->CreateSaveGameEnumerator();
-			ISaveGameEnumerator::SGameDescription desc;	
+			ISaveGameEnumerator::SGameDescription desc;
 			const int nSaveGames = pSGE->GetCount();
-			for (int i=0; i<nSaveGames; ++i)
+
+			for(int i=0; i<nSaveGames; ++i)
 			{
-				if (pSGE->GetDescription(i, desc))
+				if(pSGE->GetDescription(i, desc))
 				{
 					if(!stricmp(desc.name,levelFileName.c_str()))
 					{
@@ -716,6 +741,7 @@ string CGame::InitMapReloading()
 			}
 		}
 	}
+
 #ifndef WIN32
 	m_bReload = true; //using map command
 #else
@@ -727,7 +753,7 @@ string CGame::InitMapReloading()
 
 void CGame::Shutdown()
 {
-	if (m_pPlayerProfileManager)
+	if(m_pPlayerProfileManager)
 	{
 		m_pPlayerProfileManager->LogoutUser(m_pPlayerProfileManager->GetCurrentUser());
 	}
@@ -735,7 +761,7 @@ void CGame::Shutdown()
 	SAFE_DELETE(m_pServerSynchedStorage);
 	SAFE_DELETE(m_pServerGameTokenSynch);
 
-	if ( gEnv->pScaleformGFx && gEnv->pScaleformGFx->IsScaleformSupported() )
+	if(gEnv->pScaleformGFx && gEnv->pScaleformGFx->IsScaleformSupported())
 	{
 		CUIManager::Destroy();
 	}
@@ -759,10 +785,10 @@ void CGame::OnPostUpdate(float fDeltaTime)
 	//m_pCameraManager->Update();
 }
 
-void CGame::OnSaveGame(ISaveGame* pSaveGame)
+void CGame::OnSaveGame(ISaveGame *pSaveGame)
 {
-	IActor*		pActor = GetIGameFramework()->GetClientActor();
-	CPlayer*	pPlayer = static_cast<CPlayer*>(pActor);
+	IActor		*pActor = GetIGameFramework()->GetClientActor();
+	CPlayer	*pPlayer = static_cast<CPlayer *>(pActor);
 	GetGameRules()->PlayerPosForRespawn(pPlayer, true);
 
 	//save difficulty
@@ -771,21 +797,24 @@ void CGame::OnSaveGame(ISaveGame* pSaveGame)
 	//write file to profile
 	if(m_pPlayerProfileManager)
 	{
-		const char* saveGameFolder = m_pPlayerProfileManager->GetSharedSaveGameFolder();
+		const char *saveGameFolder = m_pPlayerProfileManager->GetSharedSaveGameFolder();
 		const bool bSaveGameFolderShared = saveGameFolder && *saveGameFolder;
 		const char *user = m_pPlayerProfileManager->GetCurrentUser();
+
 		if(IPlayerProfile *pProfile = m_pPlayerProfileManager->GetCurrentProfile(user))
 		{
 			string filename(pSaveGame->GetFileName());
 			CryFixedStringT<128> profilename(pProfile->GetName());
 			profilename+='_';
 			filename = filename.substr(filename.rfind('/')+1);
+
 			// strip profileName_ prefix
-			if (bSaveGameFolderShared)
+			if(bSaveGameFolderShared)
 			{
 				if(strnicmp(filename.c_str(), profilename.c_str(), profilename.length()) == 0)
 					filename = filename.substr(profilename.length());
 			}
+
 			pProfile->SetAttribute("Singleplayer.LastSavedGame", filename);
 		}
 	}
@@ -793,13 +822,15 @@ void CGame::OnSaveGame(ISaveGame* pSaveGame)
 	pSaveGame->AddMetadata("v_altitudeLimit", g_pGameCVars->pAltitudeLimitCVar->GetString());
 }
 
-void CGame::OnLoadGame(ILoadGame* pLoadGame)
+void CGame::OnLoadGame(ILoadGame *pLoadGame)
 {
 	int difficulty = g_pGameCVars->g_difficultyLevel;
 	pLoadGame->GetMetadata("sp_difficulty", difficulty);
+
 	if(difficulty != g_pGameCVars->g_difficultyLevel)
 	{
 		IPlayerProfile *pProfile = m_pPlayerProfileManager->GetCurrentProfile(m_pPlayerProfileManager->GetCurrentUser());
+
 		if(pProfile)
 		{
 			pProfile->SetAttribute("Singleplayer.LastSelectedDifficulty", difficulty);
@@ -807,12 +838,13 @@ void CGame::OnLoadGame(ILoadGame* pLoadGame)
 			IPlayerProfileManager::EProfileOperationResult result;
 			const int reason = 0;
 			m_pPlayerProfileManager->SaveProfile(m_pPlayerProfileManager->GetCurrentUser(), result, reason);
-		}		
+		}
 	}
 
 	// altitude limit
-	const char* v_altitudeLimit =	pLoadGame->GetMetadata("v_altitudeLimit");
-	if (v_altitudeLimit && *v_altitudeLimit)
+	const char *v_altitudeLimit =	pLoadGame->GetMetadata("v_altitudeLimit");
+
+	if(v_altitudeLimit && *v_altitudeLimit)
 		g_pGameCVars->pAltitudeLimitCVar->ForceSet(v_altitudeLimit);
 	else
 	{
@@ -822,61 +854,65 @@ void CGame::OnLoadGame(ILoadGame* pLoadGame)
 	}
 }
 
-void CGame::OnActionEvent(const SActionEvent& event)
-{ 
+void CGame::OnActionEvent(const SActionEvent &event)
+{
 	switch(event.m_event)
-  {
-  case  eAE_channelDestroyed:
-    GameChannelDestroyed(event.m_value == 1);
-    break;
+	{
+	case  eAE_channelDestroyed:
+		GameChannelDestroyed(event.m_value == 1);
+		break;
+
 	case eAE_serverIp:
 		if(gEnv->bServer && GetServerSynchedStorage())
 		{
 			GetServerSynchedStorage()->SetGlobalValue(GLOBAL_SERVER_IP_KEY,string(event.m_description));
 			GetServerSynchedStorage()->SetGlobalValue(GLOBAL_SERVER_PUBLIC_PORT_KEY,event.m_value);
 		}
+
 		break;
+
 	case eAE_serverName:
 		if(gEnv->bServer && GetServerSynchedStorage())
 			GetServerSynchedStorage()->SetGlobalValue(GLOBAL_SERVER_NAME_KEY,string(event.m_description));
+
 		break;
-  }
+	}
 }
 
 
 void CGame::GameChannelDestroyed(bool isServer)
 {
-  if (!isServer)
-  {
-	SAFE_DELETE(m_pClientSynchedStorage);
-	SAFE_DELETE(m_pClientGameTokenSynch);
-
-	if (!gEnv->pSystem->IsSerializingFile())
+	if(!isServer)
 	{
-		CryFixedStringT<128> buf;
-		buf.FormatFast("%g", g_pGameCVars->v_altitudeLimitDefault());
-		g_pGameCVars->pAltitudeLimitCVar->ForceSet(buf.c_str());
+		SAFE_DELETE(m_pClientSynchedStorage);
+		SAFE_DELETE(m_pClientGameTokenSynch);
+
+		if(!gEnv->pSystem->IsSerializingFile())
+		{
+			CryFixedStringT<128> buf;
+			buf.FormatFast("%g", g_pGameCVars->v_altitudeLimitDefault());
+			g_pGameCVars->pAltitudeLimitCVar->ForceSet(buf.c_str());
+		}
 	}
-  }
 }
 
 
 void CGame::BlockingProcess(BlockingConditionFunction f)
 {
-  INetwork* pNetwork = gEnv->pNetwork;
+	INetwork *pNetwork = gEnv->pNetwork;
 
-  bool ok = false;
+	bool ok = false;
 
-  ITimer * pTimer = gEnv->pTimer;
-  CTimeValue startTime = pTimer->GetAsyncTime();
+	ITimer *pTimer = gEnv->pTimer;
+	CTimeValue startTime = pTimer->GetAsyncTime();
 
-  while (!ok)
-  {
-    pNetwork->SyncWithGame(eNGS_FrameStart);
-    pNetwork->SyncWithGame(eNGS_FrameEnd);
-    gEnv->pTimer->UpdateOnFrameStart();
-    ok = (*f)();
-  }
+	while(!ok)
+	{
+		pNetwork->SyncWithGame(eNGS_FrameStart);
+		pNetwork->SyncWithGame(eNGS_FrameEnd);
+		gEnv->pTimer->UpdateOnFrameStart();
+		ok = (*f)();
+	}
 }
 
 
@@ -886,15 +922,15 @@ void CGame::BlockingProcess(BlockingConditionFunction f)
 
 
 const static uint8 drmKeyData[16] = {0};
-const static char* drmFiles = NULL;
+const static char *drmFiles = NULL;
 
 
-const uint8* CGame::GetDRMKey()
+const uint8 *CGame::GetDRMKey()
 {
 	return drmKeyData;
 }
 
-const char* CGame::GetDRMFileList()
+const char *CGame::GetDRMFileList()
 {
 	return drmFiles;
 }
@@ -909,9 +945,10 @@ CBulletTime *CGame::GetBulletTime() const
 	return m_pBulletTime;
 }
 
-void CGame::LoadActionMaps(const char* filename)
+void CGame::LoadActionMaps(const char *filename)
 {
 	CRY_ASSERT_MESSAGE((filename || *filename != 0), "filename is empty!");
+
 	if(g_pGame->GetIGameFramework()->IsGameStarted())
 	{
 		CryLogAlways("Can't change configuration while game is running (yet)");
@@ -925,6 +962,7 @@ void CGame::LoadActionMaps(const char* filename)
 
 	// make sure that they are also added to the GameActions.actions file!
 	XmlNodeRef rootNode = m_pFramework->GetISystem()->LoadXmlFromFile(filename);
+
 	if(rootNode)
 	{
 		pActionMapMan->Clear();
@@ -982,6 +1020,7 @@ void CGame::CheckReloadLevel()
 	{
 		if(m_bReload)
 			m_bReload = false;
+
 		return;
 	}
 
@@ -992,16 +1031,18 @@ void CGame::CheckReloadLevel()
 	GetISystem()->SerializingFile(1);
 
 	//load levelstart
-	ILevelSystem* pLevelSystem = m_pFramework->GetILevelSystem();
-	ILevel*			pLevel = pLevelSystem->GetCurrentLevel();
-	ILevelInfo* pLevelInfo = pLevelSystem->GetLevelInfo(m_pFramework->GetLevelName());
+	ILevelSystem *pLevelSystem = m_pFramework->GetILevelSystem();
+	ILevel			*pLevel = pLevelSystem->GetCurrentLevel();
+	ILevelInfo *pLevelInfo = pLevelSystem->GetLevelInfo(m_pFramework->GetLevelName());
 	//**********
 	EntityId playerID = GetIGameFramework()->GetClientActorId();
 	pLevelSystem->OnLoadingStart(pLevelInfo);
 	PlayerIdSet(playerID);
 	string levelstart(GetIGameFramework()->GetLevelName());
-	if(const char* visibleName = GetMappedLevelName(levelstart))
+
+	if(const char *visibleName = GetMappedLevelName(levelstart))
 		levelstart = visibleName;
+
 	//levelstart.append("_levelstart.crysisjmsf"); //because of the french law we can't do this ...
 	levelstart.append("_crysis.crysisjmsf");
 	GetIGameFramework()->LoadGame(levelstart.c_str(), true, true);
@@ -1022,7 +1063,7 @@ void CGame::CheckReloadLevel()
 
 void CGame::RegisterGameObjectEvents()
 {
-	IGameObjectSystem* pGOS = m_pFramework->GetIGameObjectSystem();
+	IGameObjectSystem *pGOS = m_pFramework->GetIGameObjectSystem();
 
 	pGOS->RegisterEvent(eCGE_PostFreeze, "PostFreeze");
 	pGOS->RegisterEvent(eCGE_PostShatter,"PostShatter");
@@ -1052,7 +1093,7 @@ void CGame::RegisterGameObjectEvents()
 	pGOS->RegisterEvent(eCGE_ReactionEnd, "ReactionEnd");
 }
 
-void CGame::GetMemoryStatistics(ICrySizer * s) const
+void CGame::GetMemoryStatistics(ICrySizer *s) const
 {
 	s->Add(*this);
 	m_pWeaponSystem->GetMemoryUsage(s);
@@ -1070,62 +1111,64 @@ void CGame::GetMemoryStatistics(ICrySizer * s) const
 	m_pItemSharedParamsList->GetMemoryUsage(s);
 	m_pWeaponSharedParamsList->GetMemoryUsage(s);
 
-	if (m_pPlayerProfileManager)
-	  m_pPlayerProfileManager->GetMemoryUsage(s);
+	if(m_pPlayerProfileManager)
+		m_pPlayerProfileManager->GetMemoryUsage(s);
 
-	if (m_pServerSynchedStorage)
+	if(m_pServerSynchedStorage)
 		m_pServerSynchedStorage->GetMemoryUsage(s);
 
-	if (m_pClientSynchedStorage)
+	if(m_pClientSynchedStorage)
 		m_pClientSynchedStorage->GetMemoryUsage(s);
 
-	if (m_pServerGameTokenSynch)
+	if(m_pServerGameTokenSynch)
 		m_pServerGameTokenSynch->GetMemoryUsage(s);
 
-	if (m_pClientGameTokenSynch)
+	if(m_pClientGameTokenSynch)
 		m_pClientGameTokenSynch->GetMemoryUsage(s);
 
-	if (m_pHitDeathReactionsSystem)
-			m_pHitDeathReactionsSystem->GetMemoryUsage(s);
+	if(m_pHitDeathReactionsSystem)
+		m_pHitDeathReactionsSystem->GetMemoryUsage(s);
 }
 
 void CGame::OnClearPlayerIds()
 {
 }
 
-void CGame::DumpMemInfo(const char* format, ...)
+void CGame::DumpMemInfo(const char *format, ...)
 {
 	CryModuleMemoryInfo memInfo;
 	CryGetMemoryInfoForModule(&memInfo);
 
 	va_list args;
 	va_start(args,format);
-	gEnv->pLog->LogV( ILog::eAlways,format,args );
+	gEnv->pLog->LogV(ILog::eAlways,format,args);
 	va_end(args);
 
-	gEnv->pLog->LogWithType( ILog::eAlways, "Alloc=%I64d kb  String=%I64d kb  STL-alloc=%I64d kb  STL-wasted=%I64d kb", (memInfo.allocated - memInfo.freed) >> 10 , memInfo.CryString_allocated >> 10, memInfo.STL_allocated >> 10 , memInfo.STL_wasted >> 10);
+	gEnv->pLog->LogWithType(ILog::eAlways, "Alloc=%I64d kb  String=%I64d kb  STL-alloc=%I64d kb  STL-wasted=%I64d kb", (memInfo.allocated - memInfo.freed) >> 10 , memInfo.CryString_allocated >> 10, memInfo.STL_allocated >> 10 , memInfo.STL_wasted >> 10);
 	// gEnv->pLog->LogV( ILog::eAlways, "%s alloc=%llu kb  instring=%llu kb  stl-alloc=%llu kb  stl-wasted=%llu kb", text, memInfo.allocated >> 10 , memInfo.CryString_allocated >> 10, memInfo.STL_allocated >> 10 , memInfo.STL_wasted >> 10);
 }
 
 
-const string& CGame::GetLastSaveGame(string &levelName)
+const string &CGame::GetLastSaveGame(string &levelName)
 {
-	if (m_pPlayerProfileManager)
+	if(m_pPlayerProfileManager)
 	{
-		const char* userName = GetISystem()->GetLoggedInUserName();
-		IPlayerProfile* pProfile = m_pPlayerProfileManager->GetCurrentProfile(userName);
-		if (pProfile)
+		const char *userName = GetISystem()->GetLoggedInUserName();
+		IPlayerProfile *pProfile = m_pPlayerProfileManager->GetCurrentProfile(userName);
+
+		if(pProfile)
 		{
 			ISaveGameEnumeratorPtr pSGE = pProfile->CreateSaveGameEnumerator();
-			ISaveGameEnumerator::SGameDescription desc;	
+			ISaveGameEnumerator::SGameDescription desc;
 			time_t curLatestTime = (time_t) 0;
-			const char* lastSaveGame = "";
+			const char *lastSaveGame = "";
 			const int nSaveGames = pSGE->GetCount();
-			for (int i=0; i<nSaveGames; ++i)
+
+			for(int i=0; i<nSaveGames; ++i)
 			{
-				if (pSGE->GetDescription(i, desc))
+				if(pSGE->GetDescription(i, desc))
 				{
-					if (desc.metaData.saveTime > curLatestTime)
+					if(desc.metaData.saveTime > curLatestTime)
 					{
 						lastSaveGame = desc.name;
 						curLatestTime = desc.metaData.saveTime;
@@ -1133,6 +1176,7 @@ const string& CGame::GetLastSaveGame(string &levelName)
 					}
 				}
 			}
+
 			m_lastSaveGame = lastSaveGame;
 		}
 	}
@@ -1154,7 +1198,7 @@ bool RespawnIfDead(CActor *pActor)
 
 		pActor->HolsterItem(false);
 
-		if( IEntity *pEntity = pActor->GetEntity() )
+		if(IEntity *pEntity = pActor->GetEntity())
 		{
 			pEntity->GetAI()->Event(AIEVENT_ENABLE, NULL);
 		}
@@ -1168,14 +1212,16 @@ bool RespawnIfDead(CActor *pActor)
 
 bool CGame::LoadLastSave()
 {
-	if (gEnv->bMultiplayer)
+	if(gEnv->bMultiplayer)
 		return false;
 
 	bool bLoadSave = true;
-	if (gEnv->IsEditor())
+
+	if(gEnv->IsEditor())
 	{
-		ICVar* pAllowSaveLoadInEditor = gEnv->pConsole->GetCVar("g_allowSaveLoadInEditor");
-		if (pAllowSaveLoadInEditor)
+		ICVar *pAllowSaveLoadInEditor = gEnv->pConsole->GetCVar("g_allowSaveLoadInEditor");
+
+		if(pAllowSaveLoadInEditor)
 		{
 			bLoadSave = (pAllowSaveLoadInEditor->GetIVal() != 0);
 		}
@@ -1184,7 +1230,7 @@ bool CGame::LoadLastSave()
 			bLoadSave = false;
 		}
 
-		if (!bLoadSave) // Wont go through normal path which reloads hud, reload here
+		if(!bLoadSave)  // Wont go through normal path which reloads hud, reload here
 		{
 			g_pGame->PostSerialize();
 		}
@@ -1192,13 +1238,13 @@ bool CGame::LoadLastSave()
 
 	bool bSuccess = true;
 
-	if (bLoadSave)
+	if(bLoadSave)
 	{
 		if(g_pGameCVars->g_enableSlimCheckpoints)
 			bSuccess = GetIGameFramework()->GetICheckpointSystem()->LoadLastCheckpoint();
 		else
 		{
-			const string& file = g_pGame->GetLastSaveGame();
+			const string &file = g_pGame->GetLastSaveGame();
 
 			if(file.length())
 			{
@@ -1209,8 +1255,8 @@ bool CGame::LoadLastSave()
 	}
 	else
 	{
-		CActor* pPlayer = static_cast<CActor*>(GetIGameFramework()->GetClientActor());
-		bSuccess = RespawnIfDead( pPlayer );
+		CActor *pPlayer = static_cast<CActor *>(GetIGameFramework()->GetClientActor());
+		bSuccess = RespawnIfDead(pPlayer);
 	}
 
 	return bSuccess;
@@ -1223,7 +1269,7 @@ void CGame::PostSerialize()
 }
 
 
-ILINE void expandSeconds(int secs, int& days, int& hours, int& minutes, int& seconds)
+ILINE void expandSeconds(int secs, int &days, int &hours, int &minutes, int &seconds)
 {
 	days  = secs / 86400;
 	secs -= days * 86400;
@@ -1235,11 +1281,12 @@ ILINE void expandSeconds(int secs, int& days, int& hours, int& minutes, int& sec
 	days = 0;
 }
 
-void secondsToString(int secs, string& outString)
+void secondsToString(int secs, string &outString)
 {
 	int d,h,m,s;
 	expandSeconds(secs, d, h, m, s);
-	if (h > 0)
+
+	if(h > 0)
 		outString.Format("%02dh_%02dm_%02ds", h, m, s);
 	else
 		outString.Format("%02dm_%02ds", m, s);
@@ -1258,6 +1305,7 @@ IGame::TSaveGameName CGame::CreateSaveGameName()
 	if(IPlayerProfileManager *m_pPlayerProfileManager = gEnv->pGame->GetIGameFramework()->GetIPlayerProfileManager())
 	{
 		const char *user = m_pPlayerProfileManager->GetCurrentUser();
+
 		if(IPlayerProfile *pProfile = m_pPlayerProfileManager->GetCurrentProfile(user))
 		{
 			pProfile->GetAttribute("Singleplayer.SaveRunningID", id);
@@ -1269,13 +1317,15 @@ IGame::TSaveGameName CGame::CreateSaveGameName()
 	char buffer[16];
 	itoa(id, buffer, 10);
 	saveGameName.clear();
+
 	if(id < 10)
 		saveGameName += "0";
+
 	saveGameName += buffer;
 	saveGameName += "_";
 
-	const char* levelName = GetIGameFramework()->GetLevelName();
-	const char* mappedName = GetMappedLevelName(levelName);
+	const char *levelName = GetIGameFramework()->GetLevelName();
+	const char *mappedName = GetMappedLevelName(levelName);
 	saveGameName += mappedName;
 
 	saveGameName += "_";
@@ -1292,55 +1342,57 @@ IGame::TSaveGameName CGame::CreateSaveGameName()
 
 }
 
-const char* CGame::GetMappedLevelName(const char *levelName) const
-{ 
+const char *CGame::GetMappedLevelName(const char *levelName) const
+{
 	TLevelMapMap::const_iterator iter = m_mapNames.find(CONST_TEMP_STRING(levelName));
 	return (iter == m_mapNames.end()) ? levelName : iter->second.c_str();
 }
 
 
-IGameStateRecorder* CGame::CreateGameStateRecorder(IGameplayListener* pL)
+IGameStateRecorder *CGame::CreateGameStateRecorder(IGameplayListener *pL)
 {
-	CGameStateRecorder* pGSP = new CGameStateRecorder();
-	
+	CGameStateRecorder *pGSP = new CGameStateRecorder();
+
 	if(pGSP)
 		pGSP->RegisterListener(pL);
 
-	return (IGameStateRecorder*)pGSP;
+	return (IGameStateRecorder *)pGSP;
 
 }
 
-Graphics::CColorGradientManager& CGame::GetColorGradientManager()
+Graphics::CColorGradientManager &CGame::GetColorGradientManager()
 {
 	return *m_colorGradientManager;
 }
 
-void CGame::OnSystemEvent( ESystemEvent event, UINT_PTR wparam, UINT_PTR lparam )
+void CGame::OnSystemEvent(ESystemEvent event, UINT_PTR wparam, UINT_PTR lparam)
 {
-		switch (event)
+	switch(event)
+	{
+	case ESYSTEM_EVENT_LEVEL_LOAD_START:
+	{
+		if(!m_pRayCaster)
 		{
-		case ESYSTEM_EVENT_LEVEL_LOAD_START:
-				{
-						if (!m_pRayCaster)
-						{
-								m_pRayCaster = new GlobalRayCaster;
-								m_pRayCaster->SetQuota(6);
-						}
-						if (!m_pIntersectionTester)
-						{
-								m_pIntersectionTester = new GlobalIntersectionTester;
-								m_pIntersectionTester->SetQuota(6);
-						}
-				}
-				break;
-		case ESYSTEM_EVENT_LEVEL_UNLOAD:
-				{
-						SAFE_DELETE(m_pRayCaster);
-						SAFE_DELETE(m_pIntersectionTester);
-
-						m_pHitDeathReactionsSystem->Reset();
-				}
-				break;
+			m_pRayCaster = new GlobalRayCaster;
+			m_pRayCaster->SetQuota(6);
 		}
+
+		if(!m_pIntersectionTester)
+		{
+			m_pIntersectionTester = new GlobalIntersectionTester;
+			m_pIntersectionTester->SetQuota(6);
+		}
+	}
+	break;
+
+	case ESYSTEM_EVENT_LEVEL_UNLOAD:
+	{
+		SAFE_DELETE(m_pRayCaster);
+		SAFE_DELETE(m_pIntersectionTester);
+
+		m_pHitDeathReactionsSystem->Reset();
+	}
+	break;
+	}
 }
 #include UNIQUE_VIRTUAL_WRAPPER(IGame)

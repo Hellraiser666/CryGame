@@ -4,9 +4,9 @@ Copyright (C), Crytek Studios, 2001-2005.
 -------------------------------------------------------------------------
 $Id$
 $DateTime$
-Description: 
-	G04 centralized Game Audio code 
-	
+Description:
+	G04 centralized Game Audio code
+
 -------------------------------------------------------------------------
 History:
 - 11:08:2008: Created by Tomas Neumann
@@ -40,10 +40,10 @@ CGameAudio::CGameAudio() : m_pSoundMoods(0), m_pBattleStatus(0)
 
 CGameAudio::~CGameAudio()
 {
-	if (m_pSoundMoods)
+	if(m_pSoundMoods)
 		delete m_pSoundMoods;
 
-	if (m_pBattleStatus)
+	if(m_pBattleStatus)
 		delete m_pBattleStatus;
 
 	SAFE_DELETE(m_pScriptBindGameAudio);
@@ -52,7 +52,7 @@ CGameAudio::~CGameAudio()
 //-----------------------------------------------------------------------------------------------------
 
 void CGameAudio::Init()
-{		
+{
 	for(int i = 0; i < EGameAudioSound_LAST; ++i)
 	{
 		m_sounds[i].ID = INVALID_SOUNDID;
@@ -63,11 +63,11 @@ void CGameAudio::Init()
 		//m_sounds[i].nStrengthIndex = -1;
 	}
 
-	if (!m_pSoundMoods)
+	if(!m_pSoundMoods)
 		m_pSoundMoods = new CSoundMoods();
 
-	
-	if (!m_pBattleStatus)
+
+	if(!m_pBattleStatus)
 		m_pBattleStatus = new CBattleStatus();
 
 }
@@ -75,12 +75,12 @@ void CGameAudio::Init()
 //-----------------------------------------------------------------------------------------------------
 
 void CGameAudio::Update()
-{		
-	if (m_pSoundMoods)
+{
+	if(m_pSoundMoods)
 		m_pSoundMoods->Update();
 
 
-	if (m_pBattleStatus)
+	if(m_pBattleStatus)
 		m_pBattleStatus->Update();
 
 }
@@ -88,10 +88,10 @@ void CGameAudio::Update()
 
 void CGameAudio::Serialize(TSerialize ser)
 {
-	if (m_pSoundMoods)
+	if(m_pSoundMoods)
 		m_pSoundMoods->Serialize(ser);
 
-	if (m_pBattleStatus)
+	if(m_pBattleStatus)
 		m_pBattleStatus->Serialize(ser);
 }
 
@@ -109,8 +109,10 @@ void CGameAudio::PlaySound(EGameAudioSounds eSound, IEntity *pEntity, float para
 	{
 	case EGameAudioSound_NOSOUND:
 		break;
+
 	case EGameAudioSound_LAST:
 		break;
+
 	default:
 		break;
 	}
@@ -121,18 +123,18 @@ void CGameAudio::PlaySound(EGameAudioSounds eSound, IEntity *pEntity, float para
 	//		soundName.append("_fp");
 	//}
 
-	IEntitySoundProxy* pSoundProxy = pEntity ? (IEntitySoundProxy*)pEntity->CreateProxy(ENTITY_PROXY_SOUND) : NULL;
+	IEntitySoundProxy *pSoundProxy = pEntity ? (IEntitySoundProxy *)pEntity->CreateProxy(ENTITY_PROXY_SOUND) : NULL;
 
-	if (soundName.size() && eSound < EGameAudioSound_LAST)		//get / create or stop sound
+	if(soundName.size() && eSound < EGameAudioSound_LAST)		//get / create or stop sound
 	{
 		if(m_sounds[eSound].ID != INVALID_SOUNDID)
 		{
-			if (pSoundProxy)
+			if(pSoundProxy)
 				pSound = pSoundProxy->GetSound(m_sounds[eSound].ID);
 			else
 				pSound = gEnv->pSoundSystem->GetSound(m_sounds[eSound].ID);
 
-			if (stopSound)
+			if(stopSound)
 			{
 				if(pSound)
 					pSound->Stop();
@@ -142,11 +144,11 @@ void CGameAudio::PlaySound(EGameAudioSounds eSound, IEntity *pEntity, float para
 			}
 		}
 
-		if (!pSound && !stopSound)
+		if(!pSound && !stopSound)
 		{
 			pSound = gEnv->pSoundSystem->CreateSound(soundName, soundFlag);
 
-			if (pSound)
+			if(pSound)
 			{
 				pSound->SetSemantic(eSemantic);
 				//float fTemp = 0.0f;
@@ -160,7 +162,7 @@ void CGameAudio::PlaySound(EGameAudioSounds eSound, IEntity *pEntity, float para
 		}
 	}
 
-	if ( pSound )		//set params and play
+	if(pSound)		//set params and play
 	{
 		//pSound->SetPosition(m_pOwner->GetEntity()->GetWorldPos());
 
@@ -178,7 +180,7 @@ void CGameAudio::PlaySound(EGameAudioSounds eSound, IEntity *pEntity, float para
 
 		if(!(m_sounds[eSound].bLooping && pSound->IsPlaying()))
 		{
-			if (pSoundProxy)
+			if(pSoundProxy)
 				pSoundProxy->PlaySound(pSound);
 			else
 				pSound->Play();
@@ -189,23 +191,23 @@ void CGameAudio::PlaySound(EGameAudioSounds eSound, IEntity *pEntity, float para
 // add enum of signal you want to play, and add command to game code at appropiate spot
 void CGameAudio::SendSignal(EGameAudioSignals eSignal)
 {
-/*
-	int soundFlag = 0; //localActor will get 2D sounds
-	ESoundSemantic eSemantic = eSoundSemantic_None;
-	ISound *pSound = NULL;
-	bool	setParam = false;
-	bool	force3DSound = false;
-	bool	bAppendPostfix=true;
-	static string soundName;
-	soundName.resize(0);
+	/*
+		int soundFlag = 0; //localActor will get 2D sounds
+		ESoundSemantic eSemantic = eSoundSemantic_None;
+		ISound *pSound = NULL;
+		bool	setParam = false;
+		bool	force3DSound = false;
+		bool	bAppendPostfix=true;
+		static string soundName;
+		soundName.resize(0);
 
-	switch(eSignal)
-	{
-	case EGameAudioSignal_NOSIGNAL:
-		break;
-	default:
-		break;
-	}
+		switch(eSignal)
+		{
+		case EGameAudioSignal_NOSIGNAL:
+			break;
+		default:
+			break;
+		}
 
-*/
+	*/
 }

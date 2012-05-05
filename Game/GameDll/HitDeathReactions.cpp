@@ -19,7 +19,7 @@
 
 // Should be in synch with the one in CryAnimation\AnimationBase.h
 #if !(defined(XENON) || defined(PS3))
-	#define STORE_ANIMATION_NAMES (1)
+#define STORE_ANIMATION_NAMES (1)
 #endif
 
 
@@ -42,17 +42,18 @@ namespace
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-struct CHitDeathReactions::SPredFindValidReaction : public std::unary_function<bool, const SReactionParams&>
+struct CHitDeathReactions::SPredFindValidReaction : public std::unary_function<bool, const SReactionParams &>
 {
-	SPredFindValidReaction(const CHitDeathReactions& owner, const HitInfo& hitInfo, float fCausedDamage = 0.0f) : m_owner(owner), m_hitInfo(hitInfo), m_fCausedDamage(fCausedDamage) {}
+	SPredFindValidReaction(const CHitDeathReactions &owner, const HitInfo &hitInfo, float fCausedDamage = 0.0f) : m_owner(owner), m_hitInfo(hitInfo), m_fCausedDamage(fCausedDamage) {}
 
-	bool operator ()(const SReactionParams& reactionParams) const
+	bool operator()(const SReactionParams &reactionParams) const
 	{
 		typedef SReactionParams::ValidationParamsList::const_iterator validationIt;
 
 		bool bFound = false;
 		validationIt itEnd = reactionParams.validationParams.end();
-		for (validationIt it = reactionParams.validationParams.begin(); (it != itEnd) && !bFound; ++it)
+
+		for(validationIt it = reactionParams.validationParams.begin(); (it != itEnd) && !bFound; ++it)
 		{
 			bFound = EvaluateValidationParams(*it, reactionParams);
 		}
@@ -60,23 +61,24 @@ struct CHitDeathReactions::SPredFindValidReaction : public std::unary_function<b
 		return reactionParams.validationParams.empty() || bFound;
 	}
 
-	bool EvaluateValidationParams(const SReactionParams::SValidationParams& validationParams, const SReactionParams& reactionParams) const
+	bool EvaluateValidationParams(const SReactionParams::SValidationParams &validationParams, const SReactionParams &reactionParams) const
 	{
 		bool bResult = false;
 		bool bSuccess = false;
 
-		if (!validationParams.sCustomValidationFunc.empty())
+		if(!validationParams.sCustomValidationFunc.empty())
 		{
-			const CCustomReactionFunctions& customReactions = g_pGame->GetHitDeathReactionsSystem().GetCustomReactionFunctions();
+			const CCustomReactionFunctions &customReactions = g_pGame->GetHitDeathReactionsSystem().GetCustomReactionFunctions();
 			bSuccess = customReactions.CallCustomValidationFunction(bResult, m_owner.m_pSelfTable, m_owner.m_actor, validationParams, m_hitInfo, m_fCausedDamage);
 		}
 
-		if (!bSuccess)
+		if(!bSuccess)
 		{
-			if (g_pGameCVars->g_hitDeathReactions_useLuaDefaultFunctions)
+			if(g_pGameCVars->g_hitDeathReactions_useLuaDefaultFunctions)
 			{
 				HSCRIPTFUNCTION validationFunc = NULL;
-				if (m_owner.m_pSelfTable->GetValue(DEFAULT_VALIDATION_FUNCTION, validationFunc))
+
+				if(m_owner.m_pSelfTable->GetValue(DEFAULT_VALIDATION_FUNCTION, validationFunc))
 				{
 					ScriptTablePtr scriptHitInfo(m_owner.m_pScriptSystem);
 					g_pGame->GetGameRules()->CreateScriptHitInfo(scriptHitInfo, m_hitInfo);
@@ -88,7 +90,7 @@ struct CHitDeathReactions::SPredFindValidReaction : public std::unary_function<b
 					CHitDeathReactionsSystem::Warning("Couldn't find default LUA method (method HitDeathReactions:%s)", DEFAULT_VALIDATION_FUNCTION);
 			}
 
-			if (!bSuccess)
+			if(!bSuccess)
 			{
 				// Default C++ validation
 				bResult = m_owner.IsValidReaction(m_hitInfo, validationParams, m_fCausedDamage);
@@ -99,14 +101,14 @@ struct CHitDeathReactions::SPredFindValidReaction : public std::unary_function<b
 	}
 
 private:
-	const CHitDeathReactions& m_owner;
-	const HitInfo&						m_hitInfo;
+	const CHitDeathReactions &m_owner;
+	const HitInfo						&m_hitInfo;
 	float											m_fCausedDamage;
 };
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-void CHitDeathReactions::SCustomAnim::SetAnimName(int animID, IAnimationSet* pAnimSet)
+void CHitDeathReactions::SCustomAnim::SetAnimName(int animID, IAnimationSet *pAnimSet)
 {
 #ifdef STORE_ANIMATION_NAMES
 	sAnimName = pAnimSet->GetNameByAnimID(animID);
@@ -119,9 +121,9 @@ void CHitDeathReactions::SCustomAnim::SetAnimName(int animID, IAnimationSet* pAn
 //////////////////////////////////////////////////////////////////////////
 inline void AnimIDError_Dup(const char *animName)
 {
-	if (g_pGameCVars->g_animatorDebug)
+	if(g_pGameCVars->g_animatorDebug)
 	{
-		static const ColorF col (1.0f, 0.0f, 0.0f, 1.0f);
+		static const ColorF col(1.0f, 0.0f, 0.0f, 1.0f);
 		g_pGame->GetIGameFramework()->GetIPersistantDebug()->Add2DText(string().Format("Missing %s", animName).c_str(), 1.0f, col, 10.0f);
 	}
 
@@ -130,11 +132,11 @@ inline void AnimIDError_Dup(const char *animName)
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-CHitDeathReactions::CHitDeathReactions(CActor& actor) : m_pScriptSystem(gEnv->pScriptSystem), m_actor(actor), 
-m_fReactionCounter(-1.0f), m_iGoalPipeId(0), m_AIPausedState(eAIP_NotPaused), m_currentReaction(eRT_None), m_fReactionEndTime(-1.0f), 
-m_pHitInfo(NULL), m_reactionOnCollision(NO_COLLISION_REACTION), m_currentExecutionType(eET_None),
-m_reactionFlags(0), m_effectorChannel(INVALID_FACIAL_CHANNEL_ID), m_pCurrentReactionParams(NULL), m_pseudoRandom(g_pGame->GetHitDeathReactionsSystem().GetRandomGenerator()),
-m_profileId(INVALID_PROFILE_ID)
+CHitDeathReactions::CHitDeathReactions(CActor &actor) : m_pScriptSystem(gEnv->pScriptSystem), m_actor(actor),
+	m_fReactionCounter(-1.0f), m_iGoalPipeId(0), m_AIPausedState(eAIP_NotPaused), m_currentReaction(eRT_None), m_fReactionEndTime(-1.0f),
+	m_pHitInfo(NULL), m_reactionOnCollision(NO_COLLISION_REACTION), m_currentExecutionType(eET_None),
+	m_reactionFlags(0), m_effectorChannel(INVALID_FACIAL_CHANNEL_ID), m_pCurrentReactionParams(NULL), m_pseudoRandom(g_pGame->GetHitDeathReactionsSystem().GetRandomGenerator()),
+	m_profileId(INVALID_PROFILE_ID)
 {
 	m_pSelfTable.Create(m_pScriptSystem);
 
@@ -144,7 +146,7 @@ m_profileId(INVALID_PROFILE_ID)
 
 	m_primitiveIntersectionQueue.InitWithOwner(this);
 
-	if (gEnv->bServer)
+	if(gEnv->bServer)
 	{
 		m_iGoalPipeId = gEnv->pAISystem->AllocGoalPipeId();
 	}
@@ -154,9 +156,9 @@ m_profileId(INVALID_PROFILE_ID)
 //////////////////////////////////////////////////////////////////////////
 void CHitDeathReactions::OnActorReused()
 {
-	// If the actor was on a hit reaction and the new actor is not valid (e.g., a PoolEntity) this could lead to 
+	// If the actor was on a hit reaction and the new actor is not valid (e.g., a PoolEntity) this could lead to
 	// crashes. To avoid it, just finish the reaction now.
-	if (IsInReaction())
+	if(IsInReaction())
 		EndCurrentReaction();
 
 	LoadData(m_pSelfTable, true);
@@ -167,10 +169,11 @@ void CHitDeathReactions::OnActorReused()
 	binds->SetValue("__actor", ScriptHandle(m_actor.GetEntityId()));
 	m_pSelfTable->SetValue("binds", binds);
 
-	// adding a hitDeathReactions subtable to the actor script so it can access it if needed 
+	// adding a hitDeathReactions subtable to the actor script so it can access it if needed
 	ScriptTablePtr pActorScriptTable = m_actor.GetEntity()->GetScriptTable();
-  if (pActorScriptTable)
-    pActorScriptTable->SetValue("hitDeathReactions", m_pSelfTable);
+
+	if(pActorScriptTable)
+		pActorScriptTable->SetValue("hitDeathReactions", m_pSelfTable);
 
 	// We need to specify eRRF_Alive. Entities may be reused from the pool before having their HitDeathReactions
 	// Instantiated, so when the CPlayer::Revive() won't be able to call the OnRevive method. It's sure that any
@@ -184,7 +187,7 @@ void CHitDeathReactions::OnActorReused()
 //////////////////////////////////////////////////////////////////////////
 void CHitDeathReactions::OnActorReturned()
 {
-	// The actors returned to the pool will get their entityId changed, so 
+	// The actors returned to the pool will get their entityId changed, so
 	// we need to totally remove them from the list of actors using the profile
 	g_pGame->GetHitDeathReactionsSystem().ReleaseReactionAnimsForActor(m_actor, eRRF_Alive | eRRF_OutFromPool | eRRF_AIEnabled);
 	m_profileId = INVALID_PROFILE_ID;
@@ -192,25 +195,26 @@ void CHitDeathReactions::OnActorReturned()
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-void CHitDeathReactions::FullSerialize( TSerialize ser )
+void CHitDeathReactions::FullSerialize(TSerialize ser)
 {
-	if (ser.IsReading())
+	if(ser.IsReading())
 	{
 		ClearState();
 
 		bool bShouldTriggerDeathRagdoll = false;
 		ser.Value("shouldTriggerDeathRagdoll", bShouldTriggerDeathRagdoll, 'bool');
-		if (bShouldTriggerDeathRagdoll)
+
+		if(bShouldTriggerDeathRagdoll)
 		{
 			// We need to enable the ragdoll after serialization. The GameObject serialization thinks this
-			// character's physic aspect profile is "alive" (since that's what it saved, despite being on a death 
+			// character's physic aspect profile is "alive" (since that's what it saved, despite being on a death
 			// reaction that will forcefully end up in ragdoll) so it will force that physic aspect profile
 			// during the serialization
 			m_reactionFlags |= SReactionParams::TriggerRagdollAfterSerializing;
 		}
 	}
 	else
-	{	
+	{
 		bool bShouldTriggerDeathRagdoll = IsInDeathReaction() && DeathReactionEndsInRagdoll();
 		ser.Value("shouldTriggerDeathRagdoll", bShouldTriggerDeathRagdoll, 'bool');
 	}
@@ -220,7 +224,7 @@ void CHitDeathReactions::FullSerialize( TSerialize ser )
 //////////////////////////////////////////////////////////////////////////
 void CHitDeathReactions::PostSerialize()
 {
-	if (m_reactionFlags & SReactionParams::TriggerRagdollAfterSerializing)
+	if(m_reactionFlags & SReactionParams::TriggerRagdollAfterSerializing)
 	{
 		m_reactionFlags &= ~SReactionParams::TriggerRagdollAfterSerializing;
 
@@ -233,7 +237,7 @@ void CHitDeathReactions::PostSerialize()
 void CHitDeathReactions::RequestReactionAnims(uint32 requestFlags)
 {
 	// Never request anims for a pool entity
-	if (!m_actor.GetEntity()->IsFromPool())
+	if(!m_actor.GetEntity()->IsFromPool())
 		g_pGame->GetHitDeathReactionsSystem().RequestReactionAnimsForActor(m_actor, requestFlags);
 }
 
@@ -242,7 +246,7 @@ void CHitDeathReactions::RequestReactionAnims(uint32 requestFlags)
 void CHitDeathReactions::ReleaseReactionAnims(uint32 requestFlags)
 {
 	// Never release anims for a pool entity
-	if (!m_actor.GetEntity()->IsFromPool())
+	if(!m_actor.GetEntity()->IsFromPool())
 		g_pGame->GetHitDeathReactionsSystem().ReleaseReactionAnimsForActor(m_actor, requestFlags);
 }
 
@@ -252,65 +256,85 @@ void CHitDeathReactions::Update(float fFrameTime)
 {
 	FUNCTION_PROFILER(GetISystem(), PROFILE_GAME);
 
-	if (IsInReaction())
+	if(IsInReaction())
 	{
 #ifdef _DEBUG
+
 		// Debug check: If marked to be disabled, the AI SHOULD be disabled while playing a reaction
-		if (eAIP_PipeUserPaused == m_AIPausedState)
+		if(eAIP_PipeUserPaused == m_AIPausedState)
 		{
-			IPipeUser* pPipeUser = GetAIPipeUser();
+			IPipeUser *pPipeUser = GetAIPipeUser();
 			CRY_ASSERT_TRACE(!pPipeUser || pPipeUser->IsPaused(), ("The actor %s pipe user has been resumed before the reaction has ended! Investigate", m_actor.GetEntity()->GetName()));
 		}
+
 #endif
 
 		// Protection against bad animation graph setups or other errors
 		m_fReactionCounter += fFrameTime;
-		if ((m_fReactionEndTime >= 0.0f) && (m_fReactionCounter > m_fReactionEndTime))
+
+		if((m_fReactionEndTime >= 0.0f) && (m_fReactionCounter > m_fReactionEndTime))
 		{
 			EndCurrentReactionInternal(true, false);
 		}
-		else if (m_fReactionCounter > m_pHitDeathReactionsConfig->fMaximumReactionTime)
+		else if(m_fReactionCounter > m_pHitDeathReactionsConfig->fMaximumReactionTime)
 		{
 #ifndef _RELEASE
-			const char* szExecutionType = NULL;
-			switch (m_currentExecutionType)
+			const char *szExecutionType = NULL;
+
+			switch(m_currentExecutionType)
 			{
-			case eET_None: szExecutionType= "Undefined"; break;
-			case eET_Custom: szExecutionType= "Custom"; break;
-			case eET_AnimationGraphAnim: szExecutionType= (string("AnimationGraph(") + GetCurrentAGReactionAnimName() + ")").c_str(); break;
-			case eET_ReactionAnim: szExecutionType= (string("ReactionAnim(") + m_currentCustomAnim.GetAnimName() + ")").c_str(); break;
-			default: break;
+			case eET_None:
+				szExecutionType= "Undefined";
+				break;
+
+			case eET_Custom:
+				szExecutionType= "Custom";
+				break;
+
+			case eET_AnimationGraphAnim:
+				szExecutionType= (string("AnimationGraph(") + GetCurrentAGReactionAnimName() + ")").c_str();
+				break;
+
+			case eET_ReactionAnim:
+				szExecutionType= (string("ReactionAnim(") + m_currentCustomAnim.GetAnimName() + ")").c_str();
+				break;
+
+			default:
+				break;
 			}
-			CHitDeathReactionsSystem::Warning("Current %s %s reaction for entity %s was" 
-				" taking too long (more than %.2f seconds) so its end was forced. Talk with David Ramos if its long duration was intended", 
-				IsInDeathReaction() ? "Death" : "Hit", szExecutionType, m_actor.GetEntity()->GetName(), m_pHitDeathReactionsConfig->fMaximumReactionTime);
+
+			CHitDeathReactionsSystem::Warning("Current %s %s reaction for entity %s was"
+											  " taking too long (more than %.2f seconds) so its end was forced. Talk with David Ramos if its long duration was intended",
+											  IsInDeathReaction() ? "Death" : "Hit", szExecutionType, m_actor.GetEntity()->GetName(), m_pHitDeathReactionsConfig->fMaximumReactionTime);
 #endif
 
 			EndCurrentReactionInternal(false, false);
 		}
-		else if (m_reactionOnCollision != NO_COLLISION_REACTION)
+		else if(m_reactionOnCollision != NO_COLLISION_REACTION)
 		{
 			DoCollisionCheck();
 		}
 	}
 
-	if (CustomAnimHasFinished())
+	if(CustomAnimHasFinished())
 	{
 		// If no animation graph is working on that layer stop the animation, otherwise it will be played there forever
 		OnCustomAnimFinished(false);
 	}
 
 #ifndef _RELEASE
-	if (g_pGameCVars->g_hitDeathReactions_debug)
+
+	if(g_pGameCVars->g_hitDeathReactions_debug)
 	{
 		DrawDebugInfo();
 	}
+
 #endif
 }
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-bool CHitDeathReactions::OnKill(const CActor::KillParams& killParams)
+bool CHitDeathReactions::OnKill(const CActor::KillParams &killParams)
 {
 	FUNCTION_PROFILER(gEnv->pSystem, PROFILE_GAME);
 
@@ -318,7 +342,7 @@ bool CHitDeathReactions::OnKill(const CActor::KillParams& killParams)
 
 	bool bSuccess = false;
 
-	if (CanPlayDeathReaction() || killParams.forceLocalKill)
+	if(CanPlayDeathReaction() || killParams.forceLocalKill)
 	{
 		HitInfo hitInfo;
 		m_actor.FillHitInfoFromKillParams(killParams, hitInfo);
@@ -326,7 +350,7 @@ bool CHitDeathReactions::OnKill(const CActor::KillParams& killParams)
 		bSuccess = OnKill(hitInfo);
 	}
 
-	if (!IsInDeathReaction())
+	if(!IsInDeathReaction())
 	{
 		// actor is dead, release anims
 		ReleaseReactionAnims(eRRF_Alive);
@@ -337,13 +361,13 @@ bool CHitDeathReactions::OnKill(const CActor::KillParams& killParams)
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-bool CHitDeathReactions::OnHit(const HitInfo& hitInfo, float fCausedDamage/* = 0.0f*/)
+bool CHitDeathReactions::OnHit(const HitInfo &hitInfo, float fCausedDamage/* = 0.0f*/)
 {
 	FUNCTION_PROFILER(gEnv->pSystem, PROFILE_GAME);
 
 	bool bSuccess = false;
 
-	if (CanPlayHitReaction())
+	if(CanPlayHitReaction())
 	{
 		// Generate and set seed for this event
 		uint32 uSeed = GetSynchedSeed(false);
@@ -353,10 +377,10 @@ bool CHitDeathReactions::OnHit(const HitInfo& hitInfo, float fCausedDamage/* = 0
 		ReactionsContainer::const_iterator itBestFit = std::find_if(m_pHitReactions->begin(), m_pHitReactions->end(), SPredFindValidReaction(*this, hitInfo, fCausedDamage));
 
 		// If found a fit, execute it
-		if (itBestFit != m_pHitReactions->end())
+		if(itBestFit != m_pHitReactions->end())
 		{
 			bSuccess = StartHitReaction(hitInfo, *itBestFit);
-		}	
+		}
 	}
 
 	return bSuccess;
@@ -368,7 +392,7 @@ void CHitDeathReactions::OnRevive()
 {
 	ClearState();
 
-	if (!m_actor.IsDead())
+	if(!m_actor.IsDead())
 		RequestReactionAnims(eRRF_Alive);
 }
 
@@ -379,15 +403,15 @@ bool CHitDeathReactions::OnAnimationEvent(const AnimEventInstance &event)
 {
 	bool bSuccessfullyProcessed = false;
 
-	if (IsInReaction())
+	if(IsInReaction())
 	{
-		if (m_actor.GetAnimationEventsTable().m_deathReactionEndId == event.m_EventNameLowercaseCRC32)
+		if(m_actor.GetAnimationEventsTable().m_deathReactionEndId == event.m_EventNameLowercaseCRC32)
 		{
-			if (DoesAnimEventWantToSleepRagdoll(event))
+			if(DoesAnimEventWantToSleepRagdoll(event))
 				m_reactionFlags |= SReactionParams::SleepRagdoll;
 
-			// Immediately processing the AnimationEvent was causing stalls on the Main Thread in MP games 
-			// due network aspect profile changes inside the EndCurrentReactionInternal happening when the network 
+			// Immediately processing the AnimationEvent was causing stalls on the Main Thread in MP games
+			// due network aspect profile changes inside the EndCurrentReactionInternal happening when the network
 			// thread has the lock (inside CryAction::PostUpdate)
 			// bSuccessfullyProcessed = EndCurrentReactionInternal(true, false);
 
@@ -395,39 +419,41 @@ bool CHitDeathReactions::OnAnimationEvent(const AnimEventInstance &event)
 			m_fReactionEndTime = m_fReactionCounter;
 			bSuccessfullyProcessed = true;
 		}
-		else if (m_actor.GetAnimationEventsTable().m_ragdollStartId == event.m_EventNameLowercaseCRC32)
+		else if(m_actor.GetAnimationEventsTable().m_ragdollStartId == event.m_EventNameLowercaseCRC32)
 		{
 			CRY_ASSERT_MESSAGE(m_actor.GetAnimatedCharacter(), "This class assumes that if this code is called, the actor has a valid animated character");
 
 			//--- Initiate rag-doll between now & the end of the animation
 			CAnimationPlayerProxy *animPlayerProxy = m_actor.GetAnimatedCharacter()->GetAnimationPlayerProxy(0);
 			const float expectedDurationSeconds = animPlayerProxy ? animPlayerProxy->GetTopAnimation(m_actor.GetEntity(), 0)->m_fAnimTime : -1;
-			if (0 <= expectedDurationSeconds)
+
+			if(0 <= expectedDurationSeconds)
 			{
 				m_fReactionEndTime = m_fReactionCounter + (GetRandomProbability() * expectedDurationSeconds);
 
-				if (DoesAnimEventWantToSleepRagdoll(event))
+				if(DoesAnimEventWantToSleepRagdoll(event))
 					m_reactionFlags |= SReactionParams::SleepRagdoll;
 
 				bSuccessfullyProcessed = true;
 			}
 		}
-		else if (m_actor.GetAnimationEventsTable().m_reactionOnCollision == event.m_EventNameLowercaseCRC32)
+		else if(m_actor.GetAnimationEventsTable().m_reactionOnCollision == event.m_EventNameLowercaseCRC32)
 		{
 			// Change the current state of the reactionOnCollision flag
-			if (event.m_CustomParameter && *event.m_CustomParameter)
+			if(event.m_CustomParameter && *event.m_CustomParameter)
 			{
 				m_reactionOnCollision = atoi(event.m_CustomParameter);
 
 				bSuccessfullyProcessed = true;
 			}
 		}
-		else if (m_actor.GetAnimationEventsTable().m_forbidReactionsId == event.m_EventNameLowercaseCRC32)
+		else if(m_actor.GetAnimationEventsTable().m_forbidReactionsId == event.m_EventNameLowercaseCRC32)
 		{
-			if (event.m_CustomParameter && *event.m_CustomParameter)
+			if(event.m_CustomParameter && *event.m_CustomParameter)
 			{
 				const bool bForbidReactions = atoi(event.m_CustomParameter) != 0;
-				if (bForbidReactions)
+
+				if(bForbidReactions)
 					m_reactionFlags |= SReactionParams::ReactionsForbidden;
 				else
 					m_reactionFlags &= ~SReactionParams::ReactionsForbidden;
@@ -440,18 +466,19 @@ bool CHitDeathReactions::OnAnimationEvent(const AnimEventInstance &event)
 
 /////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-bool CHitDeathReactions::HandleEvent(const SGameObjectEvent& event)
+bool CHitDeathReactions::HandleEvent(const SGameObjectEvent &event)
 {
 	bool bProcessed = false;
 
 	switch(event.event)
 	{
 	case eCGE_ReactionEnd:
-		{
-			if (IsExecutionType(eET_AnimationGraphAnim))
-				bProcessed = EndCurrentReactionInternal(false, true);
-		}
-		break;
+	{
+		if(IsExecutionType(eET_AnimationGraphAnim))
+			bProcessed = EndCurrentReactionInternal(false, true);
+	}
+	break;
+
 	default:
 		// [*DavidR | 24/Nov/2009] ToDo: Invoke an event handler function within HitDeathReactions.lua?
 		bProcessed = false;
@@ -471,40 +498,41 @@ void CHitDeathReactions::Reload()
 	// Reload the data structure and scripts
 	LoadData(m_pSelfTable, true);
 
-	// Not the perfect solution (we could be requesting anims for dead actors, but is a reasonable 
+	// Not the perfect solution (we could be requesting anims for dead actors, but is a reasonable
 	// compromise for a debug-only function)
 	RequestReactionAnims(eRRF_OutFromPool | eRRF_Alive | eRRF_AIEnabled);
 }
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-bool CHitDeathReactions::IsValidReaction(const HitInfo& hitInfo, const SReactionParams::SValidationParams& validationParams, float fCausedDamage) const
+bool CHitDeathReactions::IsValidReaction(const HitInfo &hitInfo, const SReactionParams::SValidationParams &validationParams, float fCausedDamage) const
 {
 	// Check speed
-	const SActorStats* pActorStats = m_actor.GetActorStats();
+	const SActorStats *pActorStats = m_actor.GetActorStats();
 	CRY_ASSERT(pActorStats);
 
-	IF_UNLIKELY (validationParams.fMinimumSpeedAllowed > pActorStats->speedFlat)
-		return false;
+	IF_UNLIKELY(validationParams.fMinimumSpeedAllowed > pActorStats->speedFlat)
+	return false;
 
-	IF_UNLIKELY (pActorStats->speedFlat > validationParams.fMaximumSpeedAllowed)
-		return false;
+	IF_UNLIKELY(pActorStats->speedFlat > validationParams.fMaximumSpeedAllowed)
+	return false;
 
 	// Check damage
-	IF_UNLIKELY (validationParams.fMinimumDamageAllowed > hitInfo.damage)
-		return false;
+	IF_UNLIKELY(validationParams.fMinimumDamageAllowed > hitInfo.damage)
+	return false;
 
-	IF_UNLIKELY (hitInfo.damage > validationParams.fMaximumDamageAllowed)
-		return false;
+	IF_UNLIKELY(hitInfo.damage > validationParams.fMaximumDamageAllowed)
+	return false;
 
 	// Check damage thresholds
 	IF_UNLIKELY(!validationParams.healthThresholds.empty())
 	{
-		if (fCausedDamage > 0.0f)
+		if(fCausedDamage > 0.0f)
 		{
 			const float fHealthPostHit = m_actor.GetHealth();
 			SReactionParams::ThresholdsContainer::const_iterator itThreshold = validationParams.healthThresholds.upper_bound(fHealthPostHit);
-			if ((itThreshold == validationParams.healthThresholds.end()) || ((fHealthPostHit + fCausedDamage) < *itThreshold))
+
+			if((itThreshold == validationParams.healthThresholds.end()) || ((fHealthPostHit + fCausedDamage) < *itThreshold))
 				return false;
 		}
 		else
@@ -514,14 +542,16 @@ bool CHitDeathReactions::IsValidReaction(const HitInfo& hitInfo, const SReaction
 	// Check distance
 	const bool bMinDistanceCheck = (validationParams.fMinimumDistance > 0.0f);
 	const bool bMaxDistanceCheck = (validationParams.fMaximumDistance > 0.0f);
-	IF_UNLIKELY (bMinDistanceCheck || bMaxDistanceCheck)
+	IF_UNLIKELY(bMinDistanceCheck || bMaxDistanceCheck)
 	{
-		IEntity* pShooter = gEnv->pEntitySystem->GetEntity(hitInfo.shooterId);
-		if (pShooter)
+		IEntity *pShooter = gEnv->pEntitySystem->GetEntity(hitInfo.shooterId);
+
+		if(pShooter)
 		{
 			float fDistanceToShooter = m_actor.GetEntity()->GetPos().GetDistance(pShooter->GetPos());
-			if ((bMinDistanceCheck && (validationParams.fMinimumDistance > fDistanceToShooter)) ||
-				(bMaxDistanceCheck && (fDistanceToShooter > validationParams.fMaximumDistance)))
+
+			if((bMinDistanceCheck && (validationParams.fMinimumDistance > fDistanceToShooter)) ||
+					(bMaxDistanceCheck && (fDistanceToShooter > validationParams.fMaximumDistance)))
 				return false;
 		}
 		else
@@ -536,18 +566,20 @@ bool CHitDeathReactions::IsValidReaction(const HitInfo& hitInfo, const SReaction
 	}
 
 	// Check movement direction
-	IF_UNLIKELY (validationParams.movementDir != eCD_Invalid)
+	IF_UNLIKELY(validationParams.movementDir != eCD_Invalid)
 	{
-		IMovementController* pMovementController = m_actor.GetMovementController();
-		if (pMovementController)
+		IMovementController *pMovementController = m_actor.GetMovementController();
+
+		if(pMovementController)
 		{
 			// Get move direction of entity
 			SMovementState state;
 			pMovementController->GetMovementState(state);
 			Vec2 vMoveDir(state.movementDirection);
-			if (vMoveDir.IsValid() && !vMoveDir.IsZero(0.00001f))
+
+			if(vMoveDir.IsValid() && !vMoveDir.IsZero(0.00001f))
 			{
-				if (!CheckCardinalDirection2D(validationParams.movementDir, Vec2(m_actor.GetEntity()->GetForwardDir()), vMoveDir))
+				if(!CheckCardinalDirection2D(validationParams.movementDir, Vec2(m_actor.GetEntity()->GetForwardDir()), vMoveDir))
 					return false;
 			}
 			else
@@ -556,22 +588,24 @@ bool CHitDeathReactions::IsValidReaction(const HitInfo& hitInfo, const SReaction
 	}
 
 	// Check hit joint (if the allowedPartIds set is empty, any part will be valid)
-	const SReactionParams::IdContainer& allowedPartIds = validationParams.allowedPartIds;
-	IF_UNLIKELY (!allowedPartIds.empty() && (allowedPartIds.find(hitInfo.partId) == allowedPartIds.end()))
-		return false;
+	const SReactionParams::IdContainer &allowedPartIds = validationParams.allowedPartIds;
+	IF_UNLIKELY(!allowedPartIds.empty() && (allowedPartIds.find(hitInfo.partId) == allowedPartIds.end()))
+	return false;
 
 	// Check shot origin
-	IF_UNLIKELY (validationParams.shotOrigin != eCD_Invalid)
+	IF_UNLIKELY(validationParams.shotOrigin != eCD_Invalid)
 	{
 		Vec2 v2DShotDir(hitInfo.dir);
-		if (v2DShotDir.IsValid())
+
+		if(v2DShotDir.IsValid())
 		{
 			CRY_ASSERT_MESSAGE(m_actor.GetAnimatedCharacter(), "This class assumes that if this code is called, the actor has a valid animated character");
 			// [*DavidR | 15/Oct/2010] Note: Using the animated character location to determine shot origin, since it's more accurate.
 			// for now, though, I keep the old method in multiplayer, since it's safer (both client and server side having the same animation orientation
 			// when processing the same hit is tricky, and having the client playing a different animation than the server is bound to cause problems)
 			Vec2 vForwardDir(gEnv->bMultiplayer ? m_actor.GetEntity()->GetForwardDir() : m_actor.GetAnimatedCharacter()->GetAnimLocation().GetColumn1());
-			if (!CheckCardinalDirection2D(validationParams.shotOrigin, vForwardDir, -v2DShotDir))
+
+			if(!CheckCardinalDirection2D(validationParams.shotOrigin, vForwardDir, -v2DShotDir))
 				return false;
 		}
 		else
@@ -579,54 +613,54 @@ bool CHitDeathReactions::IsValidReaction(const HitInfo& hitInfo, const SReaction
 	}
 
 	// Check probability
-	IF_UNLIKELY ((validationParams.fProbability != 1.0f) && (GetRandomProbability() > validationParams.fProbability))
-		return false;
+	IF_UNLIKELY((validationParams.fProbability != 1.0f) && (GetRandomProbability() > validationParams.fProbability))
+	return false;
 
 	// Check stance
-	const SReactionParams::StanceContainer& allowedStances = validationParams.allowedStances;
+	const SReactionParams::StanceContainer &allowedStances = validationParams.allowedStances;
 	CRY_ASSERT_TRACE(allowedStances.empty() || (m_actor.GetStance() != STANCE_NULL), ("%s's current stance is NULL! This actor state is probably incoherent!", m_actor.GetEntity()->GetName()));
-	IF_UNLIKELY (!allowedStances.empty() && (allowedStances.find(m_actor.GetStance()) == allowedStances.end()))
-		return false;
+	IF_UNLIKELY(!allowedStances.empty() && (allowedStances.find(m_actor.GetStance()) == allowedStances.end()))
+	return false;
 
 	// Check hit type
-	const SReactionParams::IdContainer& allowedHitTypes = validationParams.allowedHitTypes;
-	IF_UNLIKELY (!allowedHitTypes.empty() && (allowedHitTypes.find(hitInfo.type) == allowedHitTypes.end()))
-		return false;
+	const SReactionParams::IdContainer &allowedHitTypes = validationParams.allowedHitTypes;
+	IF_UNLIKELY(!allowedHitTypes.empty() && (allowedHitTypes.find(hitInfo.type) == allowedHitTypes.end()))
+	return false;
 
 	// Check projectile class
-	const SReactionParams::IdContainer& allowedProjectiles = validationParams.allowedProjectiles;
-	IF_UNLIKELY (!allowedProjectiles.empty() && (allowedProjectiles.find(hitInfo.projectileClassId) == allowedProjectiles.end()))
-		return false;
+	const SReactionParams::IdContainer &allowedProjectiles = validationParams.allowedProjectiles;
+	IF_UNLIKELY(!allowedProjectiles.empty() && (allowedProjectiles.find(hitInfo.projectileClassId) == allowedProjectiles.end()))
+	return false;
 
 	// Check weapon class
-	const SReactionParams::IdContainer& allowedWeapons = validationParams.allowedWeapons;
-	IF_UNLIKELY (!allowedWeapons.empty() && (allowedWeapons.find(hitInfo.weaponClassId) == allowedWeapons.end()))
-		return false;
+	const SReactionParams::IdContainer &allowedWeapons = validationParams.allowedWeapons;
+	IF_UNLIKELY(!allowedWeapons.empty() && (allowedWeapons.find(hitInfo.weaponClassId) == allowedWeapons.end()))
+	return false;
 
 	// Check using mounted item
-	IF_UNLIKELY (validationParams.bAllowOnlyWhenUsingMountedItems && (pActorStats->mountedWeaponID == 0))
-		return false;
+	IF_UNLIKELY(validationParams.bAllowOnlyWhenUsingMountedItems && (pActorStats->mountedWeaponID == 0))
+	return false;
 
 	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-bool CHitDeathReactions::StartHitReaction(const HitInfo& hitInfo, const SReactionParams& reactionParams)
+bool CHitDeathReactions::StartHitReaction(const HitInfo &hitInfo, const SReactionParams &reactionParams)
 {
 	return StartReaction(eRT_Hit, hitInfo, reactionParams);
 }
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-bool CHitDeathReactions::StartDeathReaction(const HitInfo& hitInfo, const SReactionParams& reactionParams)
+bool CHitDeathReactions::StartDeathReaction(const HitInfo &hitInfo, const SReactionParams &reactionParams)
 {
 	return StartReaction(eRT_Death, hitInfo, reactionParams);
 }
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-bool CHitDeathReactions::StartReaction(EReactionType reactionType, const HitInfo& hitInfo, const SReactionParams& reactionParams)
+bool CHitDeathReactions::StartReaction(EReactionType reactionType, const HitInfo &hitInfo, const SReactionParams &reactionParams)
 {
 	CRY_ASSERT((reactionType == eRT_Death) || (reactionType == eRT_Hit));
 
@@ -642,26 +676,28 @@ bool CHitDeathReactions::StartReaction(EReactionType reactionType, const HitInfo
 	CRY_ASSERT(!m_pHitInfo);
 	m_pHitInfo = &hitInfo;
 
-	// [*DavidR | 2/Jun/2010] Note: Storing the current reaction params here renders the ReactionID logic (for getting 
+	// [*DavidR | 2/Jun/2010] Note: Storing the current reaction params here renders the ReactionID logic (for getting
 	// C++ reactionParams struct without parsing the reactionParams script tables on LUA calls) almost useless. Think about
 	// removing it (it adds a bit of overhead on LUA calls, but enforces integrity)
-	m_pCurrentReactionParams = &reactionParams; 
+	m_pCurrentReactionParams = &reactionParams;
 
-	if (!reactionParams.sCustomExecutionFunc.empty())
+	if(!reactionParams.sCustomExecutionFunc.empty())
 	{
-		const CCustomReactionFunctions& customReactions = g_pGame->GetHitDeathReactionsSystem().GetCustomReactionFunctions();
+		const CCustomReactionFunctions &customReactions = g_pGame->GetHitDeathReactionsSystem().GetCustomReactionFunctions();
 		bSuccess = customReactions.CallCustomExecutionFunction(m_pSelfTable, m_actor, reactionParams, hitInfo);
+
 		// Only set Custom execution type if the execution has not internally caused a reactionAnim or AnimationGraph execution type
-		if (bSuccess && IsExecutionType(eET_None))
+		if(bSuccess && IsExecutionType(eET_None))
 		{
 			SetExecutionType(eET_Custom);
 		}
 	}
 	else
 	{
-		const char* szDefaultReactionFnc = (reactionType == eRT_Hit) ? DEFAULT_HIT_REACTION_FUNCTION : DEFAULT_KILL_REACTION_FUNCTION;
+		const char *szDefaultReactionFnc = (reactionType == eRT_Hit) ? DEFAULT_HIT_REACTION_FUNCTION : DEFAULT_KILL_REACTION_FUNCTION;
 		bSuccess = g_pGameCVars->g_hitDeathReactions_useLuaDefaultFunctions ? Script::CallMethod(m_pSelfTable, szDefaultReactionFnc, reactionParams.reactionScriptTable) : false;
-		if (!bSuccess)
+
+		if(!bSuccess)
 		{
 			CRY_ASSERT_MESSAGE(!g_pGameCVars->g_hitDeathReactions_useLuaDefaultFunctions, "Can't run default hit reaction lua method. Check HitDeathReactions.lua");
 
@@ -671,13 +707,13 @@ bool CHitDeathReactions::StartReaction(EReactionType reactionType, const HitInfo
 	}
 
 
-	if (bSuccess && 
-		!IsExecutionType(eET_None) && IsInReaction()) // Custom reactions can invoke EndCurrentReaction inside them if they fail, so we need to react accordingly
+	if(bSuccess &&
+			!IsExecutionType(eET_None) && IsInReaction()) // Custom reactions can invoke EndCurrentReaction inside them if they fail, so we need to react accordingly
 	{
 		m_fReactionCounter = 0.0f;
 		m_fReactionEndTime = -1.0f;
 
-		if (IsAI())
+		if(IsAI())
 		{
 			HandleAIStartReaction(hitInfo, reactionParams);
 		}
@@ -695,14 +731,15 @@ bool CHitDeathReactions::StartReaction(EReactionType reactionType, const HitInfo
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-void CHitDeathReactions::HandleAIStartReaction(const HitInfo& hitInfo, const SReactionParams& reactionParams)
+void CHitDeathReactions::HandleAIStartReaction(const HitInfo &hitInfo, const SReactionParams &reactionParams)
 {
 	CRY_ASSERT(IsAI());
 
-	if (!reactionParams.sCustomAISignal.empty())
+	if(!reactionParams.sCustomAISignal.empty())
 	{
 		IAISignalExtraData *pData = gEnv->pAISystem->CreateSignalExtraData();
-		if (pData)
+
+		if(pData)
 		{
 			pData->iValue = m_iGoalPipeId;
 			pData->point = hitInfo.pos;
@@ -713,13 +750,14 @@ void CHitDeathReactions::HandleAIStartReaction(const HitInfo& hitInfo, const SRe
 
 		m_AIPausedState = eAIP_ExecutingCustomSignal;
 	}
-	else if (reactionParams.bPauseAI)
+	else if(reactionParams.bPauseAI)
 	{
 		// If the AI is using a Mounted Item, force stop using it
-		CItem* pCurrentItem = static_cast<CItem*>(m_actor.GetCurrentItem());
+		CItem *pCurrentItem = static_cast<CItem *>(m_actor.GetCurrentItem());
+
 		if(pCurrentItem && pCurrentItem->IsMounted() && pCurrentItem->IsUsed())
 			pCurrentItem->StopUse(m_actor.GetEntityId());
-		
+
 		PausePipeUser(true);
 	}
 }
@@ -730,10 +768,11 @@ void CHitDeathReactions::HandleAIEndReaction()
 {
 	CRY_ASSERT(IsAI());
 
-	if (IsInReaction())
+	if(IsInReaction())
 	{
 		IAISignalExtraData *pData = gEnv->pAISystem->CreateSignalExtraData();
-		if (pData)
+
+		if(pData)
 		{
 			pData->iValue = m_iGoalPipeId;
 		}
@@ -741,7 +780,7 @@ void CHitDeathReactions::HandleAIEndReaction()
 		SendAISignal(AI_SIGNAL_FINISHED_REACTION, pData);
 	}
 
-	if (eAIP_ExecutingCustomSignal != m_AIPausedState)
+	if(eAIP_ExecutingCustomSignal != m_AIPausedState)
 	{
 		PausePipeUser(false);
 	}
@@ -755,10 +794,11 @@ void CHitDeathReactions::HandleAIReactionInterrupted()
 {
 	CRY_ASSERT(IsAI());
 
-	if (IsInReaction())
+	if(IsInReaction())
 	{
 		IAISignalExtraData *pData = gEnv->pAISystem->CreateSignalExtraData();
-		if (pData)
+
+		if(pData)
 		{
 			pData->iValue = m_iGoalPipeId;
 		}
@@ -769,20 +809,20 @@ void CHitDeathReactions::HandleAIReactionInterrupted()
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-bool CHitDeathReactions::ExecuteHitReaction(const SReactionParams& reactionParams)
+bool CHitDeathReactions::ExecuteHitReaction(const SReactionParams &reactionParams)
 {
 	bool bSuccess = false;
 
 	//CCCPOINT(HitDeath_ExecuteHitReaction);
 
-	if (IsInHitReaction())
+	if(IsInHitReaction())
 	{
 		bSuccess = ExecuteReactionCommon(reactionParams);
 	}
 	else
-	{  
+	{
 		CHitDeathReactionsSystem::Warning("[CHitDeathReactions::ExecuteHitReaction] Can't execute a hit reaction when "
-			"not in Hit Reaction mode. If you invoked this function from lua, make sure you're doing it from a reactionFunc method inside HitDeathReactions.lua");
+										  "not in Hit Reaction mode. If you invoked this function from lua, make sure you're doing it from a reactionFunc method inside HitDeathReactions.lua");
 	}
 
 	return bSuccess;
@@ -790,19 +830,19 @@ bool CHitDeathReactions::ExecuteHitReaction(const SReactionParams& reactionParam
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-bool CHitDeathReactions::ExecuteDeathReaction(const SReactionParams& reactionParams)
+bool CHitDeathReactions::ExecuteDeathReaction(const SReactionParams &reactionParams)
 {
 	bool bSuccess = false;
 	//CCCPOINT(HitDeath_ExecuteDeathReaction);
 
-	if (IsInDeathReaction())
+	if(IsInDeathReaction())
 	{
 		bSuccess = ExecuteReactionCommon(reactionParams);
 	}
 	else
 	{
 		CHitDeathReactionsSystem::Warning("Can't execute a death reaction when "
-			"not in Death Reaction mode. If you invoked this function from lua, make sure you're doing it from a reactionFunc method inside HitDeathReactions.lua");
+										  "not in Death Reaction mode. If you invoked this function from lua, make sure you're doing it from a reactionFunc method inside HitDeathReactions.lua");
 	}
 
 	return bSuccess;
@@ -810,21 +850,23 @@ bool CHitDeathReactions::ExecuteDeathReaction(const SReactionParams& reactionPar
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-bool CHitDeathReactions::IsValidReaction(const HitInfo& hitInfo, const ScriptTablePtr pScriptTable, float fCausedDamage) const
+bool CHitDeathReactions::IsValidReaction(const HitInfo &hitInfo, const ScriptTablePtr pScriptTable, float fCausedDamage) const
 {
 	bool bIsValidReaction = false;
 
 	ReactionId reactionId = INVALID_REACTION_ID;
-	if (pScriptTable->GetValue(REACTION_ID, reactionId) && IsValidReactionId(reactionId))
+
+	if(pScriptTable->GetValue(REACTION_ID, reactionId) && IsValidReactionId(reactionId))
 	{
-		const SReactionParams& reactionParams = GetReactionParamsById(reactionId);
+		const SReactionParams &reactionParams = GetReactionParamsById(reactionId);
 		int iValidationIdx = -1;
-		if (pScriptTable->GetValue(VALIDATION_ID, iValidationIdx))
+
+		if(pScriptTable->GetValue(VALIDATION_ID, iValidationIdx))
 		{
 			CRY_ASSERT((iValidationIdx >= 0) && (iValidationIdx < static_cast<int>(reactionParams.validationParams.size())));
 
 			// The table is the validationParams table
-			if ((iValidationIdx >= 0) && (iValidationIdx < static_cast<int>(reactionParams.validationParams.size())))
+			if((iValidationIdx >= 0) && (iValidationIdx < static_cast<int>(reactionParams.validationParams.size())))
 				bIsValidReaction = IsValidReaction(hitInfo, reactionParams.validationParams[iValidationIdx], fCausedDamage);
 		}
 		else
@@ -844,7 +886,8 @@ bool CHitDeathReactions::ExecuteHitReaction(const ScriptTablePtr pScriptTable)
 	bool bRet = false;
 
 	ReactionId reactionId = INVALID_REACTION_ID;
-	if (pScriptTable->GetValue(REACTION_ID, reactionId) && IsValidReactionId(reactionId))
+
+	if(pScriptTable->GetValue(REACTION_ID, reactionId) && IsValidReactionId(reactionId))
 		bRet = ExecuteHitReaction(GetReactionParamsById(reactionId));
 
 	return bRet;
@@ -857,7 +900,8 @@ bool CHitDeathReactions::ExecuteDeathReaction(const ScriptTablePtr pScriptTable)
 	bool bRet = false;
 
 	ReactionId reactionId = INVALID_REACTION_ID;
-	if (pScriptTable->GetValue(REACTION_ID, reactionId) && IsValidReactionId(reactionId))
+
+	if(pScriptTable->GetValue(REACTION_ID, reactionId) && IsValidReactionId(reactionId))
 		bRet = ExecuteDeathReaction(GetReactionParamsById(reactionId));
 
 	return bRet;
@@ -872,17 +916,19 @@ bool CHitDeathReactions::EndCurrentReaction()
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-bool CHitDeathReactions::StartReactionAnim(const string& sAnimName, bool bLoop/* = false*/, float fBlendTime/* = 0.2f*/, int iSlot/* = 0*/, int iLayer/* = 0*/, uint32 animFlags /*= (DEFAULT_REACTION_ANIM_FLAGS)*/, float fAdditiveWeight/* = 0.0f*/, float fAniSpeed/* = 1.0f*/, bool bNoAnimCamera/*=false*/)
+bool CHitDeathReactions::StartReactionAnim(const string &sAnimName, bool bLoop/* = false*/, float fBlendTime/* = 0.2f*/, int iSlot/* = 0*/, int iLayer/* = 0*/, uint32 animFlags /*= (DEFAULT_REACTION_ANIM_FLAGS)*/, float fAdditiveWeight/* = 0.0f*/, float fAniSpeed/* = 1.0f*/, bool bNoAnimCamera/*=false*/)
 {
 	bool bSuccess = false;
 
 	ICharacterInstance *pMainChar = m_actor.GetEntity()->GetCharacter(0);
 	CRY_ASSERT(pMainChar);
 	IAnimationSet *pAnimSet = pMainChar ? pMainChar->GetIAnimationSet() : NULL;
-	if (pAnimSet)
+
+	if(pAnimSet)
 	{
 		int animID = pAnimSet->GetAnimIDByName(sAnimName.c_str());
-		if (animID >= 0)
+
+		if(animID >= 0)
 		{
 			bSuccess = StartReactionAnimByID(animID, bLoop, fBlendTime, iSlot, iLayer, animFlags, fAdditiveWeight, fAniSpeed, bNoAnimCamera);
 		}
@@ -900,18 +946,20 @@ bool CHitDeathReactions::StartReactionAnimByID(int animID, bool bLoop/* = false*
 	CRY_ASSERT(fAniSpeed > 0.0f);
 
 	CRY_ASSERT_MESSAGE(IsInReaction(), "This method should be called only during a hit or death reaction");
-	if (!IsInReaction())
+
+	if(!IsInReaction())
 	{
 		CHitDeathReactionsSystem::Warning("Can't start an animation through HitDeathReactions system "
-			"outside of a reaction. If you invoked this function from lua, make sure you're doing it from a reactionFunc method inside HitDeathReactions.lua");
+										  "outside of a reaction. If you invoked this function from lua, make sure you're doing it from a reactionFunc method inside HitDeathReactions.lua");
 
 		return false;
 	}
 
 	bool bResult = false;
 
-	ICharacterInstance* pCharacter = m_actor.GetEntity()->GetCharacter(iSlot);
-	if (pCharacter)
+	ICharacterInstance *pCharacter = m_actor.GetEntity()->GetCharacter(iSlot);
+
+	if(pCharacter)
 	{
 		CryCharAnimationParams animParams;
 		animParams.m_nLayerID = iLayer;
@@ -924,9 +972,10 @@ bool CHitDeathReactions::StartReactionAnimByID(int animID, bool bLoop/* = false*
 		// can negate the effects of partial/additive anims on higher layers. Find a solution to this
 
 		CRY_ASSERT_MESSAGE(m_actor.GetAnimatedCharacter(), "This class assumes that if this code is called, the actor has a valid animated character");
-		ISkeletonAnim* pISkeletonAnim = pCharacter->GetISkeletonAnim();
-		CAnimationPlayerProxy* pPlayerProxy = m_actor.GetAnimatedCharacter()->GetAnimationPlayerProxy(0);
-		if (pPlayerProxy)
+		ISkeletonAnim *pISkeletonAnim = pCharacter->GetISkeletonAnim();
+		CAnimationPlayerProxy *pPlayerProxy = m_actor.GetAnimatedCharacter()->GetAnimationPlayerProxy(0);
+
+		if(pPlayerProxy)
 		{
 			bResult = pPlayerProxy->StartAnimationById(m_actor.GetEntity(), animID, animParams, fAniSpeed);
 		}
@@ -935,10 +984,11 @@ bool CHitDeathReactions::StartReactionAnimByID(int animID, bool bLoop/* = false*
 			bResult = pISkeletonAnim->StartAnimationById(animID, animParams);
 		}
 
-		if (bResult)
+		if(bResult)
 		{
 			bool bAdditive = fAdditiveWeight > 0.0f;
-			if (bAdditive)
+
+			if(bAdditive)
 			{
 				pISkeletonAnim->SetAdditiveWeight(animParams.m_nLayerID, fAdditiveWeight);
 			}
@@ -948,13 +998,13 @@ bool CHitDeathReactions::StartReactionAnimByID(int animID, bool bLoop/* = false*
 				StopHigherLayers(iSlot, animParams.m_nLayerID, animParams.m_fTransTime);
 			}
 
-			if (!pPlayerProxy)
+			if(!pPlayerProxy)
 			{
 				pISkeletonAnim->SetLayerUpdateMultiplier(animParams.m_nLayerID, fAniSpeed);
 			}
 
 			// Pause animation graph when playing animations on layer 0 (otherwise they will be overwritten by state changes)
-			if (animParams.m_nLayerID == eAnimationGraphLayer_FullBody)
+			if(animParams.m_nLayerID == eAnimationGraphLayer_FullBody)
 			{
 				m_actor.GetAnimationGraphState()->Pause(true, eAGP_HitDeathReactions);
 
@@ -970,7 +1020,7 @@ bool CHitDeathReactions::StartReactionAnimByID(int animID, bool bLoop/* = false*
 			}
 
 			// If the player and in 1st person camera, activate animated controlled camera if allowed
-			if (!m_actor.IsThirdPerson() && !bNoAnimCamera)
+			if(!m_actor.IsThirdPerson() && !bNoAnimCamera)
 			{
 				EnableFirstPersonAnimation(true);
 			}
@@ -991,9 +1041,9 @@ bool CHitDeathReactions::StartReactionAnimByID(int animID, bool bLoop/* = false*
 //////////////////////////////////////////////////////////////////////////
 void CHitDeathReactions::EndReactionAnim()
 {
-	if (!IsInDeathReaction())
+	if(!IsInDeathReaction())
 	{
-		if (IsPlayingReactionAnim())
+		if(IsPlayingReactionAnim())
 		{
 			OnCustomAnimFinished(true);
 		}
@@ -1006,23 +1056,25 @@ bool CHitDeathReactions::IsPlayingReactionAnim() const
 {
 	bool bPlayingAnim = false;
 
-	if (IsExecutionType(eET_ReactionAnim))
+	if(IsExecutionType(eET_ReactionAnim))
 	{
 		CRY_ASSERT_MESSAGE(m_actor.GetAnimatedCharacter(), "This class assumes that if this code is called, the actor has a valid animated character");
-		CAnimationPlayerProxy* pPlayerProxy = m_actor.GetAnimatedCharacter()->GetAnimationPlayerProxy(0);
-		if (pPlayerProxy)
+		CAnimationPlayerProxy *pPlayerProxy = m_actor.GetAnimatedCharacter()->GetAnimationPlayerProxy(0);
+
+		if(pPlayerProxy)
 		{
-			const CAnimation* anim = pPlayerProxy->GetTopAnimation(m_actor.GetEntity(), m_currentCustomAnim.iLayer);
-			bPlayingAnim = anim && (anim->m_AnimParams.m_nUserToken == ANIM_USER_TOKEN) && (anim->m_fAnimTime < 1.0f);		
+			const CAnimation *anim = pPlayerProxy->GetTopAnimation(m_actor.GetEntity(), m_currentCustomAnim.iLayer);
+			bPlayingAnim = anim && (anim->m_AnimParams.m_nUserToken == ANIM_USER_TOKEN) && (anim->m_fAnimTime < 1.0f);
 		}
 		else
 		{
-			ICharacterInstance* pCharacter = m_actor.GetEntity()->GetCharacter(0);
-			ISkeletonAnim* pSkel = pCharacter ? pCharacter->GetISkeletonAnim() : NULL;
+			ICharacterInstance *pCharacter = m_actor.GetEntity()->GetCharacter(0);
+			ISkeletonAnim *pSkel = pCharacter ? pCharacter->GetISkeletonAnim() : NULL;
 			const int iNumAnims = pSkel ? pSkel->GetNumAnimsInFIFO(m_currentCustomAnim.iLayer) : 0;
-			if (iNumAnims > 0)
+
+			if(iNumAnims > 0)
 			{
-				const CAnimation& anim = pSkel->GetAnimFromFIFO(  m_currentCustomAnim.iLayer, iNumAnims - 1 );
+				const CAnimation &anim = pSkel->GetAnimFromFIFO(m_currentCustomAnim.iLayer, iNumAnims - 1);
 
 				// If the latest anim on the Anim Queue of this layer is a Reaction anim and hasn't reached its end, is
 				// being played
@@ -1037,7 +1089,7 @@ bool CHitDeathReactions::IsPlayingReactionAnim() const
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-void CHitDeathReactions::GetMemoryUsage( ICrySizer *pSizer ) const
+void CHitDeathReactions::GetMemoryUsage(ICrySizer *pSizer) const
 {
 	pSizer->AddObject(this, sizeof(*this));
 
@@ -1048,7 +1100,7 @@ void CHitDeathReactions::GetMemoryUsage( ICrySizer *pSizer ) const
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-bool CHitDeathReactions::OnKill(const HitInfo& hitInfo)
+bool CHitDeathReactions::OnKill(const HitInfo &hitInfo)
 {
 	CRY_ASSERT(CanPlayDeathReaction() || hitInfo.forceLocalKill);
 
@@ -1062,11 +1114,11 @@ bool CHitDeathReactions::OnKill(const HitInfo& hitInfo)
 	ReactionsContainer::const_iterator itBestFit = std::find_if(m_pDeathReactions->begin(), m_pDeathReactions->end(), SPredFindValidReaction(*this, hitInfo));
 
 	// If found a fit, execute it
-	if (itBestFit != m_pDeathReactions->end())
+	if(itBestFit != m_pDeathReactions->end())
 	{
 		bSuccess = StartDeathReaction(hitInfo, *itBestFit);
 	}
-	
+
 	return bSuccess;
 }
 
@@ -1076,7 +1128,7 @@ void CHitDeathReactions::ClearState()
 {
 	SetInReaction(eRT_None);
 	SetExecutionType(eET_None);
-	m_fReactionCounter = -1.0f;	// we give it a -1.0f value to be more readable when debugging. Could be 0.0f 
+	m_fReactionCounter = -1.0f;	// we give it a -1.0f value to be more readable when debugging. Could be 0.0f
 	m_fReactionEndTime = -1.0f;
 	m_pHitInfo = NULL;
 	m_reactionOnCollision = NO_COLLISION_REACTION;
@@ -1090,36 +1142,36 @@ void CHitDeathReactions::ClearState()
 //////////////////////////////////////////////////////////////////////////
 bool CHitDeathReactions::CanPlayHitReaction() const
 {
-	const SActorStats* pActorStats = m_actor.GetActorStats();
+	const SActorStats *pActorStats = m_actor.GetActorStats();
 
-	return (g_pGameCVars->g_hitDeathReactions_enable != 0) && 
-		!AreReactionsForbidden() &&
-		!m_actor.IsDead() &&
-		!m_actor.GetLinkedVehicle() && // [*DavidR | 17/Feb/2010] Temporary: No reactions in vehicles
-		!IsInReaction() &&
-		!m_actor.IsFallen() && // Don't try reactions when the actor is in Fall and Play fall stage
-		(!pActorStats || !pActorStats->isGrabbed) && // Not taking part on a spectacular kill
-		!gEnv->pGame->GetIGameFramework()->GetICooperativeAnimationManager()->IsActorBusy(m_actor.GetEntityId()) && // Not in a cooperative animation
-		((m_actor.GetActorClass() != CPlayer::GetActorClassType()) || !static_cast<CPlayer&>(m_actor).IsPlayingSmartObjectAction()) // Block hit reactions based on if the actor is playing smart objects
-		;
+	return (g_pGameCVars->g_hitDeathReactions_enable != 0) &&
+		   !AreReactionsForbidden() &&
+		   !m_actor.IsDead() &&
+		   !m_actor.GetLinkedVehicle() && // [*DavidR | 17/Feb/2010] Temporary: No reactions in vehicles
+		   !IsInReaction() &&
+		   !m_actor.IsFallen() && // Don't try reactions when the actor is in Fall and Play fall stage
+		   (!pActorStats || !pActorStats->isGrabbed) && // Not taking part on a spectacular kill
+		   !gEnv->pGame->GetIGameFramework()->GetICooperativeAnimationManager()->IsActorBusy(m_actor.GetEntityId()) && // Not in a cooperative animation
+		   ((m_actor.GetActorClass() != CPlayer::GetActorClassType()) || !static_cast<CPlayer &>(m_actor).IsPlayingSmartObjectAction()) // Block hit reactions based on if the actor is playing smart objects
+		   ;
 }
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 bool CHitDeathReactions::CanPlayDeathReaction() const
 {
-	const SActorStats* pActorStats = m_actor.GetActorStats();
+	const SActorStats *pActorStats = m_actor.GetActorStats();
 
-	return (g_pGameCVars->g_hitDeathReactions_enable != 0) && 
-		!AreReactionsForbidden() &&
-		m_actor.IsDead() && 
-		!m_actor.GetLinkedVehicle() && // [*DavidR | 17/Feb/2010] Temporary: No reactions in vehicles
-		!IsInDeathReaction() &&
-		(!pActorStats || (!pActorStats->isGrabbed &&										// Not grabbed by pick and throw
-											!pActorStats->isRagDoll)) &&									// Not ragdollized already
-		!gEnv->pGame->GetIGameFramework()->GetICooperativeAnimationManager()->IsActorBusy(m_actor.GetEntityId()) && // Not in a cooperative animation
-		((m_actor.GetActorClass() != CPlayer::GetActorClassType()) || !static_cast<CPlayer&>(m_actor).IsPlayingSmartObjectAction()) // Block hit reactions based on if the actor is playing smart objects
-		;
+	return (g_pGameCVars->g_hitDeathReactions_enable != 0) &&
+		   !AreReactionsForbidden() &&
+		   m_actor.IsDead() &&
+		   !m_actor.GetLinkedVehicle() && // [*DavidR | 17/Feb/2010] Temporary: No reactions in vehicles
+		   !IsInDeathReaction() &&
+		   (!pActorStats || (!pActorStats->isGrabbed &&										// Not grabbed by pick and throw
+							 !pActorStats->isRagDoll)) &&									// Not ragdollized already
+		   !gEnv->pGame->GetIGameFramework()->GetICooperativeAnimationManager()->IsActorBusy(m_actor.GetEntityId()) && // Not in a cooperative animation
+		   ((m_actor.GetActorClass() != CPlayer::GetActorClassType()) || !static_cast<CPlayer &>(m_actor).IsPlayingSmartObjectAction()) // Block hit reactions based on if the actor is playing smart objects
+		   ;
 }
 
 
@@ -1138,44 +1190,45 @@ bool CHitDeathReactions::EndCurrentReactionInternal(bool bForceRagdollOnHit, boo
 	bool bEndingDeathReaction = IsInDeathReaction();
 	bool bEndingHitReaction = IsInHitReaction();
 
-	ICharacterInstance* pCharacter = m_actor.GetEntity()->GetCharacter(0);
+	ICharacterInstance *pCharacter = m_actor.GetEntity()->GetCharacter(0);
 
-	if (IsAI())
+	if(IsAI())
 	{
 		HandleAIEndReaction();
 	}
 
-	if (IsPlayingReactionAnim())
+	if(IsPlayingReactionAnim())
 	{
 		EndReactionAnim();
 	}
-	else if (IsExecutionType(eET_AnimationGraphAnim))
+	else if(IsExecutionType(eET_AnimationGraphAnim))
 	{
 		// Leave reaction state
-		if (pCharacter)
+		if(pCharacter)
 		{
-			if (!bFinished)
+			if(!bFinished)
 			{
-				IAnimationGraphState* pGraph = m_actor.GetAnimationGraphState();
-				if (pGraph)
+				IAnimationGraphState *pGraph = m_actor.GetAnimationGraphState();
+
+				if(pGraph)
 				{
 					pGraph->ForceTeleportToQueriedState();
 				}
 			}
-		}	
+		}
 	}
 
-	//--- Clear the reaction now, the SetAspectProfile flushes the animations, this can cause a call back into here 
+	//--- Clear the reaction now, the SetAspectProfile flushes the animations, this can cause a call back into here
 	//--- to say the animation has finished & so recursively end the reaction & trigger the ragdoll again
 	SetInReaction(eRT_None);
 
-	if (bEndingDeathReaction)
+	if(bEndingDeathReaction)
 	{
 		// when finishing the death reaction, we left the actor in a ragdoll state, with the "dead" facial expression
-		if (pCharacter)
+		if(pCharacter)
 			StartFacialAnimation(pCharacter, DEAD_FACIAL_EXPRESSION);
 
-		if (DeathReactionEndsInRagdoll())
+		if(DeathReactionEndsInRagdoll())
 		{
 			// Death reactions always end with a ragdoll
 			if(gEnv->bServer)
@@ -1188,31 +1241,31 @@ bool CHitDeathReactions::EndCurrentReactionInternal(bool bForceRagdollOnHit, boo
 				bSuccess = true;
 			}
 
-			if (m_reactionFlags & SReactionParams::SleepRagdoll)
-				SleepRagdoll();	
+			if(m_reactionFlags & SReactionParams::SleepRagdoll)
+				SleepRagdoll();
 		}
 
 		// actor is dead, release anims
 		ReleaseReactionAnims(eRRF_Alive);
 	}
-	else if (bEndingHitReaction)
+	else if(bEndingHitReaction)
 	{
-		if (bFinished)
+		if(bFinished)
 		{
 			// This is a very workaround way to know if we are ending an animation-based reaction. It would be better to use IsExecutionType(eET_ReactionAnim), but
-			// the flag is removed on OnCustomAnimFinished to avoid infinite recursion on the EndReactionAnim() call above, so it's nulled here. 
+			// the flag is removed on OnCustomAnimFinished to avoid infinite recursion on the EndReactionAnim() call above, so it's nulled here.
 			// [*DavidR | 7/May/2010] ToDo: It would be nice to refactor this reaction end pipeline
-			const bool bAnimationBasedReaction = (m_currentCustomAnim.IsValid() || IsExecutionType(eET_AnimationGraphAnim)); 
+			const bool bAnimationBasedReaction = (m_currentCustomAnim.IsValid() || IsExecutionType(eET_AnimationGraphAnim));
 			const bool bAdditive = m_pCurrentReactionParams ? m_pCurrentReactionParams->reactionAnim->bAdditive : false;
 			const bool bAnimFinishedInAimingPose = bAnimationBasedReaction && !bAdditive && ((m_reactionFlags & SReactionParams::ReactionFinishesNotAiming) == 0);
 
-			// Force Aim IK-Blend to 1.0f so we can blend into anims with aim-poses smoothly. 
+			// Force Aim IK-Blend to 1.0f so we can blend into anims with aim-poses smoothly.
 			// [*DavidR | 7/May/2010] Warning: aim pose preservation won't work on partial anims affecting the aim pose (is not a likely scenario anyway)
-			if (pCharacter && bAnimFinishedInAimingPose)
+			if(pCharacter && bAnimFinishedInAimingPose)
 				pCharacter->GetISkeletonPose()->SetAimIK(true, m_actor.GetEntity()->GetWorldPos() + m_actor.GetEntity()->GetForwardDir(), 1.0f);
 
 			// Apply desired end velocity
-			if (m_pCurrentReactionParams && !m_pCurrentReactionParams->endVelocity.IsZeroFast())
+			if(m_pCurrentReactionParams && !m_pCurrentReactionParams->endVelocity.IsZeroFast())
 			{
 				SCharacterMoveRequest movementRequest;
 				movementRequest.type = eCMT_Fly;
@@ -1229,7 +1282,7 @@ bool CHitDeathReactions::EndCurrentReactionInternal(bool bForceRagdollOnHit, boo
 		}
 
 		// Hit reactions can trigger ragdoll, but in the form of Fall and Play
-		if (bForceRagdollOnHit && !(m_reactionFlags & SReactionParams::NoRagdollOnEnd))
+		if(bForceRagdollOnHit && !(m_reactionFlags & SReactionParams::NoRagdollOnEnd))
 			m_actor.Fall();
 	}
 
@@ -1247,13 +1300,13 @@ bool CHitDeathReactions::IsAI() const
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-IPipeUser* CHitDeathReactions::GetAIPipeUser() const
+IPipeUser *CHitDeathReactions::GetAIPipeUser() const
 {
 	IPipeUser *pPipeUser = NULL;
 
-	if (IsAI())
+	if(IsAI())
 	{
-		IAIObject* pAI = m_actor.GetEntity()->GetAI();
+		IAIObject *pAI = m_actor.GetEntity()->GetAI();
 		pPipeUser = CastToIPipeUserSafe(pAI);
 	}
 
@@ -1262,21 +1315,22 @@ IPipeUser* CHitDeathReactions::GetAIPipeUser() const
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-bool CHitDeathReactions::SendAISignal(const char* szSignal, IAISignalExtraData *pData, bool bWaitOpOnly) const
+bool CHitDeathReactions::SendAISignal(const char *szSignal, IAISignalExtraData *pData, bool bWaitOpOnly) const
 {
 	CRY_ASSERT(szSignal && szSignal[0]);
 
 	bool bResult = false;
 
 	IAIObject *pAI = (IsAI() ? m_actor.GetEntity()->GetAI() : NULL);
-	if (pAI)
+
+	if(pAI)
 	{
-		if (!bWaitOpOnly)
+		if(!bWaitOpOnly)
 		{
 			gEnv->pAISystem->SendSignal(SIGNALFILTER_SENDER, 0, szSignal, pAI, pData);
 			bResult = true;
 		}
-		else if (IAIActor *pAIActor = CastToIAIActorSafe(pAI))
+		else if(IAIActor *pAIActor = CastToIAIActorSafe(pAI))
 		{
 			pAIActor->SetSignal(AISIGNAL_NOTIFY_ONLY, szSignal, m_actor.GetEntity(), pData);
 			bResult = true;
@@ -1288,35 +1342,39 @@ bool CHitDeathReactions::SendAISignal(const char* szSignal, IAISignalExtraData *
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-bool CHitDeathReactions::ExecuteReactionCommon(const SReactionParams& reactionParams)
+bool CHitDeathReactions::ExecuteReactionCommon(const SReactionParams &reactionParams)
 {
 	CRY_ASSERT(m_pHitInfo);
 	bool bSuccess = false;
 
-	if (!reactionParams.agReaction.sAGInputValue.empty())
+	if(!reactionParams.agReaction.sAGInputValue.empty())
 	{
 		SetVariations(reactionParams.agReaction.variations);
-		bSuccess = m_actor.GetAnimationGraphState()->SetInput( m_actor.m_inputSignal, reactionParams.agReaction.sAGInputValue.c_str());
-		if (bSuccess)
+		bSuccess = m_actor.GetAnimationGraphState()->SetInput(m_actor.m_inputSignal, reactionParams.agReaction.sAGInputValue.c_str());
+
+		if(bSuccess)
 		{
 			m_actor.GetAnimationGraphState()->ForceTeleportToQueriedState();
 
 			SetExecutionType(eET_AnimationGraphAnim);
 		}
 	}
-	else if (!reactionParams.reactionAnim->animCRCs.empty())
+	else if(!reactionParams.reactionAnim->animCRCs.empty())
 	{
-		ICharacterInstance* pMainChar = m_actor.GetEntity()->GetCharacter(0);
-		IAnimationSet* pAnimSet = pMainChar ? pMainChar->GetIAnimationSet() : NULL;
+		ICharacterInstance *pMainChar = m_actor.GetEntity()->GetCharacter(0);
+		IAnimationSet *pAnimSet = pMainChar ? pMainChar->GetIAnimationSet() : NULL;
 		CRY_ASSERT(pAnimSet);
-		if (pAnimSet)
+
+		if(pAnimSet)
 		{
-			const SReactionParams::SReactionAnim& reactionAnim = *reactionParams.reactionAnim;
+			const SReactionParams::SReactionAnim &reactionAnim = *reactionParams.reactionAnim;
 			int animID = reactionAnim.GetNextReactionAnimId(pAnimSet);
-			if (animID >= 0)
+
+			if(animID >= 0)
 			{
 				bSuccess = StartReactionAnimByID(animID, false, 0.1f, 0, reactionAnim.iLayer, reactionAnim.animFlags, reactionAnim.bAdditive ? 1.0f : 0.0f, 1.0f, reactionAnim.bNoAnimCamera);
-				if (bSuccess)
+
+				if(bSuccess)
 				{
 					m_currentCustomAnim.fOverrideTransTimeToAG = reactionAnim.fOverrideTransTimeToAG;
 
@@ -1333,41 +1391,46 @@ bool CHitDeathReactions::ExecuteReactionCommon(const SReactionParams& reactionPa
 		}
 	}
 
-	if (bSuccess) 
+	if(bSuccess)
 	{
 		CRY_ASSERT_MESSAGE(m_actor.GetAnimatedCharacter(), "This class assumes that if this code is called, the actor has a valid animated character");
-		if (reactionParams.flags & SReactionParams::OrientateToMovementDir)
+
+		if(reactionParams.flags & SReactionParams::OrientateToMovementDir)
 		{
-			IMovementController* pMovementController = m_actor.GetMovementController();
-			if (pMovementController)
+			IMovementController *pMovementController = m_actor.GetMovementController();
+
+			if(pMovementController)
 			{
 				// Get move direction of entity
 				SMovementState state;
 				pMovementController->GetMovementState(state);
 				Vec2 vMoveDir(state.movementDirection);
-				if (vMoveDir.IsValid() && !vMoveDir.IsZero(0.00001f))
+
+				if(vMoveDir.IsValid() && !vMoveDir.IsZero(0.00001f))
 				{
 					Ang3 angFacing;
 					angFacing.Set(0.0f, 0.0f, cry_atan2f(-vMoveDir.x, vMoveDir.y) + reactionParams.orientationSnapAngle);
 					angFacing.RangePI();
 
 					IEntity *pEntity = m_actor.GetEntity();
-					pEntity->SetRotation(Quat::CreateRotationXYZ( angFacing ));
+					pEntity->SetRotation(Quat::CreateRotationXYZ(angFacing));
 				}
 			}
 		}
-		else if (reactionParams.flags & SReactionParams::OrientateToHitDir)
+		else if(reactionParams.flags & SReactionParams::OrientateToHitDir)
 		{
 			Ang3 angFacing;
 			angFacing.Set(0.0f, 0.0f, cry_atan2f(m_pHitInfo->dir.x, -m_pHitInfo->dir.y) + reactionParams.orientationSnapAngle);
 			angFacing.RangePI();
 
 			IEntity *pEntity = m_actor.GetEntity();
-			pEntity->SetRotation(Quat::CreateRotationXYZ( angFacing ));
+			pEntity->SetRotation(Quat::CreateRotationXYZ(angFacing));
 
 #ifndef _RELEASE
-			if (g_pGameCVars->g_hitDeathReactions_debug)
+
+			if(g_pGameCVars->g_hitDeathReactions_debug)
 				CryLogAlways("Oriented to (%f, %f, %f)", angFacing.x, angFacing.y, angFacing.z);
+
 #endif
 		}
 	}
@@ -1387,10 +1450,11 @@ void CHitDeathReactions::PausePipeUser(bool bPause)
 	CRY_ASSERT_MESSAGE(eAIP_ExecutingCustomSignal != m_AIPausedState, "CHitDeathReactions::PausePipeUser Attempting to pause while the current pause state is 'eAIP_ExecutingCustomSignal'. This must not happen!");
 
 	// Special handling for AI on server
-	if (bPause != (eAIP_PipeUserPaused == m_AIPausedState))
+	if(bPause != (eAIP_PipeUserPaused == m_AIPausedState))
 	{
-		IPipeUser* pPipeUser = GetAIPipeUser();
-		if (pPipeUser && (!bPause || g_pGameCVars->g_hitDeathReactions_disable_ai))
+		IPipeUser *pPipeUser = GetAIPipeUser();
+
+		if(pPipeUser && (!bPause || g_pGameCVars->g_hitDeathReactions_disable_ai))
 		{
 			pPipeUser->Pause(bPause);
 
@@ -1401,13 +1465,15 @@ void CHitDeathReactions::PausePipeUser(bool bPause)
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-void CHitDeathReactions::SetVariations(const SReactionParams::SAnimGraphReaction::VariationsContainer& variations) const
+void CHitDeathReactions::SetVariations(const SReactionParams::SAnimGraphReaction::VariationsContainer &variations) const
 {
-	IAnimationGraphState* pAnimationGraphState = m_actor.GetAnimationGraphState();
-	if (!variations.empty() && pAnimationGraphState)
+	IAnimationGraphState *pAnimationGraphState = m_actor.GetAnimationGraphState();
+
+	if(!variations.empty() && pAnimationGraphState)
 	{
 		SReactionParams::SAnimGraphReaction::VariationsContainer::const_iterator itEnd = variations.end();
-		for (SReactionParams::SAnimGraphReaction::VariationsContainer::const_iterator it = variations.begin(); it != itEnd; ++it)
+
+		for(SReactionParams::SAnimGraphReaction::VariationsContainer::const_iterator it = variations.begin(); it != itEnd; ++it)
 		{
 			pAnimationGraphState->SetVariationInput(it->sName, it->sValue);
 		}
@@ -1419,7 +1485,8 @@ void CHitDeathReactions::SetVariations(const SReactionParams::SAnimGraphReaction
 void CHitDeathReactions::LoadData(SmartScriptTable pSelfTable, bool bForceReload)
 {
 	SmartScriptTable aux;
-	if (m_pScriptSystem->GetGlobalValue(HIT_DEATH_REACTIONS_SCRIPT_TABLE, aux))
+
+	if(m_pScriptSystem->GetGlobalValue(HIT_DEATH_REACTIONS_SCRIPT_TABLE, aux))
 	{
 		// This way we will have different instances of the HitDeathReactions global table sharing the same functions and
 		// current elements (but in LUA we can do self.variable = 0; to create a "variable" field only in that instance)
@@ -1443,8 +1510,9 @@ void CHitDeathReactions::LoadData(SmartScriptTable pSelfTable, bool bForceReload
 //////////////////////////////////////////////////////////////////////////
 void CHitDeathReactions::OnCustomAnimFinished(bool bInterrupted)
 {
-	ICharacterInstance* pMainChar = m_actor.GetEntity()->GetCharacter(0);
-	if (pMainChar)
+	ICharacterInstance *pMainChar = m_actor.GetEntity()->GetCharacter(0);
+
+	if(pMainChar)
 	{
 		// Stop facial expression
 		StopFacialAnimation(pMainChar);
@@ -1454,14 +1522,15 @@ void CHitDeathReactions::OnCustomAnimFinished(bool bInterrupted)
 
 	// Make sure it gets removed from the animation FIFO. Since we play the anims with repeat last key flag enabled, they
 	// will remain there unless other system overwrites them (Animation Graph) or we clear them
-	if ((m_currentCustomAnim.iLayer != eAnimationGraphLayer_FullBody) && (m_currentCustomAnim.iLayer != eAnimationGraphLayer_UpperBody))
+	if((m_currentCustomAnim.iLayer != eAnimationGraphLayer_FullBody) && (m_currentCustomAnim.iLayer != eAnimationGraphLayer_UpperBody))
 	{
-		CAnimationPlayerProxy* pPlayerProxy = m_actor.GetAnimatedCharacter()->GetAnimationPlayerProxy(0);
-		if (pPlayerProxy)
+		CAnimationPlayerProxy *pPlayerProxy = m_actor.GetAnimatedCharacter()->GetAnimationPlayerProxy(0);
+
+		if(pPlayerProxy)
 		{
 			pPlayerProxy->StopAnimationInLayer(m_actor.GetEntity(), m_currentCustomAnim.iLayer, 0.2f);
 		}
-		else if (pMainChar && !IsInDeathReaction())
+		else if(pMainChar && !IsInDeathReaction())
 		{
 			pMainChar->GetISkeletonAnim()->StopAnimationInLayer(m_currentCustomAnim.iLayer, 0.2f);
 		}
@@ -1472,18 +1541,19 @@ void CHitDeathReactions::OnCustomAnimFinished(bool bInterrupted)
 	m_actor.GetAnimatedCharacter()->AllowAimIk(true);
 
 	// If anim is finished, resume animation graph (if is unpaused it won't do anything)
-	// [*DavidR | 19/Jul/2010] FIXME: If ending a death reaction, we don't need to resume the anim graph (this assumption 
+	// [*DavidR | 19/Jul/2010] FIXME: If ending a death reaction, we don't need to resume the anim graph (this assumption
 	// is not very generic, though it may be true for the 99% of the cases)
-	IAnimationGraphState* pGraph = m_actor.GetAnimationGraphState();
-	if (pGraph && !IsInDeathReaction())
+	IAnimationGraphState *pGraph = m_actor.GetAnimationGraphState();
+
+	if(pGraph && !IsInDeathReaction())
 	{
 		pGraph->Pause(false, eAGP_HitDeathReactions, bInterrupted ? -1.0f : m_currentCustomAnim.fOverrideTransTimeToAG);
 	}
 
 	// If the player and in 1st person camera, deactivate animated controlled camera
-	if (!m_actor.IsThirdPerson())
+	if(!m_actor.IsThirdPerson())
 	{
-		EnableFirstPersonAnimation(false);		
+		EnableFirstPersonAnimation(false);
 	}
 
 	CRY_ASSERT(IsExecutionType(eET_ReactionAnim));
@@ -1501,10 +1571,10 @@ void CHitDeathReactions::EnableFirstPersonAnimation(bool bEnable)
 
 	// for 1st person deaths with no ragdoll we don't want to disable first person animation mode (the idea is
 	// that the camera stays on the last frame of the animation)
-	if (bEnable || !(IsInDeathReaction() && (m_reactionFlags & SReactionParams::NoRagdollOnEnd)))
+	if(bEnable || !(IsInDeathReaction() && (m_reactionFlags & SReactionParams::NoRagdollOnEnd)))
 	{
 		CRY_ASSERT(CPlayer::GetActorClassType() == m_actor.GetActorClass());
-		CPlayer& player = static_cast<CPlayer&>(m_actor);
+		CPlayer &player = static_cast<CPlayer &>(m_actor);
 		player.AnimationControlled(bEnable);
 	}
 }
@@ -1516,12 +1586,13 @@ void CHitDeathReactions::DoCollisionCheck()
 	const float RAGDOLL_TEST_RADIUS = m_pHitDeathReactionsConfig->fCollisionRadius;
 	const float RAGDOLL_TEST_GROUND_OFFSET = (m_reactionFlags & SReactionParams::CollisionCheckIntersectionWithGround) ? -0.1f : m_pHitDeathReactionsConfig->fCollisionVerticalOffset;
 
-	ICharacterInstance* pCharacter = m_actor.GetEntity()->GetCharacter(0);
+	ICharacterInstance *pCharacter = m_actor.GetEntity()->GetCharacter(0);
 	CRY_ASSERT(pCharacter);
-	if (!pCharacter)
+
+	if(!pCharacter)
 		return;
 
-	Vec3 vRootBone = pCharacter->GetISkeletonPose()->GetAbsJointByID(m_pHitDeathReactionsConfig->iCollisionBoneId).t; 
+	Vec3 vRootBone = pCharacter->GetISkeletonPose()->GetAbsJointByID(m_pHitDeathReactionsConfig->iCollisionBoneId).t;
 	vRootBone.z=0;
 
 	primitives::sphere sphPrim;
@@ -1534,9 +1605,10 @@ void CHitDeathReactions::DoCollisionCheck()
 	m_primitiveIntersectionQueue.Queue(sphPrim.type, sphPrim, ZERO, collisionEntityTypes, geom_colltype0);
 
 #ifndef _RELEASE
-	if (g_pGameCVars->g_hitDeathReactions_debug)
+
+	if(g_pGameCVars->g_hitDeathReactions_debug)
 	{
-		IRenderAuxGeom* pRenderAuxGeom = gEnv->pRenderer->GetIRenderAuxGeom();
+		IRenderAuxGeom *pRenderAuxGeom = gEnv->pRenderer->GetIRenderAuxGeom();
 		const SAuxGeomRenderFlags oldFlags = pRenderAuxGeom->GetRenderFlags();
 
 		ColorB col(0xff, 0, 0, 0xA0);
@@ -1544,31 +1616,33 @@ void CHitDeathReactions::DoCollisionCheck()
 		pRenderAuxGeom->DrawSphere(sphPrim.center, sphPrim.r, col);
 		pRenderAuxGeom->SetRenderFlags(oldFlags);
 	}
-#endif 
+
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-void CHitDeathReactions::StartCollisionReaction(const Vec3& vNormal, const Vec3& vPoint)
+void CHitDeathReactions::StartCollisionReaction(const Vec3 &vNormal, const Vec3 &vPoint)
 {
-	// m_reactionOnCollision == 
+	// m_reactionOnCollision ==
 	// 0 -> no reaction on collision at all
 	// 1 -> immediate reaction end on death reactions (so it enables ragdoll right away) OR
 	//	 -> collision reaction specified on the data file with index 1 (intended for FnP) if present, reaction end if not
 	// >1-> collision reaction specified on the data file with that index if present, reaction end if not
 
 	const bool bEndCurrentReaction = IsInDeathReaction() && (m_reactionOnCollision == 1);
-	if (bEndCurrentReaction)
+
+	if(bEndCurrentReaction)
 	{
 		EndCurrentReactionInternal(false, false);
 	}
 	else
 	{
-		if (m_reactionOnCollision != 1)
+		if(m_reactionOnCollision != 1)
 		{
 			// Position the entity at the right distance
-			IEntity* pEntity = m_actor.GetEntity();
-			const Vec3& vPos = pEntity->GetWorldPos();
+			IEntity *pEntity = m_actor.GetEntity();
+			const Vec3 &vPos = pEntity->GetWorldPos();
 			Vec3 vPlainNormal(vNormal.x, vNormal.y, 0.0f);
 			CRY_ASSERT_MESSAGE(vPlainNormal.IsValid() && !vPlainNormal.IsZero(), "Vertical normals shouldn't validate a Collision Reaction Investigate!");
 			vPlainNormal.NormalizeSafe(Vec3Constants<float>::fVec3_OneZ);
@@ -1579,12 +1653,12 @@ void CHitDeathReactions::StartCollisionReaction(const Vec3& vNormal, const Vec3&
 			CRY_ASSERT_MESSAGE(m_actor.GetAnimatedCharacter(), "This class assumes that if this code is called, the actor has a valid animated character");
 		}
 
-		// Play a collision reaction, this will interrupt the previous one. 
+		// Play a collision reaction, this will interrupt the previous one.
 		CRY_ASSERT(m_reactionOnCollision != NO_COLLISION_REACTION);
 
-		if (m_reactionOnCollision <= m_pCollisionReactions->size())
+		if(m_reactionOnCollision <= m_pCollisionReactions->size())
 		{
-			if (IsAI())
+			if(IsAI())
 			{
 				HandleAIReactionInterrupted();
 			}
@@ -1595,7 +1669,8 @@ void CHitDeathReactions::StartCollisionReaction(const Vec3& vNormal, const Vec3&
 			fakeHitInfo.dir = -vNormal;
 
 			m_pCurrentReactionParams = NULL;
-			if (IsInHitReaction())
+
+			if(IsInHitReaction())
 			{
 				StartHitReaction(fakeHitInfo, m_pCollisionReactions->at(m_reactionOnCollision - 1));
 			}
@@ -1611,7 +1686,7 @@ void CHitDeathReactions::StartCollisionReaction(const Vec3& vNormal, const Vec3&
 		else
 		{
 			// Just end the reaction (if no collision reaction and "1" is specified we allow it as "end reaction when collision happens")
-			if (m_reactionOnCollision != 1)
+			if(m_reactionOnCollision != 1)
 				CHitDeathReactionsSystem::Warning("Invalid collision reaction index %d. Check HitDeathReactions data file", m_reactionOnCollision);
 
 			EndCurrentReactionInternal(false, false);
@@ -1624,21 +1699,21 @@ void CHitDeathReactions::StartCollisionReaction(const Vec3& vNormal, const Vec3&
 /// left and right) the direction vector vDir2 is pointing to compared to
 /// direction vector vDir1
 //////////////////////////////////////////////////////////////////////////
-ECardinalDirection CHitDeathReactions::GetRelativeCardinalDirection2D(const Vec2& vDir1, const Vec2& vDir2) const
+ECardinalDirection CHitDeathReactions::GetRelativeCardinalDirection2D(const Vec2 &vDir1, const Vec2 &vDir2) const
 {
 	float fDotForward = vDir1.Dot(vDir2);
 	float fDotLeft = vDir1.Cross(vDir2); // the same as: vDir1.Perp().Dot(vDir2);
 
-	if (cry_fabsf(fDotForward) > cry_fabsf(fDotLeft))
+	if(cry_fabsf(fDotForward) > cry_fabsf(fDotLeft))
 	{
-		if (fDotForward > 0.0f)
+		if(fDotForward > 0.0f)
 			return eCD_Forward;
 		else
 			return eCD_Back;
 	}
 	else
 	{
-		if (fDotLeft > 0.0f)
+		if(fDotLeft > 0.0f)
 			return eCD_Left;
 		else
 			return eCD_Right;
@@ -1647,33 +1722,39 @@ ECardinalDirection CHitDeathReactions::GetRelativeCardinalDirection2D(const Vec2
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-bool CHitDeathReactions::CheckCardinalDirection2D(ECardinalDirection direction, const Vec2& vDir1, const Vec2& vDir2) const
+bool CHitDeathReactions::CheckCardinalDirection2D(ECardinalDirection direction, const Vec2 &vDir1, const Vec2 &vDir2) const
 {
 	bool bCheck = false;
 
 	switch(direction)
 	{
 	case eCD_Ahead:
-		{
-			float fDot = vDir1.Dot(vDir2);
-			bCheck = (fDot >= 0);
-		} break;
+	{
+		float fDot = vDir1.Dot(vDir2);
+		bCheck = (fDot >= 0);
+	}
+	break;
+
 	case eCD_Behind:
-		{
-			float fDot = vDir1.Dot(vDir2);
-			bCheck = (fDot < 0);
-		} break;
+	{
+		float fDot = vDir1.Dot(vDir2);
+		bCheck = (fDot < 0);
+	}
+	break;
 
 	case eCD_RightSide:
-		{
-			float fCross = vDir1.Cross(vDir2);
-			bCheck = (fCross < 0);
-		} break;
+	{
+		float fCross = vDir1.Cross(vDir2);
+		bCheck = (fCross < 0);
+	}
+	break;
+
 	case eCD_LeftSide:
-		{
-			float fCross = vDir1.Cross(vDir2);
-			bCheck = (fCross >= 0);
-		} break;
+	{
+		float fCross = vDir1.Cross(vDir2);
+		bCheck = (fCross >= 0);
+	}
+	break;
 
 	default:
 		bCheck = (direction == GetRelativeCardinalDirection2D(vDir1, vDir2));
@@ -1687,16 +1768,16 @@ bool CHitDeathReactions::CheckCardinalDirection2D(ECardinalDirection direction, 
 uint32 CHitDeathReactions::GetSynchedSeed(bool bKillReaction) const
 {
 	// [*DavidR | 9/Dec/2009] This method returns a seed that must be the same
-	// between calls for the same OnHit/OnKill event between side and server, 
+	// between calls for the same OnHit/OnKill event between side and server,
 	// but different between successive calls
 
 	// Calculate it using the name of the target + current health
 	// [*DavidR | 9/Dec/2009] ToDo: Try to find a better way to have a synced seed
 	// [*DavidR | 9/Dec/2009] FixMe: This means the exact same actor is always going to use the same seed (which is a problem
 	// if the actor respawns/revive with the same entity name)
-	return bKillReaction ? 
-		gEnv->pSystem->GetCrc32Gen()->GetCRC32(m_actor.GetEntity()->GetName()) :
-	gEnv->pSystem->GetCrc32Gen()->GetCRC32(m_actor.GetEntity()->GetName()) + static_cast<uint32>(m_actor.GetHealth() * 100.f);
+	return bKillReaction ?
+		   gEnv->pSystem->GetCrc32Gen()->GetCRC32(m_actor.GetEntity()->GetName()) :
+		   gEnv->pSystem->GetCrc32Gen()->GetCRC32(m_actor.GetEntity()->GetName()) + static_cast<uint32>(m_actor.GetHealth() * 100.f);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1717,13 +1798,14 @@ bool CHitDeathReactions::CustomAnimHasFinished() const
 //////////////////////////////////////////////////////////////////////////
 void CHitDeathReactions::StopHigherLayers(int iSlot, int iLayer, float fBlendOut)
 {
-	if (iLayer < (numVIRTUALLAYERS - 1))
+	if(iLayer < (numVIRTUALLAYERS - 1))
 	{
-		ICharacterInstance* pCharacter = m_actor.GetEntity()->GetCharacter(iSlot);
-		ISkeletonAnim* pISkeletonAnim = pCharacter ? pCharacter->GetISkeletonAnim() : NULL;
-		if (pISkeletonAnim)
+		ICharacterInstance *pCharacter = m_actor.GetEntity()->GetCharacter(iSlot);
+		ISkeletonAnim *pISkeletonAnim = pCharacter ? pCharacter->GetISkeletonAnim() : NULL;
+
+		if(pISkeletonAnim)
 		{
-			for (int i = iLayer + 1; i < numVIRTUALLAYERS; ++i)
+			for(int i = iLayer + 1; i < numVIRTUALLAYERS; ++i)
 			{
 				pISkeletonAnim->StopAnimationInLayer(i, fBlendOut);
 			}
@@ -1739,18 +1821,20 @@ void CHitDeathReactions::DrawDebugInfo()
 	float fFontSize = 1.2f;
 	float standbyColor[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 	float reactingColor[4] = {Col_GreenYellow.r, Col_GreenYellow.g, Col_GreenYellow.b, Col_GreenYellow.a};
-	float* drawColor = standbyColor;
+	float *drawColor = standbyColor;
 
 	string sMsg(string().Format("Hit/Death reactions system is [%s]\nNumber of Hit reactions: %u. Number of Death reactions %u",
-		g_pGameCVars->g_hitDeathReactions_enable ? " enabled" : "disabled", m_pHitReactions->size(), m_pDeathReactions->size()));
+								g_pGameCVars->g_hitDeathReactions_enable ? " enabled" : "disabled", m_pHitReactions->size(), m_pDeathReactions->size()));
 
 	Vec3 vDrawPos = m_actor.GetEntity()->GetWorldPos() + m_actor.GetLocalEyePos();
-	if (g_pGameCVars->g_hitDeathReactions_enable)
+
+	if(g_pGameCVars->g_hitDeathReactions_enable)
 	{
 		string sMsg2("\n\n\n\n");
 
-		sMsg += string().Format("\nCan trigger Hit reactions? [%s]\nCan trigger Death reactions? [%s]", CanPlayHitReaction() ? "YES" : " NO", CanPlayDeathReaction() ? "YES" : " NO");		
-		if (IsInReaction())
+		sMsg += string().Format("\nCan trigger Hit reactions? [%s]\nCan trigger Death reactions? [%s]", CanPlayHitReaction() ? "YES" : " NO", CanPlayDeathReaction() ? "YES" : " NO");
+
+		if(IsInReaction())
 		{
 			drawColor = reactingColor;
 
@@ -1758,16 +1842,16 @@ void CHitDeathReactions::DrawDebugInfo()
 
 			// The following lines will most probably make the sMsg grow bigger than 256, the current hardcoded limit for DrawLabel,
 			// so let's use a different string that will be printed on a different DrawLabel call
-			if (IsExecutionType(eET_ReactionAnim))
+			if(IsExecutionType(eET_ReactionAnim))
 			{
 				sMsg2 += string().Format("\nExecuting Reaction anim: %s", m_currentCustomAnim.GetAnimName().c_str());
 			}
-			else if (IsExecutionType(eET_AnimationGraphAnim))
+			else if(IsExecutionType(eET_AnimationGraphAnim))
 			{
 				string sAnimName = GetCurrentAGReactionAnimName();
 				sMsg2 += string().Format("\nExecuting Animation graph-based reaction: %s", sAnimName.c_str());
 			}
-			else if (IsExecutionType(eET_Custom))
+			else if(IsExecutionType(eET_Custom))
 			{
 				sMsg2 += string().Format("\nExecuting custom LUA reaction code");
 			}
@@ -1776,21 +1860,22 @@ void CHitDeathReactions::DrawDebugInfo()
 				sMsg2 += string().Format("\nTHIS SHOULDN'T HAPPEN. WHAT ARE WE EXECUTING?");
 			}
 		}
+
 		// Print actor's speed, for helping tweaking speed ranges for reactions
-		const SActorStats* pActorStats = m_actor.GetActorStats();
+		const SActorStats *pActorStats = m_actor.GetActorStats();
 		CRY_ASSERT(pActorStats);
-		sMsg2 += string().Format("\nPos (%.2f, %.2f, %.2f) RotZ (%f)%s. speedFlat: %.2f\nName: \"%s\". Health: %.1f", 
-			m_actor.GetEntity()->GetPos().x, m_actor.GetEntity()->GetPos().y, m_actor.GetEntity()->GetPos().z, m_actor.GetEntity()->GetRotation().GetRotZ(), m_actor.GetActorStats()->isRagDoll ? " RAGDOLL" : "", pActorStats->speedFlat, m_actor.GetEntity()->GetName(), m_actor.GetHealth());
+		sMsg2 += string().Format("\nPos (%.2f, %.2f, %.2f) RotZ (%f)%s. speedFlat: %.2f\nName: \"%s\". Health: %.1f",
+								 m_actor.GetEntity()->GetPos().x, m_actor.GetEntity()->GetPos().y, m_actor.GetEntity()->GetPos().z, m_actor.GetEntity()->GetRotation().GetRotZ(), m_actor.GetActorStats()->isRagDoll ? " RAGDOLL" : "", pActorStats->speedFlat, m_actor.GetEntity()->GetName(), m_actor.GetHealth());
 
 		gEnv->pRenderer->DrawLabelEx(vDrawPos, fFontSize, drawColor, true, false, sMsg2.c_str());
 	}
 
 	gEnv->pRenderer->DrawLabelEx(vDrawPos, fFontSize, drawColor, true, false, sMsg.c_str());
 
-	if ((g_pGameCVars->g_hitDeathReactions_debug > 1) && IsInDeathReaction())
+	if((g_pGameCVars->g_hitDeathReactions_debug > 1) && IsInDeathReaction())
 	{
 		//--- Draw a ragdoll indicator to aid animators to visualize the transitions
-		IRenderAuxGeom* pAuxGeom = gEnv->pRenderer->GetIRenderAuxGeom();
+		IRenderAuxGeom *pAuxGeom = gEnv->pRenderer->GetIRenderAuxGeom();
 		ColorB colour = (m_fReactionEndTime >= 0.0f) ? ColorB(0,0,255,255) : ColorB(255, 0, 0, 255);
 		pAuxGeom->DrawSphere(m_actor.GetEntity()->GetWorldPos() + m_actor.GetLocalEyePos()+Vec3(0.0f, 0.0f, 0.5f), 0.25f, colour);
 	}
@@ -1805,16 +1890,18 @@ bool CHitDeathReactions::IsValidReactionId(ReactionId reactionId) const
 	//* reactionId is the invalid reaction id constant
 	//* reactionId is greater than the size of the reaction params container is associated to
 	//* The associated reaction params container is empty
-	if (reactionId == INVALID_REACTION_ID)
+	if(reactionId == INVALID_REACTION_ID)
 		return false;
 
 	ReactionId absReactionId = abs(reactionId);
 
 	ReactionsContainerConstPtr pReactionList;
-	if (reactionId < 0)
+
+	if(reactionId < 0)
 	{
 		int deathReactionsSize = static_cast<int>(m_pDeathReactions->size());
-		if (absReactionId > deathReactionsSize)
+
+		if(absReactionId > deathReactionsSize)
 		{
 			pReactionList = m_pCollisionReactions;
 			absReactionId -= deathReactionsSize;
@@ -1825,23 +1912,25 @@ bool CHitDeathReactions::IsValidReactionId(ReactionId reactionId) const
 	else
 		pReactionList = m_pHitReactions;
 
-	return ((absReactionId <= static_cast<int>(pReactionList->size())) && 
-					(!pReactionList->empty()));
+	return ((absReactionId <= static_cast<int>(pReactionList->size())) &&
+			(!pReactionList->empty()));
 }
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-const SReactionParams& CHitDeathReactions::GetReactionParamsById(ReactionId reactionId) const
+const SReactionParams &CHitDeathReactions::GetReactionParamsById(ReactionId reactionId) const
 {
 	CRY_ASSERT_MESSAGE(IsValidReactionId(reactionId), "this method shouldn't be called if IsValidReactionId is false");
 
 	ReactionId absReactionId = abs(reactionId);
 
 	ReactionsContainerConstPtr pReactionList;
-	if (reactionId < 0)
+
+	if(reactionId < 0)
 	{
 		int deathReactionsSize = static_cast<int>(m_pDeathReactions->size());
-		if (absReactionId > deathReactionsSize)
+
+		if(absReactionId > deathReactionsSize)
 		{
 			pReactionList = m_pCollisionReactions;
 			absReactionId -= deathReactionsSize;
@@ -1862,39 +1951,44 @@ string CHitDeathReactions::GetCurrentAGReactionAnimName() const
 #ifndef _RELEASE
 	// Obtain anim name. We are assuming the animation graph already transitioned to the new hit reaction state and
 	// put its animation already on the queue, which could be a wild assumption
-	ICharacterInstance* pMainChar = m_actor.GetEntity()->GetCharacter(0);
+	ICharacterInstance *pMainChar = m_actor.GetEntity()->GetCharacter(0);
 	CRY_ASSERT(pMainChar);
-	if (pMainChar)
+
+	if(pMainChar)
 	{
 		CRY_ASSERT_MESSAGE(m_actor.GetAnimatedCharacter(), "This class assumes that if this code is called, the actor has a valid animated character");
 
-		const CAnimation* pAnim = NULL;
-		CAnimationPlayerProxy* pPlayerProxy = m_actor.GetAnimatedCharacter()->GetAnimationPlayerProxy(0);
-		if (pPlayerProxy)
+		const CAnimation *pAnim = NULL;
+		CAnimationPlayerProxy *pPlayerProxy = m_actor.GetAnimatedCharacter()->GetAnimationPlayerProxy(0);
+
+		if(pPlayerProxy)
 		{
 			pAnim = pPlayerProxy->GetTopAnimation(m_actor.GetEntity(), eAnimationGraphLayer_FullBody);
 		}
 		else
 		{
 			int iNumAnims = pMainChar->GetISkeletonAnim()->GetNumAnimsInFIFO(eAnimationGraphLayer_FullBody);
-			if (iNumAnims > 0)
+
+			if(iNumAnims > 0)
 				pAnim = &pMainChar->GetISkeletonAnim()->GetAnimFromFIFO(eAnimationGraphLayer_FullBody, iNumAnims - 1);
 		}
 
 		CRY_ASSERT(pAnim);
-		if (pAnim)
+
+		if(pAnim)
 		{
-			const CAnimation& anim = *pAnim;
+			const CAnimation &anim = *pAnim;
 			int32 topAnimId = anim.m_nAnimID;
 
 #ifdef STORE_ANIMATION_NAMES
-			IAnimationSet* pAnimSet = pMainChar->GetIAnimationSet();
+			IAnimationSet *pAnimSet = pMainChar->GetIAnimationSet();
 			return pAnimSet->GetNameByAnimID(topAnimId);
 #else
 			return string().Format("%i", topAnimId);
 #endif
 		}
 	}
+
 #endif
 
 	return "UNKNOWN";
@@ -1902,21 +1996,23 @@ string CHitDeathReactions::GetCurrentAGReactionAnimName() const
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-bool CHitDeathReactions::StartFacialAnimation(ICharacterInstance* pCharacter, const char* szEffectorName, float fWeight, float fFadeTime)
+bool CHitDeathReactions::StartFacialAnimation(ICharacterInstance *pCharacter, const char *szEffectorName, float fWeight, float fFadeTime)
 {
 	CRY_ASSERT(pCharacter);
 
-	// [*DavidR | 29/Apr/2010] Warning: If this facial animations start getting called from different places we'd need some kind 
+	// [*DavidR | 29/Apr/2010] Warning: If this facial animations start getting called from different places we'd need some kind
 	// of manager for this stuff
-	IFacialInstance* pFacialInstance = pCharacter->GetFacialInstance();
-	IFacialModel* pFacialModel = pFacialInstance ? pFacialInstance->GetFacialModel() : NULL;
-	IFacialEffectorsLibrary* pLibrary = pFacialModel ? pFacialModel->GetLibrary() : NULL;
-	if (pLibrary)
+	IFacialInstance *pFacialInstance = pCharacter->GetFacialInstance();
+	IFacialModel *pFacialModel = pFacialInstance ? pFacialInstance->GetFacialModel() : NULL;
+	IFacialEffectorsLibrary *pLibrary = pFacialModel ? pFacialModel->GetLibrary() : NULL;
+
+	if(pLibrary)
 	{
-		IFacialEffector* pEffector = pLibrary->Find(szEffectorName);
-		if (pEffector)
+		IFacialEffector *pEffector = pLibrary->Find(szEffectorName);
+
+		if(pEffector)
 		{
-			if (m_effectorChannel != INVALID_FACIAL_CHANNEL_ID)
+			if(m_effectorChannel != INVALID_FACIAL_CHANNEL_ID)
 			{
 				// we fade out with the same fadeTime as fade in
 				pFacialInstance->StopEffectorChannel(m_effectorChannel, fFadeTime);
@@ -1932,13 +2028,13 @@ bool CHitDeathReactions::StartFacialAnimation(ICharacterInstance* pCharacter, co
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-void CHitDeathReactions::StopFacialAnimation(ICharacterInstance* pCharacter, float fFadeOutTime)
+void CHitDeathReactions::StopFacialAnimation(ICharacterInstance *pCharacter, float fFadeOutTime)
 {
 	CRY_ASSERT(pCharacter);
 
 	if(m_effectorChannel != INVALID_FACIAL_CHANNEL_ID)
 	{
-		if (IFacialInstance* pInstance = pCharacter->GetFacialInstance())
+		if(IFacialInstance *pInstance = pCharacter->GetFacialInstance())
 		{
 			pInstance->StopEffectorChannel(m_effectorChannel, fFadeOutTime);
 			m_effectorChannel = INVALID_FACIAL_CHANNEL_ID;
@@ -1952,8 +2048,9 @@ void CHitDeathReactions::SleepRagdoll()
 {
 	CRY_ASSERT(m_actor.GetGameObject()->GetAspectProfile(eEA_Physics) == eAP_Ragdoll);
 
-	IPhysicalEntity* pPhysicalEntity = m_actor.GetEntity()->GetPhysics();
-	if (pPhysicalEntity)
+	IPhysicalEntity *pPhysicalEntity = m_actor.GetEntity()->GetPhysics();
+
+	if(pPhysicalEntity)
 	{
 		// Reenable auto-impulses on particle impacts so the ragdoll awakes when impacted by them
 		pe_params_part colltype;
@@ -1970,9 +2067,9 @@ void CHitDeathReactions::SleepRagdoll()
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-CHitDeathReactionsPhysics::CHitDeathReactionsPhysics( )
-: m_pOwnerHitReactions(NULL)
-, m_requestCounter(0)
+CHitDeathReactionsPhysics::CHitDeathReactionsPhysics()
+	: m_pOwnerHitReactions(NULL)
+	, m_requestCounter(0)
 {
 
 }
@@ -1981,7 +2078,7 @@ CHitDeathReactionsPhysics::CHitDeathReactionsPhysics( )
 //////////////////////////////////////////////////////////////////////////
 CHitDeathReactionsPhysics::~CHitDeathReactionsPhysics()
 {
-	for (int i = 0; i < kMaxQueuedPrimitives; ++i)
+	for(int i = 0; i < kMaxQueuedPrimitives; ++i)
 	{
 		m_queuedPrimitives[i].Reset();
 	}
@@ -1989,7 +2086,7 @@ CHitDeathReactionsPhysics::~CHitDeathReactionsPhysics()
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-void CHitDeathReactionsPhysics::InitWithOwner( CHitDeathReactions* pOwner )
+void CHitDeathReactionsPhysics::InitWithOwner(CHitDeathReactions *pOwner)
 {
 	CRY_ASSERT(m_pOwnerHitReactions == NULL);
 	CRY_ASSERT(pOwner != NULL);
@@ -1999,7 +2096,7 @@ void CHitDeathReactionsPhysics::InitWithOwner( CHitDeathReactions* pOwner )
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-void CHitDeathReactionsPhysics::Queue( int primitiveType, primitives::primitive &primitive, const Vec3 &sweepDir, int objTypes, int geomFlags )
+void CHitDeathReactionsPhysics::Queue(int primitiveType, primitives::primitive &primitive, const Vec3 &sweepDir, int objTypes, int geomFlags)
 {
 	CRY_ASSERT(m_pOwnerHitReactions);
 
@@ -2008,39 +2105,40 @@ void CHitDeathReactionsPhysics::Queue( int primitiveType, primitives::primitive 
 	CRY_ASSERT(slot != -1);
 
 	m_queuedPrimitives[slot].queuedId = g_pGame->GetIntersectionTester().Queue(IntersectionTestRequest::HighPriority,
-											IntersectionTestRequest(primitiveType, primitive, sweepDir, objTypes, 0, geomFlags),
-											functor(*this, &CHitDeathReactionsPhysics::IntersectionTestComplete));
+										IntersectionTestRequest(primitiveType, primitive, sweepDir, objTypes, 0, geomFlags),
+										functor(*this, &CHitDeathReactionsPhysics::IntersectionTestComplete));
 
 	m_queuedPrimitives[slot].counter = ++m_requestCounter;
 }
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-void CHitDeathReactionsPhysics::IntersectionTestComplete( const QueuedIntersectionID& intID, const IntersectionTestResult& result )
+void CHitDeathReactionsPhysics::IntersectionTestComplete(const QueuedIntersectionID &intID, const IntersectionTestResult &result)
 {
 	CRY_ASSERT(m_pOwnerHitReactions);
 
 	int slot = GetSlotFromPrimitiveId(intID);
 	CRY_ASSERT(slot != -1);
 
-	if (slot != -1)
+	if(slot != -1)
 	{
 		m_queuedPrimitives[slot].queuedId = 0;
 		m_queuedPrimitives[slot].counter = 0;
 	}
 
-	if ((result.distance <= 0.0f)	||	(m_pOwnerHitReactions->m_reactionOnCollision == NO_COLLISION_REACTION))		// No Collision if we are not supposed to
+	if((result.distance <= 0.0f)	||	(m_pOwnerHitReactions->m_reactionOnCollision == NO_COLLISION_REACTION))		// No Collision if we are not supposed to
 		return;
 
 	CRY_ASSERT_MESSAGE(result.normal.IsValid() && !result.normal.IsZero() && result.point.IsValid(), "Receiving incorrect data from physics events, check CPhysicalWorld::TracePendingRays method");
 
-	CActor& ownerActor = m_pOwnerHitReactions->m_actor;
+	CActor &ownerActor = m_pOwnerHitReactions->m_actor;
 
-	ICharacterInstance* pCharacter = ownerActor.GetEntity()->GetCharacter(0);
+	ICharacterInstance *pCharacter = ownerActor.GetEntity()->GetCharacter(0);
 	CRY_ASSERT(pCharacter);
 
 	bool bValidCollision = (m_pOwnerHitReactions->m_reactionOnCollision == 1); // [*DavidR | 26/Mar/2010] ToDo: Tidy-up this assumption of reaction on collision number 1 being the FnP/ragdoll
-	if (!bValidCollision && pCharacter)
+
+	if(!bValidCollision && pCharacter)
 	{
 		// In hit reactions we need to be more accurate with the checks, check:
 		// - collision normal horizontality (reaction collisions are designed for perfect vertical obstacles)
@@ -2049,15 +2147,15 @@ void CHitDeathReactionsPhysics::IntersectionTestComplete( const QueuedIntersecti
 		const float fMaxZ = m_pOwnerHitReactions->m_pHitDeathReactionsConfig->fCollMaxHorzAngleSin;
 		const bool bHorizontalCheck = cry_fabsf(result.normal.z) < fMaxZ;
 
-		const Vec3& vRelDir = pCharacter->GetISkeletonAnim()->GetRelMovement().t.GetNormalized();
-		const Vec3& vAbsDir = ownerActor.GetEntity()->GetWorldTM().TransformVector(vRelDir);
+		const Vec3 &vRelDir = pCharacter->GetISkeletonAnim()->GetRelMovement().t.GetNormalized();
+		const Vec3 &vAbsDir = ownerActor.GetEntity()->GetWorldTM().TransformVector(vRelDir);
 
 		const float fMinDot = m_pOwnerHitReactions->m_pHitDeathReactionsConfig->fCollMaxMovAngleCos;
 		const bool bDirectCollisionCheck = result.normal.Dot(vAbsDir) > fMinDot;
 
 		bValidCollision = bHorizontalCheck && bDirectCollisionCheck;
 
-		if (!bValidCollision && m_pOwnerHitReactions->IsInDeathReaction())
+		if(!bValidCollision && m_pOwnerHitReactions->IsInDeathReaction())
 		{
 			// In death reactions we want to fall back to ragdoll if the animated collision reaction didn't fulfil the requirements
 			bValidCollision = true;
@@ -2066,23 +2164,25 @@ void CHitDeathReactionsPhysics::IntersectionTestComplete( const QueuedIntersecti
 	}
 
 #ifndef _RELEASE
-	if (g_pGameCVars->g_hitDeathReactions_debug && pCharacter)
+
+	if(g_pGameCVars->g_hitDeathReactions_debug && pCharacter)
 	{
 		// Let's draw the normal vector and the movement vector for every collision detected, if the collision
 		// is valid we draw it for more time (so it's easy to see which one was the validated)
-		const Vec3& vConeDrawPos = result.point + Vec3(0.0f, 0.0f, 2.0f); 
+		const Vec3 &vConeDrawPos = result.point + Vec3(0.0f, 0.0f, 2.0f);
 		float fTime = bValidCollision ? 4.0f : 2.0f;
-		const Vec3& vRelDir = pCharacter->GetISkeletonAnim()->GetRelMovement().t.GetNormalized();
-		const Vec3& vAbsDir = ownerActor.GetEntity()->GetWorldTM().TransformVector(vRelDir);
+		const Vec3 &vRelDir = pCharacter->GetISkeletonAnim()->GetRelMovement().t.GetNormalized();
+		const Vec3 &vAbsDir = ownerActor.GetEntity()->GetWorldTM().TransformVector(vRelDir);
 
-		IPersistantDebug* pPersistantDebug = gEnv->pGame->GetIGameFramework()->GetIPersistantDebug();
+		IPersistantDebug *pPersistantDebug = gEnv->pGame->GetIGameFramework()->GetIPersistantDebug();
 		pPersistantDebug->Begin("CHitDeathReactions::OnDataReceived", false);
 		pPersistantDebug->AddCone(vConeDrawPos, result.normal, 0.1f, 0.8f, Col_Red, fTime);
 		pPersistantDebug->AddCone(vConeDrawPos, vAbsDir, 0.1f, 0.8f, Col_Blue, fTime);
 	}
+
 #endif // _RELEASE
 
-	if (bValidCollision)
+	if(bValidCollision)
 	{
 		m_pOwnerHitReactions->StartCollisionReaction(result.normal, result.point);
 	}
@@ -2092,9 +2192,9 @@ void CHitDeathReactionsPhysics::IntersectionTestComplete( const QueuedIntersecti
 //////////////////////////////////////////////////////////////////////////
 int CHitDeathReactionsPhysics::GetPrimitiveRequestSlot()
 {
-	for (int i = 0; i < kMaxQueuedPrimitives; ++i)
+	for(int i = 0; i < kMaxQueuedPrimitives; ++i)
 	{
-		if (m_queuedPrimitives[i].queuedId == 0)
+		if(m_queuedPrimitives[i].queuedId == 0)
 		{
 			return i;
 		}
@@ -2103,9 +2203,10 @@ int CHitDeathReactionsPhysics::GetPrimitiveRequestSlot()
 	//Too many primitive requested, cancel oldest one and re-use slot
 	uint32 oldestCounter = m_requestCounter + 1;
 	int oldestSlot = 0;
-	for (int i = 0; i < kMaxQueuedPrimitives; ++i)
+
+	for(int i = 0; i < kMaxQueuedPrimitives; ++i)
 	{
-		if (m_queuedPrimitives[i].counter < oldestCounter)
+		if(m_queuedPrimitives[i].counter < oldestCounter)
 		{
 			oldestCounter = m_queuedPrimitives[i].counter;
 			oldestSlot = i;
@@ -2119,11 +2220,11 @@ int CHitDeathReactionsPhysics::GetPrimitiveRequestSlot()
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-int CHitDeathReactionsPhysics::GetSlotFromPrimitiveId( const QueuedIntersectionID& intID )
+int CHitDeathReactionsPhysics::GetSlotFromPrimitiveId(const QueuedIntersectionID &intID)
 {
-	for (int i = 0; i < kMaxQueuedPrimitives; ++i)
+	for(int i = 0; i < kMaxQueuedPrimitives; ++i)
 	{
-		if (m_queuedPrimitives[i].queuedId == intID)
+		if(m_queuedPrimitives[i].queuedId == intID)
 		{
 			return i;
 		}
@@ -2136,10 +2237,11 @@ int CHitDeathReactionsPhysics::GetSlotFromPrimitiveId( const QueuedIntersectionI
 //////////////////////////////////////////////////////////////////////////
 void CHitDeathReactionsPhysics::SPrimitiveRequest::Reset()
 {
-	if (queuedId != 0)
+	if(queuedId != 0)
 	{
 		g_pGame->GetIntersectionTester().Cancel(queuedId);
 		queuedId = 0;
 	}
+
 	counter = 0;
 }

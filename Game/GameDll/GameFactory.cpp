@@ -81,7 +81,7 @@
 #define HIDE_FROM_EDITOR(className)																																				\
   { IEntityClass *pItemClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(className);\
   pItemClass->SetFlags(pItemClass->GetFlags() | ECLF_INVISIBLE); }																				\
-
+ 
 #define REGISTER_GAME_OBJECT(framework, name, script)\
 	{\
 		IEntityClassRegistry::SEntityClassDesc clsDesc;\
@@ -157,9 +157,9 @@ void InitGameFactory(IGameFramework *pFramework)
 	REGISTER_FACTORY(pFramework, "GunTurret", CGunTurret, false);
 	REGISTER_FACTORY(pFramework, "RocketLauncher", CRocketLauncher, false);
 	REGISTER_FACTORY(pFramework, "AIGrenade", CAIGrenade, false);
-		
+
 	// vehicle objects
-	IVehicleSystem* pVehicleSystem = pFramework->GetIVehicleSystem();
+	IVehicleSystem *pVehicleSystem = pFramework->GetIVehicleSystem();
 
 #define REGISTER_VEHICLEOBJECT(name, obj) \
 	REGISTER_FACTORY((IVehicleSystem*)pVehicleSystem, name, obj, false); \

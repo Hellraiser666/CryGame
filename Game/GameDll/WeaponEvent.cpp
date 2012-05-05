@@ -25,7 +25,7 @@ History:
 
 #include "ItemSharedParams.h"
 
-CWeapon::TEventListenerVector * CWeapon::m_listenerCache = 0;
+CWeapon::TEventListenerVector *CWeapon::m_listenerCache = 0;
 bool CWeapon::m_listenerCacheInUse = false;
 
 #define BROADCAST_WEAPON_EVENT(event, params)	\
@@ -46,43 +46,45 @@ bool CWeapon::m_listenerCacheInUse = false;
 	}
 
 //------------------------------------------------------------------------
-void CWeapon::OnShoot(EntityId shooterId, EntityId ammoId, IEntityClass* pAmmoType, const Vec3 &pos, const Vec3 &dir, const Vec3&vel)
+void CWeapon::OnShoot(EntityId shooterId, EntityId ammoId, IEntityClass *pAmmoType, const Vec3 &pos, const Vec3 &dir, const Vec3 &vel)
 {
 	BROADCAST_WEAPON_EVENT(OnShoot, (this, shooterId, ammoId, pAmmoType, pos, dir, vel));
 
 	//FIXME:quick temporary solution
-	CActor *pActor = static_cast<CActor*> (g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(shooterId));
-	if (pActor)
+	CActor *pActor = static_cast<CActor *>(g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(shooterId));
+
+	if(pActor)
 		pActor->HandleEvent(SGameObjectEvent(eCGE_OnShoot,eGOEF_ToExtensions));
 
 	IActor *pClientActor=m_pGameFramework->GetClientActor();
 
-	if (pActor && pActor->GetActorClass() == CPlayer::GetActorClassType() && IsServer())
+	if(pActor && pActor->GetActorClass() == CPlayer::GetActorClassType() && IsServer())
 	{
-		if (pActor == pClientActor)
+		if(pActor == pClientActor)
 		{
-			if (IAIObject *pAIObject=pActor->GetEntity()->GetAI())
+			if(IAIObject *pAIObject=pActor->GetEntity()->GetAI())
 				gEnv->pAISystem->SendSignal(SIGNALFILTER_LEADER, 1, "OnEnableFire",	pAIObject, 0);
 		}
 	}
-	
-	if (pClientActor && m_fm && strcmp(m_fm->GetType(), "Thrown"))	
+
+	if(pClientActor && m_fm && strcmp(m_fm->GetType(), "Thrown"))
 	{
 		// inform the HUDRadar about the sound event
 		Vec3 vPlayerPos=pClientActor->GetEntity()->GetWorldPos();
 		float fDist2=(vPlayerPos-pos).len2();
-		if (fDist2<250.0f*250.0f)
-		{			
-			//if (pClientActor->GetEntityId() != shooterId) 
-				//	pHUD->ShowSoundOnRadar(pos);
-				
+
+		if(fDist2<250.0f*250.0f)
+		{
+			//if (pClientActor->GetEntityId() != shooterId)
+			//	pHUD->ShowSoundOnRadar(pos);
+
 			if(gEnv->bMultiplayer)
 			{
 				CGameRules *pGameRules = g_pGame->GetGameRules();
-				
+
 			}
 
-			if ((!IsSilencerAttached()) && fDist2<sqr(SAFE_GAMEAUDIO_BATTLESTATUS_FUNC_RET(GetBattleRange())))
+			if((!IsSilencerAttached()) && fDist2<sqr(SAFE_GAMEAUDIO_BATTLESTATUS_FUNC_RET(GetBattleRange())))
 				SAFE_GAMEAUDIO_BATTLESTATUS_FUNC(TickBattleStatus(1.0f));
 		}
 	}
@@ -101,41 +103,41 @@ void CWeapon::OnStopFire(EntityId shooterId)
 }
 
 //------------------------------------------------------------------------
-void CWeapon::OnStartReload(EntityId shooterId, IEntityClass* pAmmoType)
+void CWeapon::OnStartReload(EntityId shooterId, IEntityClass *pAmmoType)
 {
 	BROADCAST_WEAPON_EVENT(OnStartReload, (this, shooterId, pAmmoType));
 
-	if (CActor *pActor = GetOwnerActor())
+	if(CActor *pActor = GetOwnerActor())
 	{
-		if (IAIObject *pAIObject=pActor->GetEntity()->GetAI())
-			gEnv->pAISystem->SendSignal( SIGNALFILTER_SENDER, 1, "OnReload", pAIObject);
+		if(IAIObject *pAIObject=pActor->GetEntity()->GetAI())
+			gEnv->pAISystem->SendSignal(SIGNALFILTER_SENDER, 1, "OnReload", pAIObject);
 	}
 }
 
 //------------------------------------------------------------------------
-void CWeapon::OnEndReload(EntityId shooterId, IEntityClass* pAmmoType)
+void CWeapon::OnEndReload(EntityId shooterId, IEntityClass *pAmmoType)
 {
 	BROADCAST_WEAPON_EVENT(OnEndReload, (this, shooterId, pAmmoType));
 
-	if (CActor *pActor = GetOwnerActor())
+	if(CActor *pActor = GetOwnerActor())
 	{
-		if (IAIObject *pAIObject=pActor->GetEntity()->GetAI())
-			gEnv->pAISystem->SendSignal( SIGNALFILTER_SENDER, 1, "OnReloadDone", pAIObject);
+		if(IAIObject *pAIObject=pActor->GetEntity()->GetAI())
+			gEnv->pAISystem->SendSignal(SIGNALFILTER_SENDER, 1, "OnReloadDone", pAIObject);
 	}
 }
 
 //------------------------------------------------------------------------
-void CWeapon::OnOutOfAmmo(IEntityClass* pAmmoType)
+void CWeapon::OnOutOfAmmo(IEntityClass *pAmmoType)
 {
 	BROADCAST_WEAPON_EVENT(OnOutOfAmmo, (this, pAmmoType));
 
-/*	- no need to send signal here - puppet will check ammo when fires
-	if (CActor *pActor = GetOwnerActor())
-	{
-		if (IAIObject *pAIObject=Actor->GetEntity()->GetAI())
-			gEnv->pAISystem->SendSignal( SIGNALFILTER_SENDER, 1, "OnOutOfAmmo", pAIObject);
-	}
-*/
+	/*	- no need to send signal here - puppet will check ammo when fires
+		if (CActor *pActor = GetOwnerActor())
+		{
+			if (IAIObject *pAIObject=Actor->GetEntity()->GetAI())
+				gEnv->pAISystem->SendSignal( SIGNALFILTER_SENDER, 1, "OnOutOfAmmo", pAIObject);
+		}
+	*/
 }
 
 //------------------------------------------------------------------------
@@ -157,17 +159,18 @@ void CWeapon::OnPickedUp(EntityId actorId, bool destroyed)
 	if(GetISystem()->IsSerializingFile() == 1)
 		return;
 
-	if (!IsServer())
+	if(!IsServer())
 		return;
 
 	CActor *pActor=GetActor(actorId);
-	if (!pActor)
+
+	if(!pActor)
 		return;
 
 	// bonus ammo is always put in the actor's inv
-	if (!m_bonusammo.empty())
+	if(!m_bonusammo.empty())
 	{
-		for (TAmmoMap::iterator it=m_bonusammo.begin(); it!=m_bonusammo.end(); ++it)
+		for(TAmmoMap::iterator it=m_bonusammo.begin(); it!=m_bonusammo.end(); ++it)
 		{
 			int count=it->second;
 
@@ -177,21 +180,23 @@ void CWeapon::OnPickedUp(EntityId actorId, bool destroyed)
 		m_bonusammo.clear();
 	}
 
-	if (!m_ammoCapacity.empty())
+	if(!m_ammoCapacity.empty())
 	{
-		IInventory* pInventory = GetActorInventory(GetOwnerActor());
-		if (pInventory)
+		IInventory *pInventory = GetActorInventory(GetOwnerActor());
+
+		if(pInventory)
 		{
-			for (TAmmoMap::iterator it=m_ammoCapacity.begin(); it!=m_ammoCapacity.end(); ++it)
+			for(TAmmoMap::iterator it=m_ammoCapacity.begin(); it!=m_ammoCapacity.end(); ++it)
 				pInventory->SetAmmoCapacity(it->first, it->second);
 		}
+
 		m_ammoCapacity.clear();
 	}
 
 	// current ammo is only added to actor's inv, if we already have this weapon
-	if (destroyed && m_sharedparams->params.unique)
+	if(destroyed && m_sharedparams->params.unique)
 	{
-		for (TAmmoMap::iterator it=m_ammo.begin(); it!=m_ammo.end(); ++it)
+		for(TAmmoMap::iterator it=m_ammo.begin(); it!=m_ammo.end(); ++it)
 		{
 			//Only add ammo to inventory, if not accessory ammo (accessories give ammo already)
 			if(m_accessoryAmmo.find(it->first)==m_accessoryAmmo.end())
@@ -205,7 +210,7 @@ void CWeapon::OnPickedUp(EntityId actorId, bool destroyed)
 
 	if(!gEnv->bMultiplayer && !m_initialSetup.empty() && pActor->IsClient())
 	{
-		for (TAccessoryMap::iterator it=m_accessories.begin(); it!=m_accessories.end(); ++it)
+		for(TAccessoryMap::iterator it=m_accessories.begin(); it!=m_accessories.end(); ++it)
 			FixAccessories(GetAccessoryParams(it->first), true);
 	}
 
@@ -231,9 +236,9 @@ void CWeapon::OnMelee(EntityId shooterId)
 {
 	BROADCAST_WEAPON_EVENT(OnMelee, (this, shooterId));
 
-	if(CActor* pOwner = static_cast<CActor *>(g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(shooterId)))
+	if(CActor *pOwner = static_cast<CActor *>(g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(shooterId)))
 	{
-		if (pOwner->GetActorClass()==CPlayer::GetActorClassType())
+		if(pOwner->GetActorClass()==CPlayer::GetActorClassType())
 		{
 			CPlayer *pPlayer = static_cast<CPlayer *>(pOwner);
 			pPlayer->PlaySound(CPlayer::ESound_Melee);

@@ -23,20 +23,20 @@ class CVehicleActionEntityAttachment;
 
 //------------------------------------------------------------------------
 class CFlowVehicleEntityAttachment
-: public CFlowBaseNode<eNCT_Instanced>
+	: public CFlowBaseNode<eNCT_Instanced>
 {
 public:
 
-	CFlowVehicleEntityAttachment(SActivationInfo* pActivationInfo);
+	CFlowVehicleEntityAttachment(SActivationInfo *pActivationInfo);
 	~CFlowVehicleEntityAttachment() {}
 
 	// CFlowBaseNode
-	virtual IFlowNodePtr Clone(SActivationInfo* pActivationInfo);
-	virtual void GetConfiguration(SFlowNodeConfig& nodeConfig);
-	virtual void ProcessEvent(EFlowEvent flowEvent, SActivationInfo* pActivationInfo);
-	virtual void Serialize(SActivationInfo* pActivationInfo, TSerialize ser);
+	virtual IFlowNodePtr Clone(SActivationInfo *pActivationInfo);
+	virtual void GetConfiguration(SFlowNodeConfig &nodeConfig);
+	virtual void ProcessEvent(EFlowEvent flowEvent, SActivationInfo *pActivationInfo);
+	virtual void Serialize(SActivationInfo *pActivationInfo, TSerialize ser);
 
-	virtual void GetMemoryUsage(ICrySizer * s) const
+	virtual void GetMemoryUsage(ICrySizer *s) const
 	{
 		s->Add(*this);
 	}
@@ -44,8 +44,8 @@ public:
 
 protected:
 
-	IVehicle* GetVehicle();
-	CVehicleActionEntityAttachment* GetVehicleAction();
+	IVehicle *GetVehicle();
+	CVehicleActionEntityAttachment *GetVehicleAction();
 
 	IFlowGraph *m_pGraph;
 	TFlowNodeId m_nodeID;
@@ -65,17 +65,17 @@ protected:
 };
 
 //------------------------------------------------------------------------
-CFlowVehicleEntityAttachment::CFlowVehicleEntityAttachment(SActivationInfo* pActivationInfo)
+CFlowVehicleEntityAttachment::CFlowVehicleEntityAttachment(SActivationInfo *pActivationInfo)
 {
 	m_nodeID = pActivationInfo->myID;
 	m_pGraph = pActivationInfo->pGraph;
 
-	if (IEntity* pEntity = pActivationInfo->pEntity)
+	if(IEntity *pEntity = pActivationInfo->pEntity)
 	{
-		IVehicleSystem* pVehicleSystem = gEnv->pGame->GetIGameFramework()->GetIVehicleSystem();
+		IVehicleSystem *pVehicleSystem = gEnv->pGame->GetIGameFramework()->GetIVehicleSystem();
 		assert(pVehicleSystem);
 
-		if (pVehicleSystem->GetVehicle(pEntity->GetId()))
+		if(pVehicleSystem->GetVehicle(pEntity->GetId()))
 			m_vehicleId = pEntity->GetId();
 	}
 	else
@@ -83,26 +83,26 @@ CFlowVehicleEntityAttachment::CFlowVehicleEntityAttachment(SActivationInfo* pAct
 }
 
 //------------------------------------------------------------------------
-IFlowNodePtr CFlowVehicleEntityAttachment::Clone(SActivationInfo* pActivationInfo)
+IFlowNodePtr CFlowVehicleEntityAttachment::Clone(SActivationInfo *pActivationInfo)
 {
 	return new CFlowVehicleEntityAttachment(pActivationInfo);
 }
 
-void CFlowVehicleEntityAttachment::Serialize(SActivationInfo* pActivationInfo, TSerialize ser)
+void CFlowVehicleEntityAttachment::Serialize(SActivationInfo *pActivationInfo, TSerialize ser)
 {
 	// MATHIEU: FIXME!
 }
 
 //------------------------------------------------------------------------
-void CFlowVehicleEntityAttachment::GetConfiguration(SFlowNodeConfig& nodeConfig)
+void CFlowVehicleEntityAttachment::GetConfiguration(SFlowNodeConfig &nodeConfig)
 {
-	static const SInputPortConfig pInConfig[] = 
+	static const SInputPortConfig pInConfig[] =
 	{
 		InputPortConfig_Void("DropAttachmentTrigger", _HELP("Trigger to drop the attachment")),
 		{0}
 	};
 
-	static const SOutputPortConfig pOutConfig[] = 
+	static const SOutputPortConfig pOutConfig[] =
 	{
 		OutputPortConfig<int>("EntityId", _HELP("Entity Id of the attachment")),
 		OutputPortConfig<bool>("IsAttached", _HELP("If the attachment is still attached")),
@@ -117,19 +117,19 @@ void CFlowVehicleEntityAttachment::GetConfiguration(SFlowNodeConfig& nodeConfig)
 }
 
 //------------------------------------------------------------------------
-void CFlowVehicleEntityAttachment::ProcessEvent(EFlowEvent flowEvent, SActivationInfo* pActivationInfo)
+void CFlowVehicleEntityAttachment::ProcessEvent(EFlowEvent flowEvent, SActivationInfo *pActivationInfo)
 {
-	if (flowEvent == eFE_SetEntityId)
+	if(flowEvent == eFE_SetEntityId)
 	{
-		if (IEntity* pEntity = pActivationInfo->pEntity)
+		if(IEntity *pEntity = pActivationInfo->pEntity)
 		{
-			IVehicleSystem* pVehicleSystem = gEnv->pGame->GetIGameFramework()->GetIVehicleSystem();
+			IVehicleSystem *pVehicleSystem = gEnv->pGame->GetIGameFramework()->GetIVehicleSystem();
 			assert(pVehicleSystem);
 
-			if (pEntity->GetId() != m_vehicleId)
+			if(pEntity->GetId() != m_vehicleId)
 				m_vehicleId = 0;
 
-			if (IVehicle* pVehicle = pVehicleSystem->GetVehicle(pEntity->GetId()))
+			if(IVehicle *pVehicle = pVehicleSystem->GetVehicle(pEntity->GetId()))
 				m_vehicleId = pEntity->GetId();
 		}
 		else
@@ -137,11 +137,11 @@ void CFlowVehicleEntityAttachment::ProcessEvent(EFlowEvent flowEvent, SActivatio
 			m_vehicleId = 0;
 		}
 	}
-	else if (flowEvent == eFE_Activate)
+	else if(flowEvent == eFE_Activate)
 	{
-		if (CVehicleActionEntityAttachment* pAction = GetVehicleAction())
+		if(CVehicleActionEntityAttachment *pAction = GetVehicleAction())
 		{
-			if (IsPortActive(pActivationInfo, IN_DROPATTACHMENTTRIGGER))
+			if(IsPortActive(pActivationInfo, IN_DROPATTACHMENTTRIGGER))
 			{
 				pAction->DetachEntity();
 
@@ -156,35 +156,35 @@ void CFlowVehicleEntityAttachment::ProcessEvent(EFlowEvent flowEvent, SActivatio
 }
 
 //------------------------------------------------------------------------
-IVehicle* CFlowVehicleEntityAttachment::GetVehicle()
+IVehicle *CFlowVehicleEntityAttachment::GetVehicle()
 {
-	if (!m_vehicleId)
+	if(!m_vehicleId)
 		return NULL;
 
-	IVehicleSystem* pVehicleSystem = gEnv->pGame->GetIGameFramework()->GetIVehicleSystem();
+	IVehicleSystem *pVehicleSystem = gEnv->pGame->GetIGameFramework()->GetIVehicleSystem();
 	assert(pVehicleSystem);
 
 	return pVehicleSystem->GetVehicle(m_vehicleId);
 }
 
 //------------------------------------------------------------------------
-CVehicleActionEntityAttachment* CFlowVehicleEntityAttachment::GetVehicleAction()
+CVehicleActionEntityAttachment *CFlowVehicleEntityAttachment::GetVehicleAction()
 {
-	if (!m_vehicleId)
+	if(!m_vehicleId)
 		return NULL;
 
-	IVehicleSystem* pVehicleSystem = gEnv->pGame->GetIGameFramework()->GetIVehicleSystem();
+	IVehicleSystem *pVehicleSystem = gEnv->pGame->GetIGameFramework()->GetIVehicleSystem();
 	assert(pVehicleSystem);
 
-	if (IVehicle* pVehicle = pVehicleSystem->GetVehicle(m_vehicleId))
+	if(IVehicle *pVehicle = pVehicleSystem->GetVehicle(m_vehicleId))
 	{
-		for (int i = 1; i < pVehicle->GetActionCount(); i++)
+		for(int i = 1; i < pVehicle->GetActionCount(); i++)
 		{
-			IVehicleAction* pAction = pVehicle->GetAction(i);
+			IVehicleAction *pAction = pVehicle->GetAction(i);
 			assert(pAction);
 
-			if (CVehicleActionEntityAttachment* pAttachment = 
-				CAST_VEHICLEOBJECT(CVehicleActionEntityAttachment, pAction))
+			if(CVehicleActionEntityAttachment *pAttachment =
+						CAST_VEHICLEOBJECT(CVehicleActionEntityAttachment, pAction))
 			{
 				return pAttachment;
 			}
@@ -200,17 +200,17 @@ class CFlowVehicleSetAltitudeLimit
 {
 public:
 
-	CFlowVehicleSetAltitudeLimit(SActivationInfo* pActivationInfo) {};
+	CFlowVehicleSetAltitudeLimit(SActivationInfo *pActivationInfo) {};
 	~CFlowVehicleSetAltitudeLimit() {}
 
-	virtual void GetMemoryUsage(ICrySizer * s) const
+	virtual void GetMemoryUsage(ICrySizer *s) const
 	{
 		s->Add(*this);
 	}
 
-	virtual IFlowNodePtr Clone( SActivationInfo *pActInfo )
+	virtual IFlowNodePtr Clone(SActivationInfo *pActInfo)
 	{
-			return new CFlowVehicleSetAltitudeLimit(pActInfo);
+		return new CFlowVehicleSetAltitudeLimit(pActInfo);
 	}
 
 	enum Inputs
@@ -219,11 +219,11 @@ public:
 		EIP_Limit
 	};
 
-	virtual void GetConfiguration(SFlowNodeConfig& nodeConfig)
+	virtual void GetConfiguration(SFlowNodeConfig &nodeConfig)
 	{
-		static const SInputPortConfig pInConfig[] = 
+		static const SInputPortConfig pInConfig[] =
 		{
-			InputPortConfig_Void  ("SetLimit", _HELP("Trigger to set limit")),
+			InputPortConfig_Void("SetLimit", _HELP("Trigger to set limit")),
 			InputPortConfig<float>("Limit", _HELP("Altitude limit in meters")),
 			{0}
 		};
@@ -234,9 +234,9 @@ public:
 		nodeConfig.SetCategory(EFLN_ADVANCED);
 	}
 
-	virtual void ProcessEvent(EFlowEvent flowEvent, SActivationInfo* pActivationInfo)
+	virtual void ProcessEvent(EFlowEvent flowEvent, SActivationInfo *pActivationInfo)
 	{
-		if (flowEvent == eFE_Activate && IsPortActive(pActivationInfo, EIP_SetLimit))
+		if(flowEvent == eFE_Activate && IsPortActive(pActivationInfo, EIP_SetLimit))
 		{
 			const float fVal = GetPortFloat(pActivationInfo, EIP_Limit);
 			CryFixedStringT<128> buf;

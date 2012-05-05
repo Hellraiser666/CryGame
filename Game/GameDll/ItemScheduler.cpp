@@ -19,10 +19,10 @@ History:
 
 //------------------------------------------------------------------------
 CItemScheduler::CItemScheduler(CItem *item)
-: m_busy(false),
-	m_pTimer(0),
-	m_pItem(item),
-	m_locked(false)
+	: m_busy(false),
+	  m_pTimer(0),
+	  m_pItem(item),
+	  m_locked(false)
 {
 	m_pTimer = gEnv->pTimer;
 }
@@ -36,9 +36,9 @@ CItemScheduler::~CItemScheduler()
 //------------------------------------------------------------------------
 void CItemScheduler::Reset(bool keepPersistent)
 {
-	for (TTimerActionVector::iterator it = m_timers.begin(); it != m_timers.end();)
+	for(TTimerActionVector::iterator it = m_timers.begin(); it != m_timers.end();)
 	{
-		if (!it->persist || !keepPersistent)
+		if(!it->persist || !keepPersistent)
 		{
 			it->action->destroy();
 			it = m_timers.erase(it);
@@ -47,9 +47,9 @@ void CItemScheduler::Reset(bool keepPersistent)
 			it++;
 	}
 
-	for (TScheduledActionVector::iterator it = m_schedule.begin(); it != m_schedule.end();)
+	for(TScheduledActionVector::iterator it = m_schedule.begin(); it != m_schedule.end();)
 	{
-		if (!it->persist || !keepPersistent)
+		if(!it->persist || !keepPersistent)
 		{
 			it->action->destroy();
 			it = m_schedule.erase(it);
@@ -58,19 +58,19 @@ void CItemScheduler::Reset(bool keepPersistent)
 			it++;
 	}
 
-	if (m_timers.empty() && m_schedule.empty())
+	if(m_timers.empty() && m_schedule.empty())
 		m_pItem->EnableUpdate(false, eIUS_Scheduler);
 
-  SetBusy(false);
+	SetBusy(false);
 }
 
 //------------------------------------------------------------------------
 void CItemScheduler::Update(float frameTime)
 {
-	if (frameTime > 0.2f)
+	if(frameTime > 0.2f)
 		frameTime = 0.2f;
 
-	if (!m_schedule.empty())
+	if(!m_schedule.empty())
 	{
 		while(!m_schedule.empty() && !m_busy)
 		{
@@ -83,16 +83,17 @@ void CItemScheduler::Update(float frameTime)
 		}
 	}
 
-	if (!m_timers.empty())
+	if(!m_timers.empty())
 	{
 		uint32 count=0;
 		m_actives.swap(m_timers);
 
-		for (TTimerActionVector::iterator it = m_actives.begin(); it != m_actives.end(); it++)
+		for(TTimerActionVector::iterator it = m_actives.begin(); it != m_actives.end(); it++)
 		{
 			STimerAction &action = *it;
 			action.time -= frameTime;
-			if (action.time <= 0.0f)
+
+			if(action.time <= 0.0f)
 			{
 				action.action->execute(m_pItem);
 				action.action->destroy();
@@ -100,12 +101,12 @@ void CItemScheduler::Update(float frameTime)
 			}
 		}
 
-		if (count)
+		if(count)
 			m_actives.erase(m_actives.begin(), m_actives.begin()+count);
 
-		if (!m_timers.empty())
+		if(!m_timers.empty())
 		{
-			for (TTimerActionVector::iterator it=m_timers.begin(); it!=m_timers.end(); ++it)
+			for(TTimerActionVector::iterator it=m_timers.begin(); it!=m_timers.end(); ++it)
 				m_actives.push_back(*it);
 
 			std::sort(m_actives.begin(), m_actives.end(), compare_timers());
@@ -115,17 +116,17 @@ void CItemScheduler::Update(float frameTime)
 		m_actives.resize(0);
 	}
 
-	if (m_timers.empty() && m_schedule.empty())
+	if(m_timers.empty() && m_schedule.empty())
 		m_pItem->EnableUpdate(false, eIUS_Scheduler);
 }
 
 //------------------------------------------------------------------------
 void CItemScheduler::ScheduleAction(ISchedulerAction *action, bool persistent)
 {
-	if (m_locked)
+	if(m_locked)
 		return;
 
-	if (!m_busy)
+	if(!m_busy)
 	{
 		action->execute(m_pItem);
 		return;
@@ -143,7 +144,7 @@ void CItemScheduler::ScheduleAction(ISchedulerAction *action, bool persistent)
 //------------------------------------------------------------------------
 void CItemScheduler::TimerAction(uint32 time, ISchedulerAction *action, bool persistent)
 {
-	if (m_locked)
+	if(m_locked)
 		return;
 
 	STimerAction timerAction;
@@ -160,7 +161,7 @@ void CItemScheduler::TimerAction(uint32 time, ISchedulerAction *action, bool per
 //------------------------------------------------------------------------
 void CItemScheduler::SetBusy(bool busy)
 {
-	if (m_locked)
+	if(m_locked)
 		return;
 
 	m_busy = busy;
@@ -178,15 +179,18 @@ bool CItemScheduler::IsLocked()
 	return m_locked;
 }
 
-void CItemScheduler::GetMemoryUsage(ICrySizer * s) const
+void CItemScheduler::GetMemoryUsage(ICrySizer *s) const
 {
 	s->AddContainer(m_timers);
 	s->AddContainer(m_actives);
 	s->AddContainer(m_schedule);
-	for (size_t i=0; i<m_timers.size(); i++)
+
+	for(size_t i=0; i<m_timers.size(); i++)
 		m_timers[i].action->GetMemoryUsage(s);
-	for (size_t i=0; i<m_actives.size(); i++)
+
+	for(size_t i=0; i<m_actives.size(); i++)
 		m_actives[i].action->GetMemoryUsage(s);
-	for (size_t i=0; i<m_schedule.size(); i++)
+
+	for(size_t i=0; i<m_schedule.size(); i++)
 		m_schedule[i].action->GetMemoryUsage(s);
 }

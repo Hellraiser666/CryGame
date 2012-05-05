@@ -2,7 +2,7 @@
 #include "SharkMovementController.h"
 #include "Shark.h"
 
-CSharkMovementController::CSharkMovementController( CShark * pShark ) : m_pShark(pShark), m_atTarget(false)
+CSharkMovementController::CSharkMovementController(CShark *pShark) : m_pShark(pShark), m_atTarget(false)
 {
 }
 
@@ -10,9 +10,9 @@ void CSharkMovementController::Reset()
 {
 }
 
-bool CSharkMovementController::Update( float frameTime, SActorFrameMovementParams& params )
+bool CSharkMovementController::Update(float frameTime, SActorFrameMovementParams &params)
 {
-	UpdateCurMovementState( params );
+	UpdateCurMovementState(params);
 	return false;
 }
 
@@ -21,7 +21,7 @@ void CSharkMovementController::Release()
 	delete this;
 }
 
-bool CSharkMovementController::RequestMovement( CMovementRequest& request )
+bool CSharkMovementController::RequestMovement(CMovementRequest &request)
 {
 	SMovementState state;
 	GetMovementState(state);
@@ -29,13 +29,13 @@ bool CSharkMovementController::RequestMovement( CMovementRequest& request )
 	Vec3 currentPos = m_pShark->GetEntity()->GetWorldPos();
 	Vec3 currentForw = m_pShark->GetEntity()->GetWorldRotation() * FORWARD_DIRECTION;
 
-	CShark::SMovementRequestParams os (request);
+	CShark::SMovementRequestParams os(request);
 
-	if (request.HasMoveTarget())
+	if(request.HasMoveTarget())
 		os.vMoveDir = (request.GetMoveTarget() - currentPos).GetNormalizedSafe(FORWARD_DIRECTION);
 
 
-	if (request.HasForcedNavigation())
+	if(request.HasForcedNavigation())
 	{
 		os.vMoveDir = request.GetForcedNavigation();
 		os.fDesiredSpeed = os.vMoveDir.GetLength();
@@ -46,24 +46,24 @@ bool CSharkMovementController::RequestMovement( CMovementRequest& request )
 
 	m_pShark->SetActorMovement(os);
 
-	if (request.HasFireTarget())
-		m_currentMovementRequest.SetFireTarget( request.GetFireTarget() );
-	else if (request.RemoveFireTarget())
+	if(request.HasFireTarget())
+		m_currentMovementRequest.SetFireTarget(request.GetFireTarget());
+	else if(request.RemoveFireTarget())
 		m_currentMovementRequest.ClearFireTarget();
 
-	if (request.HasAimTarget())
-		m_currentMovementRequest.SetAimTarget( request.GetAimTarget() );
-	else if (request.RemoveAimTarget())
+	if(request.HasAimTarget())
+		m_currentMovementRequest.SetAimTarget(request.GetAimTarget());
+	else if(request.RemoveAimTarget())
 		m_currentMovementRequest.ClearAimTarget();
 
 	return true;
 }
 
-void CSharkMovementController::UpdateCurMovementState(const SActorFrameMovementParams& params)
+void CSharkMovementController::UpdateCurMovementState(const SActorFrameMovementParams &params)
 {
-	SMovementState& state(m_currentMovementState);
+	SMovementState &state(m_currentMovementState);
 	CShark::SBodyInfo bodyInfo;
-	m_pShark->GetActorInfo( bodyInfo );
+	m_pShark->GetActorInfo(bodyInfo);
 	//state.maxSpeed = bodyInfo.maxSpeed;
 	//state.minSpeed = bodyInfo.minSpeed;
 	//state.normalSpeed = bodyInfo.normalSpeed;
@@ -96,9 +96,10 @@ void CSharkMovementController::UpdateCurMovementState(const SActorFrameMovementP
 
 }
 
-bool CSharkMovementController::GetStanceState( const SStanceStateQuery& query, SStanceState& state)
+bool CSharkMovementController::GetStanceState(const SStanceStateQuery &query, SStanceState &state)
 {
-	const SStanceInfo*	pStance = m_pShark->GetStanceInfo(query.stance);
+	const SStanceInfo	*pStance = m_pShark->GetStanceInfo(query.stance);
+
 	if(!pStance)
 		return false;
 
@@ -121,7 +122,7 @@ bool CSharkMovementController::GetStanceState( const SStanceStateQuery& query, S
 	{
 		// TODO: the directions are like not to match. Is the AI even using them?
 		CShark::SBodyInfo bodyInfo;
-		m_pShark->GetActorInfo( bodyInfo );
+		m_pShark->GetActorInfo(bodyInfo);
 
 		Matrix34	tm = m_pShark->GetEntity()->GetWorldTM();
 

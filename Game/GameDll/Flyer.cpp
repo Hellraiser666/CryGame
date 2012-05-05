@@ -4,10 +4,10 @@
 #include "GameUtils.h"
 
 
-CFlyer::CFlyer() : 
+CFlyer::CFlyer() :
 	m_vDesiredVelocity(ZERO),
 	m_qDesiredRotation(IDENTITY)
-{	
+{
 	memset(&m_moveRequest.prediction, 0, sizeof(m_moveRequest.prediction));
 }
 
@@ -25,17 +25,18 @@ void CFlyer::FullSerialize(TSerialize ser)
 
 void CFlyer::PrePhysicsUpdate()
 {
-	if (m_stats.isRagDoll)
+	if(m_stats.isRagDoll)
 		return;
 
-	if (GetHealth() <= 0.f)
+	if(GetHealth() <= 0.f)
 		return;
 
-	IEntity* pEntity = GetEntity();
-	if (pEntity->IsHidden())
+	IEntity *pEntity = GetEntity();
+
+	if(pEntity->IsHidden())
 		return;
 
-	if (IPhysicalEntity* pPhysicalEntity = pEntity->GetPhysics())
+	if(IPhysicalEntity *pPhysicalEntity = pEntity->GetPhysics())
 	{
 		pe_player_dynamics player_dynamics;
 		player_dynamics.gravity.zero();
@@ -44,17 +45,17 @@ void CFlyer::PrePhysicsUpdate()
 
 	float frameTime = gEnv->pTimer->GetFrameTime();
 
-	if (m_pMovementController)
+	if(m_pMovementController)
 	{
 		SActorFrameMovementParams params;
 		m_pMovementController->Update(frameTime, params);
 	}
 
-	if (m_linkStats.CanMove() && m_linkStats.CanRotate())
+	if(m_linkStats.CanMove() && m_linkStats.CanRotate())
 	{
 		ProcessMovement(frameTime);
 
-		if (m_pAnimatedCharacter)
+		if(m_pAnimatedCharacter)
 		{
 			m_pAnimatedCharacter->AddMovement(m_moveRequest);
 		}
@@ -71,9 +72,9 @@ void CFlyer::Revive(bool bFromInit)
 }
 
 
-void CFlyer::GetActorInfo(SBodyInfo& bodyInfo)
+void CFlyer::GetActorInfo(SBodyInfo &bodyInfo)
 {
-	IEntity* pEntity = GetEntity();
+	IEntity *pEntity = GetEntity();
 
 	bodyInfo.vEyePos = pEntity->GetSlotWorldTM(0) * m_eyeOffset;
 	bodyInfo.velocity = m_velocity;
@@ -82,31 +83,31 @@ void CFlyer::GetActorInfo(SBodyInfo& bodyInfo)
 }
 
 
-void CFlyer::SetActorMovement(SMovementRequestParams& movementRequestParams)
+void CFlyer::SetActorMovement(SMovementRequestParams &movementRequestParams)
 {
 	SMovementState state;
 	GetMovementController()->GetMovementState(state);
 
-	if (movementRequestParams.vMoveDir.IsZero())
+	if(movementRequestParams.vMoveDir.IsZero())
 	{
 		Vec3 vDesiredDirection = movementRequestParams.vLookTargetPos.IsZero()
-			? GetEntity()->GetWorldRotation() * FORWARD_DIRECTION
-			: (movementRequestParams.vLookTargetPos - state.eyePosition).GetNormalizedSafe();
+								 ? GetEntity()->GetWorldRotation() * FORWARD_DIRECTION
+								 : (movementRequestParams.vLookTargetPos - state.eyePosition).GetNormalizedSafe();
 		SetDesiredDirection(vDesiredDirection);
 		SetDesiredVelocity(Vec3Constants<float>::fVec3_Zero);
 	}
 	else
 	{
 		Vec3 vDesiredDirection = movementRequestParams.vLookTargetPos.IsZero()
-			? movementRequestParams.vMoveDir.GetNormalizedSafe()
-			: (movementRequestParams.vLookTargetPos - state.eyePosition).GetNormalizedSafe();
+								 ? movementRequestParams.vMoveDir.GetNormalizedSafe()
+								 : (movementRequestParams.vLookTargetPos - state.eyePosition).GetNormalizedSafe();
 		SetDesiredDirection(vDesiredDirection);
 		SetDesiredVelocity(movementRequestParams.vMoveDir * movementRequestParams.fDesiredSpeed);
 	}
 }
 
 
-IActorMovementController* CFlyer::CreateMovementController()
+IActorMovementController *CFlyer::CreateMovementController()
 {
 	return new CFlyerMovementController(this);
 }
@@ -132,13 +133,13 @@ void CFlyer::ProcessMovement(float frameTime)
 	Quat desiredVelocityQuat = m_qDesiredRotation;
 
 	// pitch/roll
-	if (desiredSpeed > 0.f && m_stats.speed > 0.f)
+	if(desiredSpeed > 0.f && m_stats.speed > 0.f)
 	{
-		const Vec3& vUp = Vec3Constants<float>::fVec3_OneZ;
+		const Vec3 &vUp = Vec3Constants<float>::fVec3_OneZ;
 		Vec3 vForward = m_velocity.GetNormalized();
 
 		// If the direction is not too vertical
-		if (fabs(vForward.dot(vUp)) < cosf(DEG2RAD(3.f)))
+		if(fabs(vForward.dot(vUp)) < cosf(DEG2RAD(3.f)))
 		{
 			vForward.z = 0;
 			vForward.NormalizeSafe();
@@ -150,17 +151,17 @@ void CFlyer::ProcessMovement(float frameTime)
 			// Roll in an aircraft-like manner
 			float cofRoll = 6.f * vRight.dot(vDesiredVelocityNormalized) * (m_stats.speed / maxDeltaSpeed);
 			clamp(cofRoll, -1.f, 1.f);
-			desiredVelocityQuat *= Quat::CreateRotationY(DEG2RAD(60.f) * cofRoll); 
+			desiredVelocityQuat *= Quat::CreateRotationY(DEG2RAD(60.f) * cofRoll);
 
 			float cofPitch = vDesiredVelocityNormalized.dot(vForward) * (deltaSpeed / maxDeltaSpeed);
 			clamp(cofPitch, -1.f, 1.f);
-			desiredVelocityQuat *= Quat::CreateRotationX(DEG2RAD(-60.f) * cofPitch); 
+			desiredVelocityQuat *= Quat::CreateRotationX(DEG2RAD(-60.f) * cofPitch);
 		}
 	}
 
 	float cofRot = 2.5f * ((deltaSpeed > 0.f) ? min(frameTime, 1.f / square(deltaSpeed)) : frameTime);
 	clamp(cofRot, 0.f, 1.f);
-	const Quat& qRotation = GetEntity()->GetRotation();
+	const Quat &qRotation = GetEntity()->GetRotation();
 	Quat newRot = Quat::CreateSlerp(qRotation, desiredVelocityQuat, cofRot);
 	m_moveRequest.rotation = qRotation.GetInverted() * newRot;
 	m_moveRequest.rotation.Normalize();
@@ -171,13 +172,13 @@ void CFlyer::ProcessMovement(float frameTime)
 }
 
 
-void CFlyer::SetDesiredVelocity(const Vec3& vDesiredVelocity)
+void CFlyer::SetDesiredVelocity(const Vec3 &vDesiredVelocity)
 {
 	m_vDesiredVelocity = vDesiredVelocity;
 }
 
 
-void CFlyer::SetDesiredDirection(const Vec3& vDesiredDirection)
+void CFlyer::SetDesiredDirection(const Vec3 &vDesiredDirection)
 {
 	m_qDesiredRotation.SetRotationVDir(vDesiredDirection.GetNormalizedSafe());
 }

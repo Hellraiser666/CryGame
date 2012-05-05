@@ -4,7 +4,7 @@ Copyright (C), Crytek Studios, 2001-2007.
 -------------------------------------------------------------------------
 $Id$
 $DateTime$
-Description: Implements amphibious movement type 
+Description: Implements amphibious movement type
 
 -------------------------------------------------------------------------
 History:
@@ -25,8 +25,8 @@ History:
 //------------------------------------------------------------------------
 template <class Wheeled>
 CVehicleMovementAmphibiousT<Wheeled>::CVehicleMovementAmphibiousT()
-{  
-	m_boat.m_bNetSync = false; 
+{
+	m_boat.m_bNetSync = false;
 }
 
 //------------------------------------------------------------------------
@@ -42,46 +42,52 @@ bool CVehicleMovementAmphibiousT<Wheeled>::Submerged()
 }
 //------------------------------------------------------------------------
 template <class Wheeled>
-bool CVehicleMovementAmphibiousT<Wheeled>::InitWheeled(IVehicle* pVehicle, const CVehicleParams& table)
+bool CVehicleMovementAmphibiousT<Wheeled>::InitWheeled(IVehicle *pVehicle, const CVehicleParams &table)
 {
 	assert(0);
 	return false;
 }
 
 template <>	// Specialisation: CVehicleMovementStdWheeled
-bool CVehicleMovementAmphibiousT<CVehicleMovementStdWheeled>::InitWheeled(IVehicle* pVehicle, const CVehicleParams& table)
+bool CVehicleMovementAmphibiousT<CVehicleMovementStdWheeled>::InitWheeled(IVehicle *pVehicle, const CVehicleParams &table)
 {
 	CVehicleParams wheeledTable = table.findChild("StdWheeled");
-	if (wheeledTable)
+
+	if(wheeledTable)
 	{
 		return CVehicleMovementStdWheeled::Init(pVehicle, wheeledTable);
 	}
+
 	return false;
 }
 
 template <> // Specialisation: CVehicleMovementArcadeWheeled
-bool CVehicleMovementAmphibiousT<CVehicleMovementArcadeWheeled>::InitWheeled(IVehicle* pVehicle, const CVehicleParams& table)
+bool CVehicleMovementAmphibiousT<CVehicleMovementArcadeWheeled>::InitWheeled(IVehicle *pVehicle, const CVehicleParams &table)
 {
 	CVehicleParams wheeledTable = table.findChild("ArcadeWheeled");
-	if (wheeledTable)
+
+	if(wheeledTable)
 	{
 		return CVehicleMovementArcadeWheeled::Init(pVehicle, wheeledTable);
 	}
+
 	return false;
 }
 
 //------------------------------------------------------------------------
 template <class Wheeled>
-bool CVehicleMovementAmphibiousT<Wheeled>::Init(IVehicle* pVehicle, const CVehicleParams& table)
+bool CVehicleMovementAmphibiousT<Wheeled>::Init(IVehicle *pVehicle, const CVehicleParams &table)
 {
-	if (InitWheeled(pVehicle, table))
+	if(InitWheeled(pVehicle, table))
 	{
 		CVehicleParams stdBoatTable = table.findChild("StdBoat");
-		if (stdBoatTable )
+
+		if(stdBoatTable)
 		{
 			return m_boat.Init(pVehicle, stdBoatTable);
 		}
 	}
+
 	return false;
 }
 
@@ -122,7 +128,7 @@ typename Wheeled::EVehicleMovementType CVehicleMovementAmphibiousT<Wheeled>::Get
 template <class Wheeled>
 bool CVehicleMovementAmphibiousT<Wheeled>::StartEngine(EntityId driverId)
 {
-	if (!Wheeled::StartEngine(driverId))
+	if(!Wheeled::StartEngine(driverId))
 		return false;
 
 	m_boat.StartEngine(driverId);
@@ -150,20 +156,20 @@ void CVehicleMovementAmphibiousT<Wheeled>::DisableEngine(bool disable)
 template <class Wheeled>
 void CVehicleMovementAmphibiousT<Wheeled>::OnAction(const TVehicleActionId actionId, int activationMode, float value)
 {
-	Wheeled::OnAction(actionId, activationMode, value);  
+	Wheeled::OnAction(actionId, activationMode, value);
 }
 
 //------------------------------------------------------------------------
 template <class Wheeled>
-void CVehicleMovementAmphibiousT<Wheeled>::OnEvent(EVehicleMovementEvent event, const SVehicleMovementEventParams& params)
+void CVehicleMovementAmphibiousT<Wheeled>::OnEvent(EVehicleMovementEvent event, const SVehicleMovementEventParams &params)
 {
 	Wheeled::OnEvent(event, params);
-	m_boat.OnEvent(event, params);  
+	m_boat.OnEvent(event, params);
 }
 
 //------------------------------------------------------------------------
 template <class Wheeled>
-void CVehicleMovementAmphibiousT<Wheeled>::OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams& params)
+void CVehicleMovementAmphibiousT<Wheeled>::OnVehicleEvent(EVehicleEvent event, const SVehicleEventParams &params)
 {
 	Wheeled::OnVehicleEvent(event, params);
 	m_boat.OnVehicleEvent(event, params);
@@ -174,21 +180,21 @@ template <class Wheeled>
 void CVehicleMovementAmphibiousT<Wheeled>::Update(const float deltaTime)
 {
 	Wheeled::Update(deltaTime);
-	m_boat.Update(deltaTime);  
+	m_boat.Update(deltaTime);
 }
 
 //------------------------------------------------------------------------
 template <class Wheeled>
 void CVehicleMovementAmphibiousT<Wheeled>::UpdateRunSound(const float deltaTime)
 {
-	Wheeled::UpdateRunSound(deltaTime);  
+	Wheeled::UpdateRunSound(deltaTime);
 
-	if (Wheeled::m_pVehicle->IsProbablyDistant())
+	if(Wheeled::m_pVehicle->IsProbablyDistant())
 		return;
 
 	SetSoundParam(eSID_Run, "swim", this->m_statusDyn.submergedFraction);
 
-	if (this->Boosting())
+	if(this->Boosting())
 		SetSoundParam(eSID_Boost, "swim", this->m_statusDyn.submergedFraction);
 }
 
@@ -197,24 +203,24 @@ void CVehicleMovementAmphibiousT<Wheeled>::UpdateRunSound(const float deltaTime)
 // NOTE: This function must be thread-safe. Before adding stuff contact MarcoC.
 template <class Wheeled>
 void CVehicleMovementAmphibiousT<Wheeled>::ProcessMovement(const float deltaTime)
-{  
-	Wheeled::ProcessMovement(deltaTime);    
+{
+	Wheeled::ProcessMovement(deltaTime);
 
-	if (Submerged())
+	if(Submerged())
 	{
 		// assign movement action to boat (serialized by wheeled movement)
-		m_boat.m_movementAction = this->m_movementAction;      
+		m_boat.m_movementAction = this->m_movementAction;
 		m_boat.ProcessMovement(deltaTime);
-	}  
+	}
 }
 
 //------------------------------------------------------------------------
 template <class Wheeled>
-void CVehicleMovementAmphibiousT<Wheeled>::Serialize(TSerialize ser, EEntityAspects aspects) 
+void CVehicleMovementAmphibiousT<Wheeled>::Serialize(TSerialize ser, EEntityAspects aspects)
 {
-	Wheeled::Serialize(ser, aspects);  
+	Wheeled::Serialize(ser, aspects);
 
-	if (ser.GetSerializationTarget() != eST_Network)
+	if(ser.GetSerializationTarget() != eST_Network)
 	{
 		m_boat.Serialize(ser, aspects);
 	}
@@ -230,8 +236,8 @@ void CVehicleMovementAmphibiousT<Wheeled>::PostSerialize()
 
 //------------------------------------------------------------------------
 template <class Wheeled>
-void CVehicleMovementAmphibiousT<Wheeled>::ProcessEvent(SEntityEvent& event)
-{  
+void CVehicleMovementAmphibiousT<Wheeled>::ProcessEvent(SEntityEvent &event)
+{
 	Wheeled::ProcessEvent(event);
 	m_boat.ProcessEvent(event);
 }
@@ -241,13 +247,13 @@ void CVehicleMovementAmphibiousT<Wheeled>::ProcessEvent(SEntityEvent& event)
 template <class Wheeled>
 void CVehicleMovementAmphibiousT<Wheeled>::Boost(bool enable)
 {
-	Wheeled::Boost(enable);  
+	Wheeled::Boost(enable);
 	m_boat.Boost(enable);
 }
 
 
 template <class Wheeled>
-void CVehicleMovementAmphibiousT<Wheeled>::GetMemoryStatistics(ICrySizer * s)
+void CVehicleMovementAmphibiousT<Wheeled>::GetMemoryStatistics(ICrySizer *s)
 {
 	s->Add(*this);
 }

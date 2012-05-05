@@ -32,11 +32,11 @@ void CBurst::Update(float frameTime, uint32 frameId)
 {
 	CSingle::Update(frameTime, frameId);
 
-	if (m_firing)
+	if(m_firing)
 	{
 		m_bursting = true;
 
-		if (m_next_shot <= 0.0f)
+		if(m_next_shot <= 0.0f)
 		{
 			// workaround: save current burst rate, and fake it so that the CanFire check in CSingle::Shoot passes...
 			float saved_next_burst=m_next_burst;
@@ -46,9 +46,10 @@ void CBurst::Update(float frameTime, uint32 frameId)
 				m_firing = Shoot(true,true,true);
 			else
 				m_firing = Shoot(true);
+
 			m_burst_shot = m_burst_shot+1;
 
-			if (!m_firing || (m_burst_shot >= m_pShared->burstparams.nshots))
+			if(!m_firing || (m_burst_shot >= m_pShared->burstparams.nshots))
 			{
 				m_bursting = false;
 				m_firing = false;
@@ -60,7 +61,8 @@ void CBurst::Update(float frameTime, uint32 frameId)
 	}
 
 	m_next_burst -= frameTime;
-	if (m_next_burst <= 0.0f)
+
+	if(m_next_burst <= 0.0f)
 		m_next_burst = 0.0f;
 }
 
@@ -91,7 +93,7 @@ void CBurst::PatchParams(const struct IItemParamsNode *patch)
 //------------------------------------------------------------------
 void CBurst::InitSharedParams()
 {
-	CWeaponSharedParams * pWSP = m_pWeapon->GetWeaponSharedParams();
+	CWeaponSharedParams *pWSP = m_pWeapon->GetWeaponSharedParams();
 	assert(pWSP);
 
 	m_fireParams	= pWSP->GetFireSharedParams("BurstData", m_fmIdx);
@@ -102,7 +104,7 @@ void CBurst::CacheSharedParamsPtr()
 {
 	CSingle::CacheSharedParamsPtr();
 
-	m_pShared			= static_cast<CBurstSharedData*>(m_fireParams.get());
+	m_pShared			= static_cast<CBurstSharedData *>(m_fireParams.get());
 }
 
 //------------------------------------------------------------------------
@@ -125,9 +127,9 @@ bool CBurst::CanFire(bool considerAmmo) const
 //------------------------------------------------------------------------
 void CBurst::StartFire()
 {
-	if (!m_bursting)
+	if(!m_bursting)
 	{
-		if (m_next_burst <= 0.0f)
+		if(m_next_burst <= 0.0f)
 		{
 			CSingle::StartFire();
 

@@ -4,7 +4,7 @@ Copyright (C), Crytek Studios, 2001-2005.
 -------------------------------------------------------------------------
 $Id$
 $DateTime$
-Description: 	
+Description:
 	Sound moods (from game side)
 
 -------------------------------------------------------------------------
@@ -44,6 +44,7 @@ void CSoundMoods::AddSoundMood(const char *szSoundMood,uint32 uiFadeIn,float fDu
 	for(TVectorSoundMoods::iterator iter=m_vecSoundMoods.begin(); iter!=m_vecSoundMoods.end(); ++iter)
 	{
 		SSoundMood *pIterSoundMood = &(*iter);
+
 		if(!strcmp(pIterSoundMood->strSoundMood,szSoundMood))
 		{
 			pSoundMood = pIterSoundMood;
@@ -57,6 +58,7 @@ void CSoundMoods::AddSoundMood(const char *szSoundMood,uint32 uiFadeIn,float fDu
 		for(TVectorSoundMoods::iterator iter=m_vecSoundMoods.begin(); iter!=m_vecSoundMoods.end(); ++iter)
 		{
 			SSoundMood *pIterSoundMood = &(*iter);
+
 			if(!pIterSoundMood->bValid)
 			{
 				pSoundMood = pIterSoundMood;
@@ -89,7 +91,7 @@ void CSoundMoods::AddSoundMood(const char *szSoundMood,uint32 uiFadeIn,float fDu
 
 void CSoundMoods::AddSoundMood(ESOUNDMOOD eSoundMood,float fPercent)
 {
-			if(!m_pSoundMoodManager)
+	if(!m_pSoundMoodManager)
 		return;
 
 	switch(eSoundMood)
@@ -97,33 +99,43 @@ void CSoundMoods::AddSoundMood(ESOUNDMOOD eSoundMood,float fPercent)
 	case SOUNDMOOD_ENTER_BINOCULARS:
 		AddSoundMood("cryvision",500,-1.0f,0,1.0f);
 		break;
+
 	case SOUNDMOOD_LEAVE_BINOCULARS:
 		RemoveSoundMood("cryvision",0.0f,500);
 		break;
+
 	case SOUNDMOOD_ENTER_CLOAK:
 		AddSoundMood("cloak",1000,-1.0f,0,1.0f);
 		break;
+
 	case SOUNDMOOD_LEAVE_CLOAK:
 		RemoveSoundMood("cloak",0.0f,1000);
 		break;
+
 	case SOUNDMOOD_ENTER_CONCENTRATION:
 		AddSoundMood("concentration",1000,-1.0f,0,1.0f);
 		break;
+
 	case SOUNDMOOD_LEAVE_CONCENTRATION:
 		RemoveSoundMood("concentration",0.0f,500);
 		break;
+
 	case SOUNDMOOD_EXPLOSION:
 		AddSoundMood("explosion",1000,0.0f,3000,fPercent/100.0f);
 		break;
+
 	case SOUNDMOOD_ENTER_FREEZE:
 		AddSoundMood("frozen",1500,-1.0f,0,1.0f);
 		break;
+
 	case SOUNDMOOD_LEAVE_FREEZE:
 		RemoveSoundMood("frozen",0.0f,2000);
 		break;
+
 	case SOUNDMOOD_LOWHEALTH:
 		AddSoundMood("low_health",0,3000.0f,1000,fPercent/100.0f);
 		break;
+
 	default:
 		CRY_ASSERT(0);
 		break;
@@ -140,6 +152,7 @@ void CSoundMoods::RemoveSoundMood(const char *szSoundMood,float fFade,uint32 uiF
 	for(TVectorSoundMoods::iterator iter=m_vecSoundMoods.begin(); iter!=m_vecSoundMoods.end(); ++iter)
 	{
 		SSoundMood *pSoundMood = &(*iter);
+
 		if(pSoundMood->bValid && !strcmp(pSoundMood->strSoundMood,szSoundMood))
 		{
 			m_pSoundMoodManager->UpdateSoundMood(szSoundMood,fFade,uiFadeOut);
@@ -157,16 +170,22 @@ void CSoundMoods::Serialize(TSerialize ser)
 		return;
 
 	uint32 uiSoundMood = 0;
+
 	for(TVectorSoundMoods::iterator iter=m_vecSoundMoods.begin(); iter!=m_vecSoundMoods.end(); ++iter,++uiSoundMood)
 	{
 		SSoundMood *pSoundMood = &(*iter);
 
 		char szTemp[256];
-		sprintf(szTemp,"strSoundMood_%d",	uiSoundMood);	ser.Value(szTemp,pSoundMood->strSoundMood);
-		sprintf(szTemp,"uiFadeOutTime_%d",uiSoundMood);	ser.Value(szTemp,pSoundMood->uiFadeOutTime);
-		sprintf(szTemp,"uiFadeOut_%d",		uiSoundMood);	ser.Value(szTemp,pSoundMood->uiFadeOut);
-		sprintf(szTemp,"bValid_%d",				uiSoundMood);	ser.Value(szTemp,pSoundMood->bValid);
-		sprintf(szTemp,"bUnlimited_%d",		uiSoundMood);	ser.Value(szTemp,pSoundMood->bUnlimited);
+		sprintf(szTemp,"strSoundMood_%d",	uiSoundMood);
+		ser.Value(szTemp,pSoundMood->strSoundMood);
+		sprintf(szTemp,"uiFadeOutTime_%d",uiSoundMood);
+		ser.Value(szTemp,pSoundMood->uiFadeOutTime);
+		sprintf(szTemp,"uiFadeOut_%d",		uiSoundMood);
+		ser.Value(szTemp,pSoundMood->uiFadeOut);
+		sprintf(szTemp,"bValid_%d",				uiSoundMood);
+		ser.Value(szTemp,pSoundMood->bValid);
+		sprintf(szTemp,"bUnlimited_%d",		uiSoundMood);
+		ser.Value(szTemp,pSoundMood->bUnlimited);
 	}
 }
 
@@ -182,6 +201,7 @@ void CSoundMoods::Update()
 	for(TVectorSoundMoods::iterator iter=m_vecSoundMoods.begin(); iter!=m_vecSoundMoods.end(); ++iter)
 	{
 		SSoundMood *pSoundMood = &(*iter);
+
 		if(pSoundMood->bValid && fTime >= pSoundMood->uiFadeOutTime && !pSoundMood->bUnlimited)
 		{
 			// Sound mood will be automatically unregistered after fade out

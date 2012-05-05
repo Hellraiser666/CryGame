@@ -6,7 +6,7 @@
 //  File name:   UIMenuEvents.cpp
 //  Version:     v1.00
 //  Created:     21/11/2011 by Paul Reindell.
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -19,16 +19,16 @@
 
 ////////////////////////////////////////////////////////////////////////////
 CUIMenuEvents::CUIMenuEvents()
-: m_pUIEvents(NULL)
-, m_pUIFunctions(NULL)
-, m_bIsIngameMenuStarted(false)
+	: m_pUIEvents(NULL)
+	, m_pUIFunctions(NULL)
+	, m_bIsIngameMenuStarted(false)
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////
 void CUIMenuEvents::InitEventSystem()
 {
-	if (!gEnv->pFlashUI) return;
+	if(!gEnv->pFlashUI) return;
 
 	// events to send from this class to UI flowgraphs
 	m_pUIFunctions = gEnv->pFlashUI->CreateEventSystem("MenuEvents", IUIEventSystem::eEST_SYSTEM_TO_UI);
@@ -72,10 +72,11 @@ void CUIMenuEvents::Reset()
 ////////////////////////////////////////////////////////////////////////////
 void CUIMenuEvents::DisplayIngameMenu(bool bDisplay)
 {
-	if (m_bIsIngameMenuStarted == bDisplay) return;
+	if(m_bIsIngameMenuStarted == bDisplay) return;
 
 	m_bIsIngameMenuStarted = bDisplay;
-	if (bDisplay)
+
+	if(bDisplay)
 		StartIngameMenu();
 	else
 		StopIngameMenu();
@@ -86,13 +87,14 @@ void CUIMenuEvents::DisplayIngameMenu(bool bDisplay)
 ////////////////////////////////////////////////////////////////////////////
 void CUIMenuEvents::StartIngameMenu()
 {
-	if (!gEnv->bMultiplayer && !gEnv->IsEditor())
+	if(!gEnv->bMultiplayer && !gEnv->IsEditor())
 	{
-		g_pGame->GetIGameFramework()->PauseGame( true, true );
+		g_pGame->GetIGameFramework()->PauseGame(true, true);
 	}
 
-	IActionMapManager* pAmMgr = g_pGame->GetIGameFramework()->GetIActionMapManager();
-	if (pAmMgr)
+	IActionMapManager *pAmMgr = g_pGame->GetIGameFramework()->GetIActionMapManager();
+
+	if(pAmMgr)
 	{
 		pAmMgr->Enable(true);
 		pAmMgr->EnableFilter("only_ui", true);
@@ -104,13 +106,14 @@ void CUIMenuEvents::StartIngameMenu()
 ////////////////////////////////////////////////////////////////////////////
 void CUIMenuEvents::StopIngameMenu()
 {
-	if (!gEnv->bMultiplayer && !gEnv->IsEditor())
+	if(!gEnv->bMultiplayer && !gEnv->IsEditor())
 	{
-		g_pGame->GetIGameFramework()->PauseGame( false, true );
+		g_pGame->GetIGameFramework()->PauseGame(false, true);
 	}
 
-	IActionMapManager* pAmMgr = g_pGame->GetIGameFramework()->GetIActionMapManager();
-	if (pAmMgr)
+	IActionMapManager *pAmMgr = g_pGame->GetIGameFramework()->GetIActionMapManager();
+
+	if(pAmMgr)
 	{
 		pAmMgr->EnableFilter("only_ui", false);
 	}
@@ -119,4 +122,4 @@ void CUIMenuEvents::StopIngameMenu()
 }
 
 ////////////////////////////////////////////////////////////////////////////
-REGISTER_UI_EVENTSYSTEM( CUIMenuEvents );
+REGISTER_UI_EVENTSYSTEM(CUIMenuEvents);

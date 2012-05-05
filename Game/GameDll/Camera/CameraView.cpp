@@ -28,12 +28,12 @@ static const float g_fModeTransitionFast = 0.05f;
 static const float g_fFirstPersonCamDistance = 0.5f;
 
 CCameraView::CCameraView(IEntity *pTarget) :
-m_pTarget(NULL),
-m_fFrameTime(0.0f),
-m_pCamHelper(NULL),
-m_vTargetPosition(ZERO),
-m_bModeTransition(false),
-m_fTransitionTimeout(0.0f)
+	m_pTarget(NULL),
+	m_fFrameTime(0.0f),
+	m_pCamHelper(NULL),
+	m_vTargetPosition(ZERO),
+	m_bModeTransition(false),
+	m_fTransitionTimeout(0.0f)
 {
 	SetTarget(pTarget);
 	//setup scanning and tracking
@@ -89,9 +89,10 @@ void CCameraView::SetTarget(IEntity *pTarget)
 
 	//compute offset for actor (usually head height)
 	IActor *pTargetActor = g_pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pTarget->GetId());
+
 	if(pTargetActor)
 	{
-		CActor *pTempActor = static_cast<CActor*> (pTargetActor);
+		CActor *pTempActor = static_cast<CActor *>(pTargetActor);
 		const SStanceInfo *pStanceInfo = pTempActor->GetStanceInfo(pTempActor->GetStance());
 		CRY_ASSERT(pStanceInfo);
 		m_vTargetOffset.z = pStanceInfo->viewOffset.z;
@@ -122,7 +123,7 @@ void CCameraView::UpdateSettings(SViewParams &viewParams)
 	m_fFrameTime = max(gEnv->pTimer->GetFrameTime(), 0.0001f);
 
 	// add cam offsets
- 	m_curSettings.dist = g_pGameCVars->cl_cam_orbit_distance;
+	m_curSettings.dist = g_pGameCVars->cl_cam_orbit_distance;
 // 	Vec3 camOffset(Vec3Constants<float>::fVec3_Zero);
 	Vec3 camOffset = viewParams.rotation.GetColumn1().Cross(Vec3Constants<float>::fVec3_OneZ);
 	camOffset.NormalizeFast();
@@ -154,18 +155,23 @@ void CCameraView::Update(SViewParams &viewParams)
 	case ECT_CamRear:
 		UpdateRearMode();
 		break;
+
 	case ECT_CamFollow:
 		UpdateFollowMode();
 		break;
+
 	case ECT_CamRefDir:
 		UpdateRefDirMode();
 		break;
+
 	case ECT_CamOrbit:
 		UpdateOrbitMode();
 		break;
+
 	case ECT_CamFirstPerson:
 		UpdateFirstPersonMode();
 		break;
+
 	default:
 		CryWarning(VALIDATOR_MODULE_GAME, VALIDATOR_ERROR, "Unhandled camera mode active.");
 		break;
@@ -185,8 +191,9 @@ void CCameraView::Update(SViewParams &viewParams)
 	//write back view matrix
 	Matrix33 matCam = Matrix33(viewParams.rotation);
 	CPlayer::GetHero()->m_camViewMtxFinal = matCam;
+
 	//write back to cam helper
-	if (m_pCamHelper)
+	if(m_pCamHelper)
 	{
 		m_pCamHelper->SetYaw(m_curPolar.GetYaw());
 		m_pCamHelper->SetPitch(m_curPolar.GetPitch());
@@ -212,11 +219,13 @@ void CCameraView::UpdateFollowMode()
 	//Dir to target
 	Vec3 vDir = m_vTargetPosition - m_lastViewParams.position;
 	float fFollowDistance = vDir.len();
+
 	if(fFollowDistance < g_fCamError)
 	{
 		fFollowDistance = 1.0f;
 		vDir = Vec3Constants<float>::fVec3_OneY;
 	}
+
 	vDir /= fFollowDistance; //normalize
 
 	fFollowDistance = m_curSettings.dist;
@@ -232,14 +241,14 @@ void CCameraView::UpdateFollowMode()
 	//m_curPolar
 
 	//add user input
-	if (m_pCamHelper)
+	if(m_pCamHelper)
 		m_curPolar.Set(m_curPolar.GetYaw() + m_pCamHelper->RetrieveYawDelta(), m_curPolar.GetPitch() + m_pCamHelper->RetrievePitchDelta());
 }
 
 void CCameraView::UpdateOrbitMode()
 {
 	//get direction from user input
-	if (m_pCamHelper)
+	if(m_pCamHelper)
 		m_curPolar.Set(m_curPolar.GetYaw() + m_pCamHelper->RetrieveYawDelta(), m_curPolar.GetPitch() + m_pCamHelper->RetrievePitchDelta());
 }
 
@@ -256,7 +265,8 @@ void CCameraView::UpdateRearMode()
 	Vec3 vCamDir = qRotation.GetColumn1();
 	//add player input pitch
 	m_curPolar.Set(vCamDir);
-	if (m_pCamHelper)
+
+	if(m_pCamHelper)
 		m_curPolar.SetPitch(m_pCamHelper->GetPitch());
 }
 
@@ -276,7 +286,8 @@ void CCameraView::UpdateFirstPersonMode()
 
 	//add player input pitch
 	m_curPolar.Set(vCamDir);
-	if (m_pCamHelper)
+
+	if(m_pCamHelper)
 		m_curPolar.SetPitch(m_pCamHelper->GetPitch());
 }
 
@@ -315,6 +326,7 @@ void CCameraView::RunModeTransition(SViewParams &viewParams)
 
 	//update time-limit
 	m_fTransitionTimeout -= m_fFrameTime;
+
 	if(m_fTransitionTimeout < 0.1f)
 		m_fTransitionTimeout = 0.1f;
 
@@ -367,6 +379,7 @@ void CCameraView::RunScanAndTrack(SViewParams &viewParams)
 	}
 
 	Vec3 vDestPos(viewParams.position);
+
 	if(bCollision)
 	{
 		//avoid collision
@@ -374,7 +387,7 @@ void CCameraView::RunScanAndTrack(SViewParams &viewParams)
 	}
 
 	// smooth slide
-	if (g_pGameCVars->cl_cam_orbit_slide > 0 && (!pHit || !pHit->bTerrain))
+	if(g_pGameCVars->cl_cam_orbit_slide > 0 && (!pHit || !pHit->bTerrain))
 	{
 		Vec3 vDir(vCamDir);
 		vDir *= ((m_lastViewParams.position + (vDestPos - m_lastViewParams.position) * g_pGameCVars->cl_cam_orbit_slidespeed * 10.f * viewParams.frameTime) - viewParams.position).GetLengthFast();

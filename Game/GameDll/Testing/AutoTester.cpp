@@ -2,7 +2,7 @@
 Crytek Source File.
 Copyright (C), Crytek Studios, 2001-2004.
 -------------------------------------------------------------------------
-AutoTester.cpp 
+AutoTester.cpp
 
 -	[09/11/2009] : Created by James Bamford
 
@@ -29,7 +29,7 @@ AUTOENUM_BUILDNAMEARRAY(CAutoTester::s_autoTesterStateNames, AutoTesterStateList
 static AUTOENUM_BUILDNAMEARRAY(s_writeResultsFlagNames, WriteResultsFlagList);
 #endif
 
-CAutoTester * CAutoTester::s_instance = NULL;
+CAutoTester *CAutoTester::s_instance = NULL;
 
 CAutoTester::CAutoTester()
 {
@@ -67,7 +67,7 @@ void CAutoTester::Start(const char *stateSetup, const char *outputPath, bool qui
 	CryLogAlways("CAutoTester::Start() stateSetup=\"%s\" outputPath=\"%s\" seperator=\"%c\"", stateSetup, outputPath, breakAtChar);
 	assert(!m_started);
 	m_started=true;
-	
+
 	m_outputPath=outputPath;
 	m_quitWhenDone = quitWhenDone;
 
@@ -87,30 +87,30 @@ void CAutoTester::Start(const char *stateSetup, const char *outputPath, bool qui
 
 	success = GetParam(&str, tokenName, MAX_TOKEN_LEN, valueName, MAX_TOKEN_LEN, breakAtChar);
 
-	assert (m_state == ATEST_STATE_NONE);
+	assert(m_state == ATEST_STATE_NONE);
 
-	if (success && stricmp(tokenName, "state") == 0)
+	if(success && stricmp(tokenName, "state") == 0)
 	{
 		m_state = FindStateFromStr(valueName);
 		cry_strncpy(m_includeThisInFileName, valueName, sizeof(m_includeThisInFileName));
 
 		CryLogAlways("CAutoTester::Start initializing state (name='%s', id=%d, %s)", valueName, m_state, (m_state == ATEST_STATE_NONE) ? "invalid" : "valid");
-		DesignerWarning (m_state != ATEST_STATE_NONE, "'%s' is not the name of an auto-test state", valueName);
+		DesignerWarning(m_state != ATEST_STATE_NONE, "'%s' is not the name of an auto-test state", valueName);
 
-		// If anything needs to default to something non-zero, set it here... 
-		switch (m_state)
+		// If anything needs to default to something non-zero, set it here...
+		switch(m_state)
 		{
-			case ATEST_STATE_TEST_PERFORMANCE:
-				m_stateData.testPerformance.m_subState = CAutoTester::k_testPerformance_substate_ingame;
-				break;
+		case ATEST_STATE_TEST_PERFORMANCE:
+			m_stateData.testPerformance.m_subState = CAutoTester::k_testPerformance_substate_ingame;
+			break;
 		}
 
 		// Read each parameter...
-		while (GetParam(&str, tokenName, MAX_TOKEN_LEN, valueName, MAX_TOKEN_LEN, breakAtChar))
+		while(GetParam(&str, tokenName, MAX_TOKEN_LEN, valueName, MAX_TOKEN_LEN, breakAtChar))
 		{
 			bool paramUsed = false;
 
-			if (stricmp(tokenName, "outputName") == 0)
+			if(stricmp(tokenName, "outputName") == 0)
 			{
 				cry_strncpy(m_includeThisInFileName, valueName, sizeof(m_includeThisInFileName));
 				CryLogAlways("CAutoTester::Start has set output name to '%s'", m_includeThisInFileName);
@@ -119,97 +119,106 @@ void CAutoTester::Start(const char *stateSetup, const char *outputPath, bool qui
 			}
 			else
 			{
-				switch (m_state)
+				switch(m_state)
 				{
 				case ATEST_STATE_TEST_NUM_CLIENTS:
-					if (stricmp(tokenName, "timeToRun") == 0)
+					if(stricmp(tokenName, "timeToRun") == 0)
 					{
 						m_stateData.testNumClients.m_timeOut = (float)atof(valueName);
 						paramUsed = true;
 					}
-					else if (stricmp(tokenName, "numClients") == 0)
+					else if(stricmp(tokenName, "numClients") == 0)
 					{
 						m_stateData.testNumClients.m_numClientsExpected = atoi(valueName);
 						paramUsed = true;
 					}
+
 					break;
 
 				case ATEST_STATE_TEST_NUM_CLIENTS_LEVEL_ROTATE:
-					if (stricmp(tokenName, "timeToRunEachLevel") == 0)
+					if(stricmp(tokenName, "timeToRunEachLevel") == 0)
 					{
 						m_stateData.testNumClientsRotate.m_levelTimeOut = (float)atof(valueName);
 						paramUsed = true;
 					}
-					else if (stricmp(tokenName, "numClients") == 0)
+					else if(stricmp(tokenName, "numClients") == 0)
 					{
 						m_stateData.testNumClientsRotate.m_numClientsExpected = atoi(valueName);
 						paramUsed = true;
 					}
-					else if (stricmp(tokenName, "timeToRunFirstLevel") == 0)
-					{														 
+					else if(stricmp(tokenName, "timeToRunFirstLevel") == 0)
+					{
 						m_stateData.testNumClientsRotate.m_firstLevelTimeOut = (float)atof(valueName);
 						paramUsed = true;
 					}
+
 					break;
 
 #if ENABLE_FEATURE_TESTER
+
 				case ATEST_STATE_TEST_FEATURES:
-					if (stricmp(tokenName, "rules") == 0)
+					if(stricmp(tokenName, "rules") == 0)
 					{
-						CryLogAlways ("CAutoTester::Start executing 'sv_gamerules %s'", valueName);
+						CryLogAlways("CAutoTester::Start executing 'sv_gamerules %s'", valueName);
 						gEnv->pConsole->ExecuteString(string().Format("sv_gamerules %s", valueName));
 						paramUsed = true;
 					}
-					else if (stricmp(tokenName, "level") == 0)
+					else if(stricmp(tokenName, "level") == 0)
 					{
-						IGameRulesSystem * gameRulesSystem = gEnv->pGame->GetIGameFramework()->GetIGameRulesSystem();
-						const char * sv_gamerules = gEnv->pConsole->GetCVar("sv_gamerules")->GetString();
-						const char * fullGameRulesName = gameRulesSystem->GetGameRulesName(sv_gamerules);
+						IGameRulesSystem *gameRulesSystem = gEnv->pGame->GetIGameFramework()->GetIGameRulesSystem();
+						const char *sv_gamerules = gEnv->pConsole->GetCVar("sv_gamerules")->GetString();
+						const char *fullGameRulesName = gameRulesSystem->GetGameRulesName(sv_gamerules);
 						bool isMultiPlayerMode = (fullGameRulesName && strcmp(fullGameRulesName, "SinglePlayer") != 0);
-						const char * additionalParams = isMultiPlayerMode ? " s nb" : "";
-						if (gEnv->bMultiplayer != isMultiPlayerMode)
+						const char *additionalParams = isMultiPlayerMode ? " s nb" : "";
+
+						if(gEnv->bMultiplayer != isMultiPlayerMode)
 						{
 							GameWarning("Auto-tester is loading '%s' in mode '%s' while environment is set up for %s", valueName, sv_gamerules, gEnv->bMultiplayer ? "multi-player" : "single-player");
 						}
-						CryLogAlways ("CAutoTester::Start executing 'map %s%s' (mode is '%s' i.e. '%s' so isMultiPlayer=%d)", valueName, additionalParams, sv_gamerules, fullGameRulesName, isMultiPlayerMode);
-						if (isMultiPlayerMode)
+
+						CryLogAlways("CAutoTester::Start executing 'map %s%s' (mode is '%s' i.e. '%s' so isMultiPlayer=%d)", valueName, additionalParams, sv_gamerules, fullGameRulesName, isMultiPlayerMode);
+
+						if(isMultiPlayerMode)
 						{
 							gEnv->pConsole->ExecuteString("net_setonlinemode lan");
 						}
+
 						gEnv->pConsole->ExecuteString(string().Format("map %s%s", valueName, additionalParams));
 						paramUsed = true;
 					}
-					else if (stricmp(tokenName, "set") == 0)
+					else if(stricmp(tokenName, "set") == 0)
 					{
 						cry_strncpy(m_stateData.testRunFeatureTests.m_setNames, valueName, sizeof(m_stateData.testRunFeatureTests.m_setNames));
 						paramUsed = true;
 					}
-					else if (stricmp(tokenName, "file") == 0)
+					else if(stricmp(tokenName, "file") == 0)
 					{
 						cry_strncpy(m_stateData.testRunFeatureTests.m_loadFileName, valueName, sizeof(m_stateData.testRunFeatureTests.m_loadFileName));
 						paramUsed = true;
 					}
+
 					break;
 #endif
 
 				case ATEST_STATE_TEST_PERFORMANCE:
-					if (stricmp(tokenName, "configFile") == 0)
+					if(stricmp(tokenName, "configFile") == 0)
 					{
 						cry_strncpy(m_stateData.testPerformance.m_configFile, valueName, 256);
 						//m_stateData.testPerformance.m_configFile = valueName;
-						CryLogAlways ("CAutoTester::Start configFile set '%s'", valueName);
+						CryLogAlways("CAutoTester::Start configFile set '%s'", valueName);
 						paramUsed = true;
 					}
-					else if (stricmp(tokenName, "timeToRun") == 0)
+					else if(stricmp(tokenName, "timeToRun") == 0)
 					{
 						m_stateData.testPerformance.m_timeOut = (float)atof(valueName);
 						paramUsed = true;
 					}
-					else if (stricmp(tokenName, "delayToStart") == 0)
+					else if(stricmp(tokenName, "delayToStart") == 0)
 					{
 						m_stateData.testPerformance.m_delayToStart = (float)atof(valueName);
 						paramUsed = true;
 					}
+
 					break;
 				}
 
@@ -218,45 +227,46 @@ void CAutoTester::Start(const char *stateSetup, const char *outputPath, bool qui
 		}
 
 		// All parameters have been read... now finish initialization
-		switch (m_state)
+		switch(m_state)
 		{
 		case ATEST_STATE_TEST_NUM_CLIENTS_LEVEL_ROTATE:
+		{
+			if(m_stateData.testNumClientsRotate.m_firstLevelTimeOut == 0)
 			{
-				if (m_stateData.testNumClientsRotate.m_firstLevelTimeOut == 0)
-				{
-					CryLogAlways("no timeToRunFirstLevel set, setting to timeToRunEachLevel=%d", (int)m_stateData.testNumClientsRotate.m_levelTimeOut);
-					m_stateData.testNumClientsRotate.m_firstLevelTimeOut = m_stateData.testNumClientsRotate.m_levelTimeOut;
-				}
-
-				float timeSeconds=gEnv->pTimer->GetFrameStartTime().GetSeconds();
-				m_stateData.testNumClientsRotate.m_nextTimeOut = timeSeconds + m_stateData.testNumClientsRotate.m_firstLevelTimeOut;
-
-				// level rotation is setup with +sv_levelrotation levelrotation.xml and also -root to override looking in the profile dir
-
-
-
-
-
-
-				gEnv->pConsole->ExecuteString("g_nextlevel");	// has to be a better way of doing this
-
-				break;
+				CryLogAlways("no timeToRunFirstLevel set, setting to timeToRunEachLevel=%d", (int)m_stateData.testNumClientsRotate.m_levelTimeOut);
+				m_stateData.testNumClientsRotate.m_firstLevelTimeOut = m_stateData.testNumClientsRotate.m_levelTimeOut;
 			}
+
+			float timeSeconds=gEnv->pTimer->GetFrameStartTime().GetSeconds();
+			m_stateData.testNumClientsRotate.m_nextTimeOut = timeSeconds + m_stateData.testNumClientsRotate.m_firstLevelTimeOut;
+
+			// level rotation is setup with +sv_levelrotation levelrotation.xml and also -root to override looking in the profile dir
+
+
+
+
+
+
+			gEnv->pConsole->ExecuteString("g_nextlevel");	// has to be a better way of doing this
+
+			break;
+		}
 
 		case ATEST_STATE_TEST_FEATURES:
 #if ENABLE_FEATURE_TESTER
 			m_writeResultsCompleteTestCasePass = true;
 
-			if (m_stateData.testRunFeatureTests.m_loadFileName[0])
+			if(m_stateData.testRunFeatureTests.m_loadFileName[0])
 			{
 				gEnv->pConsole->ExecuteString(string().Format("ft_load %s", m_stateData.testRunFeatureTests.m_loadFileName));
 			}
 
-			if (m_stateData.testRunFeatureTests.m_setNames[0])
+			if(m_stateData.testRunFeatureTests.m_setNames[0])
 			{
 				CFeatureTester::GetInstance()->InformAutoTesterOfResults(this);
 				gEnv->pConsole->ExecuteString(string().Format("ft_runAll %s", m_stateData.testRunFeatureTests.m_setNames));
 			}
+
 #else
 			DesignerWarning(false, "Feature tester is not included in this build!");
 #endif
@@ -273,12 +283,13 @@ void CAutoTester::Start(const char *stateSetup, const char *outputPath, bool qui
 
 void CAutoTester::AddTestCaseResult(const char *testSuiteName, XmlNodeRef &testCase, bool passed)
 {
-	if (g_pGameCVars->autotest_enabled)
+	if(g_pGameCVars->autotest_enabled)
 	{
 		STestSuite &testSuite = m_testSuites[testSuiteName];
 
 		testSuite.m_testCases.push_back(testCase);
-		if (passed)
+
+		if(passed)
 		{
 			testSuite.m_numTestCasesPassed++;
 		}
@@ -287,28 +298,30 @@ void CAutoTester::AddTestCaseResult(const char *testSuiteName, XmlNodeRef &testC
 			testSuite.m_numTestCasesFailed++;
 		}
 
-		CryLog ("CAutoTester::AddTestCaseResult() Suite '%s' now contains %d tests (%d passes and %d failures)", testSuiteName, (int32)testSuite.m_testCases.size(), testSuite.m_numTestCasesPassed, testSuite.m_numTestCasesFailed);
+		CryLog("CAutoTester::AddTestCaseResult() Suite '%s' now contains %d tests (%d passes and %d failures)", testSuiteName, (int32)testSuite.m_testCases.size(), testSuite.m_numTestCasesPassed, testSuite.m_numTestCasesFailed);
 	}
 }
 
-/*static*/ bool CAutoTester::SaveToValidXmlFile( const XmlNodeRef &xmlToSave, const char *fileName)
+/*static*/ bool CAutoTester::SaveToValidXmlFile(const XmlNodeRef &xmlToSave, const char *fileName)
 {
 #ifdef WIN32
-	CrySetFileAttributes( fileName,0x00000080 ); // FILE_ATTRIBUTE_NORMAL
+	CrySetFileAttributes(fileName,0x00000080);   // FILE_ATTRIBUTE_NORMAL
 #endif //WIN32
 	XmlString xmlStr = xmlToSave->getXML();
 	CDebugAllowFileAccess allowFileAccess;
-	FILE *file = gEnv->pCryPak->FOpen( fileName,"wt" );
+	FILE *file = gEnv->pCryPak->FOpen(fileName,"wt");
 	allowFileAccess.End();
-	if (file)
+
+	if(file)
 	{
-		const char *sxml = (const char*)xmlStr;
+		const char *sxml = (const char *)xmlStr;
 		char xmlHeader[] = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n";
 		gEnv->pCryPak->FWrite(xmlHeader, strlen(xmlHeader), file);
-		gEnv->pCryPak->FWrite( sxml,xmlStr.length(),file );
+		gEnv->pCryPak->FWrite(sxml,xmlStr.length(),file);
 		gEnv->pCryPak->FClose(file);
 		return true;
 	}
+
 	return false;
 }
 
@@ -321,7 +334,7 @@ void CAutoTester::CreateTestCase(XmlNodeRef &testCase, const char *testName, boo
 	testCase->setAttr("name", testName ? testName : "NULL");
 	testCase->setAttr("time", 0);
 
-	if (!passed)
+	if(!passed)
 	{
 		assert(failedType);
 		assert(failedMessage);
@@ -334,33 +347,33 @@ void CAutoTester::CreateTestCase(XmlNodeRef &testCase, const char *testName, boo
 	}
 }
 
-void CAutoTester::AddSimpleTestCase(const char * groupName, const char * testName, float duration, const char * failureReason, const char * owners)
+void CAutoTester::AddSimpleTestCase(const char *groupName, const char *testName, float duration, const char *failureReason, const char *owners)
 {
 	bool passed = true;
 	XmlNodeRef testCase = GetISystem()->CreateXmlNode();
 	testCase->setTag("testcase");
 	testCase->setAttr("name", testName);
-	
-	if (owners)
+
+	if(owners)
 	{
 		testCase->setAttr("owners", owners);
 	}
 
-	if (duration >= 0.f)
+	if(duration >= 0.f)
 	{
 		testCase->setAttr("time", duration);
 	}
 
 	// Set whatever other attributes are useful here!
 
-	if (failureReason == NULL || failureReason[0] == '\0')
+	if(failureReason == NULL || failureReason[0] == '\0')
 	{
-		CryLogAlways ("CAutoTester::AddSimpleTestCase() Group '%s' test '%s' passed!", groupName, testName);
+		CryLogAlways("CAutoTester::AddSimpleTestCase() Group '%s' test '%s' passed!", groupName, testName);
 		testCase->setAttr("status", "run");
 	}
 	else
 	{
-		CryLogAlways ("CAutoTester::AddSimpleTestCase() Group '%s' test '%s' failed: %s", groupName, testName, failureReason);
+		CryLogAlways("CAutoTester::AddSimpleTestCase() Group '%s' test '%s' failed: %s", groupName, testName, failureReason);
 		XmlNodeRef failedCase = GetISystem()->CreateXmlNode();
 		failedCase->setTag("failure");
 		failedCase->setAttr("type", "TestCaseFailed");
@@ -374,9 +387,9 @@ void CAutoTester::AddSimpleTestCase(const char * groupName, const char * testNam
 
 void CAutoTester::Stop()
 {
-	const char * mapName;
-	
-	if (g_pGame && g_pGame->GetIGameFramework()->GetILevelSystem()->GetCurrentLevel())
+	const char *mapName;
+
+	if(g_pGame && g_pGame->GetIGameFramework()->GetILevelSystem()->GetCurrentLevel())
 	{
 		mapName = g_pGame->GetIGameFramework()->GetILevelSystem()->GetCurrentLevel()->GetLevelInfo()->GetName();
 	}
@@ -385,7 +398,7 @@ void CAutoTester::Stop()
 		mapName = "NoMapLoaded";
 	}
 
-	if (g_pGame)
+	if(g_pGame)
 	{
 // 		ITelemetryCollector *itc = g_pGame->GetITelemetryCollector();
 // 		if (itc)
@@ -393,25 +406,26 @@ void CAutoTester::Stop()
 	}
 
 	m_finished=true;
-	
+
 	gEnv->pConsole->ExecuteString("memReplayStop");
 
 	WriteResults(kWriteResultsFlag_writeDoneMarkerFile);
 	m_testSuites.clear();
 }
 
-void CAutoTester::WriteResults(TBitfield flags, const string * additionalTestSuiteName, const XmlNodeRef * additionalTestCase)
+void CAutoTester::WriteResults(TBitfield flags, const string *additionalTestSuiteName, const XmlNodeRef *additionalTestCase)
 {
-	const int& autotest_enabled = g_pGameCVars->autotest_enabled;
-	if (!autotest_enabled)
+	const int &autotest_enabled = g_pGameCVars->autotest_enabled;
+
+	if(!autotest_enabled)
 	{
 		return;
 	}
 
 	//If result generation is skipped, exit early
-	if (autotest_enabled == 2)
+	if(autotest_enabled == 2)
 	{
-		if (m_quitWhenDone)
+		if(m_quitWhenDone)
 		{
 			gEnv->pConsole->ExecuteString("quit");
 		}
@@ -423,13 +437,14 @@ void CAutoTester::WriteResults(TBitfield flags, const string * additionalTestSui
 	//DesignerWarning(0, "test warning");
 	// test workaround
 
-	const char * mapName;
+	const char *mapName;
 	string gameRulesName;
-	const char * serverText = "";
-	const char * dedicatedText = gEnv->IsDedicated() ? "_Dedicated" : "";
+	const char *serverText = "";
+	const char *dedicatedText = gEnv->IsDedicated() ? "_Dedicated" : "";
 
-	CGameRules * rules = g_pGame ? g_pGame->GetGameRules() : NULL;
-	if (rules)
+	CGameRules *rules = g_pGame ? g_pGame->GetGameRules() : NULL;
+
+	if(rules)
 	{
 		gameRulesName = rules->GetEntity()->GetClass()->GetName();
 		serverText = gEnv->bServer ? "_Server" : "_Client";
@@ -439,17 +454,17 @@ void CAutoTester::WriteResults(TBitfield flags, const string * additionalTestSui
 		gameRulesName = "FrontEnd";
 	}
 
-	 if (g_pGame && g_pGame->GetIGameFramework()->GetILevelSystem()->GetCurrentLevel())
-	 {
-		 mapName = g_pGame->GetIGameFramework()->GetILevelSystem()->GetCurrentLevel()->GetLevelInfo()->GetName();
-	 }
-	 else
-	 {
-		 mapName = "NoMapLoaded";
-	 }
+	if(g_pGame && g_pGame->GetIGameFramework()->GetILevelSystem()->GetCurrentLevel())
+	{
+		mapName = g_pGame->GetIGameFramework()->GetILevelSystem()->GetCurrentLevel()->GetLevelInfo()->GetName();
+	}
+	else
+	{
+		mapName = "NoMapLoaded";
+	}
 
 #ifndef _RELEASE
-	 CryLogAlways ("CAutoTester::WriteResults(%s): map is '%s', game mode is '%s'", AutoEnum_GetStringFromBitfield(flags, s_writeResultsFlagNames, WriteResultsFlagList_numBits).c_str(), mapName, gameRulesName.c_str());
+	CryLogAlways("CAutoTester::WriteResults(%s): map is '%s', game mode is '%s'", AutoEnum_GetStringFromBitfield(flags, s_writeResultsFlagNames, WriteResultsFlagList_numBits).c_str(), mapName, gameRulesName.c_str());
 #endif
 
 
@@ -470,7 +485,7 @@ void CAutoTester::WriteResults(TBitfield flags, const string * additionalTestSui
 	XmlNodeRef testSuites = GetISystem()->CreateXmlNode("testSuites");
 	testSuites->setTag("testsuites");
 
-	for (TTestSuites::const_iterator it=m_testSuites.begin(); it!=m_testSuites.end(); ++it)
+	for(TTestSuites::const_iterator it=m_testSuites.begin(); it!=m_testSuites.end(); ++it)
 	{
 		const STestSuite &testSuiteStruct = it->second;
 		int numTests = testSuiteStruct.m_testCases.size();
@@ -482,9 +497,9 @@ void CAutoTester::WriteResults(TBitfield flags, const string * additionalTestSui
 		testSuite->setAttr("LevelName", mapName);
 		testSuite->setAttr("GameRulesName", gameRulesName);
 
-		if (additionalTestSuiteName && it->first == *additionalTestSuiteName)
+		if(additionalTestSuiteName && it->first == *additionalTestSuiteName)
 		{
-			CryLog ("Writing additional test case to existing '%s' suite", additionalTestSuiteName->c_str());
+			CryLog("Writing additional test case to existing '%s' suite", additionalTestSuiteName->c_str());
 			++ numFails; // Assumption here that any additional test data provided is a failure... [TF]
 			++ numTests;
 			testSuite->addChild(*additionalTestCase);
@@ -496,7 +511,7 @@ void CAutoTester::WriteResults(TBitfield flags, const string * additionalTestSui
 		testSuite->setAttr("errors", 0);
 		testSuite->setAttr("time", 0);
 
-		for (size_t i = 0; i < testSuiteStruct.m_testCases.size(); i++)
+		for(size_t i = 0; i < testSuiteStruct.m_testCases.size(); i++)
 		{
 			testSuite->addChild(testSuiteStruct.m_testCases[i]);
 		}
@@ -504,9 +519,9 @@ void CAutoTester::WriteResults(TBitfield flags, const string * additionalTestSui
 		testSuites->addChild(testSuite);
 	}
 
-	if (additionalTestSuiteName) // Still haven't written our additional test case because the suite name didn't match any existing suite...
+	if(additionalTestSuiteName)  // Still haven't written our additional test case because the suite name didn't match any existing suite...
 	{
-		CryLog ("CAutoTester writing additional test case to unique '%s' suite", additionalTestSuiteName->c_str());
+		CryLog("CAutoTester writing additional test case to unique '%s' suite", additionalTestSuiteName->c_str());
 		XmlNodeRef testSuite = GetISystem()->CreateXmlNode("AutoTest");
 		testSuite->setTag("testsuite");
 		testSuite->setAttr("name", *additionalTestSuiteName);
@@ -526,34 +541,34 @@ void CAutoTester::WriteResults(TBitfield flags, const string * additionalTestSui
 	cry_strncpy(mapNameChrs, mapName, sizeof(mapNameChrs));
 	cry_strncpy(gameRulesNameChrs, gameRulesName, sizeof(gameRulesNameChrs));
 
-	for (int i=0; mapNameChrs[i]; i++)
+	for(int i=0; mapNameChrs[i]; i++)
 	{
-		if (mapNameChrs[i] == '/' || mapNameChrs[i] == ' ')
+		if(mapNameChrs[i] == '/' || mapNameChrs[i] == ' ')
 		{
-			mapNameChrs[i] = '_'; 
+			mapNameChrs[i] = '_';
 		}
 	}
 
-	for (int i=0; gameRulesNameChrs[i]; i++)
+	for(int i=0; gameRulesNameChrs[i]; i++)
 	{
-		if (gameRulesNameChrs[i] == '/' || gameRulesNameChrs[i] == ' ')
+		if(gameRulesNameChrs[i] == '/' || gameRulesNameChrs[i] == ' ')
 		{
 			gameRulesNameChrs[i] = '_';
 		}
 	}
 
-	const char * resultsCompleteFailMessage = NULL;
+	const char *resultsCompleteFailMessage = NULL;
 
-	if (flags & kWriteResultsFlag_unfinished)
+	if(flags & kWriteResultsFlag_unfinished)
 	{
 		resultsCompleteFailMessage = "Didn't finish all tests!";
 	}
-	else if (m_testSuites.size() == 0)
+	else if(m_testSuites.size() == 0)
 	{
 		resultsCompleteFailMessage = "Ran zero tests!";
 	}
 
-	if (resultsCompleteFailMessage || m_writeResultsCompleteTestCasePass)
+	if(resultsCompleteFailMessage || m_writeResultsCompleteTestCasePass)
 	{
 		int numFailures = 0;
 		XmlNodeRef testSuite = GetISystem()->CreateXmlNode("testsuite");
@@ -561,7 +576,7 @@ void CAutoTester::WriteResults(TBitfield flags, const string * additionalTestSui
 
 		XmlNodeRef unfinishedFailure = GetISystem()->CreateXmlNode("testcase");
 
-		if (m_createVerboseFilename)
+		if(m_createVerboseFilename)
 		{
 			unfinishedFailure->setAttr("name", string().Format("%s_%s_%s%s%s", m_includeThisInFileName, mapNameChrs, gameRulesNameChrs, dedicatedText, serverText));
 		}
@@ -570,7 +585,7 @@ void CAutoTester::WriteResults(TBitfield flags, const string * additionalTestSui
 			unfinishedFailure->setAttr("name", string().Format("%s%s", m_includeThisInFileName, dedicatedText));
 		}
 
-		if (resultsCompleteFailMessage)
+		if(resultsCompleteFailMessage)
 		{
 			XmlNodeRef failedCase = GetISystem()->CreateXmlNode("failure");
 			failedCase->setAttr("type", "Unfinished");
@@ -594,7 +609,7 @@ void CAutoTester::WriteResults(TBitfield flags, const string * additionalTestSui
 
 	string justTheFilename;
 
-	if (m_createVerboseFilename)
+	if(m_createVerboseFilename)
 	{
 		justTheFilename.Format("autotest_%s_%s_%s%s%s.xml", m_includeThisInFileName, mapNameChrs, gameRulesNameChrs, dedicatedText, serverText); // TODO add datestamp if needed
 	}
@@ -612,17 +627,17 @@ void CAutoTester::WriteResults(TBitfield flags, const string * additionalTestSui
 
 
 #ifndef _RELEASE
-	CryLogAlways ("Outputting test to %s", m_outputPath.c_str());
+	CryLogAlways("Outputting test to %s", m_outputPath.c_str());
 #endif
 
 	SaveToValidXmlFile(testSuites, m_outputPath.c_str());
 
-	if (flags & kWriteResultsFlag_writeDoneMarkerFile)
+	if(flags & kWriteResultsFlag_writeDoneMarkerFile)
 	{
 		XmlNodeRef finished = GetISystem()->CreateXmlNode("Finished");
 		SaveToValidXmlFile(finished, m_outputPath + ".done");
 
-		if (m_quitWhenDone)
+		if(m_quitWhenDone)
 		{
 			gEnv->pConsole->ExecuteString("unload");
 			gEnv->pConsole->ExecuteString("quit");
@@ -648,7 +663,7 @@ void CAutoTester::UpdateTestNumClients()
 			}
 		}
 
-		if (numChannels > m_stateData.testNumClients.m_maxNumClientsConnected)
+		if(numChannels > m_stateData.testNumClients.m_maxNumClientsConnected)
 		{
 			m_stateData.testNumClients.m_maxNumClientsConnected=numChannels;
 		}
@@ -656,13 +671,13 @@ void CAutoTester::UpdateTestNumClients()
 		float timeSeconds=gEnv->pTimer->GetFrameStartTime().GetSeconds();
 		CryWatch("time=%f; numClients=%d; maxNumClients=%d; numClientsExpected=%d", timeSeconds, numChannels, m_stateData.testNumClients.m_maxNumClientsConnected, m_stateData.testNumClients.m_numClientsExpected);
 
-		if (timeSeconds > m_stateData.testNumClients.m_debugTimer)
+		if(timeSeconds > m_stateData.testNumClients.m_debugTimer)
 		{
 			m_stateData.testNumClients.m_debugTimer = timeSeconds+2.0f;
 			CryLogAlways("CAutoTester::UpdateTestNumClients() updating time=%f; numClients=%d; maxNumClients=%d; numClientsExpected=%d", timeSeconds, numChannels, m_stateData.testNumClients.m_maxNumClientsConnected, m_stateData.testNumClients.m_numClientsExpected);
 		}
 
-		if (timeSeconds > m_stateData.testNumClients.m_timeOut)
+		if(timeSeconds > m_stateData.testNumClients.m_timeOut)
 		{
 			CryLogAlways("CAutoTester::UpdateTestNumClients() testing num clients and time has expired. numClients=%d; maxNumClients=%d; numClientsExpected=%d", numChannels, m_stateData.testNumClients.m_maxNumClientsConnected, m_stateData.testNumClients.m_numClientsExpected);
 
@@ -683,11 +698,11 @@ void CAutoTester::UpdateTestNumClients()
 			testCase->setAttr("maxNumClientsConnected",m_stateData.testNumClients.m_maxNumClientsConnected);
 			testCase->setAttr("numClientsExpected", m_stateData.testNumClients.m_numClientsExpected);
 
-			if (numChannels == m_stateData.testNumClients.m_maxNumClientsConnected)
+			if(numChannels == m_stateData.testNumClients.m_maxNumClientsConnected)
 			{
 				CryLogAlways("CAutoTester::UpdateTestNumClients() testing num clients and time has expired. We have the same number of clients are our maxNumClients %d", numChannels);
 
-				if (numChannels == m_stateData.testNumClients.m_numClientsExpected)	// may want to remove this check as keeping the number that joined should be sufficient
+				if(numChannels == m_stateData.testNumClients.m_numClientsExpected)	// may want to remove this check as keeping the number that joined should be sufficient
 				{
 					CryLogAlways("CAutoTester::UpdateTestNumClients() testing num clients and time has expired. We have the same number of clients as we expected to have %d", numChannels);
 					testCase->setAttr("status", "run");
@@ -743,7 +758,7 @@ void CAutoTester::UpdateTestNumClientsLevelRotate()
 			}
 		}
 
-		if (numChannels > m_stateData.testNumClientsRotate.m_maxNumClientsConnected)
+		if(numChannels > m_stateData.testNumClientsRotate.m_maxNumClientsConnected)
 		{
 			m_stateData.testNumClientsRotate.m_maxNumClientsConnected=numChannels;
 		}
@@ -751,13 +766,13 @@ void CAutoTester::UpdateTestNumClientsLevelRotate()
 		float timeSeconds=gEnv->pTimer->GetFrameStartTime().GetSeconds();
 		CryWatch("time=%f; nextTimeOut=%f; numClients=%d; maxNumClients=%d; numClientsExpected=%d", timeSeconds, m_stateData.testNumClientsRotate.m_nextTimeOut, numChannels, m_stateData.testNumClientsRotate.m_maxNumClientsConnected, m_stateData.testNumClientsRotate.m_numClientsExpected);
 
-		if (timeSeconds > m_stateData.testNumClientsRotate.m_debugTimer)
+		if(timeSeconds > m_stateData.testNumClientsRotate.m_debugTimer)
 		{
 			m_stateData.testNumClientsRotate.m_debugTimer = timeSeconds+2.0f;
 			CryLogAlways("CAutoTester::UpdateTestNumClientsLevelRotate() updating time=%f; nextTimeOut=%f; numClients=%d; maxNumClients=%d; numClientsExpected=%d", timeSeconds, m_stateData.testNumClientsRotate.m_nextTimeOut, numChannels, m_stateData.testNumClientsRotate.m_maxNumClientsConnected, m_stateData.testNumClientsRotate.m_numClientsExpected);
 		}
 
-		if (timeSeconds > m_stateData.testNumClientsRotate.m_nextTimeOut)
+		if(timeSeconds > m_stateData.testNumClientsRotate.m_nextTimeOut)
 		{
 			CryLogAlways("CAutoTester::UpdateTestNumClientsLevelRotate() testing num clients and time has expired. numClients=%d; maxNumClients=%d; numClientsExpected=%d", numChannels, m_stateData.testNumClientsRotate.m_maxNumClientsConnected, m_stateData.testNumClientsRotate.m_numClientsExpected);
 
@@ -771,7 +786,8 @@ void CAutoTester::UpdateTestNumClientsLevelRotate()
 
 			XmlNodeRef testCase = GetISystem()->CreateXmlNode();
 			string nameStr;
-			if (m_stateData.testNumClientsRotate.m_levelIndex == 0)
+
+			if(m_stateData.testNumClientsRotate.m_levelIndex == 0)
 			{
 				nameStr.Format("%02d/%d) Level: %s; gameRules: %s; numClients=%d; timeTested=%.1f seconds", m_stateData.testNumClientsRotate.m_levelIndex+1, pLevelRotation->GetLength(), mapName.c_str(), gameRulesName.c_str(), numChannels, m_stateData.testNumClientsRotate.m_firstLevelTimeOut);
 			}
@@ -790,11 +806,11 @@ void CAutoTester::UpdateTestNumClientsLevelRotate()
 			testCase->setAttr("maxNumClientsConnected",m_stateData.testNumClientsRotate.m_maxNumClientsConnected);
 			testCase->setAttr("numClientsExpected", m_stateData.testNumClientsRotate.m_numClientsExpected);
 
-			if (numChannels == m_stateData.testNumClientsRotate.m_maxNumClientsConnected)
+			if(numChannels == m_stateData.testNumClientsRotate.m_maxNumClientsConnected)
 			{
 				CryLogAlways("CAutoTester::UpdateTestNumClientsLevelRotate() testing num clients and time has expired. We have the same number of clients are our maxNumClients %d", numChannels);
 
-				if (numChannels == m_stateData.testNumClientsRotate.m_numClientsExpected)	// may want to remove this check as keeping the number that joined should be sufficient
+				if(numChannels == m_stateData.testNumClientsRotate.m_numClientsExpected)	// may want to remove this check as keeping the number that joined should be sufficient
 				{
 					CryLogAlways("CAutoTester::UpdateTestNumClientsLevelRotate() testing num clients and time has expired. We have the same number of clients as we expected to have %d", numChannels);
 					testCase->setAttr("status", "run");
@@ -825,8 +841,8 @@ void CAutoTester::UpdateTestNumClientsLevelRotate()
 			Stop();
 
 
-		
-			if (pLevelRotation->GetNext() != 0)
+
+			if(pLevelRotation->GetNext() != 0)
 			{
 				CryLogAlways("CAutoTester::UpdateTestNumClientsLevelRotate() has found we're not at the end of the level rotation moving on to the next level - levelIndex=%d; rotation->GetNext()=%d\n", m_stateData.testNumClientsRotate.m_levelIndex+1, pLevelRotation->GetNext());
 				Restart();
@@ -845,23 +861,26 @@ void CAutoTester::UpdateTestNumClientsLevelRotate()
 void CAutoTester::UpdateTestFeatureTests()
 {
 #if ENABLE_FEATURE_TESTER
-	if (! CFeatureTester::GetInstance()->GetIsActive())
+
+	if(! CFeatureTester::GetInstance()->GetIsActive())
 	{
 		CFeatureTester::GetInstance()->InformAutoTesterOfResults(NULL);
-		CryLogAlways ("CAutoTester::UpdateTestFeatureTests() discovered that the feature tester is no longer active! We're done!");
+		CryLogAlways("CAutoTester::UpdateTestFeatureTests() discovered that the feature tester is no longer active! We're done!");
 		Stop();
 	}
+
 #endif
 }
 
 void CAutoTester::UpdatePerformanceTestInGame()
 {
-	IActor* pPlayer = gEnv->pGame->GetIGameFramework()->GetClientActor();
-	if (pPlayer)
+	IActor *pPlayer = gEnv->pGame->GetIGameFramework()->GetClientActor();
+
+	if(pPlayer)
 	{
 		float timeSeconds=gEnv->pTimer->GetFrameStartTime().GetSeconds();
 
-		if (pPlayer->IsDead())
+		if(pPlayer->IsDead())
 		{
 			CryLogAlways("CAutoTester::UpdatePerformanceTestInGame() detected that our player is dead - requesting revive");
 
@@ -875,9 +894,9 @@ void CAutoTester::UpdatePerformanceTestInGame()
 		}
 		else
 		{
-			if (!m_stateData.testPerformance.m_bConfigExecuted)
+			if(!m_stateData.testPerformance.m_bConfigExecuted)
 			{
-				if (timeSeconds > m_stateData.testPerformance.m_delayToStart)
+				if(timeSeconds > m_stateData.testPerformance.m_delayToStart)
 				{
 					CryLogAlways("CAutoTester::UpdatePerformanceTestInGame() executing configfile=%s", m_stateData.testPerformance.m_configFile);
 					gEnv->pConsole->ExecuteString(string().Format("exec %s", m_stateData.testPerformance.m_configFile));
@@ -885,10 +904,10 @@ void CAutoTester::UpdatePerformanceTestInGame()
 				}
 			}
 		}
-	
+
 		//CryWatch("time=%f; timeOut=%f", timeSeconds, m_stateData.testPerformance.m_timeOut);
 
-		if (timeSeconds > m_stateData.testPerformance.m_timeOut)
+		if(timeSeconds > m_stateData.testPerformance.m_timeOut)
 		{
 			CryLogAlways("CAutoTester::UpdatePerformanceTestInGame() finished running test - disconnecting to generate telemetry");
 			gEnv->pConsole->ExecuteString("disconnect");
@@ -901,7 +920,8 @@ void CAutoTester::UpdatePerformanceTestInGame()
 void CAutoTester::UpdatePerformanceTestWaitingForTelemetry()
 {
 	float timeSeconds=gEnv->pTimer->GetFrameStartTime().GetSeconds();
-	if (timeSeconds > m_stateData.testPerformance.m_timeOut)
+
+	if(timeSeconds > m_stateData.testPerformance.m_timeOut)
 	{
 		CryLogAlways("CAutoTester::UpdatePerformanceTestWaitingForTelemetry() finished waiting to let game generate telemetry. Passing test!");
 		AddSimpleTestCase("Performance test", string().Format("%s - Succeeded outputting telemetry", m_stateData.testPerformance.m_configFile), timeSeconds, NULL);
@@ -913,54 +933,60 @@ void CAutoTester::UpdatePerformanceTest()
 {
 	switch(m_stateData.testPerformance.m_subState)
 	{
-		case CAutoTester::k_testPerformance_substate_ingame:
-		{
-			UpdatePerformanceTestInGame();
-			break;
-		}
-		case CAutoTester::k_testPerformance_substate_waiting_to_submit_telemetry:
-		{
-			UpdatePerformanceTestWaitingForTelemetry();
-			break;
-		}
+	case CAutoTester::k_testPerformance_substate_ingame:
+	{
+		UpdatePerformanceTestInGame();
+		break;
+	}
+
+	case CAutoTester::k_testPerformance_substate_waiting_to_submit_telemetry:
+	{
+		UpdatePerformanceTestWaitingForTelemetry();
+		break;
+	}
 	}
 }
 
 
 void CAutoTester::Update()
 {
-	if (m_started)
+	if(m_started)
 	{
 		CryWatch("[AUTOTESTER] %s \"%s\" tests", m_finished ? "Finished" : "Running", m_includeThisInFileName);
-		for (TTestSuites::const_iterator it=m_testSuites.begin(); it!=m_testSuites.end(); ++it)
+
+		for(TTestSuites::const_iterator it=m_testSuites.begin(); it!=m_testSuites.end(); ++it)
 		{
 			const STestSuite &testSuiteStruct = it->second;
 			CryWatch("[AUTOTESTER] Suite '%s' %spass=%d$o %sfail=%d$o", it->first.c_str(), testSuiteStruct.m_numTestCasesPassed ? "$3" : "$9", testSuiteStruct.m_numTestCasesPassed, testSuiteStruct.m_numTestCasesFailed ? "$4" : "$9", testSuiteStruct.m_numTestCasesFailed);
 		}
 
-		if (! m_finished)
+		if(! m_finished)
 		{
-			switch (m_state)
+			switch(m_state)
 			{
-				case ATEST_STATE_TEST_NUM_CLIENTS:
-					UpdateTestNumClients();
-					break;
-				case ATEST_STATE_TEST_NUM_CLIENTS_LEVEL_ROTATE:
-					UpdateTestNumClientsLevelRotate();
-					break;
-				case ATEST_STATE_TEST_FEATURES:
-					UpdateTestFeatureTests();
-					break;
-				case ATEST_STATE_TEST_PERFORMANCE:
-					UpdatePerformanceTest();
-					break;
-				default:
-					CRY_ASSERT_MESSAGE(0, string().Format("CAutoTester::Update() unrecognised state %d (%s)", m_state, s_autoTesterStateNames[m_state]));
-					break;
+			case ATEST_STATE_TEST_NUM_CLIENTS:
+				UpdateTestNumClients();
+				break;
+
+			case ATEST_STATE_TEST_NUM_CLIENTS_LEVEL_ROTATE:
+				UpdateTestNumClientsLevelRotate();
+				break;
+
+			case ATEST_STATE_TEST_FEATURES:
+				UpdateTestFeatureTests();
+				break;
+
+			case ATEST_STATE_TEST_PERFORMANCE:
+				UpdatePerformanceTest();
+				break;
+
+			default:
+				CRY_ASSERT_MESSAGE(0, string().Format("CAutoTester::Update() unrecognised state %d (%s)", m_state, s_autoTesterStateNames[m_state]));
+				break;
 			}
 		}
 	}
-	else if (g_pGameCVars->autotest_enabled)
+	else if(g_pGameCVars->autotest_enabled)
 	{
 		CryLogAlways("CAutoTester::Update() autotest_enabled");
 
@@ -974,16 +1000,18 @@ CAutoTester::AutoTestState CAutoTester::FindStateFromStr(const char *stateName)
 {
 	AutoTestState state=ATEST_STATE_NONE;
 
-	for (int i=0; i<ATEST_STATE_NUM; i++)
+	for(int i=0; i<ATEST_STATE_NUM; i++)
 	{
 		bool match = stricmp(stateName, s_autoTesterStateNames[i]) == 0;
-		CryLog ("Does '%s' match '%s'... %s", stateName, s_autoTesterStateNames[i], match ? "yes!" : "no");
-		if (match)
+		CryLog("Does '%s' match '%s'... %s", stateName, s_autoTesterStateNames[i], match ? "yes!" : "no");
+
+		if(match)
 		{
 			state=(AutoTestState)i;
 			break;
 		}
 	}
+
 	return state;
 }
 
@@ -1001,11 +1029,11 @@ bool CAutoTester::GetParam(const char **str, char outName[], int inNameMaxSize, 
 	outValue[0]=0;
 
 	// Get Name
-	if (*str)
+	if(*str)
 	{
 		nameLength=cry_copyStringUntilFindChar(outName, *str, inNameMaxSize, ':');
 
-		if (nameLength)
+		if(nameLength)
 		{
 			*str += nameLength;
 
@@ -1013,7 +1041,7 @@ bool CAutoTester::GetParam(const char **str, char outName[], int inNameMaxSize, 
 			success=true;
 
 			// Get Value
-			if (valueLength)
+			if(valueLength)
 			{
 				*str+= valueLength;
 			}
@@ -1024,17 +1052,17 @@ bool CAutoTester::GetParam(const char **str, char outName[], int inNameMaxSize, 
 		}
 		else
 		{
-			DesignerWarning (outName[0] == '\0', "Syntax error in auto tester initialization string: found '%s' at end of string, expected 'key:value' format", outName);
+			DesignerWarning(outName[0] == '\0', "Syntax error in auto tester initialization string: found '%s' at end of string, expected 'key:value' format", outName);
 		}
 	}
 
-	if (success)
+	if(success)
 	{
-		CryLogAlways ("CAutoTester::GetParam found parameter called '%s' with value '%s'", outName, outValue);
+		CryLogAlways("CAutoTester::GetParam found parameter called '%s' with value '%s'", outName, outValue);
 	}
 	else
 	{
-		CryLogAlways ("CAutoTester::GetParam found no more parameters");
+		CryLogAlways("CAutoTester::GetParam found no more parameters");
 	}
 
 	return success;

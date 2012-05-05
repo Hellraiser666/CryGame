@@ -6,7 +6,7 @@
 //  File name:   UIManager.cpp
 //  Version:     v1.00
 //  Created:     08/8/2011 by Paul Reindell.
-//  Description: 
+//  Description:
 // -------------------------------------------------------------------------
 //  History:
 //
@@ -18,34 +18,36 @@
 #include <IGameFramework.h>
 #include <IFlashUI.h>
 
-IUIEventSystemFactory* IUIEventSystemFactory::s_pFirst = NULL;
-IUIEventSystemFactory* IUIEventSystemFactory::s_pLast;
+IUIEventSystemFactory *IUIEventSystemFactory::s_pFirst = NULL;
+IUIEventSystemFactory *IUIEventSystemFactory::s_pLast;
 
 
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////// Singleton ///////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 
-CUIManager* CUIManager::m_pInstance = NULL;
+CUIManager *CUIManager::m_pInstance = NULL;
 
 void CUIManager::Init()
-{ 
-	assert( m_pInstance == NULL );
-	if ( !m_pInstance && !gEnv->IsDedicated()  )
+{
+	assert(m_pInstance == NULL);
+
+	if(!m_pInstance && !gEnv->IsDedicated())
 		m_pInstance = new CUIManager();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 void CUIManager::Destroy()
 {
-	SAFE_DELETE( m_pInstance );
+	SAFE_DELETE(m_pInstance);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-CUIManager* CUIManager::GetInstance()
+CUIManager *CUIManager::GetInstance()
 {
-	if ( !m_pInstance )
+	if(!m_pInstance)
 		Init();
+
 	return m_pInstance;
 }
 
@@ -55,13 +57,15 @@ CUIManager* CUIManager::GetInstance()
 CUIManager::CUIManager()
 	: m_bPickupMsgVisible(false)
 {
-	IUIEventSystemFactory* pFactory = IUIEventSystemFactory::GetFirst();
-	while (pFactory)
+	IUIEventSystemFactory *pFactory = IUIEventSystemFactory::GetFirst();
+
+	while(pFactory)
 	{
-		IUIGameEventSystem* pGameEvent = pFactory->Create();
+		IUIGameEventSystem *pGameEvent = pFactory->Create();
 		CRY_ASSERT_MESSAGE(pGameEvent, "Invalid IUIEventSystemFactory!");
-		const char* name = pGameEvent->GetTypeName();
+		const char *name = pGameEvent->GetTypeName();
 		TUIEventSystems::const_iterator it = m_EventSystems.find(name);
+
 		if(it == m_EventSystems.end())
 		{
 			m_EventSystems[name] = pGameEvent;
@@ -73,19 +77,21 @@ CUIManager::CUIManager()
 			CRY_ASSERT_MESSAGE(false, str.c_str());
 			SAFE_DELETE(pGameEvent);
 		}
+
 		pFactory = pFactory->GetNext();
 	}
 
 	TUIEventSystems::const_iterator it = m_EventSystems.begin();
 	TUIEventSystems::const_iterator end = m_EventSystems.end();
-	for (;it != end; ++it)
+
+	for(; it != end; ++it)
 	{
 		it->second->InitEventSystem();
 	}
 
 	m_soundListener = gEnv->pSoundSystem->CreateListener();
 	InitSound();
-	gEnv->pSystem->GetISystemEventDispatcher()->RegisterListener( this );
+	gEnv->pSystem->GetISystemEventDispatcher()->RegisterListener(this);
 
 	LoadProfile();
 }
@@ -95,22 +101,24 @@ CUIManager::~CUIManager()
 {
 	TUIEventSystems::const_iterator it = m_EventSystems.begin();
 	TUIEventSystems::const_iterator end = m_EventSystems.end();
-	for (;it != end; ++it)
+
+	for(; it != end; ++it)
 	{
 		it->second->UnloadEventSystem();
 	}
 
 	it = m_EventSystems.begin();
-	for (;it != end; ++it)
+
+	for(; it != end; ++it)
 	{
 		delete it->second;
 	}
 
-	gEnv->pSystem->GetISystemEventDispatcher()->RemoveListener( this );
+	gEnv->pSystem->GetISystemEventDispatcher()->RemoveListener(this);
 
 }
 
-IUIGameEventSystem* CUIManager::GetUIEventSystem(const char* type) const
+IUIGameEventSystem *CUIManager::GetUIEventSystem(const char *type) const
 {
 	TUIEventSystems::const_iterator it = m_EventSystems.find(type);
 	assert(it != m_EventSystems.end());
@@ -122,7 +130,8 @@ void CUIManager::ProcessViewParams(const SViewParams &viewParams)
 {
 	TUIEventSystems::const_iterator it = m_EventSystems.begin();
 	TUIEventSystems::const_iterator end = m_EventSystems.end();
-	for (;it != end; ++it)
+
+	for(; it != end; ++it)
 	{
 		it->second->UpdateView(viewParams);
 	}
@@ -131,13 +140,14 @@ void CUIManager::ProcessViewParams(const SViewParams &viewParams)
 /////////////////////////////////////////////////////////////////////////////////////
 void CUIManager::UpdatePickupMessage(bool bShow)
 {
-	if (!gEnv->pFlashUI) return;
+	if(!gEnv->pFlashUI) return;
 
-	if (m_bPickupMsgVisible != bShow)
+	if(m_bPickupMsgVisible != bShow)
 	{
 		m_bPickupMsgVisible = bShow;
-		static IUIAction* pAction = gEnv->pFlashUI->GetUIAction("DisplayPickupText");
-		if (pAction)
+		static IUIAction *pAction = gEnv->pFlashUI->GetUIAction("DisplayPickupText");
+
+		if(pAction)
 		{
 			SUIArguments args;
 			args.AddArgument(bShow ? "@ui_pickup" : "");
@@ -147,9 +157,9 @@ void CUIManager::UpdatePickupMessage(bool bShow)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-void CUIManager::OnSystemEvent( ESystemEvent event, UINT_PTR wparam, UINT_PTR lparam )
+void CUIManager::OnSystemEvent(ESystemEvent event, UINT_PTR wparam, UINT_PTR lparam)
 {
-	if (event == ESYSTEM_EVENT_LEVEL_POST_UNLOAD)
+	if(event == ESYSTEM_EVENT_LEVEL_POST_UNLOAD)
 	{
 		InitSound();
 	}
@@ -158,11 +168,11 @@ void CUIManager::OnSystemEvent( ESystemEvent event, UINT_PTR wparam, UINT_PTR lp
 /////////////////////////////////////////////////////////////////////////////////////
 void CUIManager::InitSound()
 {
-	if (m_soundListener != LISTENERID_INVALID)
+	if(m_soundListener != LISTENERID_INVALID)
 	{
 		IListener *pListener = gEnv->pSoundSystem->GetListener(m_soundListener);
 
-		if (pListener)
+		if(pListener)
 		{
 			pListener->SetRecordLevel(1.0f);
 			pListener->SetActive(true);
@@ -173,8 +183,9 @@ void CUIManager::InitSound()
 /////////////////////////////////////////////////////////////////////////////////////
 void CUIManager::LoadProfile()
 {
-	IPlayerProfile* pProfile = GetCurrentProfile();
-	if (!pProfile)
+	IPlayerProfile *pProfile = GetCurrentProfile();
+
+	if(!pProfile)
 	{
 		assert(false);
 		return;
@@ -182,7 +193,8 @@ void CUIManager::LoadProfile()
 
 	TUIEventSystems::const_iterator it = m_EventSystems.begin();
 	TUIEventSystems::const_iterator end = m_EventSystems.end();
-	for (;it != end; ++it)
+
+	for(; it != end; ++it)
 	{
 		it->second->LoadProfile(pProfile);
 	}
@@ -191,8 +203,9 @@ void CUIManager::LoadProfile()
 /////////////////////////////////////////////////////////////////////////////////////
 void CUIManager::SaveProfile()
 {
-	IPlayerProfile* pProfile = GetCurrentProfile();
-	if (!pProfile)
+	IPlayerProfile *pProfile = GetCurrentProfile();
+
+	if(!pProfile)
 	{
 		assert(false);
 		return;
@@ -200,20 +213,21 @@ void CUIManager::SaveProfile()
 
 	TUIEventSystems::const_iterator it = m_EventSystems.begin();
 	TUIEventSystems::const_iterator end = m_EventSystems.end();
-	for (;it != end; ++it)
+
+	for(; it != end; ++it)
 	{
 		it->second->SaveProfile(pProfile);
 	}
 }
 
-IPlayerProfile* CUIManager::GetCurrentProfile()
+IPlayerProfile *CUIManager::GetCurrentProfile()
 {
-	if (!gEnv->pGame || !gEnv->pGame->GetIGameFramework() || !gEnv->pGame->GetIGameFramework()->GetIPlayerProfileManager())
+	if(!gEnv->pGame || !gEnv->pGame->GetIGameFramework() || !gEnv->pGame->GetIGameFramework()->GetIPlayerProfileManager())
 	{
 		assert(false);
 		return NULL;
 	}
 
-	IPlayerProfileManager* pProfileManager = gEnv->pGame->GetIGameFramework()->GetIPlayerProfileManager();
-	return pProfileManager->GetCurrentProfile( pProfileManager->GetCurrentUser() );
+	IPlayerProfileManager *pProfileManager = gEnv->pGame->GetIGameFramework()->GetIPlayerProfileManager();
+	return pProfileManager->GetCurrentProfile(pProfileManager->GetCurrentUser());
 }

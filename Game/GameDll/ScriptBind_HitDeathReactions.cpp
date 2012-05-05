@@ -9,7 +9,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-CScriptBind_HitDeathReactions::CScriptBind_HitDeathReactions(ISystem* pSystem, IGameFramework* pGameFramework) : m_pSystem(pSystem), m_pGameFW(pGameFramework)
+CScriptBind_HitDeathReactions::CScriptBind_HitDeathReactions(ISystem *pSystem, IGameFramework *pGameFramework) : m_pSystem(pSystem), m_pGameFW(pGameFramework)
 {
 	Init(pSystem->GetIScriptSystem(), pSystem, 1);
 
@@ -45,7 +45,8 @@ int	CScriptBind_HitDeathReactions::OnHit(IFunctionHandler *pH, SmartScriptTable 
 	bool bRet = false;
 
 	CHitDeathReactionsPtr pHitDeathReactions = GetHitDeathReactions(pH);
-	if (pHitDeathReactions)
+
+	if(pHitDeathReactions)
 	{
 		HitInfo hitInfo;
 		CGameRules::CreateHitInfoFromScript(scriptHitInfo, hitInfo);
@@ -58,10 +59,11 @@ int	CScriptBind_HitDeathReactions::OnHit(IFunctionHandler *pH, SmartScriptTable 
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-int CScriptBind_HitDeathReactions::ExecuteDeathReaction (IFunctionHandler *pH, SmartScriptTable reactionParams)
+int CScriptBind_HitDeathReactions::ExecuteDeathReaction(IFunctionHandler *pH, SmartScriptTable reactionParams)
 {
 	CHitDeathReactionsPtr pHitDeathReactions = GetHitDeathReactions(pH);
-	if (pHitDeathReactions)
+
+	if(pHitDeathReactions)
 		pHitDeathReactions->ExecuteDeathReaction(reactionParams);
 
 	return pH->EndFunction();
@@ -69,10 +71,11 @@ int CScriptBind_HitDeathReactions::ExecuteDeathReaction (IFunctionHandler *pH, S
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-int CScriptBind_HitDeathReactions::ExecuteHitReaction (IFunctionHandler *pH, SmartScriptTable reactionParams)
+int CScriptBind_HitDeathReactions::ExecuteHitReaction(IFunctionHandler *pH, SmartScriptTable reactionParams)
 {
 	CHitDeathReactionsPtr pHitDeathReactions = GetHitDeathReactions(pH);
-	if (pHitDeathReactions)
+
+	if(pHitDeathReactions)
 		pHitDeathReactions->ExecuteHitReaction(reactionParams);
 
 	return pH->EndFunction();
@@ -85,7 +88,8 @@ int CScriptBind_HitDeathReactions::EndCurrentReaction(IFunctionHandler *pH)
 	bool bSuccess = false;
 
 	CHitDeathReactionsPtr pHitDeathReactions = GetHitDeathReactions(pH);
-	if (pHitDeathReactions)
+
+	if(pHitDeathReactions)
 		bSuccess = pHitDeathReactions->EndCurrentReaction();
 
 	return pH->EndFunction(bSuccess);
@@ -98,13 +102,15 @@ int	CScriptBind_HitDeathReactions::IsValidReaction(IFunctionHandler *pH, SmartSc
 	bool bResult = false;
 
 	CHitDeathReactionsPtr pHitDeathReactions = GetHitDeathReactions(pH);
-	if (pHitDeathReactions)
+
+	if(pHitDeathReactions)
 	{
 		HitInfo hitInfo;
 		CGameRules::CreateHitInfoFromScript(scriptHitInfo, hitInfo);
 
 		float fCausedDamage = 0.0f;
-		if (pH->GetParamCount() > 2)
+
+		if(pH->GetParamCount() > 2)
 			pH->GetParam(3, fCausedDamage);
 
 		bResult = pHitDeathReactions->IsValidReaction(hitInfo, validationParams, fCausedDamage);
@@ -120,9 +126,10 @@ int CScriptBind_HitDeathReactions::StartReactionAnim(IFunctionHandler *pH)
 	bool bResult = false;
 
 	CHitDeathReactionsPtr pHitDeathReactions = GetHitDeathReactions(pH);
-	if (pHitDeathReactions)
+
+	if(pHitDeathReactions)
 	{
-		const char* szAnimName = NULL;
+		const char *szAnimName = NULL;
 		bool bLoop = false;
 		float fBlendTime = 0.2f;
 		int iSlot = 0;
@@ -130,26 +137,31 @@ int CScriptBind_HitDeathReactions::StartReactionAnim(IFunctionHandler *pH)
 		float fAniSpeed = 1.0f;
 		uint32 animFlags = 0;
 
-		if (!pH->GetParam(1, szAnimName))
+		if(!pH->GetParam(1, szAnimName))
 		{
 			CryWarning(VALIDATOR_MODULE_GAME, VALIDATOR_WARNING, "CScriptBind_HitDeathReactions::StartReactionAnim, animation name not specified");
 		}
-		else if (pH->GetParamCount() > 1)
+		else if(pH->GetParamCount() > 1)
 		{
 			pH->GetParam(2, bLoop);
-			if (pH->GetParamCount() > 2)
+
+			if(pH->GetParamCount() > 2)
 			{
 				pH->GetParam(3, fBlendTime);
-				if (pH->GetParamCount() > 3)
+
+				if(pH->GetParamCount() > 3)
 				{
 					pH->GetParam(4, iSlot);
-					if (pH->GetParamCount() > 4)
+
+					if(pH->GetParamCount() > 4)
 					{
 						pH->GetParam(5, iLayer);
-						if (pH->GetParamCount() > 5)
+
+						if(pH->GetParamCount() > 5)
 						{
 							pH->GetParam(5, fAniSpeed);
-							if (pH->GetParamCount() > 6)
+
+							if(pH->GetParamCount() > 6)
 							{
 								pH->GetParam(6, animFlags);
 							}
@@ -158,7 +170,7 @@ int CScriptBind_HitDeathReactions::StartReactionAnim(IFunctionHandler *pH)
 				}
 			}
 		}
-		
+
 		bResult = pHitDeathReactions->StartReactionAnim(szAnimName, bLoop, fBlendTime, iSlot, iLayer, animFlags, fAniSpeed);
 	}
 
@@ -170,7 +182,8 @@ int CScriptBind_HitDeathReactions::StartReactionAnim(IFunctionHandler *pH)
 int CScriptBind_HitDeathReactions::EndReactionAnim(IFunctionHandler *pH)
 {
 	CHitDeathReactionsPtr pHitDeathReactions = GetHitDeathReactions(pH);
-	if (pHitDeathReactions)
+
+	if(pHitDeathReactions)
 	{
 		pHitDeathReactions->EndReactionAnim();
 	}
@@ -180,7 +193,7 @@ int CScriptBind_HitDeathReactions::EndReactionAnim(IFunctionHandler *pH)
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-int CScriptBind_HitDeathReactions::StartInteractiveAction(IFunctionHandler *pH, const char* szActionName)
+int CScriptBind_HitDeathReactions::StartInteractiveAction(IFunctionHandler *pH, const char *szActionName)
 {
 	// NOT SUPPORTED IN SDK
 	return pH->EndFunction();
@@ -188,7 +201,7 @@ int CScriptBind_HitDeathReactions::StartInteractiveAction(IFunctionHandler *pH, 
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-CPlayer* CScriptBind_HitDeathReactions::GetAssociatedActor(IFunctionHandler *pH) const
+CPlayer *CScriptBind_HitDeathReactions::GetAssociatedActor(IFunctionHandler *pH) const
 {
 	SmartScriptTable selfTable;
 	pH->GetSelf(selfTable);
@@ -198,19 +211,19 @@ CPlayer* CScriptBind_HitDeathReactions::GetAssociatedActor(IFunctionHandler *pH)
 	ScriptHandle actorEntityId;
 	selfTable->GetValue("__actor", actorEntityId);
 
-	IActor* pActor = m_pGameFW->GetIActorSystem()->GetActor(static_cast<EntityId>(actorEntityId.n));
+	IActor *pActor = m_pGameFW->GetIActorSystem()->GetActor(static_cast<EntityId>(actorEntityId.n));
 
-	// [*DavidR | 13/Nov/2009] WARNING: This downcast could be dangerous if CHitDeathReactions is moved to 
+	// [*DavidR | 13/Nov/2009] WARNING: This downcast could be dangerous if CHitDeathReactions is moved to
 	// CActor classes
 	CRY_ASSERT(pActor && (pActor->GetActorClass() == CPlayer::GetActorClassType()));
-	return static_cast<CPlayer*>(pActor);
+	return static_cast<CPlayer *>(pActor);
 }
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 CHitDeathReactionsPtr CScriptBind_HitDeathReactions::GetHitDeathReactions(IFunctionHandler *pH) const
 {
-	CPlayer* pActor = GetAssociatedActor(pH);
+	CPlayer *pActor = GetAssociatedActor(pH);
 	CRY_ASSERT(pActor);
 
 	return pActor ? pActor->GetHitDeathReactions() : CHitDeathReactionsPtr();

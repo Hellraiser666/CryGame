@@ -30,10 +30,11 @@ void CWeaponSharedParams::ResetInternal()
 }
 
 //======================================================================
-IWeaponSharedData* CWeaponSharedParams::GetZoomSharedParams(const char* name, int zoomIdx)
+IWeaponSharedData *CWeaponSharedParams::GetZoomSharedParams(const char *name, int zoomIdx)
 {
 	TSharedMap::iterator it=m_zoomParams.find(zoomIdx);
-	if (it!=m_zoomParams.end())
+
+	if(it!=m_zoomParams.end())
 		return it->second;
 
 	//if (true)
@@ -49,16 +50,17 @@ IWeaponSharedData* CWeaponSharedParams::GetZoomSharedParams(const char* name, in
 }
 
 //===================================================
-IWeaponSharedData* CWeaponSharedParams::CreateZoomParams(const char* name)
+IWeaponSharedData *CWeaponSharedParams::CreateZoomParams(const char *name)
 {
 	return (g_pGame->GetWeaponSystem()->CreateZoomModeData(name));
 }
 
 //==============================================================
-IWeaponSharedData* CWeaponSharedParams::GetFireSharedParams(const char* name, int fireIdx)
+IWeaponSharedData *CWeaponSharedParams::GetFireSharedParams(const char *name, int fireIdx)
 {
 	TSharedMap::iterator it=m_fireParams.find(fireIdx);
-	if (it!=m_fireParams.end())
+
+	if(it!=m_fireParams.end())
 		return it->second;
 
 	//if (true)
@@ -74,7 +76,7 @@ IWeaponSharedData* CWeaponSharedParams::GetFireSharedParams(const char* name, in
 }
 
 //===================================================
-IWeaponSharedData* CWeaponSharedParams::CreateFireParams(const char* name)
+IWeaponSharedData *CWeaponSharedParams::CreateFireParams(const char *name)
 {
 	return (g_pGame->GetWeaponSystem()->CreateFireModeData(name));
 }
@@ -97,6 +99,7 @@ void CWeaponSharedParams::GetMemoryUsage(ICrySizer *s) const
 	//Zoom shared data
 	s->AddContainer(m_zoomParams);
 	TSharedMap::const_iterator end = m_zoomParams.end();
+
 	for(TSharedMap::const_iterator cit = m_zoomParams.begin(); cit!=end; cit++)
 	{
 		cit->second->GetMemoryUsage(s);
@@ -105,6 +108,7 @@ void CWeaponSharedParams::GetMemoryUsage(ICrySizer *s) const
 	//Fire shared data
 	s->AddContainer(m_fireParams);
 	TSharedMap::const_iterator end2 = m_fireParams.end();
+
 	for(TSharedMap::const_iterator cit = m_fireParams.begin(); cit!=end2; cit++)
 	{
 		cit->second->GetMemoryUsage(s);
@@ -116,10 +120,11 @@ void CWeaponSharedParams::GetMemoryUsage(ICrySizer *s) const
 CWeaponSharedParams *CWeaponSharedParamsList::GetSharedParams(const char *className, bool create)
 {
 	TSharedParamsMap::iterator it=m_params.find(CONST_TEMP_STRING(className));
-	if (it!=m_params.end())
+
+	if(it!=m_params.end())
 		return it->second;
 
-	if (create)
+	if(create)
 	{
 		CWeaponSharedParams *params=new CWeaponSharedParams();
 		m_params.insert(TSharedParamsMap::value_type(className, params));
@@ -133,7 +138,8 @@ CWeaponSharedParams *CWeaponSharedParamsList::GetSharedParams(const char *classN
 void CWeaponSharedParamsList::GetMemoryUsage(ICrySizer *s) const
 {
 	s->AddContainer(m_params);
-	for (TSharedParamsMap::const_iterator iter = m_params.begin(); iter != m_params.end(); ++iter)
+
+	for(TSharedParamsMap::const_iterator iter = m_params.begin(); iter != m_params.end(); ++iter)
 	{
 		s->Add(iter->first);
 		iter->second->GetMemoryUsage(s);
