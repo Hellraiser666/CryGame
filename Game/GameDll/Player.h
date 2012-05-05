@@ -1041,8 +1041,6 @@ protected:
 		return true;
 	}
 
-	void InitInterference();
-
 	Ang3		m_angleOffset;	// Used only by the view system. (retained state)
 
 	Quat	m_viewQuat;//view quaternion
@@ -1147,9 +1145,6 @@ protected:
 	tSoundID m_sounds[ESound_Player_Last];
 	//client / localActor active first person effects
 	std::vector<EClientPostEffect> m_clientPostEffects;
-
-	typedef std::map<IEntityClass *, const SAlienInterferenceParams> TAlienInterferenceParams;
-	static TAlienInterferenceParams m_interferenceParams;
 
 	std::list<EntityId>			m_explosiveList[3];
 	bool                    m_bSpeedSprint;

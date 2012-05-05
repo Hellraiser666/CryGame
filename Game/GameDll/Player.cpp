@@ -146,7 +146,6 @@ int PlayerProcessBones(ICharacterInstance *pCharacter,void *pPlayer)
 }
 //--------------------
 
-CPlayer::TAlienInterferenceParams CPlayer::m_interferenceParams;
 uint32 CPlayer::s_ladderMaterial = 0;
 
 #define SafePhysEntGetStatus(pPhysEnt, status)		\
@@ -261,9 +260,6 @@ CPlayer::~CPlayer()
 	if(IsClient())
 	{
 		ResetScreenFX();
-
-		InitInterference();
-
 	}
 
 	m_pPlayerInput.reset();
@@ -345,23 +341,6 @@ void CPlayer::InitLocalPlayer()
 
 	if(IsClient() && !gEnv->bMultiplayer)
 		gEnv->pSoundSystem->AddEventListener(this, true);
-}
-
-void CPlayer::InitInterference()
-{
-	m_interferenceParams.clear();
-
-	IEntityClassRegistry *pRegistry = gEnv->pEntitySystem->GetClassRegistry();
-	IEntityClass *pClass = 0;
-
-	if(pClass = pRegistry->FindClass("Trooper"))
-		m_interferenceParams.insert(std::make_pair(pClass,SAlienInterferenceParams(5.f)));
-
-	if(pClass = pRegistry->FindClass("Scout"))
-		m_interferenceParams.insert(std::make_pair(pClass,SAlienInterferenceParams(20.f)));
-
-	if(pClass = pRegistry->FindClass("Hunter"))
-		m_interferenceParams.insert(std::make_pair(pClass,SAlienInterferenceParams(40.f)));
 }
 
 void CPlayer::BindInputs(IAnimationGraphState *pAGState)
@@ -561,54 +540,6 @@ void CPlayer::Draw(bool draw)
 //MR: thats true, check especially client/server
 void CPlayer::UpdateFirstPersonEffects(float frameTime)
 {
-
-	//=========================alien interference effect============================
-	bool doInterference = !m_interferenceParams.empty();
-
-	if(doInterference)
-	{
-		if(CScreenEffects *pSFX = GetScreenEffects())
-		{
-			//look whether there is an alien around
-			float aiStrength = 1.0f;
-			float interferenceRatio = 0.f;
-
-
-			if(interferenceRatio != 0.f)
-			{
-				float strength = interferenceRatio * aiStrength;
-				gEnv->p3DEngine->SetPostEffectParam("AlienInterference_Amount", 0.75f*strength);
-
-				if(!stl::find(m_clientPostEffects, EEffect_AlienInterference))
-				{
-					m_clientPostEffects.push_back(EEffect_AlienInterference);
-					PlaySound(ESound_Fear);
-				}
-			}
-			else
-				doInterference = false;
-		}
-	}
-
-	if(!doInterference && !m_clientPostEffects.empty() && GetScreenEffects())
-	{
-		// turn off
-		std::vector<EClientPostEffect>::iterator it = m_clientPostEffects.begin();
-
-		for(; it != m_clientPostEffects.end(); ++it)
-		{
-			if((*it) == EEffect_AlienInterference)
-			{
-				float aiStrength = 1.0f;
-				gEnv->p3DEngine->SetPostEffectParam("AlienInterference_Amount", 0.0f);
-
-				PlaySound(ESound_Fear, false);
-				m_clientPostEffects.erase(it);
-				break;
-			}
-		}
-	}
-
 	//===========================Stop firing weapon while sprinting/prone moving==============
 
 	if(IItem *pItem = GetCurrentItem())
@@ -3239,8 +3170,6 @@ void CPlayer::Revive(bool fromInit)
 	CActor::Revive(fromInit);
 
 	ResetScreenFX();
-
-	InitInterference();
 
 	m_parachuteEnabled = false; // no parachute by default
 	m_openParachuteTimer = -1.0f;
