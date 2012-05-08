@@ -761,7 +761,11 @@ void CGameRules::OnRevive(CActor *pActor, const Vec3 &pos, const Quat &rot, int 
 //------------------------------------------------------------------------
 void CGameRules::OnKill(CActor *pActor, EntityId shooterId, const char *weaponClassName, int damage, int material, int hit_type)
 {
-	NOTIFY_UI_MP(PlayerKilled(pActor->GetEntityId(), shooterId));
+	// If the killer is our player:
+	if(shooterId == CPlayer::GetHero()->GetEntityId())
+	{
+		CPlayer::GetHero()->AddXP(30);
+	}
 
 	ScriptHandle handleEntity(pActor->GetEntityId()), handleShooter(shooterId);
 	CallScript(m_clientStateScript, "OnKill", handleEntity, handleShooter, weaponClassName, damage, material, hit_type);

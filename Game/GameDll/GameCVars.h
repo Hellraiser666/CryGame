@@ -20,6 +20,8 @@ struct SCVars
 
 	SAIPerceptionCVars ai_perception;
 
+	int rpg_levelUpXP;
+
 	float cl_fov;
 	float cl_bob;
 	float cl_headBob;

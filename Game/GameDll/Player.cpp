@@ -236,7 +236,9 @@ CPlayer::CPlayer():m_pInteractor(NULL),
 	m_fTimeSinceLastEffectFootStep(1000000.0f),
 	m_footstepCounter(0),
 	m_timeForBreath(0.0f),
-	m_fLastEffectFootStepTime(0.0f)
+	m_fLastEffectFootStepTime(0.0f),
+	m_currentXP(0),
+	m_currentLevel(1)
 {
 	for(int i = 0; i < ESound_Player_Last; ++i)
 		m_sounds[i] = 0;
@@ -3339,6 +3341,8 @@ void CPlayer::Revive(bool fromInit)
 
 	if(m_pHitDeathReactions)
 		m_pHitDeathReactions->OnRevive();
+
+	this->SetThirdPerson(true);
 }
 
 void CPlayer::Kill()
@@ -4278,6 +4282,12 @@ void CPlayer::FullSerialize(TSerialize ser)
 
 	if(ser.IsReading())
 		ResetScreenFX();
+
+	// Serialise RPG data
+	ser.BeginGroup("RPGData");
+	ser.Value("currentXP", m_currentXP);
+	ser.Value("currentLevel", m_currentLevel);
+	ser.EndGroup();
 
 	ser.BeginGroup("BasicProperties");
 	//ser.EnumValue("stance", this, &CPlayer::GetStance, &CPlayer::SetStance, STANCE_NULL, STANCE_LAST);
@@ -7522,6 +7532,30 @@ bool CPlayer::IsPlayingSmartObjectAction() const
 		bResult = pAIProxy->IsPlayingSmartObjectAction();
 
 	return bResult;
+}
+
+void CPlayer::AddXP(int amount)
+{
+	m_currentXP += amount;
+
+	// We can change the limit in devmode for testing
+	auto barrier = gEnv->pConsole->GetCVar("rpg_levelUpXP")->GetIVal();
+
+	// In the event that the player has either exactly levelled up or has more XP than a single level can hold:
+	if(m_currentXP >= barrier)
+	{
+		m_currentLevel++;
+
+		// See how much of the XP overflows into the next level and reset our XP count
+		auto overflow = m_currentXP - barrier;
+		m_currentXP = 0;
+
+		// Recursion allows us to level up more than once from a single allocation of points
+		if(overflow > 0)
+			AddXP(overflow);
+	}
+
+	CryLogAlways("Player now is level %i with %i XP", m_currentLevel, m_currentXP);
 }
 
 void SDeferredFootstepImpulse::DoCollisionTest(const Vec3 &startPos, const Vec3 &dir, float distance, float impulseAmount, IPhysicalEntity *pSkipEntity)

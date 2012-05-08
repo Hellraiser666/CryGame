@@ -952,6 +952,15 @@ public:
 	bool HasHitAssistance();
 	void AnimationControlled(bool activate);
 
+	// Adds XP to the player's total and handles incrementing of the player's level stat.
+	void AddXP(int amount);
+
+	// Returns the player's current level
+	int GetCurrentLevel() { return m_currentLevel; }
+
+	// Returns the player's current XP
+	int GetCurrentXP() { return m_currentXP; }
+
 	struct SStagingParams
 	{
 		SStagingParams() :
@@ -1025,6 +1034,11 @@ private:
 
 
 protected:
+
+	// RPG stats
+	int m_currentXP;
+	int m_currentLevel;
+
 	Vec3		m_modelOffset;
 	float		m_groundElevation;
 	Ang3 		m_viewAnglesOffset;//used for recoil

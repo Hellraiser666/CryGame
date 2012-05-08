@@ -765,6 +765,8 @@ void SCVars::InitCVars(IConsole *pConsole)
 	REGISTER_CVAR(g_hitDeathReactions_streaming, gEnv->bMultiplayer ? eHDRSP_EntityLifespanBased : eHDRSP_ActorsAliveAndNotInPool, 0, "Enables/Disables reactionAnims streaming. 0: Disabled, 1: DBA Registering-based, 2: Entity lifespan-based");
 	REGISTER_CVAR(g_animatorDebug, false, 0, "Animator Debug Info");
 
+	REGISTER_CVAR(rpg_levelUpXP, 100, VF_CHEAT, "Amount of XP required for a level up");
+
 	NetInputChainInitCVars();
 
 	InitAIPerceptionCVars(pConsole);
