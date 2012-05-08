@@ -3341,8 +3341,6 @@ void CPlayer::Revive(bool fromInit)
 
 	if(m_pHitDeathReactions)
 		m_pHitDeathReactions->OnRevive();
-
-	this->SetThirdPerson(true);
 }
 
 void CPlayer::Kill()
@@ -7541,18 +7539,13 @@ void CPlayer::AddXP(int amount)
 	// We can change the limit in devmode for testing
 	auto barrier = gEnv->pConsole->GetCVar("rpg_levelUpXP")->GetIVal();
 
-	// In the event that the player has either exactly levelled up or has more XP than a single level can hold:
-	if(m_currentXP >= barrier)
+	while(m_currentXP >= barrier)
 	{
 		m_currentLevel++;
+		m_currentXP -= barrier;
 
-		// See how much of the XP overflows into the next level and reset our XP count
-		auto overflow = m_currentXP - barrier;
-		m_currentXP = 0;
-
-		// Recursion allows us to level up more than once from a single allocation of points
-		if(overflow > 0)
-			AddXP(overflow);
+		if(m_currentXP < 0)
+			m_currentXP = 0;
 	}
 
 	CryLogAlways("Player now is level %i with %i XP", m_currentLevel, m_currentXP);
