@@ -1,11 +1,5 @@
-CryGame - The stock GameDLL for the CryENGINE3 Free SDK.
+This is just a personal project of mine in which I'm adding some RPG systems to the stock CryENGINE3 GameDLL.
 
-# How do I use this...
+# Licence
 
-## ...as a designer/developer?
-Get the release that corresponds to your engine version from the Downloads page, and extract it into the engine root folder (e.g., C:\Dev\FreeSDK\).
-
-## ...as a programmer?
-Whilst working with the CryENGINE3 SDK, you might implement a cool new feature that could benefit the community at large. After forking this repository and making your changes, you can submit a pull request and then, pending approval of the code, the entire community can use your feature!
-
-That said, please don't submit pull requests with game-specific features; anything added to this repo should be usable in a wide variety of projects.
+Feel free to use my additions in any non-commercial projects; credit for the relevant code would be much appreciated. The majority of the code in this repository belongs to my employer, Crytek GmbH, and their licence terms for the CryENGINE3 Free SDK are available here: http://www.crydev.net/eula/
