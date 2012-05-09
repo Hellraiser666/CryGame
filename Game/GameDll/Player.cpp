@@ -7543,9 +7543,6 @@ void CPlayer::AddXP(int amount)
 	{
 		m_currentLevel++;
 		m_currentXP -= barrier;
-
-		if(m_currentXP < 0)
-			m_currentXP = 0;
 	}
 
 	CryLogAlways("Player now is level %i with %i XP", m_currentLevel, m_currentXP);
