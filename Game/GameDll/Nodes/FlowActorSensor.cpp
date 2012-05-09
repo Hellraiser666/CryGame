@@ -104,6 +104,8 @@ public:
 		EOP_ONLEAVESPECATOR,
 		EOP_ONHEALTHCHANGE,
 		EOP_ONTOGGLETHIRDPERSON,
+		EOP_OnXPGained,
+		EOP_OnLevelUp
 	};
 
 	void GetConfiguration(SFlowNodeConfig &config)

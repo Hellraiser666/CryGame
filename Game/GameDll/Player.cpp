@@ -7538,6 +7538,9 @@ void CPlayer::AddXP(int amount)
 
 	CryLogAlways("Player gained %i XP!", amount);
 
+	// Alert any subscribers that XP has been awarded
+	CALL_PLAYER_EVENT_LISTENERS(OnXPChange(this, amount));
+
 	// We can change the limit in devmode for testing
 	auto barrier = gEnv->pConsole->GetCVar("rpg_levelUpXP")->GetIVal();
 
@@ -7552,6 +7555,9 @@ void CPlayer::AddXP(int amount)
 
 void CPlayer::OnLevelUp()
 {
+	// Alert any subscribers that the player has levelled up
+	CALL_PLAYER_EVENT_LISTENERS(OnLevelChange(this, m_currentLevel));
+
 	CryLogAlways("Player is now level %i with %i XP", m_currentLevel, m_currentXP);
 }
 

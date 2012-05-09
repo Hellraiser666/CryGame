@@ -303,6 +303,8 @@ struct IPlayerEventListener
 	virtual void OnObjectGrabbed(IActor *pActor, bool bIsGrab, EntityId objectId, bool bIsNPC, bool bIsTwoHanded) {};
 	virtual void OnSpectatorModeChanged(IActor *pActor, uint8 mode) {};
 	virtual void OnHealthChange(IActor *pActor, float fHealth) {};
+	virtual void OnXPChange(IActor *pActor, int xp) {};
+	virtual void OnLevelChange(IActor *pActor, int level) {};
 
 protected:
 	virtual ~IPlayerEventListener() {}
@@ -1037,7 +1039,6 @@ private:
 
 
 protected:
-
 	// RPG stats
 	int m_currentXP;
 	int m_currentLevel;

@@ -106,6 +106,12 @@
     <Filter Include="GameToken">
       <UniqueIdentifier>{a374aab6-582f-4301-a4d0-40cffab22626}</UniqueIdentifier>
     </Filter>
+    <Filter Include="RPG Files">
+      <UniqueIdentifier>{1cc9545f-6e50-4dd1-b586-8857674ccbd9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RPG Files\Nodes">
+      <UniqueIdentifier>{fee09a21-c4d3-4111-a5de-553723d89604}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameDll.cpp">
@@ -579,45 +585,6 @@
     <ClCompile Include="ScriptBind_GameRules.cpp">
       <Filter>GameRules</Filter>
     </ClCompile>
-    <ClCompile Include="Nodes\AutoFocusDofNode.cpp">
-      <Filter>Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Nodes\ColorGradientNode.cpp">
-      <Filter>Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Nodes\FeatureTestNode.cpp">
-      <Filter>Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Nodes\FlowActorSensor.cpp">
-      <Filter>Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Nodes\FlowFadeNode.cpp">
-      <Filter>Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Nodes\FlowHitInfoNode.cpp">
-      <Filter>Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Nodes\FlowMinimapNodes.cpp">
-      <Filter>Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="FlowMouseInfo.cpp">
-      <Filter>Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Nodes\FlowPlayerStagingNode.cpp">
-      <Filter>Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="FlowVehicleNodes.cpp">
-      <Filter>Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Nodes\FlowVideoPlayerNodes.cpp">
-      <Filter>Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Nodes\MPNodes.cpp">
-      <Filter>Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Nodes\WeaponNodes.cpp">
-      <Filter>Nodes</Filter>
-    </ClCompile>
     <ClCompile Include="Audio\BattleStatus.cpp">
       <Filter>Audio Files</Filter>
     </ClCompile>
@@ -734,10 +701,52 @@
     <ClCompile Include="HUD\UIGameEvents.cpp">
       <Filter>HUD</Filter>
     </ClCompile>
+    <ClCompile Include="BaseNode.h">
+      <Filter>Nodes</Filter>
+    </ClCompile>
     <ClCompile Include="NewSampleNode.cpp">
       <Filter>Nodes</Filter>
     </ClCompile>
-    <ClCompile Include="BaseNode.h">
+    <ClCompile Include="XPNodes.cpp">
+      <Filter>RPG Files\Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="Nodes\WeaponNodes.cpp">
+      <Filter>Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="Nodes\AutoFocusDofNode.cpp">
+      <Filter>Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="Nodes\ColorGradientNode.cpp">
+      <Filter>Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="Nodes\FeatureTestNode.cpp">
+      <Filter>Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="Nodes\FlowActorSensor.cpp">
+      <Filter>Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="Nodes\FlowFadeNode.cpp">
+      <Filter>Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="Nodes\FlowHitInfoNode.cpp">
+      <Filter>Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="Nodes\FlowMinimapNodes.cpp">
+      <Filter>Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="FlowMouseInfo.cpp">
+      <Filter>Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="Nodes\FlowPlayerStagingNode.cpp">
+      <Filter>Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="FlowVehicleNodes.cpp">
+      <Filter>Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="Nodes\FlowVideoPlayerNodes.cpp">
+      <Filter>Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="Nodes\MPNodes.cpp">
       <Filter>Nodes</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1192,15 +1201,6 @@
     <ClInclude Include="ScriptBind_GameRules.h">
       <Filter>GameRules</Filter>
     </ClInclude>
-    <ClInclude Include="Nodes\ColorGradientNode.h">
-      <Filter>Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="Nodes\FeatureTestNode.h">
-      <Filter>Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="Nodes\G2FlowBaseNode.h">
-      <Filter>Nodes</Filter>
-    </ClInclude>
     <ClInclude Include="Audio\BattleStatus.h">
       <Filter>Audio Files</Filter>
     </ClInclude>
@@ -1329,6 +1329,15 @@
     </ClInclude>
     <ClInclude Include="HUD\IUIGameEventSystem.h">
       <Filter>HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Nodes\ColorGradientNode.h">
+      <Filter>Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="Nodes\FeatureTestNode.h">
+      <Filter>Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="Nodes\G2FlowBaseNode.h">
+      <Filter>Nodes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
