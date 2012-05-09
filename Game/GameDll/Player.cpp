@@ -7536,6 +7536,8 @@ void CPlayer::AddXP(int amount)
 {
 	m_currentXP += amount;
 
+	CryLogAlways("Player gained %i XP!", amount);
+
 	// We can change the limit in devmode for testing
 	auto barrier = gEnv->pConsole->GetCVar("rpg_levelUpXP")->GetIVal();
 
@@ -7543,9 +7545,14 @@ void CPlayer::AddXP(int amount)
 	{
 		m_currentLevel++;
 		m_currentXP -= barrier;
-	}
 
-	CryLogAlways("Player now is level %i with %i XP", m_currentLevel, m_currentXP);
+		this->OnLevelUp();
+	}
+}
+
+void CPlayer::OnLevelUp()
+{
+	CryLogAlways("Player is now level %i with %i XP", m_currentLevel, m_currentXP);
 }
 
 void SDeferredFootstepImpulse::DoCollisionTest(const Vec3 &startPos, const Vec3 &dir, float distance, float impulseAmount, IPhysicalEntity *pSkipEntity)

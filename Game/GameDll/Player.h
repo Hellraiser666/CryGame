@@ -955,6 +955,9 @@ public:
 	// Adds XP to the player's total and handles incrementing of the player's level stat.
 	void AddXP(int amount);
 
+	// Called when the player levels up
+	void OnLevelUp();
+
 	// Returns the player's current level
 	int GetCurrentLevel() { return m_currentLevel; }
 
