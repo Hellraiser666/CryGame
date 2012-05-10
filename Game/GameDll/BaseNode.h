@@ -11,18 +11,18 @@ class CBaseNode : public CFlowBaseNode<eNCT_Instanced>
 {
 protected:
 	// Node data
-	SActivationInfo *m_pActInfo;
+	SActivationInfo m_actInfo;
 
 	// Tests whether a given port is active
 	bool IsActive(int portId)
 	{
-		return IsPortActive(m_pActInfo, portId);
+		return IsPortActive(&m_actInfo, portId);
 	}
 
 	// Activates a void output port
 	void Activate(int portId)
 	{
-		ActivateOutput(m_pActInfo, portId, 0);
+		ActivateOutput(&m_actInfo, portId, 0);
 	}
 
 	// Activates an output port with data
@@ -42,7 +42,7 @@ protected:
 	// Enables and disables sending of regular update events
 	void SetUpdated(bool enabled)
 	{
-		m_pActInfo->pGraph->SetRegularlyUpdated(m_pActInfo->myID, enabled);
+		(&m_actInfo)->pGraph->SetRegularlyUpdated((&m_actInfo)->myID, enabled);
 	}
 
 public:
@@ -63,7 +63,7 @@ public:
 	// TODO: Add more stuff.
 	virtual void ProcessEvent(EFlowEvent event, SActivationInfo *pActInfo)
 	{
-		m_pActInfo = pActInfo;
+		m_actInfo = *pActInfo;
 
 		switch(event)
 		{
