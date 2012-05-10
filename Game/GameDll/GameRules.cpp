@@ -764,7 +764,7 @@ void CGameRules::OnKill(CActor *pActor, EntityId shooterId, const char *weaponCl
 	// If the killer is our player:
 	if(shooterId == CPlayer::GetHero()->GetEntityId())
 	{
-		CPlayer::GetHero()->AddXP(30);
+		CPlayer::GetHero()->AddXP(30, pActor->GetEntityId());
 	}
 
 	ScriptHandle handleEntity(pActor->GetEntityId()), handleShooter(shooterId);

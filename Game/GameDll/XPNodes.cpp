@@ -29,16 +29,14 @@ public:
 
 	virtual void OnActivate()
 	{
-		if(this->IsActive(EIP_Activate))
-			CPlayer::GetHero()->AddXP(this->GetPortValue<int>(EIP_Amount));
+		if(this->IsPortActive(&m_actInfo, EIP_Activate))
+			CPlayer::GetHero()->AddXP(this->GetPortInt(&m_actInfo, EIP_Amount), 0);
 	}
 };
 
-class CXPListenerNode : public CFlowBaseNode<eNCT_Instanced>, public IPlayerEventListener
+class CXPListenerNode : public CBaseNode, public IPlayerXPEventListener
 {
 private:
-	SActivationInfo *m_pActInfo;
-
 	enum EInputs
 	{
 		EIP_Enable,
@@ -48,33 +46,25 @@ private:
 	enum EOutputs
 	{
 		EOP_OnXPChanged,
-		EOP_OnLevelUp
+		EOP_OnLevelUp,
+		EOP_AwardedFrom
 	};
 
 public:
 	CXPListenerNode(SActivationInfo *pActInfo) { }
 
-	// IPlayerEventListener
-	virtual void OnXPChange(IActor *pActor, int xp)
+	// IPlayerXPEventListener
+	virtual void OnXPChange(int xp, EntityId awardedFrom)
 	{
-		this->ActivateOutput(m_pActInfo, EOP_OnXPChanged, xp);
+		this->ActivateOutput(&m_actInfo, EOP_OnXPChanged, xp);
+		this->ActivateOutput(&m_actInfo, EOP_AwardedFrom, awardedFrom);
 	}
 
-	virtual void OnLevelChange(IActor *pActor, int level)
+	virtual void OnLevelChange(int level)
 	{
-		this->ActivateOutput(m_pActInfo, EOP_OnLevelUp, level);
+		this->ActivateOutput(&m_actInfo, EOP_OnLevelUp, level);
 	}
-	// ~IPlayerEventListener
-
-	IFlowNodePtr Clone(SActivationInfo *pActInfo)
-	{
-		return new CXPListenerNode(pActInfo);
-	}
-
-	virtual void GetMemoryUsage(ICrySizer *s) const
-	{
-		s->Add(*this);
-	}
+	// ~IPlayerXPEventListener
 
 	virtual void GetConfiguration(SFlowNodeConfig &config)
 	{
@@ -89,6 +79,7 @@ public:
 		{
 			OutputPortConfig<int>("OnXPGained"),
 			OutputPortConfig<int>("OnLevelUp"),
+			OutputPortConfig<int>("AwardedFrom"),
 			{0}
 		};
 
@@ -97,24 +88,12 @@ public:
 		config.SetCategory(EFLN_APPROVED);
 	}
 
-	virtual void ProcessEvent(EFlowEvent event, SActivationInfo *pActInfo)
+	virtual void OnActivate()
 	{
-		switch(event)
-		{
-			case eFE_Initialize:
-				{
-					m_pActInfo = pActInfo;
-					break;
-				}
-
-			case eFE_Activate:
-				{
-					if(this->IsPortActive(pActInfo, EIP_Enable))
-						CPlayer::GetHero()->RegisterPlayerEventListener(this);
-					if(this->IsPortActive(pActInfo, EIP_Disable))
-						CPlayer::GetHero()->UnregisterPlayerEventListener(this);
-				}
-		}
+		if(this->IsPortActive(&m_actInfo, EIP_Enable))
+			CPlayer::GetHero()->RegisterXPListener(this);
+		else if(this->IsPortActive(&m_actInfo, EIP_Disable))
+			CPlayer::GetHero()->UnregisterXPListener(this);
 	}
 };
 

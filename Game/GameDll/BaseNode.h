@@ -13,6 +13,7 @@ protected:
 	// Node data
 	SActivationInfo m_actInfo;
 
+	/*
 	// Tests whether a given port is active
 	bool IsActive(int portId)
 	{
@@ -29,14 +30,14 @@ protected:
 	template<typename T>
 	void Activate(int portId, T value)
 	{
-		ActivateOutput(m_pActInfo, portId, value);
+		ActivateOutput(&m_actInfo, portId, value);
 	}
 
 	// Gets a port value
 	template<typename T>
 	T GetPortValue(int portId)
 	{
-		return *m_pActInfo->pInputPorts[portId].GetPtr<T>();
+		return ((&m_actInfo)->pInputPorts[portId].GetPtr<T>());
 	}
 
 	// Enables and disables sending of regular update events
@@ -44,6 +45,7 @@ protected:
 	{
 		(&m_actInfo)->pGraph->SetRegularlyUpdated((&m_actInfo)->myID, enabled);
 	}
+	*/
 
 public:
 

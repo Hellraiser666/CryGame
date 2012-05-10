@@ -303,11 +303,15 @@ struct IPlayerEventListener
 	virtual void OnObjectGrabbed(IActor *pActor, bool bIsGrab, EntityId objectId, bool bIsNPC, bool bIsTwoHanded) {};
 	virtual void OnSpectatorModeChanged(IActor *pActor, uint8 mode) {};
 	virtual void OnHealthChange(IActor *pActor, float fHealth) {};
-	virtual void OnXPChange(IActor *pActor, int xp) {};
-	virtual void OnLevelChange(IActor *pActor, int level) {};
 
 protected:
 	virtual ~IPlayerEventListener() {}
+};
+
+struct IPlayerXPEventListener
+{
+	virtual void OnXPChange(int xp, EntityId awardedFrom) { }
+	virtual void OnLevelChange(int level) { }
 };
 
 class CPlayerView;
@@ -955,7 +959,7 @@ public:
 	void AnimationControlled(bool activate);
 
 	// Adds XP to the player's total and handles incrementing of the player's level stat.
-	void AddXP(int amount);
+	void AddXP(int amount, EntityId awardedFrom);
 
 	// Called when the player levels up
 	void OnLevelUp();
@@ -965,6 +969,9 @@ public:
 
 	// Returns the player's current XP
 	int GetCurrentXP() { return m_currentXP; }
+
+	void RegisterXPListener(IPlayerXPEventListener* listener);
+	void UnregisterXPListener(IPlayerXPEventListener* listener);
 
 	struct SStagingParams
 	{
@@ -1025,6 +1032,8 @@ private:
 
 	typedef std::list<IPlayerEventListener *> TPlayerEventListeners;
 	TPlayerEventListeners m_playerEventListeners;
+
+	std::list<IPlayerXPEventListener *> m_playerXPListeners;
 
 	float m_lastReqTurnSpeed;
 

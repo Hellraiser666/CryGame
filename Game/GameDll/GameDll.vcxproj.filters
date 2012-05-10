@@ -704,9 +704,6 @@
     <ClCompile Include="BaseNode.h">
       <Filter>Nodes</Filter>
     </ClCompile>
-    <ClCompile Include="NewSampleNode.cpp">
-      <Filter>Nodes</Filter>
-    </ClCompile>
     <ClCompile Include="XPNodes.cpp">
       <Filter>RPG Files\Nodes</Filter>
     </ClCompile>

@@ -1673,6 +1673,16 @@ void CPlayer::UnregisterPlayerEventListener(IPlayerEventListener *pPlayerEventLi
 	stl::find_and_erase(m_playerEventListeners, pPlayerEventListener);
 }
 
+void CPlayer::RegisterXPListener(IPlayerXPEventListener *xpListener)
+{
+	stl::push_back_unique(m_playerXPListeners, xpListener);
+}
+
+void CPlayer::UnregisterXPListener(IPlayerXPEventListener *xpListener)
+{
+	stl::find_and_erase(m_playerXPListeners, xpListener);
+}
+
 IEntity *CPlayer::LinkToVehicle(EntityId vehicleId)
 {
 	IEntity *pLinkedEntity = CActor::LinkToVehicle(vehicleId);
@@ -7532,16 +7542,16 @@ bool CPlayer::IsPlayingSmartObjectAction() const
 	return bResult;
 }
 
-void CPlayer::AddXP(int amount)
+void CPlayer::AddXP(int amount, EntityId awardedFrom)
 {
 	m_currentXP += amount;
 
 	CryLogAlways("Player gained %i XP!", amount);
 
 	// Alert any subscribers that XP has been awarded
-	for each(auto sub in m_playerEventListeners)
+	for each(auto sub in m_playerXPListeners)
 	{
-		sub->OnXPChange(this, amount);
+		sub->OnXPChange(amount, awardedFrom);
 	}
 
 	// We can change the limit in devmode for testing
@@ -7559,9 +7569,9 @@ void CPlayer::AddXP(int amount)
 void CPlayer::OnLevelUp()
 {
 	// Alert any subscribers that the player has levelled up
-	for each(auto sub in m_playerEventListeners)
+	for each(auto sub in m_playerXPListeners)
 	{
-		sub->OnLevelChange(this, m_currentLevel);
+		sub->OnLevelChange(m_currentLevel);
 	}
 
 	CryLogAlways("Player is now level %i with %i XP", m_currentLevel, m_currentXP);
