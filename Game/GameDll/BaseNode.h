@@ -36,7 +36,7 @@ protected:
 	template<typename T>
 	T GetPortValue(int portId)
 	{
-		return ((&m_actInfo)->pInputPorts[portId].GetPtr<T>());
+		return *((&m_actInfo)->pInputPorts[portId].GetPtr<T>());
 	}
 
 	// Enables and disables sending of regular update events
