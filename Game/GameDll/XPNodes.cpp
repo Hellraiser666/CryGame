@@ -29,7 +29,7 @@ public:
 
 	virtual void OnActivate()
 	{
-		if(this->IsPortActive(&m_actInfo, EIP_Activate))
+		if(IsActive(EIP_Activate))
 			CPlayer::GetHero()->AddXP(this->GetPortInt(&m_actInfo, EIP_Amount), 0);
 	}
 };
@@ -56,13 +56,13 @@ public:
 	// IPlayerXPEventListener
 	virtual void OnXPChange(int xp, EntityId awardedFrom)
 	{
-		this->ActivateOutput(&m_actInfo, EOP_OnXPChanged, xp);
-		this->ActivateOutput(&m_actInfo, EOP_AwardedFrom, awardedFrom);
+		Activate(EOP_AwardedFrom, awardedFrom);
+		Activate(EOP_OnXPChanged, xp);
 	}
 
 	virtual void OnLevelChange(int level)
 	{
-		this->ActivateOutput(&m_actInfo, EOP_OnLevelUp, level);
+		Activate(EOP_OnLevelUp, level);
 	}
 	// ~IPlayerXPEventListener
 
@@ -90,9 +90,9 @@ public:
 
 	virtual void OnActivate()
 	{
-		if(this->IsPortActive(&m_actInfo, EIP_Enable))
+		if(IsActive(EIP_Enable))
 			CPlayer::GetHero()->RegisterXPListener(this);
-		else if(this->IsPortActive(&m_actInfo, EIP_Disable))
+		else if(IsActive(EIP_Disable))
 			CPlayer::GetHero()->UnregisterXPListener(this);
 	}
 };

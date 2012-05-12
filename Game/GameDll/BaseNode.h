@@ -13,7 +13,6 @@ protected:
 	// Node data
 	SActivationInfo m_actInfo;
 
-	/*
 	// Tests whether a given port is active
 	bool IsActive(int portId)
 	{
@@ -45,7 +44,6 @@ protected:
 	{
 		(&m_actInfo)->pGraph->SetRegularlyUpdated((&m_actInfo)->myID, enabled);
 	}
-	*/
 
 public:
 
@@ -69,26 +67,27 @@ public:
 
 		switch(event)
 		{
-		case eFE_Initialize:
-		{
-			OnInit();
-		}
-		break;
+			case eFE_Initialize:
+			{
+				OnInit();
+			}
+			break;
 
-		case eFE_Activate:
-		{
-			OnActivate();
-		}
-		break;
+			case eFE_Activate:
+			{
+				OnActivate();
+			}
+			break;
 
-		case eFE_Update:
-		{
-			OnUpdate();
-		}
-		break;
+			case eFE_Update:
+			{
+				OnUpdate();
+			}
+			break;
 		}
 	}
 
+	// Called when initialisation events are sent
 	virtual void OnInit() { }
 
 	// Called when an input port is activated
