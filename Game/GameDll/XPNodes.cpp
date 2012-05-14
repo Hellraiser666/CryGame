@@ -23,6 +23,7 @@ public:
 			{0}
 		};
 
+		config.nFlags |= EFLN_TARGET_ENTITY;
 		config.pInputPorts = inputs;
 		config.SetCategory(EFLN_APPROVED);
 	}
@@ -30,7 +31,7 @@ public:
 	virtual void OnActivate()
 	{
 		if(IsActive(EIP_Activate))
-			CPlayer::GetHero()->AddXP(this->GetPortInt(&m_actInfo, EIP_Amount), 0);
+			CPlayer::GetHero()->AddXP(this->GetPortInt(&m_actInfo, EIP_Amount), GetTargetEntityId());
 	}
 };
 
@@ -79,7 +80,7 @@ public:
 		{
 			OutputPortConfig<int>("OnXPGained"),
 			OutputPortConfig<int>("OnLevelUp"),
-			OutputPortConfig<int>("AwardedFrom"),
+			OutputPortConfig<EntityId>("AwardedFrom"),
 			{0}
 		};
 
