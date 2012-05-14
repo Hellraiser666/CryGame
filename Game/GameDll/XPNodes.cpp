@@ -31,7 +31,7 @@ public:
 	virtual void OnActivate()
 	{
 		if(IsActive(EIP_Activate))
-			CPlayer::GetHero()->AddXP(this->GetPortInt(&m_actInfo, EIP_Amount), GetTargetEntityId());
+			CPlayer::GetHero()->AddXP(GetPortValue<int>(EIP_Amount), GetTargetEntityId());
 	}
 };
 
