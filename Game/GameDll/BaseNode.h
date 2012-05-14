@@ -53,7 +53,8 @@ protected:
 
 	EntityId GetTargetEntityId()
 	{
-		return GetTargetEntity() ? GetTargetEntity()->GetId() : 0;
+		auto target = GetTargetEntity();
+		return target ? target->GetId() : 0;
 	}
 
 public:
