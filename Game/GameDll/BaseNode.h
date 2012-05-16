@@ -12,7 +12,6 @@ class CBaseNode : public CFlowBaseNode<eNCT_Instanced>
 protected:
 	// Node data
 	SActivationInfo m_actInfo;
-	EntityId m_targetEntityId;
 
 	// Tests whether a given port is active
 	bool IsActive(int portId)
@@ -37,18 +36,18 @@ protected:
 	template<typename T>
 	T GetPortValue(int portId)
 	{
-		return *((&m_actInfo)->pInputPorts[portId].GetPtr<T>());
+		return *m_actInfo.pInputPorts[portId].GetPtr<T>();
 	}
 
 	// Enables and disables sending of regular update events
 	void SetUpdated(bool enabled)
 	{
-		(&m_actInfo)->pGraph->SetRegularlyUpdated((&m_actInfo)->myID, enabled);
+		m_actInfo.pGraph->SetRegularlyUpdated(m_actInfo.myID, enabled);
 	}
 
 	IEntity *GetTargetEntity()
 	{
-		return gEnv->pEntitySystem->GetEntity(m_targetEntityId);
+		return m_actInfo.pEntity;
 	}
 
 	EntityId GetTargetEntityId()
@@ -58,7 +57,7 @@ protected:
 	}
 
 public:
-	// Should be overriden if you need to register additional resources
+	// Should be overridden if you need to register additional resources
 	virtual void GetMemoryUsage(ICrySizer *s) const
 	{
 		s->Add(*this);
@@ -81,12 +80,6 @@ public:
 			case eFE_Initialize:
 			{
 				OnInit();
-			}
-			break;
-
-			case eFE_SetEntityId:
-			{
-				m_targetEntityId = pActInfo->pEntity ? pActInfo->pEntity->GetId() : 0;
 			}
 			break;
 
