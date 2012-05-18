@@ -112,6 +112,9 @@
     <Filter Include="RPG Files\Nodes">
       <UniqueIdentifier>{fee09a21-c4d3-4111-a5de-553723d89604}</UniqueIdentifier>
     </Filter>
+    <Filter Include="RPG Files\ScriptBinds">
+      <UniqueIdentifier>{71ecadfd-bdbf-4126-bce0-620cabc6958a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameDll.cpp">
@@ -746,6 +749,9 @@
     <ClCompile Include="Nodes\MPNodes.cpp">
       <Filter>Nodes</Filter>
     </ClCompile>
+    <ClCompile Include="ScriptBind_RPG.cpp">
+      <Filter>RPG Files\ScriptBinds</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameStartup.h">
@@ -1335,6 +1341,9 @@
     </ClInclude>
     <ClInclude Include="Nodes\G2FlowBaseNode.h">
       <Filter>Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptBind_RPG.h">
+      <Filter>RPG Files\ScriptBinds</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

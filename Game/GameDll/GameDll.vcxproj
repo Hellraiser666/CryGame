@@ -500,6 +500,7 @@
     <ClCompile Include="HUD\UIGameEvents.cpp" />
     <ClCompile Include="BaseNode.h" />
     <ClCompile Include="ScriptBind_Actor.cpp" />
+    <ClCompile Include="ScriptBind_RPG.cpp" />
     <ClCompile Include="Shark.cpp" />
     <ClCompile Include="SharkMovementController.cpp" />
     <ClCompile Include="NetPlayerInput.cpp" />
@@ -729,6 +730,7 @@
     <ClInclude Include="HUD\IUIGameEventSystem.h" />
     <ClInclude Include="HUD\UIGameEvents.h" />
     <ClInclude Include="ScriptBind_Actor.h" />
+    <ClInclude Include="ScriptBind_RPG.h" />
     <ClInclude Include="Shark.h" />
     <ClInclude Include="SharkMovementController.h" />
     <ClInclude Include="IPlayerInput.h" />
